@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,12 +39,8 @@ def sample_create_feature():
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
-    feature = aiplatform_v1beta1.Feature()
-    feature.value_type = "BYTES"
-
     request = aiplatform_v1beta1.CreateFeatureRequest(
         parent="parent_value",
-        feature=feature,
         feature_id="feature_id_value",
     )
 

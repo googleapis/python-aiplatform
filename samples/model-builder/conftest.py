@@ -465,6 +465,19 @@ def mock_create_tensorboard(mock_tensorboard):
 
 
 @pytest.fixture
+def mock_get_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform, "Tensorboard") as mock_get_tensorboard:
+        mock_get_tensorboard.return_value = mock_tensorboard
+        yield mock_get_tensorboard
+
+
+@pytest.fixture
+def mock_tensorboard_delete(mock_tensorboard):
+    with patch.object(mock_tensorboard, "delete") as mock_tensorboard_delete:
+        yield mock_tensorboard_delete
+
+
+@pytest.fixture
 def mock_tensorboard_uploader_onetime():
     with patch.object(aiplatform, "upload_tb_log") as mock_tensorboard_uploader_onetime:
         mock_tensorboard_uploader_onetime.return_value = None
@@ -1191,3 +1204,75 @@ def mock_autolog():
     with patch.object(aiplatform, "autolog") as mock_autolog_method:
         mock_autolog_method.return_value = None
         yield mock_autolog_method
+
+
+"""
+----------------------------------------------------------------------------
+Vector Search Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_index():
+    mock = MagicMock(aiplatform.MatchingEngineIndex)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint():
+    mock = MagicMock(aiplatform.MatchingEngineIndexEndpoint)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_init(mock_index):
+    with patch.object(aiplatform, "MatchingEngineIndex") as mock:
+        mock.return_value = mock_index
+        yield mock
+
+
+@pytest.fixture
+def mock_index_upsert_datapoints(mock_index):
+    with patch.object(mock_index, "upsert_datapoints") as mock_upsert:
+        mock_upsert.return_value = None
+        yield mock_upsert
+
+
+@pytest.fixture
+def mock_index_endpoint_init(mock_index_endpoint):
+    with patch.object(aiplatform, "MatchingEngineIndexEndpoint") as mock:
+        mock.return_value = mock_index_endpoint
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_find_neighbors(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "find_neighbors") as mock_find_neighbors:
+        mock_find_neighbors.return_value = None
+        yield mock_find_neighbors
+
+
+@pytest.fixture
+def mock_index_create_tree_ah_index(mock_index):
+    with patch.object(
+        aiplatform.MatchingEngineIndex, "create_tree_ah_index"
+    ) as mock_create_tree_ah_index:
+        mock_create_tree_ah_index.return_value = mock_index
+        yield mock_create_tree_ah_index
+
+
+@pytest.fixture
+def mock_index_endpoint_create(mock_index_endpoint):
+    with patch.object(
+        aiplatform.MatchingEngineIndexEndpoint, "create"
+    ) as mock_index_endpoint_create:
+        mock_index_endpoint_create.return_value = mock_index_endpoint
+        yield mock_index_endpoint_create
+
+
+@pytest.fixture
+def mock_index_endpoint_deploy_index(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "deploy_index") as mock_deploy_index:
+        mock_deploy_index.return_value = mock_index_endpoint
+        yield mock_deploy_index

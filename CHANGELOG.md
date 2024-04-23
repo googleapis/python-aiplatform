@@ -1,5 +1,687 @@
 # Changelog
 
+## [1.48.0](https://github.com/googleapis/python-aiplatform/compare/v1.47.0...v1.48.0) (2024-04-17)
+
+
+### Features
+
+* Add support for reading requirements from a file. ([80db7a0](https://github.com/googleapis/python-aiplatform/commit/80db7a0960b80ae0d78182687c1e99db696943f7))
+* Adding tpu_topology to Vertex SDK ([423c764](https://github.com/googleapis/python-aiplatform/commit/423c7646185b4df19985fb41f5776557d572dd9f))
+* Enable continuous upload for profile logs. ([f05924d](https://github.com/googleapis/python-aiplatform/commit/f05924d6bbd9e609f4ca98cdef7ab5a504672e58))
+* GenAI - Added the `GenerationResponse.prompt_feedback` property ([efd5a72](https://github.com/googleapis/python-aiplatform/commit/efd5a72c1856a6767bdbbba9ea83f366518bdac2))
+* GenAI - Added the `GenerationResponse.usage_metadata` property ([0654c35](https://github.com/googleapis/python-aiplatform/commit/0654c3504425d9f9bba6e3be919026229b616ec0))
+* Support `NOT_EQUAL` for `MatchingEngineIndexEndpoint` `numeric_restricts`. ([aa918e3](https://github.com/googleapis/python-aiplatform/commit/aa918e31fcc40878e9f29affa02a4527d90188aa))
+* Support referenced models in SDK. ([c9b6b8b](https://github.com/googleapis/python-aiplatform/commit/c9b6b8b3433854afd95a27065a052393768ceca8))
+
+
+### Bug Fixes
+
+* Add validation check for extra_packages when creating a reasoning engine. ([255dabc](https://github.com/googleapis/python-aiplatform/commit/255dabc77c647ef3ac33a10b06b3a36db122118a))
+* Add validation for langchain tools. ([a821d50](https://github.com/googleapis/python-aiplatform/commit/a821d50724da7136c90abd157a7086d6571f2c30))
+* Fixed the vertexai.init partial initialization issues ([636a654](https://github.com/googleapis/python-aiplatform/commit/636a654590919048f84baf343d291711f28eb03e))
+* GenAI - Workaround for streaming when content role is missing in service responses ([fa35b91](https://github.com/googleapis/python-aiplatform/commit/fa35b9169677c62a5f0fa746dc9db9a5296f44a3))
+
+
+### Documentation
+
+* Add Reasoning Engine reference documentation ([496fc4b](https://github.com/googleapis/python-aiplatform/commit/496fc4b96768c872c9e7312bacf9989ea6e979f5))
+* GenAI - Add Rapid Evaluation SDK reference documentation ([40b728b](https://github.com/googleapis/python-aiplatform/commit/40b728b28210f2bc57374c6c6d507cf3fa0be038))
+
+## [1.47.0](https://github.com/googleapis/python-aiplatform/compare/v1.46.0...v1.47.0) (2024-04-06)
+
+
+### Features
+
+* Add display experiment button for tuning in Ipython environments ([9bb687c](https://github.com/googleapis/python-aiplatform/commit/9bb687c20b03ea7227908e09831fb1a13ac3a970))
+* Add Persistent Resource ID parameter to Custom Job form_local_script, run, and submit methods. ([f5be0b5](https://github.com/googleapis/python-aiplatform/commit/f5be0b5652b0366eb6e823409ba1cb134e4b7b7c))
+* Add Persistent Resource Id parameter to Custom Training Job run and submit methods. ([f428006](https://github.com/googleapis/python-aiplatform/commit/f428006507e9b053a2121089e89fc54aedd3550a))
+* Added GA support for PersistentResource management ([98a07dd](https://github.com/googleapis/python-aiplatform/commit/98a07dd614063cb6a4c55c9024893874d3c95a1f))
+* Added GA support for running Custom and Hp tuning jobs on Persistent Resources ([35ecbac](https://github.com/googleapis/python-aiplatform/commit/35ecbac53df299b681e835648a9884a091f5d4d8))
+* Added the `Experiment.dashboard_url` property ([c8eec21](https://github.com/googleapis/python-aiplatform/commit/c8eec21d6f6e6f016669a18e19cebd9de1f0a7f9))
+* GenAI - Added support for `SafetySetting.method` (probability or severity) ([317ab8f](https://github.com/googleapis/python-aiplatform/commit/317ab8f7499b345c5a73365b95e9ba91c1adfecf))
+* GenAI - Added support for supervised fine-tuning ([036d2d0](https://github.com/googleapis/python-aiplatform/commit/036d2d0306e5190c972d2c4e5dd34257ea8fad6d))
+* GenAI - Added support for system instructions ([4990eb6](https://github.com/googleapis/python-aiplatform/commit/4990eb6ade736c85c08455ca0ef9f7c9515662fd))
+* GenAI - Forced function calling feature ([806ef9f](https://github.com/googleapis/python-aiplatform/commit/806ef9fe860c51ee99481cb7f209723a22a1d369))
+* Initial template for Langchain on Vertex. ([0752a29](https://github.com/googleapis/python-aiplatform/commit/0752a29ec69280373519406be8528682f1c547ec))
+* LLM - Add RLHF-tuning support for `text-bison@002` ([1f27c3e](https://github.com/googleapis/python-aiplatform/commit/1f27c3eb5bb95b04f5e1708d631309c928df932b))
+* Vertex AI Extension SDK Public Preview ([137b5e1](https://github.com/googleapis/python-aiplatform/commit/137b5e11ab40abfd4f53c61544989d99770dabeb))
+* Vertex AI Reasoning Engine SDK Public Preview ([6aaa5d0](https://github.com/googleapis/python-aiplatform/commit/6aaa5d01c7e675bb1a553fd6780b035e3513d58e))
+* Vertex Rapid Evaluation SDK and Prompt Template for Vertex Prompt Management Public Preview ([8c6ddf5](https://github.com/googleapis/python-aiplatform/commit/8c6ddf54adf91e2fbf00034fef413ccfde3769d6))
+
+
+### Bug Fixes
+
+* GenAI - Fixed response validation error during streaming ([c881998](https://github.com/googleapis/python-aiplatform/commit/c881998c7fb54289efc5ae6f5431b631b3d6c11c))
+* GenAI - Fixed the `GenerativeModel`'s handling of tuned models from different region ([bf33fb3](https://github.com/googleapis/python-aiplatform/commit/bf33fb3e0053898cf8ba919180ee246ea5ad1cdb))
+* GenAI - Fixed the TuningJob dashboard URL ([5367fbb](https://github.com/googleapis/python-aiplatform/commit/5367fbb1125debd16357e4815c704105209fca2a))
+* Reinstate persistent resource preview class and tests ([765d60d](https://github.com/googleapis/python-aiplatform/commit/765d60da57b3e3c947b121667f0a2a2cb93b88f3))
+
+
+### Documentation
+
+* Add run custom job on persistent resource sample. ([53fc845](https://github.com/googleapis/python-aiplatform/commit/53fc8455145c9fb7953a6e7dd6e85aab01055ad2))
+* Add run custom job on persistent resource sample. ([31100c6](https://github.com/googleapis/python-aiplatform/commit/31100c6dd6d7d4b0b588ed7f008e7661835b19d2))
+
+## [1.46.0](https://github.com/googleapis/python-aiplatform/compare/v1.45.0...v1.46.0) (2024-03-30)
+
+
+### Features
+
+* GenAI - Automatic Function Calling feature ([eef84c6](https://github.com/googleapis/python-aiplatform/commit/eef84c6a694ee848d19d8eab8f1a4940e50d4b0d))
+* Python SDK for Vertex Feature Store. ([5015d25](https://github.com/googleapis/python-aiplatform/commit/5015d25c5efdb9ba0a01bc60441f7eb8d5fddc52))
+
+## [1.45.0](https://github.com/googleapis/python-aiplatform/compare/v1.44.0...v1.45.0) (2024-03-28)
+
+
+### Features
+
+* Add an arg to turn off Ray metrics collection during cluster creation ([e33d11f](https://github.com/googleapis/python-aiplatform/commit/e33d11fa02eb721a6fe09bbd7c2e6a9954dbfe98))
+* Add Batch Delete and Batch Cancel Pipeline Jobs and unit tests. ([cb495e7](https://github.com/googleapis/python-aiplatform/commit/cb495e740ace7b2ab9935188ca9f7d6d3bf86d2a))
+* Add display model evaluation button for Ipython environments ([181dc7a](https://github.com/googleapis/python-aiplatform/commit/181dc7a575b0cefc1be0ea9b06cb4f30a7a0da0f))
+* Add safety filter levels, watermark support and person generation support for Imagen 2 ([0c498c5](https://github.com/googleapis/python-aiplatform/commit/0c498c5e4226b2a16adb0ff3cf7e6698a05aa5c7))
+* Add safety filter levels, watermark support and person generation support for Imagen 2 ([e2efdbe](https://github.com/googleapis/python-aiplatform/commit/e2efdbed324bd201f9793c43ca2167e8ccbbe426))
+* Add support for output_dimensionality parameter through get_embeddings. ([b1cab3f](https://github.com/googleapis/python-aiplatform/commit/b1cab3fca34e7a1969c1828348bcbd0eefe42cb8))
+* Add support for task types (TASK_QUESTION_ANSWERING, TASK_FACT_VERIFICATION) through get_embeddings. ([9ec4590](https://github.com/googleapis/python-aiplatform/commit/9ec459014612116e202c2dddda5f30716ff1a7f8))
+* Add v1beta1 service clients for reasoning engine ([13ec7e0](https://github.com/googleapis/python-aiplatform/commit/13ec7e0c63649b7c9a7a0eb4a5d36afeae1ffadb))
+* GenAI - Support generating JSON Schema from Python function ([be4922a](https://github.com/googleapis/python-aiplatform/commit/be4922adbfa42a91d67e46f0b705e62d794cb8c3))
+* Improve get_experiment_df execution speed ([2e56acc](https://github.com/googleapis/python-aiplatform/commit/2e56acc7e5627c4ca46e84febaecf5b791f67462))
+* Ray on Vertex enables XGBoost register model with custom version using pre-built container ([e45ef96](https://github.com/googleapis/python-aiplatform/commit/e45ef96de9f008a5c5556bf119a75403085d8dcb))
+* Support `accelerator_type` in RLHF tuning ([e51c977](https://github.com/googleapis/python-aiplatform/commit/e51c97738e905dda1d726cd778d62647b096a3c8))
+
+
+### Bug Fixes
+
+* Fix failing get_experiments_df test. ([767712e](https://github.com/googleapis/python-aiplatform/commit/767712e9caf4bec8260c57668654bcd257f1c831))
+* GenAI - Capture content blocked case when validating responses ([f0086df](https://github.com/googleapis/python-aiplatform/commit/f0086dfd76c138443e50bc18ae49b232905468f3))
+* LLM - Fixed the `InlineContext` grounding source ([6f59100](https://github.com/googleapis/python-aiplatform/commit/6f591001e834dfc3e49efd988b4faf2b12b1f2d8))
+* Made `Endpoint.raw_predict` thread-safe by setting `authorized_session` last ([c72c1ef](https://github.com/googleapis/python-aiplatform/commit/c72c1ef4c58c79fd7a0ee4064de7f2f4a4257f36))
+
+## [1.44.0](https://github.com/googleapis/python-aiplatform/compare/v1.43.0...v1.44.0) (2024-03-14)
+
+
+### Features
+
+* Add custom tool context manager for telemetry ([b30f5a6](https://github.com/googleapis/python-aiplatform/commit/b30f5a69226310b11a7979d19e63e3b0aa873737))
+* Add display experiment button for Ipython environments ([0b33bdd](https://github.com/googleapis/python-aiplatform/commit/0b33bdd873ab0f3195e4dc6389554a3cac2c3433))
+* Allow module_name to be specified with the base logger. ([c01df66](https://github.com/googleapis/python-aiplatform/commit/c01df6681e5f94d74dcc5fd85a9ea4af4b9dcea6))
+* Enable Ray cluster creation with custom_image for each Resource ([f90c9cc](https://github.com/googleapis/python-aiplatform/commit/f90c9cc0f96eb8108d0d55ffb7ddb51fdc60407d))
+* GenAI - Added `function_calls` shortcut property to `Candidate` class. ([d6490ff](https://github.com/googleapis/python-aiplatform/commit/d6490ffdf28d2f1916d517c223e35537611b1073))
+* LLM - Added support for the `max_context_length` tuning parameter ([e5daae9](https://github.com/googleapis/python-aiplatform/commit/e5daae92125eaada897a8de4f8de8f5da59af6db))
+* Support `shard_size` for `MatchingEngineIndex` create index. ([6dbf7d3](https://github.com/googleapis/python-aiplatform/commit/6dbf7d3f9f74d08b80a3bfb85525ec6922b370fc))
+* Use colab enterprise enviroment variables to infer project_id and region ([5baf5f8](https://github.com/googleapis/python-aiplatform/commit/5baf5f83494373049904bedc898e5b72303bccbd))
+
+
+### Bug Fixes
+
+* Batch read tensorboard time series data to allow reading more than 20 time series metrics. ([6e3eac2](https://github.com/googleapis/python-aiplatform/commit/6e3eac26ed40b1927541b71b99758834a89fa64b))
+* GenAI - Fixed `get_tuned_model` deploying the model every time ([e1c7870](https://github.com/googleapis/python-aiplatform/commit/e1c7870aabe4fac5537589f49484509b3faf3f5b))
+* GenAI - Improved `from_dict` methods for content types (`GenerationResponse`, `Candidate`, `Content`, `Part`) ([613ce69](https://github.com/googleapis/python-aiplatform/commit/613ce690d8224b85da5406507c4df75a35493b0d))
+* Improve import time by moving TensorFlow to lazy import ([f294ba8](https://github.com/googleapis/python-aiplatform/commit/f294ba8b762a88b77a623b86145302c976fdabc4))
+* LVM - Added support for GCS `storage.googleapis.com` URL import in `vision_models.Image` ([2690e72](https://github.com/googleapis/python-aiplatform/commit/2690e7223535d5758ed0e13075aebdde41a678f3))
+* Raise AttributeError for accessing non-existent fields of a proto. ([b91edf5](https://github.com/googleapis/python-aiplatform/commit/b91edf52e2b993c3301a419ad89b473c31c60cc3))
+
+
+### Documentation
+
+* Fixed the documentation generation ([63ad1bf](https://github.com/googleapis/python-aiplatform/commit/63ad1bf9e365d2f10b91e2fd036e3b7d937336c0))
+* GenAI - Added the GA classes to the documentation ([9eb5a52](https://github.com/googleapis/python-aiplatform/commit/9eb5a52c2f7f0c19a2035831181ad69f98bc3df5))
+
+## [1.43.0](https://github.com/googleapis/python-aiplatform/compare/v1.42.1...v1.43.0) (2024-02-29)
+
+
+### Features
+
+* Add `update_mask` to `MatchingEngineIndex` `upsert_datapoints()` to support dynamic metadata update. ([81f6a25](https://github.com/googleapis/python-aiplatform/commit/81f6a25ab6600b325ff4e7b0f19332f13080bee9))
+* Add Ray on Vertex BigQuery read/write support for Ray 2.9 ([e048e3a](https://github.com/googleapis/python-aiplatform/commit/e048e3a77834ce21a221dab75c890b651b9f3ce0))
+* Add read_bigquery and write_bigquery wrappers for Ray on Vertex ([4739118](https://github.com/googleapis/python-aiplatform/commit/47391182a2b7edf0c8cb2cb470e649bf5486faf4))
+* Add transport override to enable the use of REST instead of GRPC ([6ab4084](https://github.com/googleapis/python-aiplatform/commit/6ab4084aa549b1a28a4990f8b59dead510d7b296))
+* Enable Ray cluster creation and registering TensorFlow checkpoint to Vertex with Ray version 2.9 ([ff148cd](https://github.com/googleapis/python-aiplatform/commit/ff148cd1f836e599c99f2c177abb085d08827375))
+* LLM - Add support for batch prediction to `CodeGenerationModel` (`code-bison`) ([fbf2f7c](https://github.com/googleapis/python-aiplatform/commit/fbf2f7c3bf5b462e498a165017217d057a5f5bae))
+* Support custom `timeout` for `MatchingEngineIndex` and `MatchingEngineIndexEndpoint` APIs. ([09d1946](https://github.com/googleapis/python-aiplatform/commit/09d1946711fb022bf584137299ed187bf885cb23))
+* Update ray extras installation in setup.py for Ray 2.9.3 ([d947304](https://github.com/googleapis/python-aiplatform/commit/d947304314db5f683b154656551a8fd5b6e4c033))
+
+
+### Bug Fixes
+
+* Allow destination directory to exist before we copy. ([0b55762](https://github.com/googleapis/python-aiplatform/commit/0b55762a8f762b1b46a8d0dcd93381d7870e5200))
+* LVM - Fixed `VideoSegmentConfig` in Multimodal Embeddings API call ([665e78c](https://github.com/googleapis/python-aiplatform/commit/665e78c1d037fcae4c17205ffc280c4b88aea627))
+
+
+### Documentation
+
+* Update transport docstrings to include that REST is in preview ([a442866](https://github.com/googleapis/python-aiplatform/commit/a442866d2df30ea534d06da10afd496b48114f4c))
+
+## [1.42.1](https://github.com/googleapis/python-aiplatform/compare/v1.42.0...v1.42.1) (2024-02-15)
+
+
+### Bug Fixes
+
+* Handle case when no metadata is returned from model.predict ([59e2bca](https://github.com/googleapis/python-aiplatform/commit/59e2bca8fc9773f0610662d8bf426578b3015c41))
+* Remove runtime dependency of setuptools ([07c2a25](https://github.com/googleapis/python-aiplatform/commit/07c2a25225cf163584fc38616ddb6c1e560ac288))
+
+
+### Documentation
+
+* GenAI - Docs - Added quickstart link and minimum SDK version ([cf6ab21](https://github.com/googleapis/python-aiplatform/commit/cf6ab218035e4712c0202330014cb3b6c241db5b))
+* GenAI - Updated the README for GA ([cfd96d8](https://github.com/googleapis/python-aiplatform/commit/cfd96d804e66befe84c2eb6d259aa50faca2b5db))
+
+## [1.42.0](https://github.com/googleapis/python-aiplatform/compare/v1.41.0...v1.42.0) (2024-02-15)
+
+
+### Features
+
+* Add Candidate.grounding_metadata ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add GoogleSearchRetrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add metadata in model.predict output for LLMs ([4661e58](https://github.com/googleapis/python-aiplatform/commit/4661e581ea957e71c643afc6bbf3b2e729b38bc8))
+* Add Retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add Tool.google_search_retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add Tool.retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add VertexAiSearch ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* GenAI - Added `to_dict()` methods to response and content classes ([a78748e](https://github.com/googleapis/python-aiplatform/commit/a78748e5cbe7b86ddfb1a36a4c0e5be8f66b27c3))
+* GenAI - Added support for Grounding ([0c3e294](https://github.com/googleapis/python-aiplatform/commit/0c3e29421434fe36d0f583f9860ac2e3f60e0329))
+* GenAI - Added the `GenerativeModel.start_chat(response_validation: bool = True)` parameter ([94f7cd9](https://github.com/googleapis/python-aiplatform/commit/94f7cd9e454d593e2544f8d93771d3093ffc18ae))
+* GenAI - GAPIC - Added support for Grounding ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* GenAI - Release the GenerativeModel to GA ([c7e3f07](https://github.com/googleapis/python-aiplatform/commit/c7e3f076f91f002ac5a889d8942a153e57e0147c))
+* LLM - Add newly supported model `text-bison@002`, update pipeline template version and prediction row limit for pipeline-based LLM Evaluation SDK ([35e57b3](https://github.com/googleapis/python-aiplatform/commit/35e57b32e70902fc90ee5a39e9001d3fa4150c50))
+* LVM - Add GCS URI support for Imagen Models (`imagetext`, `imagegeneration`) ([4109ea8](https://github.com/googleapis/python-aiplatform/commit/4109ea8d8ad456d90c0ca476e2147e9543e15b43))
+* LVM - Added support for Images from GCS uri for multimodal embeddings ([90d95d7](https://github.com/googleapis/python-aiplatform/commit/90d95d778f94e598a78a6f1c8a38e1911bffd8e2))
+* LVM - Added support for Videos from GCS uri for multimodal embeddings ([f3bd3bf](https://github.com/googleapis/python-aiplatform/commit/f3bd3bf1f74d283d7a95cd9cddf39947fcabc514))
+* Support custom image for Ray cluster creation ([d727189](https://github.com/googleapis/python-aiplatform/commit/d7271899a5383ffef69af1c46ad28d92eb4d5751))
+
+
+### Bug Fixes
+
+* Add google-auth as a direct dependency ([ecc6454](https://github.com/googleapis/python-aiplatform/commit/ecc64544d3cc718957fbe472fef1eaf22818e093))
+* Add restricts and crowding tag to `MatchingEngineIndexEndpoint` query response. ([83cb52d](https://github.com/googleapis/python-aiplatform/commit/83cb52d1ed3ec7587ea9bb877dba113abad569be))
+* Remove usage of distutils ([e35ab64](https://github.com/googleapis/python-aiplatform/commit/e35ab64d7e47f696ef9dd9c071c2d322e705b5ff))
+
+
+### Documentation
+
+* Fix incorrect field in log_time_series_metrics_sample ([f249353](https://github.com/googleapis/python-aiplatform/commit/f249353b918823b35495b295a75a90528ad652c0))
+* Update README ([14b41b5](https://github.com/googleapis/python-aiplatform/commit/14b41b50aff89e15f5f86f814df122c96231841d))
+
+## [1.41.0](https://github.com/googleapis/python-aiplatform/compare/v1.40.0...v1.41.0) (2024-02-05)
+
+
+### Features
+
+* Add `numeric_filter` to `MatchingEngineIndexEndpoint` `match()` and `find_neighbor()` private endpoint queries. ([679646a](https://github.com/googleapis/python-aiplatform/commit/679646a352ea3623d752e4685c7224db8934bd9d))
+* Added the `BatchPredictionJob.submit` method - a non-blocking version of  `BatchPredictionJob.create` ([b62ddcd](https://github.com/googleapis/python-aiplatform/commit/b62ddcd751323ae96e248ab8bb90561b44f6f5e0))
+* LLM - Add support for RLHF tuning ([b2458ec](https://github.com/googleapis/python-aiplatform/commit/b2458ec51d7c3bbba787bbefac31c9aad6ffdb10))
+* Remove deletion of model upload staging bucket in system tests ([b9b373b](https://github.com/googleapis/python-aiplatform/commit/b9b373b69eab7dd303816bad94da54cad60a331e))
+* Switch Python generateContent to call Unary API endpoint ([9a19545](https://github.com/googleapis/python-aiplatform/commit/9a19545e864c6d4743156c737dd5bb8c4b86ab6f))
+
+
+### Bug Fixes
+
+* Fix crash when no target_col is specified for Bigframes tensorflow ([512b82d](https://github.com/googleapis/python-aiplatform/commit/512b82debdaf44d1b9c755c2bd06d1d24c080338))
+
+
+### Documentation
+
+* Add missing code block in docs/README.rst ([16d6b58](https://github.com/googleapis/python-aiplatform/commit/16d6b58ab27549a995919d70f78dd793feee7bd3))
+
+## [1.40.0](https://github.com/googleapis/python-aiplatform/compare/v1.39.0...v1.40.0) (2024-01-24)
+
+
+### Features
+
+* Add `return_full_datapoint` for `MatchEngineIndexEndpoint` `match()`. ([ad8d9c1](https://github.com/googleapis/python-aiplatform/commit/ad8d9c1df17578de3b893ebe46d00d457960da00))
+* Add batch delete method in preview pipeline job class and unit test. ([b0b604e](https://github.com/googleapis/python-aiplatform/commit/b0b604ec871eb99897e9b7c049c7f83abe64199e))
+* Add option to not overwrite table in Ray on Vertex BQ Write ([a99e992](https://github.com/googleapis/python-aiplatform/commit/a99e9925038f6a3e4a1538e2da315e8a01071b8b))
+* Add query by id for `MatchingEngineIndexEndpoint` `find_neighbors()` public endpoint query. ([42c7e08](https://github.com/googleapis/python-aiplatform/commit/42c7e08249f2ae758ad920e908c3f44fc72ac134))
+* Add support for `low_level_batch_size` in `match()` for `MatchingEngineIndexEndpoint` private query. ([67e593b](https://github.com/googleapis/python-aiplatform/commit/67e593b34928682491c0d00555459108261feb8e))
+* Added Public Preview support for PersistentResource management ([262a36b](https://github.com/googleapis/python-aiplatform/commit/262a36bdd942e73015a8160ddc3a01adbb99dee5))
+* Enable inline context in grounding to TextGenerationModel predict. ([a75e81c](https://github.com/googleapis/python-aiplatform/commit/a75e81c9e8bfe577468205fc0fc97366ff06f19d))
+* Fix dataset export system test ([1fbf049](https://github.com/googleapis/python-aiplatform/commit/1fbf0493dc5fa2bb05f33a4319d79a81625e07cc))
+* LVM - Added the `MultiModalEmbeddingModel.get_embeddings(dimension=...)` parameter ([1d9bd23](https://github.com/googleapis/python-aiplatform/commit/1d9bd233e636c024def55d4c867f662a4a351f9e))
+* Support empty index for `MatchingEngineIndex` create index. ([a00db07](https://github.com/googleapis/python-aiplatform/commit/a00db077a3ca77ee86117beb0b15d70d02e85e87))
+* Support private service connect for `MatchingEngineIndexEndpoint` `match()` and `read_index_datapoints()`. ([61cff4b](https://github.com/googleapis/python-aiplatform/commit/61cff4bda371e3baa61d98528d18093e5fa890b4))
+
+
+### Bug Fixes
+
+* Fix example usage of batch delete pipelinejobs. ([3b28d64](https://github.com/googleapis/python-aiplatform/commit/3b28d64c0f263fc5baa457ebeec70adc20f71df9))
+* Fix experiments failure when backing tensorboard has been deleted. ([e7a197e](https://github.com/googleapis/python-aiplatform/commit/e7a197ef5d349968994c029db4c5ce9d52e45bd7))
+* Fix message to Json parse issue in Dataset class ([066f32d](https://github.com/googleapis/python-aiplatform/commit/066f32df4e1cd09f1c3d457d6727bc731253aeac))
+* Fix typo in raise exception when tool is unsupported ([2301d79](https://github.com/googleapis/python-aiplatform/commit/2301d79ed2b08b4b76066ff0598236468ad656e7))
+* Fixed the PipelineJob bucket creation after a breaking change in Google Cloud Storage client library ([a8b01e0](https://github.com/googleapis/python-aiplatform/commit/a8b01e03cdc12de3af87ed7e67b947230a164c42)), closes [#2936](https://github.com/googleapis/python-aiplatform/issues/2936)
+* Increase memory for Ray on Vertex default machine type ([e6bcb17](https://github.com/googleapis/python-aiplatform/commit/e6bcb1757645c21cf8ccace79f9fd06531a5a1aa))
+* Use https to connect through Ray dashboard ([7af3e67](https://github.com/googleapis/python-aiplatform/commit/7af3e67654e05c20f3cd6f1226ebac3521a95200))
+
+## [1.39.0](https://github.com/googleapis/python-aiplatform/compare/v1.38.1...v1.39.0) (2024-01-05)
+
+
+### Features
+
+* Add `fraction_leaf_nodes_to_search_override`. Add support for private endpoint in `find_neighbors`. ([cd31c13](https://github.com/googleapis/python-aiplatform/commit/cd31c1306a9a00a01fbc1dda56fe99ed567a4cfb))
+* Add notification_channels field to model monitoring alert config. ([bb228ce](https://github.com/googleapis/python-aiplatform/commit/bb228ced16862a1f452352f8941d3a24d1a77090))
+* Add support of newly added fields of ExportData API to SDK ([ec3ea30](https://github.com/googleapis/python-aiplatform/commit/ec3ea305cd8a858fb770794c35481cdbc1520990))
+* Allow reuse of deleted experiment run id. ([5f6ad8d](https://github.com/googleapis/python-aiplatform/commit/5f6ad8df5a08e78a121a72a21e21d95abb072e58))
+* GenAI - Added support for "models/&lt;model ID&gt;" model name format ([ab21feb](https://github.com/googleapis/python-aiplatform/commit/ab21feb3528babbc619c0ea5bf4aa89e651340b3))
+* Support "reservedIpRanges" parameter in PipelineJob run() and submit() methods. ([ab99e00](https://github.com/googleapis/python-aiplatform/commit/ab99e00a42868ec09796709a5d5fb6e4f276bfb7))
+* Support custom target y column name for Bigframes Tensorflow ([1634940](https://github.com/googleapis/python-aiplatform/commit/1634940c91182fbd080556949d6c2557288216fb))
+* Verify client and cluster Ray versions match in create_ray_cluster ([17dc9b7](https://github.com/googleapis/python-aiplatform/commit/17dc9b7663c484fe6250cafd4209ef8279acdb5b))
+
+
+### Bug Fixes
+
+* Missing request parameter for v1beta explain. ([443fa9d](https://github.com/googleapis/python-aiplatform/commit/443fa9d456294c4a6aa49368cc4b5e6f01ec3d0d))
+* Pin google-cloud-aiplatform[tensorboard] dependency on tensorflow &lt; 2.15.0 due to breaking change introduced in tensorboard 2.15.1 ([4e891f7](https://github.com/googleapis/python-aiplatform/commit/4e891f7f0c83dabde429ffaa38166af5a44eab5a))
+
+
+### Documentation
+
+* GenAI - Added GenAI to docs ([92fd7f0](https://github.com/googleapis/python-aiplatform/commit/92fd7f0a10ae35b448ac4981c072fdc5d8b05c3b))
+* Update docstring for start_upload_tb_log() ([c033c59](https://github.com/googleapis/python-aiplatform/commit/c033c5971c7692f84d0a5b58946c49348a4c4448))
+* Update tensorboard continuous uploader sample ([1220746](https://github.com/googleapis/python-aiplatform/commit/122074659871daa72aec4a6d3330a82eec77a1c5))
+
+## [1.38.1](https://github.com/googleapis/python-aiplatform/compare/v1.38.0...v1.38.1) (2023-12-13)
+
+
+### Features
+
+* Adding `serving_container_grpc_ports` parameter to Model.upload() method ([6a00ed7](https://github.com/googleapis/python-aiplatform/commit/6a00ed79252c97f3e5f5eef5492d5d7ef12c969c))
+* LLM - Added support for model distillation ([28925e9](https://github.com/googleapis/python-aiplatform/commit/28925e9464254e9768ceab845001aa0e3d46bbbf))
+* Support CMEK for scheduled pipeline jobs. ([406595d](https://github.com/googleapis/python-aiplatform/commit/406595dd78896d3c3fcec8975baccdabef468849))
+
+
+### Miscellaneous Chores
+
+* Release 1.38.1 ([537d00e](https://github.com/googleapis/python-aiplatform/commit/537d00e185df593f6c718859cbc92f8dfef67512))
+
+## [1.38.0](https://github.com/googleapis/python-aiplatform/compare/v1.37.0...v1.38.0) (2023-12-11)
+
+
+### Features
+
+* Release GenerativeModel support for Gemini ([cd233ef](https://github.com/googleapis/python-aiplatform/commit/cd233ef81d1359f3ac89fca809e337ac866d2108))
+* Add explicit constraints for update_ray_cluster ([979a4f3](https://github.com/googleapis/python-aiplatform/commit/979a4f3280cf79c672bd90b57049b1d9f20635fc))
+* Check if dataset exists before creation for Ray on Vertex BigQuery Write ([544d6fe](https://github.com/googleapis/python-aiplatform/commit/544d6fe7925d673bc0fa5236a3ae2608fce10d8e))
+* LLM - Added support for the `logprobs`, `presence_penalty`, `frequency_penalty`, and `logit_bias` generation parameters ([1449344](https://github.com/googleapis/python-aiplatform/commit/1449344490bbfd2ea9eddf0a7dfa651d89db7bc9))
+* Support `read_index_datapoints` for private network. ([c9f7119](https://github.com/googleapis/python-aiplatform/commit/c9f7119f7c13a4f2a0ef3613ef03c0247ec263da))
+* Support custom batch size for Bigframes Tensorflow ([7dc8771](https://github.com/googleapis/python-aiplatform/commit/7dc8771715387e4fb4536aa7080b795bfba8039c))
+* Update the v1 service definition to add numeric_restricts. ([d0c2ffa](https://github.com/googleapis/python-aiplatform/commit/d0c2ffa8d8d070f9ef247c3c742a67b12d1bc16d))
+* Verify client and cluster Ray versions match ([10c6ad2](https://github.com/googleapis/python-aiplatform/commit/10c6ad292f0eb79f4010ea22115b2f70abdea661))
+
+
+### Bug Fixes
+
+* `read_index_endpoint` private endpoint support. ([3d8835e](https://github.com/googleapis/python-aiplatform/commit/3d8835e1dbc48502246fc5ae141f465e0ac7ae90))
+* Fix exception message to use vertexai when project is not provided. ([0cb1a7b](https://github.com/googleapis/python-aiplatform/commit/0cb1a7b16ef49813d5c59e2b9646dc7861291b42))
+* Update test assumption for streaming endpoint of chat-bison@001 ([f9a5b69](https://github.com/googleapis/python-aiplatform/commit/f9a5b692a7b4ed7046ba5035cb1b592aa0cd9f0b))
+* When user is not logged in, throw more intuitive message ([a8b24ad](https://github.com/googleapis/python-aiplatform/commit/a8b24adaf0485f41ea6fc0d65d17d3d9500821aa))
+
+
+### Documentation
+
+* Add default value to optional field parameter_values ([0a4d772](https://github.com/googleapis/python-aiplatform/commit/0a4d772aacc8b100aac6b0c7810296dd0a3e6692))
+
+## [1.37.0](https://github.com/googleapis/python-aiplatform/compare/v1.36.4...v1.37.0) (2023-12-05)
+
+
+### Features
+
+* Add additional parameters to Model.upload(). ([7b7d7d2](https://github.com/googleapis/python-aiplatform/commit/7b7d7d2f2c7f074e62ee009a308341228fcd6582))
+* Adding support for concurrent explanations ([8e2ad75](https://github.com/googleapis/python-aiplatform/commit/8e2ad75e255210f99ab091802899a75df92b6a20))
+* Allow configuring container logging settings on models when deploying. ([beae48f](https://github.com/googleapis/python-aiplatform/commit/beae48f63e40ea171c3f1625164569e7311b8e5a))
+* Support user provided api endpoint. ([92f2b4e](https://github.com/googleapis/python-aiplatform/commit/92f2b4e32035a35f5f2a4956fee443fe3061bc32))
+* Add grpc_ports to UploadModel ModelContainerSpec, add DirectPredict, DirectRawPredict, StreamingPredict, StreamingRawPredict to PredictionService. ([6dfbad7](https://github.com/googleapis/python-aiplatform/commit/6dfbad7dcb29ef3b481bb90d989a1f6f68976996))
+
+### Bug Fixes
+
+* Clarify wording when Ray on Vertex cluster is missing head node ip ([4a71c8c](https://github.com/googleapis/python-aiplatform/commit/4a71c8c1df499aec763e7d16c2f022eb3593d3de))
+* Fix error when allowed_plugins is set to None. ([6f2860a](https://github.com/googleapis/python-aiplatform/commit/6f2860aafce9b77819a3891fb6c29bfb65ea8a2a))
+* Fixed INTEGER and BOOL parameters casting issue. Fix conversion bug where `INTEGER` and `BOOL` parameters are not cast to the correct type. ([9a204c4](https://github.com/googleapis/python-aiplatform/commit/9a204c4ffb16ba34c36f3869fbc36c52bc9986bb))
+* Make PipelineJobSchedule propagate labels to created PipelineJobs ([a34533f](https://github.com/googleapis/python-aiplatform/commit/a34533f536d1d5caa46a68a640bd507e979c161e))
+
+
+### Documentation
+
+* Add upload Tensorboard profile log to Experiment sample. ([5780513](https://github.com/googleapis/python-aiplatform/commit/57805132f82e1e21d3999e130b5c5fdbc105143a))
+* Update the documentation for the `image_dataset` class ([8562368](https://github.com/googleapis/python-aiplatform/commit/856236887a9159991b400829f5c05a307aaedd58))
+
+## [1.36.4](https://github.com/googleapis/python-aiplatform/compare/v1.36.3...v1.36.4) (2023-11-16)
+
+
+### Features
+
+* Add `numeric_restricts` to MatchingEngineIndex `find_neighbors()` for querying ([6c1f2cc](https://github.com/googleapis/python-aiplatform/commit/6c1f2cc650cfe0c6cc9896de13746d1a25d7315a))
+* Add `remove_datapoints()` to `MatchingEngineIndex`. ([b86a404](https://github.com/googleapis/python-aiplatform/commit/b86a4046c2cd0c189efc609bd6319f8da76cd6e7))
+* Add `upsert_datapoints()` to `MatchingEngineIndex` to support streaming update index. ([7ca484d](https://github.com/googleapis/python-aiplatform/commit/7ca484da0431699c460358584b9e8be102d9cc46))
+* LLM - include error code into blocked response from TextGenerationModel, ChatModel, CodeChatMode, and CodeGenerationModel. ([1f81cf2](https://github.com/googleapis/python-aiplatform/commit/1f81cf200c9394b50a43c3830ab8343ead1dc0d3))
+* Populate Ray Cluster dashboard_address from proto field ([dd4b852](https://github.com/googleapis/python-aiplatform/commit/dd4b8529a72f6d08e56e8437cdd3cd0874df8a47))
+* add CountTokens API, ComputeTokens API, and ModelContainerSpec features ([ba2fb39](https://github.com/googleapis/python-aiplatform/commit/ba2fb398b46b04fc2c9d0ea902746737ace64767))
+
+
+### Bug Fixes
+
+* Add check for empty `encryption_spec_key_name` for MatchingEngineIndexEndpoint `create`. ([7740132](https://github.com/googleapis/python-aiplatform/commit/7740132c315b2f1e55504e5c5b462eb27bf89937))
+* Fix server error due to no `encryption_spec_key_name` in MatchingEngineIndex `create_tree_ah_index` and `create_brute_force_index` ([595b580](https://github.com/googleapis/python-aiplatform/commit/595b580bfaa238b63f61cb69a7829094c747aaea))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.4 ([1fd7b4e](https://github.com/googleapis/python-aiplatform/commit/1fd7b4eb4773c9c58cb4e957e176c0053169afc0))
+
+## [1.36.3](https://github.com/googleapis/python-aiplatform/compare/v1.36.2...v1.36.3) (2023-11-14)
+
+
+### Features
+
+* Add option to not use default tensorboard ([a25c669](https://github.com/googleapis/python-aiplatform/commit/a25c6697d75444e4134ac0b9ca8964458f70e275))
+* Add preview HyperparameterTuningJob which can be run on persistent resource ([0da8c53](https://github.com/googleapis/python-aiplatform/commit/0da8c5373b35d9bc7520e93934b109c3ff583dac))
+* Add Featurestore Bigtable Serving, Feature Registry v1, November bulk GAPIC release ([9f46f7c](https://www.google.com/url?sa=D&q=https%3A%2F%2Fgithub.com%2Fgoogleapis%2Fpython-aiplatform%2Fcommit%2F9f46f7c4289e78fb825837f602aecd4105f21e19))
+
+
+### Documentation
+
+* Fix documentation for obsolete link to GCS formatting ([95184de](https://github.com/googleapis/python-aiplatform/commit/95184de2570636e4ee0968dbcfb48c37f811e12f))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.3 ([fdee5cb](https://github.com/googleapis/python-aiplatform/commit/fdee5cb1779344731b4cab0482079691601154d7))
+
+## [1.36.2](https://github.com/googleapis/python-aiplatform/compare/v1.36.1...v1.36.2) (2023-11-10)
+
+
+### Features
+
+* Add `encryption_spec_key_name` to `MatchingEngineIndex` `create_tree_ah_index` and ([1a9e36f](https://github.com/googleapis/python-aiplatform/commit/1a9e36f4ea1672d0fc6ce1587c86c4f132c15190))
+* Add `encryption_spec_key_name`, `enable_private_service_connect`,`project_allowlist` to MatchingEngineIndexEndpoint `create`. ([750e17b](https://github.com/googleapis/python-aiplatform/commit/750e17b4c25c9030018521545b3c21e1fb1404c2))
+* Add `index_update_method` to MatchingEngineIndex `create()` ([dcb6205](https://github.com/googleapis/python-aiplatform/commit/dcb62051a7f3aeaa009b64165569c788d8c5ec44))
+* Expose max_retry_cnt parameter for Ray on Vertex BigQuery write ([568907c](https://github.com/googleapis/python-aiplatform/commit/568907c3876b10dc104de5d19a973135b2638d62))
+* LLM - Grounding - Added support for the `disable_attribution` grounding parameter ([91e985a](https://github.com/googleapis/python-aiplatform/commit/91e985a258180226053a23a9280249079574ad16))
+* LLM - Support model evaluation when tuning chat models (`ChatModel`, `CodeChatModel`) ([755c3f9](https://github.com/googleapis/python-aiplatform/commit/755c3f99478e537ef5675ed7120a17eaf94ee5cd))
+* LVM - Added multi-language support for `ImageGenerationModel` ([791eff5](https://github.com/googleapis/python-aiplatform/commit/791eff5fac48a4395017d7f9296cfb2209a073ba))
+
+
+### Bug Fixes
+
+* Async call bug in CodeChatModel.send_message_async method ([fcf05cb](https://github.com/googleapis/python-aiplatform/commit/fcf05cb6da15c83e91e6ce5f20ab3e6649983685))
+
+
+### Documentation
+
+* Add Bigframes remote training example to vertexai README ([8b993b3](https://github.com/googleapis/python-aiplatform/commit/8b993b367758dc4f195a7a80d13923687da53e04))
+* Update the documentation for the `tabular_dataset` class ([6f40f1b](https://github.com/googleapis/python-aiplatform/commit/6f40f1baf02b279299c7ea825754fe1868d56276))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.2 ([01be0c9](https://github.com/googleapis/python-aiplatform/commit/01be0c99ff86726962146bcf9601a04f7298cda1))
+
+## [1.36.1](https://github.com/googleapis/python-aiplatform/compare/v1.36.0...v1.36.1) (2023-11-07)
+
+
+### Features
+
+* Add `per_crowding_attribute_neighbor_count`, `approx_num_neighbors`, `fraction_leaf_nodes_to_search_override`, and `return_full_datapoint` to MatchingEngineIndexEndpoint `find_neighbors` ([33c551e](https://github.com/googleapis/python-aiplatform/commit/33c551efca38688c8c62ef5847dfcef0221e848c))
+* Add profiler support to tensorboard uploader sdk ([be1df7f](https://github.com/googleapis/python-aiplatform/commit/be1df7f4823f7b40022d31f529204dfe27fdb4d7))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([e5c20c3](https://github.com/googleapis/python-aiplatform/commit/e5c20c3b5c0078c9dfc70e2d1d13513a4dcefa63))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([53d31b5](https://github.com/googleapis/python-aiplatform/commit/53d31b5b6ec477e6f2b4391aaeadc8ae349800b8))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([4e357d5](https://github.com/googleapis/python-aiplatform/commit/4e357d5121d053dc313f3a3f180131e1850bebe2))
+* Enable grounding to ChatModel send_message and send_message_async methods ([d4667f2](https://github.com/googleapis/python-aiplatform/commit/d4667f25a7c95bd16511beaed85edf45307176b5))
+* Enable grounding to TextGenerationModel predict and predict_async methods ([b0b4e6b](https://github.com/googleapis/python-aiplatform/commit/b0b4e6b8243cbdb829288e3fc204d94005f1e8b4))
+* LLM - Added support for the `enable_checkpoint_selection` tuning evaluation parameter ([eaf4420](https://github.com/googleapis/python-aiplatform/commit/eaf4420479b64740cdd464afb64b8780f57c8199))
+* LLM - Added tuning support for the `*-bison-32k` models ([9eba18f](https://github.com/googleapis/python-aiplatform/commit/9eba18f70d36ac3901ba8b580cde6dde04413bc3))
+* LLM - Released `CodeChatModel` tuning to GA ([621af52](https://github.com/googleapis/python-aiplatform/commit/621af5244797a0e218195c72d9781cbd86b24fa0))
+
+
+### Bug Fixes
+
+* Correct class name in system test ([b822b57](https://github.com/googleapis/python-aiplatform/commit/b822b57fa490c8d89802ee5fbf0f3736e0811208))
+
+
+### Documentation
+
+* Clean up RoV create_ray_cluster docstring ([1473e19](https://github.com/googleapis/python-aiplatform/commit/1473e19c9b05c89ba2229f42a8d72588fa267d17))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.1 ([1cde170](https://github.com/googleapis/python-aiplatform/commit/1cde1708fd26357995f3ee86194aa92aa7de5519))
+
+## [1.36.0](https://github.com/googleapis/python-aiplatform/compare/v1.35.0...v1.36.0) (2023-10-31)
+
+
+### Features
+
+* Add preview count_tokens method to CodeGenerationModel ([96e7f7d](https://github.com/googleapis/python-aiplatform/commit/96e7f7d9243c36fa991dd147fe66b3a7e545b3bb))
+* Allow the users to use extra serialization arguments for objects. ([ffbd872](https://github.com/googleapis/python-aiplatform/commit/ffbd87228ecc8d1f534e66d31301597822625b6a))
+* Also support unhashable objects to be serialized with extra args ([77a741e](https://github.com/googleapis/python-aiplatform/commit/77a741e5bec00c89a7746794d77f7ab5e93e5b2f))
+* LLM - Added `count_tokens` support to ChatModel (preview) ([01989b1](https://github.com/googleapis/python-aiplatform/commit/01989b185b7847549ccecfd4f83c9eaf3caa056d))
+* LLM - Added new regions for tuning and tuned model inference ([3d43497](https://github.com/googleapis/python-aiplatform/commit/3d434979659f8801921745600b1ee82f725937cc))
+* LLM - Added support for async streaming ([760a025](https://github.com/googleapis/python-aiplatform/commit/760a0256ef8da36ec2832b476e62626714488f3e))
+* LLM - Added support for multiple response candidates in code chat models ([598d57d](https://github.com/googleapis/python-aiplatform/commit/598d57d24ea613130a74bf7db86c757a668626b8))
+* LLM - Added support for multiple response candidates in code generation models ([0c371a4](https://github.com/googleapis/python-aiplatform/commit/0c371a4bd0adca8bec41dca6ef95e8a1011404f4))
+* LLM - Enable tuning eval TensorBoard without evaluation data ([eaf5d81](https://github.com/googleapis/python-aiplatform/commit/eaf5d816a7a752373243033ea98146d70987ce18))
+* LLM - Released `CodeGenerationModel` tuning to GA ([87dfe40](https://github.com/googleapis/python-aiplatform/commit/87dfe40d68255c62c30564a46a63a13417aa7fc4))
+* LLM - Support `accelerator_type` in tuning ([98ab2f9](https://github.com/googleapis/python-aiplatform/commit/98ab2f99d63f2ea40dead12dbffc078d9dae8336))
+* Support experiment autologging when using persistent cluster as executor ([c19b6c3](https://github.com/googleapis/python-aiplatform/commit/c19b6c3e88293f231aae0c9939e41c9e0f064ee7))
+* Upgrade BigQuery Datasource to use write() interface ([7944348](https://github.com/googleapis/python-aiplatform/commit/794434856713b4aab6aa32e8dd37b3d767136c78))
+
+
+### Bug Fixes
+
+* Adding setuptools to dependencies for Python 3.12 and above. ([afd540d](https://github.com/googleapis/python-aiplatform/commit/afd540d5210e56d5ace19f94526916a2b0c4f1fc))
+* Fix Bigframes tensorflow serializer dependencies ([b4cdb05](https://github.com/googleapis/python-aiplatform/commit/b4cdb05b12b82d3b9f605382828e3f854d985951))
+* LLM - Fixed the async streaming ([41bfcb6](https://github.com/googleapis/python-aiplatform/commit/41bfcb6677fe40afc19548b9bfb1b360b1125adc))
+* LLM - Make tuning use the global staging bucket if specified ([d9ced10](https://github.com/googleapis/python-aiplatform/commit/d9ced106b57cb21f5dcde433f1779b6500aaf7b0))
+* LVM - Fixed negative prompt in `ImageGenerationModel` ([cbe3a0d](https://github.com/googleapis/python-aiplatform/commit/cbe3a0de14a2ee189df07f445545f68fa4bdd4ae))
+* Made the Endpoint prediction client initialization lazy ([eb6071f](https://github.com/googleapis/python-aiplatform/commit/eb6071fe567ef80ba5490b9eaae0cedd6958aac5))
+* Make sure PipelineRuntimeConfigBuilder is created with the right arguments ([ad19838](https://github.com/googleapis/python-aiplatform/commit/ad19838ebc51215dc6c2fe0f373a4773877a0fb6))
+* Make sure the models list is populated before indexing ([f1659e8](https://github.com/googleapis/python-aiplatform/commit/f1659e80a7cc4f1e25d5f251c2483fa365bcdba2))
+* Raise exception for RoV BQ Write for too many rate limit exceeded ([7e09529](https://github.com/googleapis/python-aiplatform/commit/7e095298d145fe24202bacdb6be88d44789a2aa9))
+* Rollback BigQuery Datasource to use do_write() interface ([dc1b82a](https://github.com/googleapis/python-aiplatform/commit/dc1b82a9856beb3ab537b38b1ad1d2c244511c81))
+
+## [1.35.0](https://github.com/googleapis/python-aiplatform/compare/v1.34.0...v1.35.0) (2023-10-10)
+
+
+### Features
+
+* Add serializer.register_custom_command() ([639cf10](https://github.com/googleapis/python-aiplatform/commit/639cf10e444f5aee200cdf0ffaa63e768dc4119b))
+* Install Bigframes sklearn dependencies automatically ([7aaffe5](https://github.com/googleapis/python-aiplatform/commit/7aaffe505aa8e7bff86af5a3674085b8ff822107))
+* Install Bigframes tensorflow dependencies automatically ([e58689b](https://github.com/googleapis/python-aiplatform/commit/e58689b65dd7e2da3e0ece33c2e0b08f7b441089))
+* Install Bigframes torch dependencies automatically ([1d65347](https://github.com/googleapis/python-aiplatform/commit/1d65347468565e86d57e2dd003bdf87dbf37e613))
+* LLM - Added support for multiple chat response candidates ([587df74](https://github.com/googleapis/python-aiplatform/commit/587df744e2b6c4b3e1a96ff69937697fe80a97be))
+* LLM - Added support for multiple text generation response candidates ([c3ae475](https://github.com/googleapis/python-aiplatform/commit/c3ae475efaa9cbe85315b0792c0948a8f5c13bed))
+
+
+### Bug Fixes
+
+* Duplicate logs in Colab ([9b75259](https://github.com/googleapis/python-aiplatform/commit/9b7525987e05f6b63300440267fcdefea4caf35c))
+* LLM - Fixed tuning and evaluation when explicit credentials are specified ([188dffe](https://github.com/googleapis/python-aiplatform/commit/188dffeb2fc83b4c7c123624eb544b403f042c87))
+
+
+### Documentation
+
+* Add probabilistic inference to TiDE and L2L  model code samples. ([efe88f9](https://github.com/googleapis/python-aiplatform/commit/efe88f98abb57ec11cdd326b87cb935a6b370257))
+
+## [1.34.0](https://github.com/googleapis/python-aiplatform/compare/v1.33.1...v1.34.0) (2023-10-02)
+
+
+### Features
+
+* Add Model Garden support to vertexai.preview.from_pretrained ([f978200](https://github.com/googleapis/python-aiplatform/commit/f9782007c58ee11fe276c373d8d7ac6c2b0cb249))
+* Enable vertexai preview persistent cluster executor ([0ae969d](https://github.com/googleapis/python-aiplatform/commit/0ae969d9e968c6b497d4f41e28f0ea1274d5253c))
+* LLM - Added the `count_tokens` method to the preview `TextGenerationModel` and `TextEmbeddingModel` classes ([6a2f2aa](https://github.com/googleapis/python-aiplatform/commit/6a2f2aa8e348c6fc1e24012291f538d2b86eae7b))
+* LLM - Improved representation for blocked responses ([222f222](https://github.com/googleapis/python-aiplatform/commit/222f222ed5f8e0c2266484b9992e45cf9827a119))
+* LLM - Released `ChatModel` tuning to GA ([7d667f9](https://github.com/googleapis/python-aiplatform/commit/7d667f9f8be264bb36e3d720caa0d8210aec5d6b))
+
+
+### Bug Fixes
+
+* Create PipelineJobSchedule in same project and location as associated PipelineJob by default ([c22220e](https://github.com/googleapis/python-aiplatform/commit/c22220ef5db440020331634f5e25199c575cc886))
+
+
+### Documentation
+
+* Add documentation for the preview namespace ([69a67f2](https://github.com/googleapis/python-aiplatform/commit/69a67f203627e4ee7d5980ce874d4db1e6af5dd8))
+
+## [1.33.1](https://github.com/googleapis/python-aiplatform/compare/v1.33.0...v1.33.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* Lightning trainer fails to be unwrapped in remote training ([8271301](https://github.com/googleapis/python-aiplatform/commit/8271301454814b233a630d1c18ebe5e4833fcec2))
+
+## [1.33.0](https://github.com/googleapis/python-aiplatform/compare/v1.32.0...v1.33.0) (2023-09-18)
+
+
+### Features
+
+* Add Custom Job support to from_pretrained ([8b0add1](https://github.com/googleapis/python-aiplatform/commit/8b0add169ebd0683b56dbe3b643d533ebbd5e1ca))
+* Added async prediction and explanation support to the `Endpoint` class ([e9eb159](https://github.com/googleapis/python-aiplatform/commit/e9eb159756dfe90c9f72818204fa74d05096aec6))
+* LLM - Added support for async prediction methods ([c9c9f10](https://github.com/googleapis/python-aiplatform/commit/c9c9f10058afead91f7298ec4f09f901898718b3))
+* LLM - CodeChat - Added support for `context` ([f7feeca](https://github.com/googleapis/python-aiplatform/commit/f7feeca2161df7c12c993116364a663c4249f852))
+* Release Ray on Vertex SDK Preview ([3be36e6](https://github.com/googleapis/python-aiplatform/commit/3be36e6c17ef5e335d4f12af7a7c64702b76570e))
+
+
+### Bug Fixes
+
+* Handle Ray image parsing error ([41a3a83](https://github.com/googleapis/python-aiplatform/commit/41a3a83b2e9411a642668d9713282e87e38c64b4))
+* Vizier - Fixed field existence checks for child params in to_proto(). ([d516931](https://github.com/googleapis/python-aiplatform/commit/d51693115a32c054bf5f10ebe7fd2c52ea1ac2d7))
+
+## [1.32.0](https://github.com/googleapis/python-aiplatform/compare/v1.31.1...v1.32.0) (2023-09-05)
+
+
+### Features
+* LLM - Added `stop_sequences` parameter to streaming methods and `CodeChatModel` ([d62bb1b](https://github.com/googleapis/python-aiplatform/commit/d62bb1b2d9a41e700e3564012e70735e5148bb80))
+* LLM - Improved the handling of temperature and top_p in streaming ([6566529](https://github.com/googleapis/python-aiplatform/commit/656652964a9ab48ccd2b3c8249ecffc598da0a3a))
+* Support bigframes sharded parquet ingestion at remote deserialization (Tensorflow) ([a8f85ec](https://github.com/googleapis/python-aiplatform/commit/a8f85ec68749390058f19a40906f326f91ea3eb6))
+* Release Vertex SDK Preview ([c60b9ca](https://github.com/googleapis/python-aiplatform/commit/c60b9ca2dd8c9bbdee6d8b745ff5fa849fa38fe9))
+* Allow setting default service account ([d11b8e6](https://github.com/googleapis/python-aiplatform/commit/d11b8e67607fb9c526d04869cab47f23789bc8d7))
+
+
+### Bug Fixes
+
+* Fix feature update since no LRO is created ([468e6e7](https://github.com/googleapis/python-aiplatform/commit/468e6e7b5021ea73a5847b57564e3c090b3f8fca))
+* LLM - `CodeGenerationModel` now supports safety attributes ([c2c8a5e](https://github.com/googleapis/python-aiplatform/commit/c2c8a5e60ba11ab344cc41ce651740dc0556f6a2))
+* LLM - Fixed batch prediction on tuned models ([2a08535](https://github.com/googleapis/python-aiplatform/commit/2a085354ed921485493b482c0f4e96f3f49d06f0))
+* LLM - Fixed the handling of the `TextEmbeddingInput.task_type` parameter. ([2e3090b](https://github.com/googleapis/python-aiplatform/commit/2e3090b9f1f81b543650ae6bad31ee91395c03a4))
+* Make statistics Optional for TextEmbedding. ([7eaa1d4](https://github.com/googleapis/python-aiplatform/commit/7eaa1d4216f0494897606b1225c3b3599a235544))
+
+
+## [1.31.1](https://github.com/googleapis/python-aiplatform/compare/v1.31.0...v1.31.1) (2023-08-24)
+
+* fix: LLM - De-hardcoded the `max_output_tokens` default value for the `CodeGenerationModel` ([f5a20eb](https://github.com/googleapis/python-aiplatform/commit/f5a20eb381af0685d8b6fffad085ded87f4cf5e3))
+
+
+## [1.31.0](https://github.com/googleapis/python-aiplatform/compare/v1.30.1...v1.31.0) (2023-08-21)
+
+
+### Features
+
+* Add disable_retries option to custom jobs. ([db518b0](https://github.com/googleapis/python-aiplatform/commit/db518b0552a8900ca6a84a73ca711b775c786e92))
+* LLM - Added support for `stop_sequences` in inference ([6f7ea84](https://github.com/googleapis/python-aiplatform/commit/6f7ea84415e5d0efcc49487c93b0f1d94fd68974))
+* LLM - Exposed the `TextGenerationResponse.raw_prediction_response` ([f8f2b9c](https://github.com/googleapis/python-aiplatform/commit/f8f2b9cdf88f40fe0b7e86948515ab1cf72d92be))
+* LLM - Made tuning asynchronous when tuning becomes GA ([226ab8b](https://github.com/googleapis/python-aiplatform/commit/226ab8b64efc01d7ce20cdf924e103d7673376cf))
+* LLM - release model evaluation for TextGenerationModel to public preview ([8df5185](https://github.com/googleapis/python-aiplatform/commit/8df5185d668292d5adc11ebf9477e2fdd44599d4))
+* LLM - Released `TextGenerationModel` tuning to GA ([62ff30d](https://github.com/googleapis/python-aiplatform/commit/62ff30daa718ac7869714c68e55d6955d6355945))
+* LLM - Support streaming prediction for chat models ([ce60cf7](https://github.com/googleapis/python-aiplatform/commit/ce60cf75ec5c83db8033b553e1ad7164159fb3be))
+* LLM - Support streaming prediction for code chat models ([0359f1d](https://github.com/googleapis/python-aiplatform/commit/0359f1dd83bf86df58d1145ddf5e4634d3c8e1ff))
+* LLM - Support streaming prediction for code generation models ([3a8348b](https://github.com/googleapis/python-aiplatform/commit/3a8348bca2d9c74e5e52fb9fc131fdb766f49a5c))
+* LLM - Support streaming prediction for text generation models ([fb527f3](https://github.com/googleapis/python-aiplatform/commit/fb527f3aa59ee90fa6306196b328f513ee4b4d9c))
+* LLM - TextEmbeddingModel - Added support for structural inputs (`TextEmbeddingInput`), `auto_truncate` parameter and result `statistics` ([cbf9b6e](https://github.com/googleapis/python-aiplatform/commit/cbf9b6ee806d7eb89725f53c4509858a272b3141))
+* LVM - Added support for Image Generation models ([b3729c1](https://github.com/googleapis/python-aiplatform/commit/b3729c11a70abaf061daa56ed4c483c4118d5acf))
+* LVM - Released `ImageCaptioningModel` to GA ([7575046](https://github.com/googleapis/python-aiplatform/commit/7575046d953e83bbb8aa13769f28e1eb50e04a7d))
+* LVM - Released `ImageQnAModel` to GA ([fd5cb02](https://github.com/googleapis/python-aiplatform/commit/fd5cb0226f4cff7ee160d2005c5907b81f847a1e))
+* LVM - Released `MultiModalEmbeddingModel` to GA ([e99f366](https://github.com/googleapis/python-aiplatform/commit/e99f366fde802b8677b785613e02fc4d9f94d729))
+* LVM - Removed the `width` and `height` parameters from `ImageGenerationModel.generate_images` since the service has dropped support for image sizes and aspect ratios ([52897e6](https://github.com/googleapis/python-aiplatform/commit/52897e669ff91d3bb991fcf05ae9a18df93df05f))
+* Scheduled pipelines client GA. ([62b8b23](https://github.com/googleapis/python-aiplatform/commit/62b8b23e1144ec547b8d181240090b744dd5201a))
+
+
+### Documentation
+
+* Generate documentation for tune_model and related class ([705e1ea](https://github.com/googleapis/python-aiplatform/commit/705e1ea402684f3ff4a4cf1f80c04b88bf6cf7db))
+* LVM - Added autogenerated documentation for visual models ([18e8bb2](https://github.com/googleapis/python-aiplatform/commit/18e8bb283e80fa9efb26f5fe3f8997b0b038bb12))
+
+## [1.30.1](https://github.com/googleapis/python-aiplatform/compare/v1.30.0...v1.30.1) (2023-08-11)
+
+
+### Features
+
+* LLM - Added tuning support for `chat-bison` models ([3a97c52](https://github.com/googleapis/python-aiplatform/commit/3a97c523c8223f7f007008769ecb2efd0d44d182))
+* LLM - Added tuning support for `codechat-bison` models ([af6e455](https://github.com/googleapis/python-aiplatform/commit/af6e45556d6b093189f363a95f2be45e0008aebd))
+
+
+### Bug Fixes
+
+* LLM - Fixed the `TextGenerationModel.predict` parameters ([f3b25ab](https://github.com/googleapis/python-aiplatform/commit/f3b25ab694eaee18f5cc34f800f1b6021d291bca))
+
+
+### Miscellaneous Chores
+
+* Release 1.30.1 ([d1c79c4](https://github.com/googleapis/python-aiplatform/commit/d1c79c4ef87a8d4601ab04de050af2be4c6d6ecf))
+
+## [1.30.0](https://github.com/googleapis/python-aiplatform/compare/v1.29.0...v1.30.0) (2023-08-10)
+
+
+### Features
+
+* Add model.evaluate() method to Model class ([51df86e](https://github.com/googleapis/python-aiplatform/commit/51df86ee1390a51b82ffc015514ad1e145821a34))
+* Add support for providing only text to MultiModalEmbeddingModel.get_embeddings() ([38ec40a](https://github.com/googleapis/python-aiplatform/commit/38ec40a12cf863c9da3de8336dceba10d92f6f56))
+
+
+### Bug Fixes
+
+* LLM - Fixed filter in `list_tuned_model_names` ([57806fb](https://github.com/googleapis/python-aiplatform/commit/57806fb947e5b692cd8d4701e572eaf54585d383))
+
+## [1.29.0](https://github.com/googleapis/python-aiplatform/compare/v1.28.1...v1.29.0) (2023-08-02)
+
+
+### Features
+
+* Add preview CustomJob which can be run on persistent resource ([56906b0](https://github.com/googleapis/python-aiplatform/commit/56906b08d80bee64334f6ba0c713e30dae39cef4))
+* LLM - Support for Batch Prediction for the `textembedding` models (preview) ([a368538](https://github.com/googleapis/python-aiplatform/commit/a36853869e627aabf3dc563400d184f44c8ae876))
+* LLM - Support tuning for the code-bison model (preview) ([e4b23a2](https://github.com/googleapis/python-aiplatform/commit/e4b23a254aadfae821e326b238555cee2ecb463a))
+* LVM - Large Vision Models SDK (preview release). Support for image captioning and image QnA (`imagetext` model) and multi modal embedding (`multimodelembedding` model) (preview) ([9bbf1ea](https://github.com/googleapis/python-aiplatform/commit/9bbf1eaa02dda0723303cd39e9f6bdffab32ec21))
+
+
+### Bug Fixes
+
+* LLM - Fixed `get_tuned_model` for the future models that are not `text-bison` ([1adf72b](https://github.com/googleapis/python-aiplatform/commit/1adf72b866021b9e857166778dbddf83fd808fb7))
+
+
+### Documentation
+
+* Fix auto-generated pydoc for language_models ([7d72bd1](https://github.com/googleapis/python-aiplatform/commit/7d72bd1c3740039d7c63d1042aa6bcadbd3e4946))
+* LLM - Made it possible to provide message history to `CodeChatModel` when starting chat. ([cf46145](https://github.com/googleapis/python-aiplatform/commit/cf46145b3de8de794d4295f59d8af3ea9dd57826))
+
+## [1.28.1](https://github.com/googleapis/python-aiplatform/compare/v1.28.0...v1.28.1) (2023-07-18)
+
+
+### Features
+
+* LLM - Released the BatchPrediction to GA for TextGenerationModel ([701c3a2](https://github.com/googleapis/python-aiplatform/commit/701c3a29bb09b45b513bcf1bf332388a9b60ae2d))
+* LLM - Support tuning in the "us-central1" location ([4aa7745](https://github.com/googleapis/python-aiplatform/commit/4aa77451f5de33b90d82dba69b4c55cea5640b87))
+
+
+### Bug Fixes
+
+* Fix artifact registry link not showing in ui when creating schedules with SDK. ([203cb47](https://github.com/googleapis/python-aiplatform/commit/203cb477b6ef09a2f6d5f166b5b66a8c626848ef))
+* Fixed the installation error caused by a PyYAML issue ([4b86ce1](https://github.com/googleapis/python-aiplatform/commit/4b86ce1afacc6937fda81f6e664e22155e968c7d))
+* Require model name in ModelEvaluation.list() ([aed8c76](https://github.com/googleapis/python-aiplatform/commit/aed8c7604f5d89f52c53a599330fd502d02f7877))
+
+
+### Documentation
+
+* Fixed a docstring for train_steps ([1f55b05](https://github.com/googleapis/python-aiplatform/commit/1f55b05d4631f2b63ede8a3d5ec604d4550e22dd))
+
+
+### Miscellaneous Chores
+
+* Release 1.28.1 ([8ebf22e](https://github.com/googleapis/python-aiplatform/commit/8ebf22e3efbf47484117cbdf057cd286c8672b81))
+
+## [1.28.0](https://github.com/googleapis/python-aiplatform/compare/v1.27.1...v1.28.0) (2023-07-08)
+
+
+### Features
+
+* LLM - Released the Chat models to GA ([22aa26d](https://github.com/googleapis/python-aiplatform/commit/22aa26daabbaaa84f84d3cad524f2b6e8c53e77d))
 
 ## [1.27.1](https://github.com/googleapis/python-aiplatform/compare/v1.27.0...v1.27.1) (2023-07-06)
 

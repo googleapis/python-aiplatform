@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -77,7 +76,7 @@ class TensorboardServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -140,6 +139,10 @@ class TensorboardServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
@@ -150,11 +153,6 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.get_tensorboard: gapic_v1.method.wrap_method(
                 self.get_tensorboard,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.read_tensorboard_usage: gapic_v1.method.wrap_method(
-                self.read_tensorboard_usage,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -170,6 +168,16 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.delete_tensorboard: gapic_v1.method.wrap_method(
                 self.delete_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.read_tensorboard_usage: gapic_v1.method.wrap_method(
+                self.read_tensorboard_usage,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.read_tensorboard_size: gapic_v1.method.wrap_method(
+                self.read_tensorboard_size,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -323,18 +331,6 @@ class TensorboardServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def read_tensorboard_usage(
-        self,
-    ) -> Callable[
-        [tensorboard_service.ReadTensorboardUsageRequest],
-        Union[
-            tensorboard_service.ReadTensorboardUsageResponse,
-            Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
-        ],
-    ]:
-        raise NotImplementedError()
-
-    @property
     def update_tensorboard(
         self,
     ) -> Callable[
@@ -361,6 +357,30 @@ class TensorboardServiceTransport(abc.ABC):
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def read_tensorboard_usage(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardUsageRequest],
+        Union[
+            tensorboard_service.ReadTensorboardUsageResponse,
+            Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def read_tensorboard_size(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardSizeRequest],
+        Union[
+            tensorboard_service.ReadTensorboardSizeResponse,
+            Awaitable[tensorboard_service.ReadTensorboardSizeResponse],
+        ],
     ]:
         raise NotImplementedError()
 

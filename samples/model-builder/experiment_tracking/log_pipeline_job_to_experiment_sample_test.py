@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ def test_log_pipeline_job_sample(
         pipeline_job_display_name=constants.DISPLAY_NAME,
         template_path=constants.TEMPLATE_PATH,
         pipeline_root=constants.STAGING_BUCKET,
-        parameter_values=constants.PARAMS,
         project=constants.PROJECT,
         location=constants.LOCATION,
+        parameter_values=constants.PARAMS,
     )
 
     mock_sdk_init.assert_called_with(

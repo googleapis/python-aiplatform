@@ -57,7 +57,7 @@ from google.protobuf import json_format
 _DEFAULT_RETRY = retry.Retry()
 
 
-class Logger:
+class VertexLogger(logging.getLoggerClass()):
     """Logging wrapper class with high level helper methods."""
 
     def __init__(self, name: str):
@@ -66,17 +66,8 @@ class Logger:
         Args:
             name (str): Name to associate with logger.
         """
-        self._logger = logging.getLogger(name)
-        self._logger.setLevel(logging.INFO)
-
-        if self._logger.handlers:
-            # Avoid writing duplicate logs if the logger is created twice.
-            return
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-
-        self._logger.addHandler(handler)
+        super().__init__(name)
+        self.setLevel(logging.INFO)
 
     def log_create_with_lro(
         self,
@@ -91,18 +82,18 @@ class Logger:
             lro (operation.Operation):
                 Optional. Backing LRO for creation.
         """
-        self._logger.info(f"Creating {cls.__name__}")
+        self.info(f"Creating {cls.__name__}")
 
         if lro:
-            self._logger.info(
-                f"Create {cls.__name__} backing LRO: {lro.operation.name}"
-            )
+            self.info(f"Create {cls.__name__} backing LRO: {lro.operation.name}")
 
     def log_create_complete(
         self,
         cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
+        *,
+        module_name: str = "aiplatform",
     ):
         """Logs create event is complete.
 
@@ -113,19 +104,23 @@ class Logger:
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resource proto.Message
-            variable_name (str): Name of variable to use for code snippet
+            variable_name (str):
+                Name of variable to use for code snippet.
+            module_name (str):
+                The module namespace under which the Vertex AI Resource Noun
+                is available. Defaults to `aiplatform`.
         """
-        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
-        self._logger.info(f"To use this {cls.__name__} in another session:")
-        self._logger.info(
-            f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')"
-        )
+        self.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self.info(f"To use this {cls.__name__} in another session:")
+        self.info(f"{variable_name} = {module_name}.{cls.__name__}('{resource.name}')")
 
     def log_create_complete_with_getter(
         self,
         cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
+        *,
+        module_name: str = "aiplatform",
     ):
         """Logs create event is complete.
 
@@ -136,12 +131,48 @@ class Logger:
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resource proto.Message
-            variable_name (str): Name of variable to use for code snippet
+            variable_name (str):
+                Name of variable to use for code snippet.
+            module_name (str):
+                The module namespace under which the Vertex AI Resource Noun
+                is available. Defaults to `aiplatform`.
         """
-        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
-        self._logger.info(f"To use this {cls.__name__} in another session:")
-        self._logger.info(
-            f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')"
+        self.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self.info(f"To use this {cls.__name__} in another session:")
+        usage_message = f"{module_name}.{cls.__name__}.get('{resource.name}')"
+        self.info(f"{variable_name} = {usage_message}")
+
+    def log_delete_with_lro(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+        lro: Optional[operation.Operation] = None,
+    ):
+        """Logs delete event with LRO.
+
+        Args:
+            resource: Vertex AI resource that will be deleted.
+            lro: Backing LRO for creation.
+        """
+        self.info(
+            f"Deleting {resource.__class__.__name__} resource: {resource.resource_name}"
+        )
+
+        if lro:
+            self.info(
+                f"Delete {resource.__class__.__name__} backing LRO: {lro.operation.name}"
+            )
+
+    def log_delete_complete(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+    ):
+        """Logs delete event is complete.
+
+        Args:
+            resource: Vertex AI resource that was deleted.
+        """
+        self.info(
+            f"{resource.__class__.__name__} resource {resource.resource_name} deleted."
         )
 
     def log_action_start_against_resource(
@@ -155,7 +186,7 @@ class Logger:
             resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against.
         """
-        self._logger.info(
+        self.info(
             f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}"
         )
 
@@ -175,9 +206,7 @@ class Logger:
                 Resource noun object the action is acting against.
             lro (operation.Operation): Backing LRO for action.
         """
-        self._logger.info(
-            f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}"
-        )
+        self.info(f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}")
 
     def log_action_completed_against_resource(
         self, noun: str, action: str, resource_noun_obj: "VertexAiResourceNoun"
@@ -190,13 +219,33 @@ class Logger:
             resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against
         """
-        self._logger.info(
+        self.info(
             f"{resource_noun_obj.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}"
         )
 
-    def __getattr__(self, attr: str):
-        """Forward remainder of logging to underlying logger."""
-        return getattr(self._logger, attr)
+
+def Logger(name: str) -> VertexLogger:  # pylint: disable=invalid-name
+    old_class = logging.getLoggerClass()
+    try:
+        logging.setLoggerClass(VertexLogger)
+        logger = logging.getLogger(name)
+
+        # To avoid writing duplicate logs, skip adding the new handler if
+        # StreamHandler already exists in logger hierarchy.
+        parent_logger = logger
+        while parent_logger:
+            for handler in parent_logger.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    return logger
+            parent_logger = parent_logger.parent
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        logger.addHandler(handler)
+
+        return logger
+    finally:
+        logging.setLoggerClass(old_class)
 
 
 _LOGGER = Logger(__name__)
@@ -901,36 +950,7 @@ def optional_sync(
     return optional_run_in_thread
 
 
-class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager):
-    """Allows optional asynchronous calls to this Vertex AI Resource
-    Nouns."""
-
-    def __init__(
-        self,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        resource_name: Optional[str] = None,
-    ):
-        """Initializes class with project, location, and api_client.
-
-        Args:
-            project (str): Optional. Project of the resource noun.
-            location (str): Optional. The location of the resource noun.
-            credentials(google.auth.credentials.Credentials):
-                Optional. custom credentials to use when accessing interacting with
-                resource noun.
-            resource_name(str): A fully-qualified resource name or ID.
-        """
-        VertexAiResourceNoun.__init__(
-            self,
-            project=project,
-            location=location,
-            credentials=credentials,
-            resource_name=resource_name,
-        )
-        FutureManager.__init__(self)
-
+class _VertexAiResourceNounPlus(VertexAiResourceNoun):
     @classmethod
     def _empty_constructor(
         cls,
@@ -938,11 +958,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         resource_name: Optional[str] = None,
-    ) -> "VertexAiResourceNounWithFutureManager":
+    ) -> "_VertexAiResourceNounPlus":
         """Initializes with all attributes set to None.
-
-        The attributes should be populated after a future is complete. This allows
-        scheduling of additional API calls before the resource is created.
 
         Args:
             project (str): Optional. Project of the resource noun.
@@ -962,39 +979,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials=credentials,
             resource_name=resource_name,
         )
-        FutureManager.__init__(self)
         self._gca_resource = None
         return self
-
-    def _sync_object_with_future_result(
-        self, result: "VertexAiResourceNounWithFutureManager"
-    ):
-        """Populates attributes from a Future result to this object.
-
-        Args:
-            result: VertexAiResourceNounWithFutureManager
-                Required. Result of future with same type as this object.
-        """
-        sync_attributes = [
-            "project",
-            "location",
-            "api_client",
-            "_gca_resource",
-            "credentials",
-        ]
-        optional_sync_attributes = [
-            "_prediction_client",
-            "_authorized_session",
-            "_raw_predict_request_url",
-        ]
-
-        for attribute in sync_attributes:
-            setattr(self, attribute, getattr(result, attribute))
-
-        for attribute in optional_sync_attributes:
-            value = getattr(result, attribute, None)
-            if value:
-                setattr(self, attribute, value)
 
     @classmethod
     def _construct_sdk_resource_from_gapic(
@@ -1143,6 +1129,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -1179,6 +1166,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1192,6 +1181,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
         if order_by:
@@ -1205,6 +1195,111 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             )
 
         return li
+
+    def _delete(self) -> None:
+        """Deletes this Vertex AI resource. WARNING: This deletion is permanent."""
+        _LOGGER.log_action_start_against_resource("Deleting", "", self)
+        lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Delete", "", self.__class__, lro
+        )
+        lro.result()
+        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
+
+
+class VertexAiResourceNounWithFutureManager(_VertexAiResourceNounPlus, FutureManager):
+    """Allows optional asynchronous calls to this Vertex AI Resource
+    Nouns."""
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ):
+        """Initializes class with project, location, and api_client.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.credentials.Credentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
+        """
+        _VertexAiResourceNounPlus.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+        FutureManager.__init__(self)
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "VertexAiResourceNounWithFutureManager":
+        """Initializes with all attributes set to None.
+
+        The attributes should be populated after a future is complete. This allows
+        scheduling of additional API calls before the resource is created.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.credentials.Credentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
+        Returns:
+            An instance of this class with attributes set to None.
+        """
+        self = cls.__new__(cls)
+        VertexAiResourceNoun.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+        FutureManager.__init__(self)
+        self._gca_resource = None
+        return self
+
+    def _sync_object_with_future_result(
+        self, result: "VertexAiResourceNounWithFutureManager"
+    ):
+        """Populates attributes from a Future result to this object.
+
+        Args:
+            result: VertexAiResourceNounWithFutureManager
+                Required. Result of future with same type as this object.
+        """
+        sync_attributes = [
+            "project",
+            "location",
+            "api_client",
+            "_gca_resource",
+            "credentials",
+        ]
+        optional_sync_attributes = [
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
+
+        for attribute in sync_attributes:
+            setattr(self, attribute, getattr(result, attribute))
+
+        for attribute in optional_sync_attributes:
+            value = getattr(result, attribute, None)
+            if value:
+                setattr(self, attribute, value)
 
     @classmethod
     def list(
@@ -1270,13 +1365,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        _LOGGER.log_action_start_against_resource("Deleting", "", self)
-        lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Delete", "", self.__class__, lro
-        )
-        lro.result()
-        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
+        self._delete()
 
     def __repr__(self) -> str:
         if self._gca_resource and self._resource_is_available:

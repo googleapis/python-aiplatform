@@ -19,10 +19,8 @@ import test_constants as constants
 
 def test_create_custom_job_with_experiment_autologging_sample(
     mock_sdk_init,
-    mock_create_tensorboard,
     mock_get_custom_job_from_local_script,
     mock_run_custom_job,
-    mock_tensorboard,
 ):
     create_custom_job_with_experiment_autologging_sample.create_custom_job_with_experiment_autologging_sample(
         project=constants.PROJECT,
@@ -40,13 +38,7 @@ def test_create_custom_job_with_experiment_autologging_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         staging_bucket=constants.STAGING_BUCKET,
-    )
-
-    mock_create_tensorboard.assert_called_once()
-
-    mock_sdk_init.assert_any_call(
         experiment=constants.EXPERIMENT_NAME,
-        experiment_tensorboard=mock_tensorboard,
     )
 
     mock_get_custom_job_from_local_script.assert_called_once_with(

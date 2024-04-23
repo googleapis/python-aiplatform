@@ -28,25 +28,21 @@ from unittest import mock
 
 from google.api_core import datetime_helpers
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import (
-    tensorboard_service_client,
-)
+from google.cloud.aiplatform.compat.services import tensorboard_service_client
 from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_run as tensorboard_run_type,
-)
+from google.cloud.aiplatform.compat.types import tensorboard_run as tensorboard_run_type
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as tensorboard_time_series_type,
 )
+from google.cloud.aiplatform.tensorboard import logdir_loader
+from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
 from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
-    profile_uploader,
-)
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
@@ -65,9 +61,6 @@ from tensorboard.compat.proto import types_pb2
 from tensorboard.plugins.graph import metadata as graphs_metadata
 from tensorboard.plugins.scalar import metadata as scalars_metadata
 from tensorboard.summary import v1 as summary_v1
-from tensorboard.uploader import logdir_loader
-from tensorboard.uploader import upload_tracker
-from tensorboard.uploader import util
 from tensorboard.uploader.proto import server_info_pb2
 
 data_compat = uploader_lib.event_file_loader.data_compat
@@ -81,6 +74,14 @@ _SCALARS_HISTOGRAMS_AND_GRAPHS = frozenset(
         graphs_metadata.PLUGIN_NAME,
     )
 )
+
+_SCALARS_HISTOGRAMS_AND_PROFILE = frozenset(
+    (
+        scalars_metadata.PLUGIN_NAME,
+        "profile",
+    )
+)
+
 
 # Sentinel for `_create_*` helpers, for arguments for which we want to
 # supply a default other than the `None` used by the code under test.
@@ -222,9 +223,9 @@ def _create_uploader(
     if max_tensor_point_size is _USE_DEFAULT:
         max_tensor_point_size = 16000
     if logdir_poll_rate_limiter is _USE_DEFAULT:
-        logdir_poll_rate_limiter = util.RateLimiter(0)
+        logdir_poll_rate_limiter = uploader_utils.RateLimiter(0)
     if rpc_rate_limiter is _USE_DEFAULT:
-        rpc_rate_limiter = util.RateLimiter(0)
+        rpc_rate_limiter = uploader_utils.RateLimiter(0)
 
     upload_limits = server_info_pb2.UploadLimits(
         max_scalar_request_size=max_scalar_request_size,
@@ -270,9 +271,9 @@ def _create_dispatcher(
         max_blob_request_size=128000,
     )
 
-    rpc_rate_limiter = util.RateLimiter(0)
-    tensor_rpc_rate_limiter = util.RateLimiter(0)
-    blob_rpc_rate_limiter = util.RateLimiter(0)
+    rpc_rate_limiter = uploader_utils.RateLimiter(0)
+    tensor_rpc_rate_limiter = uploader_utils.RateLimiter(0)
+    blob_rpc_rate_limiter = uploader_utils.RateLimiter(0)
 
     one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
         experiment_resource_name, api
@@ -298,7 +299,7 @@ def _create_dispatcher(
             experiment_resource_name=experiment_resource_name,
             api=api,
             upload_limits=upload_limits,
-            blob_rpc_rate_limiter=util.RateLimiter(0),
+            blob_rpc_rate_limiter=uploader_utils.RateLimiter(0),
             blob_storage_bucket=_create_mock_blob_storage(),
             source_bucket=_create_mock_blob_storage(),
             blob_storage_folder=None,
@@ -325,7 +326,7 @@ def _create_scalar_request_sender(
             experiment_resource_id, api
         ),
         api=api,
-        rpc_rate_limiter=util.RateLimiter(0),
+        rpc_rate_limiter=uploader_utils.RateLimiter(0),
         max_request_size=max_request_size,
         tracker=upload_tracker.UploadTracker(verbosity=0),
     )
@@ -353,7 +354,7 @@ def _create_file_request_sender(
     return profile_uploader._FileRequestSender(
         run_resource_id=run_resource_id,
         api=api,
-        rpc_rate_limiter=util.RateLimiter(0),
+        rpc_rate_limiter=uploader_utils.RateLimiter(0),
         max_blob_request_size=max_blob_request_size,
         max_blob_size=max_blob_size,
         blob_storage_bucket=blob_storage_bucket,
@@ -554,9 +555,9 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_scalars(self):
         mock_client = _create_mock_client()
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
-        mock_tensor_rate_limiter = mock.create_autospec(util.RateLimiter)
-        mock_blob_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
+        mock_tensor_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
+        mock_blob_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
@@ -648,7 +649,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             batch_create_time_series
         )
 
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
@@ -718,7 +719,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         class SuccessError(Exception):
             pass
 
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         upload_call_count_box = [0]
 
         def mock_upload_once():
@@ -905,7 +906,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_graphs(self):
         mock_client = _create_mock_client()
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
         mock_bucket.blob.return_value = mock_blob
@@ -1008,7 +1009,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             with FileWriter(run_dir) as writer:
                 writer.add_event(event)
 
-        limiter = mock.create_autospec(util.RateLimiter)
+        limiter = mock.create_autospec(uploader_utils.RateLimiter)
         limiter.tick.side_effect = [None, AbortUploadError]
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
@@ -1095,7 +1096,23 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
 
         logdir = self.get_temp_dir()
         mock_client = _create_mock_client()
-        uploader = _create_uploader(mock_client, logdir)
+        builder = _create_dispatcher(
+            experiment_resource_name=_TEST_ONE_PLATFORM_EXPERIMENT_NAME,
+            api=mock_client,
+            allowed_plugins=_SCALARS_HISTOGRAMS_AND_PROFILE,
+            logdir=logdir,
+        )
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
+        mock_bucket = _create_mock_blob_storage()
+
+        uploader = _create_uploader(
+            mock_client,
+            logdir,
+            allowed_plugins=_SCALARS_HISTOGRAMS_AND_PROFILE,
+            rpc_rate_limiter=mock_rate_limiter,
+            blob_storage_bucket=mock_bucket,
+        )
+        uploader._dispatcher = builder
         uploader.create_experiment()
 
         # Convenience helpers for constructing expected requests.
@@ -1104,7 +1121,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         scalar = tensorboard_data.Scalar
 
         # Directory with scalar data
-        writer = FileWriter(logdir)
+        writer = FileWriter(os.path.join(logdir, "a"))
         metadata = summary_pb2.SummaryMetadata(
             plugin_data=summary_pb2.SummaryMetadata.PluginData(
                 plugin_name="scalars", content=b"12345"
@@ -1121,18 +1138,43 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
             value_metadata=metadata,
         )
         writer.flush()
-        writer_a = FileWriter(os.path.join(logdir, "a"))
+        writer_a = FileWriter(os.path.join(logdir, "b"))
         writer_a.add_test_summary("qux", simple_value=9.0, step=2)
         writer_a.flush()
+
+        # Directory with profile data
+        prof_run_name = "2024_04_04_04_24_24"
+        prof_path = os.path.join(
+            logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+        )
+        os.makedirs(prof_path)
+        run_path = os.path.join(prof_path, prof_run_name)
+        os.makedirs(run_path)
+        tempfile.NamedTemporaryFile(
+            prefix="c", suffix=".xplane.pb", dir=run_path, delete=False
+        )
+        self.assertNotEmpty(os.listdir(run_path))
+
         uploader_thread = threading.Thread(target=uploader.start_uploading)
         uploader_thread.start()
-        time.sleep(10)
-        self.assertEqual(3, mock_client.create_tensorboard_time_series.call_count)
-        call_args_list = mock_client.create_tensorboard_time_series.call_args_list
-        request = call_args_list[1][1]["tensorboard_time_series"]
-        self.assertEqual("scalars", request.plugin_name)
-        self.assertEqual(b"12345", request.plugin_data)
+        time.sleep(5)
 
+        # Check create_time_series calls
+        self.assertEqual(4, mock_client.create_tensorboard_time_series.call_count)
+        call_args_list = mock_client.create_tensorboard_time_series.call_args_list
+        request1, request2, request3, request4 = (
+            call_args_list[0][1]["tensorboard_time_series"],
+            call_args_list[1][1]["tensorboard_time_series"],
+            call_args_list[2][1]["tensorboard_time_series"],
+            call_args_list[3][1]["tensorboard_time_series"],
+        )
+        self.assertEqual("scalars", request1.plugin_name)
+        self.assertEqual("scalars", request2.plugin_name)
+        self.assertEqual(b"12345", request2.plugin_data)
+        self.assertEqual("scalars", request3.plugin_name)
+        self.assertEqual("profile", request4.plugin_name)
+
+        # Check write_tensorboard_experiment_data calls
         self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
         call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
         request1, request2 = (
@@ -1170,7 +1212,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         self.assertProtoEquals(expected_request2[0], request2[0])
 
         uploader._end_uploading()
-        time.sleep(2)
+        time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
         mock_client.write_tensorboard_experiment_data.reset_mock()
 
@@ -1178,7 +1220,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
         uploader._end_uploading()
-        time.sleep(2)
+        time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
 
 

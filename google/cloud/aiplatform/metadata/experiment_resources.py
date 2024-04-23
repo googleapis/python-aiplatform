@@ -16,6 +16,7 @@
 #
 
 import abc
+import concurrent.futures
 from dataclasses import dataclass
 import logging
 from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
@@ -93,7 +94,7 @@ class Experiment:
     ):
         """
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         ```
 
@@ -170,7 +171,7 @@ class Experiment:
     ) -> "Experiment":
         """Creates a new experiment in Vertex AI Experiments.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.create('my-experiment', description='my description')
         ```
 
@@ -263,7 +264,7 @@ class Experiment:
 
         Otherwise creates this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.get_or_create('my-experiment', description='my description')
         ```
 
@@ -320,7 +321,7 @@ class Experiment:
     ) -> List["Experiment"]:
         """List all Vertex AI Experiments in the given project.
 
-        ```
+        ```py
         my_experiments = aiplatform.Experiment.list()
         ```
 
@@ -377,7 +378,7 @@ class Experiment:
         Does not delete Pipeline runs, Artifacts, or Executions associated to this experiment
         or experiment runs in this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.delete(delete_backing_tensorboard_runs=True)
         ```
@@ -395,12 +396,17 @@ class Experiment:
             experiment_run.delete(
                 delete_backing_tensorboard_run=delete_backing_tensorboard_runs
             )
-        self._metadata_context.delete()
+        try:
+            self._metadata_context.delete()
+        except exceptions.NotFound:
+            _LOGGER.warning(
+                f"Experiment {self.name} metadata node not found. Skipping deletion."
+            )
 
     def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         df = my_experiment.get_data_frame()
         ```
@@ -443,28 +449,41 @@ class Experiment:
         executions = execution.Execution.list(filter_str, **service_request_args)
 
         rows = []
-        for metadata_context in contexts:
-            row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
-                    metadata_context.schema_title
+        if contexts or executions:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max([len(contexts), len(executions)])
+            ) as executor:
+                futures = [
+                    executor.submit(
+                        _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
+                            metadata_context.schema_title
+                        ]._query_experiment_row,
+                        metadata_context,
+                    )
+                    for metadata_context in contexts
                 ]
-                ._query_experiment_row(metadata_context)
-                .to_dict()
-            )
-            row_dict.update({"experiment_name": self.name})
-            rows.append(row_dict)
 
-        # backward compatibility
-        for metadata_execution in executions:
-            row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution][
-                    metadata_execution.schema_title
-                ]
-                ._query_experiment_row(metadata_execution)
-                .to_dict()
-            )
-            row_dict.update({"experiment_name": self.name})
-            rows.append(row_dict)
+                # backward compatibility
+                futures.extend(
+                    executor.submit(
+                        _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution][
+                            metadata_execution.schema_title
+                        ]._query_experiment_row,
+                        metadata_execution,
+                    )
+                    for metadata_execution in executions
+                )
+
+                for future in futures:
+                    try:
+                        row_dict = future.result().to_dict()
+                    except Exception as exc:
+                        raise ValueError(
+                            f"Failed to get experiment row for {self.name}"
+                        ) from exc
+                    else:
+                        row_dict.update({"experiment_name": self.name})
+                        rows.append(row_dict)
 
         df = pd.DataFrame(rows)
 
@@ -497,7 +516,7 @@ class Experiment:
         """Returns backing tensorboard if one is set.
 
         Returns:
-            Tensorboard resource if one exists.
+            Tensorboard resource if one exists, otherwise returns None.
         """
         tensorboard_resource_name = self._metadata_context.metadata.get(
             constants._BACKING_TENSORBOARD_RESOURCE_KEY
@@ -511,17 +530,23 @@ class Experiment:
             )
 
         if tensorboard_resource_name:
-            return tensorboard_resource.Tensorboard(
-                tensorboard_resource_name,
-                credentials=self._metadata_context.credentials,
-            )
+            try:
+                return tensorboard_resource.Tensorboard(
+                    tensorboard_resource_name,
+                    credentials=self._metadata_context.credentials,
+                )
+            except exceptions.NotFound:
+                self._metadata_context.update(
+                    metadata={constants._BACKING_TENSORBOARD_RESOURCE_KEY: None}
+                )
+        return None
 
     def get_backing_tensorboard_resource(
         self,
     ) -> Optional[tensorboard_resource.Tensorboard]:
         """Get the backing tensorboard for this experiment if one exists.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         tb = my_experiment.get_backing_tensorboard_resource()
         ```
@@ -536,7 +561,7 @@ class Experiment:
     ):
         """Assigns tensorboard as backing tensorboard to support time series metrics logging.
 
-        ```
+        ```py
         tb = aiplatform.Tensorboard('tensorboard-resource-id')
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.assign_backing_tensorboard(tb)
@@ -596,6 +621,12 @@ class Experiment:
         """
         context = experiment_loggable._get_context()
         self._metadata_context.add_context_children([context])
+
+    @property
+    def dashboard_url(self) -> Optional[str]:
+        """Cloud console URL for this resource."""
+        url = f"https://console.cloud.google.com/vertex-ai/experiments/locations/{self._metadata_context.location}/experiments/{self._metadata_context.name}?project={self._metadata_context.project}"
+        return url
 
 
 class _SetLoggerLevel:

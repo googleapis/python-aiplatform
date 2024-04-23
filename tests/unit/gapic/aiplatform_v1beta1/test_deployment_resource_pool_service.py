@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,18 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
+from collections.abc import Iterable
+from google.protobuf import json_format
+import json
 import math
 import pytest
+from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
+from requests import Response
+from requests import Request, PreparedRequest
+from requests.sessions import Session
+from google.protobuf import json_format
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -66,7 +74,7 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -85,6 +93,17 @@ def modify_default_endpoint(client):
         "foo.googleapis.com"
         if ("localhost" in client.DEFAULT_ENDPOINT)
         else client.DEFAULT_ENDPOINT
+    )
+
+
+# If default endpoint template is localhost, then default mtls endpoint will be the same.
+# This method modifies the default endpoint template so the client can produce a different
+# mtls endpoint for endpoint testing purposes.
+def modify_default_endpoint_template(client):
+    return (
+        "test.{UNIVERSE_DOMAIN}"
+        if ("localhost" in client._DEFAULT_ENDPOINT_TEMPLATE)
+        else client._DEFAULT_ENDPOINT_TEMPLATE
     )
 
 
@@ -122,11 +141,312 @@ def test__get_default_mtls_endpoint():
     )
 
 
+def test__read_environment_variables():
+    assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+        False,
+        "auto",
+        None,
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            True,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            DeploymentResourcePoolServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            False,
+            "never",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            False,
+            "always",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            DeploymentResourcePoolServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
+        assert DeploymentResourcePoolServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            "foo.com",
+        )
+
+
+def test__get_client_cert_source():
+    mock_provided_cert_source = mock.Mock()
+    mock_default_cert_source = mock.Mock()
+
+    assert (
+        DeploymentResourcePoolServiceClient._get_client_cert_source(None, False) is None
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_client_cert_source(
+            mock_provided_cert_source, False
+        )
+        is None
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_client_cert_source(
+            mock_provided_cert_source, True
+        )
+        == mock_provided_cert_source
+    )
+
+    with mock.patch(
+        "google.auth.transport.mtls.has_default_client_cert_source", return_value=True
+    ):
+        with mock.patch(
+            "google.auth.transport.mtls.default_client_cert_source",
+            return_value=mock_default_cert_source,
+        ):
+            assert (
+                DeploymentResourcePoolServiceClient._get_client_cert_source(None, True)
+                is mock_default_cert_source
+            )
+            assert (
+                DeploymentResourcePoolServiceClient._get_client_cert_source(
+                    mock_provided_cert_source, "true"
+                )
+                is mock_provided_cert_source
+            )
+
+
+@mock.patch.object(
+    DeploymentResourcePoolServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceClient),
+)
+@mock.patch.object(
+    DeploymentResourcePoolServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceAsyncClient),
+)
+def test__get_api_endpoint():
+    api_override = "foo.com"
+    mock_client_cert_source = mock.Mock()
+    default_universe = DeploymentResourcePoolServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = (
+        DeploymentResourcePoolServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+            UNIVERSE_DOMAIN=default_universe
+        )
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = (
+        DeploymentResourcePoolServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+            UNIVERSE_DOMAIN=mock_universe
+        )
+    )
+
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            api_override, mock_client_cert_source, default_universe, "always"
+        )
+        == api_override
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "auto"
+        )
+        == DeploymentResourcePoolServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, None, default_universe, "auto"
+        )
+        == default_endpoint
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, None, default_universe, "always"
+        )
+        == DeploymentResourcePoolServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "always"
+        )
+        == DeploymentResourcePoolServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, None, mock_universe, "never"
+        )
+        == mock_endpoint
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, None, default_universe, "never"
+        )
+        == default_endpoint
+    )
+
+    with pytest.raises(MutualTLSChannelError) as excinfo:
+        DeploymentResourcePoolServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, mock_universe, "auto"
+        )
+    assert (
+        str(excinfo.value)
+        == "mTLS is not supported in any universe other than googleapis.com."
+    )
+
+
+def test__get_universe_domain():
+    client_universe_domain = "foo.com"
+    universe_domain_env = "bar.com"
+
+    assert (
+        DeploymentResourcePoolServiceClient._get_universe_domain(
+            client_universe_domain, universe_domain_env
+        )
+        == client_universe_domain
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_universe_domain(
+            None, universe_domain_env
+        )
+        == universe_domain_env
+    )
+    assert (
+        DeploymentResourcePoolServiceClient._get_universe_domain(None, None)
+        == DeploymentResourcePoolServiceClient._DEFAULT_UNIVERSE
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        DeploymentResourcePoolServiceClient._get_universe_domain("", None)
+    assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
+        ),
+    ],
+)
+def test__validate_universe_domain(client_class, transport_class, transport_name):
+    client = client_class(
+        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
+    )
+    assert client._validate_universe_domain() == True
+
+    # Test the case when universe is already validated.
+    assert client._validate_universe_domain() == True
+
+    if transport_name == "grpc":
+        # Test the case where credentials are provided by the
+        # `local_channel_credentials`. The default universes in both match.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        client = client_class(transport=transport_class(channel=channel))
+        assert client._validate_universe_domain() == True
+
+        # Test the case where credentials do not exist: e.g. a transport is provided
+        # with no credentials. Validation should still succeed because there is no
+        # mismatch with non-existent credentials.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        transport = transport_class(channel=channel)
+        transport._credentials = None
+        client = client_class(transport=transport)
+        assert client._validate_universe_domain() == True
+
+    # TODO: This is needed to cater for older versions of google-auth
+    # Make this test unconditional once the minimum supported version of
+    # google-auth becomes 2.23.0 or higher.
+    google_auth_major, google_auth_minor = [
+        int(part) for part in google.auth.__version__.split(".")[0:2]
+    ]
+    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
+        credentials = ga_credentials.AnonymousCredentials()
+        credentials._universe_domain = "foo.com"
+        # Test the case when there is a universe mismatch from the credentials.
+        client = client_class(transport=transport_class(credentials=credentials))
+        with pytest.raises(ValueError) as excinfo:
+            client._validate_universe_domain()
+        assert (
+            str(excinfo.value)
+            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+        )
+
+        # Test the case when there is a universe mismatch from the client.
+        #
+        # TODO: Make this test unconditional once the minimum supported version of
+        # google-api-core becomes 2.15.0 or higher.
+        api_core_major, api_core_minor = [
+            int(part) for part in api_core_version.__version__.split(".")[0:2]
+        ]
+        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
+            client = client_class(
+                client_options={"universe_domain": "bar.com"},
+                transport=transport_class(
+                    credentials=ga_credentials.AnonymousCredentials(),
+                ),
+            )
+            with pytest.raises(ValueError) as excinfo:
+                client._validate_universe_domain()
+            assert (
+                str(excinfo.value)
+                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+            )
+
+    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
+    with pytest.raises(ValueError):
+        client._compare_universes("foo.bar", None)
+
+
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
         (DeploymentResourcePoolServiceClient, "grpc"),
         (DeploymentResourcePoolServiceAsyncClient, "grpc_asyncio"),
+        (DeploymentResourcePoolServiceClient, "rest"),
     ],
 )
 def test_deployment_resource_pool_service_client_from_service_account_info(
@@ -142,7 +462,11 @@ def test_deployment_resource_pool_service_client_from_service_account_info(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 @pytest.mark.parametrize(
@@ -150,6 +474,7 @@ def test_deployment_resource_pool_service_client_from_service_account_info(
     [
         (transports.DeploymentResourcePoolServiceGrpcTransport, "grpc"),
         (transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.DeploymentResourcePoolServiceRestTransport, "rest"),
     ],
 )
 def test_deployment_resource_pool_service_client_service_account_always_use_jwt(
@@ -175,6 +500,7 @@ def test_deployment_resource_pool_service_client_service_account_always_use_jwt(
     [
         (DeploymentResourcePoolServiceClient, "grpc"),
         (DeploymentResourcePoolServiceAsyncClient, "grpc_asyncio"),
+        (DeploymentResourcePoolServiceClient, "rest"),
     ],
 )
 def test_deployment_resource_pool_service_client_from_service_account_file(
@@ -197,13 +523,18 @@ def test_deployment_resource_pool_service_client_from_service_account_file(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 def test_deployment_resource_pool_service_client_get_transport_class():
     transport = DeploymentResourcePoolServiceClient.get_transport_class()
     available_transports = [
         transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceRestTransport,
     ]
     assert transport in available_transports
 
@@ -224,17 +555,22 @@ def test_deployment_resource_pool_service_client_get_transport_class():
             transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
+        ),
     ],
 )
 @mock.patch.object(
     DeploymentResourcePoolServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(DeploymentResourcePoolServiceClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceClient),
 )
 @mock.patch.object(
     DeploymentResourcePoolServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(DeploymentResourcePoolServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceAsyncClient),
 )
 def test_deployment_resource_pool_service_client_client_options(
     client_class, transport_class, transport_name
@@ -280,7 +616,9 @@ def test_deployment_resource_pool_service_client_client_options(
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,
@@ -310,15 +648,23 @@ def test_deployment_resource_pool_service_client_client_options(
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
-        with pytest.raises(MutualTLSChannelError):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
@@ -328,7 +674,9 @@ def test_deployment_resource_pool_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id="octopus",
@@ -346,7 +694,9 @@ def test_deployment_resource_pool_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -383,17 +733,29 @@ def test_deployment_resource_pool_service_client_client_options(
             "grpc_asyncio",
             "false",
         ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
+            "true",
+        ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
+            "false",
+        ),
     ],
 )
 @mock.patch.object(
     DeploymentResourcePoolServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(DeploymentResourcePoolServiceClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceClient),
 )
 @mock.patch.object(
     DeploymentResourcePoolServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(DeploymentResourcePoolServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
 def test_deployment_resource_pool_service_client_mtls_env_auto(
@@ -416,7 +778,9 @@ def test_deployment_resource_pool_service_client_mtls_env_auto(
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
-                expected_host = client.DEFAULT_ENDPOINT
+                expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                )
             else:
                 expected_client_cert_source = client_cert_source_callback
                 expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -448,7 +812,9 @@ def test_deployment_resource_pool_service_client_mtls_env_auto(
                     return_value=client_cert_source_callback,
                 ):
                     if use_client_cert_env == "false":
-                        expected_host = client.DEFAULT_ENDPOINT
+                        expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                            UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                        )
                         expected_client_cert_source = None
                     else:
                         expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -482,7 +848,9 @@ def test_deployment_resource_pool_service_client_mtls_env_auto(
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
-                    host=client.DEFAULT_ENDPOINT,
+                    host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                        UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                    ),
                     scopes=None,
                     client_cert_source_for_mtls=None,
                     quota_project_id=None,
@@ -575,6 +943,120 @@ def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_sour
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
+    # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
+    # unsupported value.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+        )
+
+    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+        )
+
+
+@pytest.mark.parametrize(
+    "client_class",
+    [DeploymentResourcePoolServiceClient, DeploymentResourcePoolServiceAsyncClient],
+)
+@mock.patch.object(
+    DeploymentResourcePoolServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceClient),
+)
+@mock.patch.object(
+    DeploymentResourcePoolServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(DeploymentResourcePoolServiceAsyncClient),
+)
+def test_deployment_resource_pool_service_client_client_api_endpoint(client_class):
+    mock_client_cert_source = client_cert_source_callback
+    api_override = "foo.com"
+    default_universe = DeploymentResourcePoolServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = (
+        DeploymentResourcePoolServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+            UNIVERSE_DOMAIN=default_universe
+        )
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = (
+        DeploymentResourcePoolServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+            UNIVERSE_DOMAIN=mock_universe
+        )
+    )
+
+    # If ClientOptions.api_endpoint is set and GOOGLE_API_USE_CLIENT_CERTIFICATE="true",
+    # use ClientOptions.api_endpoint as the api endpoint regardless.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+        ):
+            options = client_options.ClientOptions(
+                client_cert_source=mock_client_cert_source, api_endpoint=api_override
+            )
+            client = client_class(
+                client_options=options,
+                credentials=ga_credentials.AnonymousCredentials(),
+            )
+            assert client.api_endpoint == api_override
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == default_endpoint
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="always",
+    # use the DEFAULT_MTLS_ENDPOINT as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+
+    # If ClientOptions.api_endpoint is not set, GOOGLE_API_USE_MTLS_ENDPOINT="auto" (default),
+    # GOOGLE_API_USE_CLIENT_CERTIFICATE="false" (default), default cert source doesn't exist,
+    # and ClientOptions.universe_domain="bar.com",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with universe domain as the api endpoint.
+    options = client_options.ClientOptions()
+    universe_exists = hasattr(options, "universe_domain")
+    if universe_exists:
+        options = client_options.ClientOptions(universe_domain=mock_universe)
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    else:
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    assert client.api_endpoint == (
+        mock_endpoint if universe_exists else default_endpoint
+    )
+    assert client.universe_domain == (
+        mock_universe if universe_exists else default_universe
+    )
+
+    # If ClientOptions does not have a universe domain attribute and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    options = client_options.ClientOptions()
+    if hasattr(options, "universe_domain"):
+        delattr(options, "universe_domain")
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+        assert client.api_endpoint == default_endpoint
+
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
@@ -588,6 +1070,11 @@ def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_sour
             DeploymentResourcePoolServiceAsyncClient,
             transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+        ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
         ),
     ],
 )
@@ -604,7 +1091,9 @@ def test_deployment_resource_pool_service_client_client_options_scopes(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=["1", "2"],
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -629,6 +1118,12 @@ def test_deployment_resource_pool_service_client_client_options_scopes(
             "grpc_asyncio",
             grpc_helpers_async,
         ),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceRestTransport,
+            "rest",
+            None,
+        ),
     ],
 )
 def test_deployment_resource_pool_service_client_client_options_credentials_file(
@@ -643,7 +1138,9 @@ def test_deployment_resource_pool_service_client_client_options_credentials_file
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -703,7 +1200,9 @@ def test_deployment_resource_pool_service_client_create_channel_credentials_file
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -769,10 +1268,8 @@ def test_create_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -791,6 +1288,63 @@ def test_create_deployment_resource_pool_empty_call():
         type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
         client.create_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        )
+
+
+def test_create_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(
+        parent="parent_value",
+        deployment_resource_pool_id="deployment_resource_pool_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        client.create_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(
+            parent="parent_value",
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -826,10 +1380,8 @@ async def test_create_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1053,10 +1605,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
@@ -1076,6 +1626,63 @@ def test_get_deployment_resource_pool_empty_call():
         type(client.transport.get_deployment_resource_pool), "__call__"
     ) as call:
         client.get_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        )
+
+
+def test_get_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        client.get_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool.DeploymentResourcePool(
+                name="name_value",
+            )
+        )
+        response = await client.get_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1113,10 +1720,8 @@ async def test_get_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
@@ -1311,10 +1916,8 @@ def test_list_deployment_resource_pools(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
-        )
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDeploymentResourcePoolsPager)
@@ -1334,6 +1937,65 @@ def test_list_deployment_resource_pools_empty_call():
         type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         client.list_deployment_resource_pools()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        )
+
+
+def test_list_deployment_resource_pools_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        client.list_deployment_resource_pools(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_deployment_resource_pools_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_deployment_resource_pools()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1371,10 +2033,8 @@ async def test_list_deployment_resource_pools_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
-        )
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDeploymentResourcePoolsAsyncPager)
@@ -1545,7 +2205,7 @@ async def test_list_deployment_resource_pools_flattened_error_async():
 
 def test_list_deployment_resource_pools_pager(transport_name: str = "grpc"):
     client = DeploymentResourcePoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -1600,7 +2260,7 @@ def test_list_deployment_resource_pools_pager(transport_name: str = "grpc"):
 
 def test_list_deployment_resource_pools_pages(transport_name: str = "grpc"):
     client = DeploymentResourcePoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -1644,7 +2304,7 @@ def test_list_deployment_resource_pools_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_deployment_resource_pools_async_pager():
     client = DeploymentResourcePoolServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1699,7 +2359,7 @@ async def test_list_deployment_resource_pools_async_pager():
 @pytest.mark.asyncio
 async def test_list_deployment_resource_pools_async_pages():
     client = DeploymentResourcePoolServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1737,9 +2397,11 @@ async def test_list_deployment_resource_pools_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_deployment_resource_pools(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -1773,10 +2435,8 @@ def test_delete_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1795,6 +2455,61 @@ def test_delete_deployment_resource_pool_empty_call():
         type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         client.delete_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        )
+
+
+def test_delete_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_deployment_resource_pool), "__call__"
+    ) as call:
+        client.delete_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1830,10 +2545,8 @@ async def test_delete_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2029,7 +2742,8 @@ def test_query_deployed_models(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsPager)
@@ -2051,6 +2765,62 @@ def test_query_deployed_models_empty_call():
         type(client.transport.query_deployed_models), "__call__"
     ) as call:
         client.query_deployed_models()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+
+def test_query_deployed_models_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.QueryDeployedModelsRequest(
+        deployment_resource_pool="deployment_resource_pool_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        client.query_deployed_models(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest(
+            deployment_resource_pool="deployment_resource_pool_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                next_page_token="next_page_token_value",
+                total_deployed_model_count=2769,
+                total_endpoint_count=2156,
+            )
+        )
+        response = await client.query_deployed_models()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
@@ -2087,7 +2857,8 @@ async def test_query_deployed_models_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsAsyncPager)
@@ -2260,7 +3031,7 @@ async def test_query_deployed_models_flattened_error_async():
 
 def test_query_deployed_models_pager(transport_name: str = "grpc"):
     client = DeploymentResourcePoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -2314,7 +3085,7 @@ def test_query_deployed_models_pager(transport_name: str = "grpc"):
 
 def test_query_deployed_models_pages(transport_name: str = "grpc"):
     client = DeploymentResourcePoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -2358,7 +3129,7 @@ def test_query_deployed_models_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_query_deployed_models_async_pager():
     client = DeploymentResourcePoolServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2410,7 +3181,7 @@ async def test_query_deployed_models_async_pager():
 @pytest.mark.asyncio
 async def test_query_deployed_models_async_pages():
     client = DeploymentResourcePoolServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2448,10 +3219,1600 @@ async def test_query_deployed_models_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.query_deployed_models(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
+        dict,
+    ],
+)
+def test_create_deployment_resource_pool_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_deployment_resource_pool(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_create_deployment_resource_pool_rest_required_fields(
+    request_type=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
+):
+    transport_class = transports.DeploymentResourcePoolServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request_init["deployment_resource_pool_id"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["deploymentResourcePoolId"] = "deployment_resource_pool_id_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "deploymentResourcePoolId" in jsonified_request
+    assert (
+        jsonified_request["deploymentResourcePoolId"]
+        == "deployment_resource_pool_id_value"
+    )
+
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_deployment_resource_pool(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_deployment_resource_pool_rest_unset_required_fields():
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_deployment_resource_pool._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "deploymentResourcePool",
+                "deploymentResourcePoolId",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_deployment_resource_pool_rest_interceptors(null_interceptor):
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
+    )
+    client = DeploymentResourcePoolServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_create_deployment_resource_pool",
+    ) as post, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "pre_create_deployment_resource_pool",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = (
+            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.pb(
+                deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+            )
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_deployment_resource_pool(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_deployment_resource_pool_rest_bad_request(
+    transport: str = "rest",
+    request_type=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_deployment_resource_pool(request)
+
+
+def test_create_deployment_resource_pool_rest_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_deployment_resource_pool(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/deploymentResourcePools"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_deployment_resource_pool_rest_flattened_error(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_deployment_resource_pool(
+            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(),
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+
+def test_create_deployment_resource_pool_rest_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
+        dict,
+    ],
+)
+def test_get_deployment_resource_pool_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = deployment_resource_pool.DeploymentResourcePool(
+            name="name_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = deployment_resource_pool.DeploymentResourcePool.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_deployment_resource_pool(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
+    assert response.name == "name_value"
+
+
+def test_get_deployment_resource_pool_rest_required_fields(
+    request_type=deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
+):
+    transport_class = transports.DeploymentResourcePoolServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = deployment_resource_pool.DeploymentResourcePool()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = deployment_resource_pool.DeploymentResourcePool.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_deployment_resource_pool(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_deployment_resource_pool_rest_unset_required_fields():
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_deployment_resource_pool._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_deployment_resource_pool_rest_interceptors(null_interceptor):
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
+    )
+    client = DeploymentResourcePoolServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_get_deployment_resource_pool",
+    ) as post, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "pre_get_deployment_resource_pool",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = (
+            deployment_resource_pool_service.GetDeploymentResourcePoolRequest.pb(
+                deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+            )
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            deployment_resource_pool.DeploymentResourcePool.to_json(
+                deployment_resource_pool.DeploymentResourcePool()
+            )
+        )
+
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = deployment_resource_pool.DeploymentResourcePool()
+
+        client.get_deployment_resource_pool(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_deployment_resource_pool_rest_bad_request(
+    transport: str = "rest",
+    request_type=deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_deployment_resource_pool(request)
+
+
+def test_get_deployment_resource_pool_rest_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = deployment_resource_pool.DeploymentResourcePool()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = deployment_resource_pool.DeploymentResourcePool.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_deployment_resource_pool(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_deployment_resource_pool_rest_flattened_error(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_deployment_resource_pool(
+            deployment_resource_pool_service.GetDeploymentResourcePoolRequest(),
+            name="name_value",
+        )
+
+
+def test_get_deployment_resource_pool_rest_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+        dict,
+    ],
+)
+def test_list_deployment_resource_pools_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_deployment_resource_pools(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDeploymentResourcePoolsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_deployment_resource_pools_rest_required_fields(
+    request_type=deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+):
+    transport_class = transports.DeploymentResourcePoolServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_deployment_resource_pools._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_deployment_resource_pools._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = (
+        deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+    )
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_deployment_resource_pools(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_deployment_resource_pools_rest_unset_required_fields():
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_deployment_resource_pools._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_deployment_resource_pools_rest_interceptors(null_interceptor):
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
+    )
+    client = DeploymentResourcePoolServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_list_deployment_resource_pools",
+    ) as post, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "pre_list_deployment_resource_pools",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.pb(
+                deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+            )
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.to_json(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
+
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
+
+        client.list_deployment_resource_pools(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_deployment_resource_pools_rest_bad_request(
+    transport: str = "rest",
+    request_type=deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_deployment_resource_pools(request)
+
+
+def test_list_deployment_resource_pools_rest_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_deployment_resource_pools(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/deploymentResourcePools"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_deployment_resource_pools_rest_flattened_error(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_deployment_resource_pools(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_deployment_resource_pools_rest_pager(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.to_json(
+                x
+            )
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_deployment_resource_pools(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, deployment_resource_pool.DeploymentResourcePool)
+            for i in results
+        )
+
+        pages = list(
+            client.list_deployment_resource_pools(request=sample_request).pages
+        )
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
+        dict,
+    ],
+)
+def test_delete_deployment_resource_pool_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_deployment_resource_pool(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_deployment_resource_pool_rest_required_fields(
+    request_type=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
+):
+    transport_class = transports.DeploymentResourcePoolServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_deployment_resource_pool._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_deployment_resource_pool(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_deployment_resource_pool_rest_unset_required_fields():
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_deployment_resource_pool._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_deployment_resource_pool_rest_interceptors(null_interceptor):
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
+    )
+    client = DeploymentResourcePoolServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_delete_deployment_resource_pool",
+    ) as post, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "pre_delete_deployment_resource_pool",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = (
+            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.pb(
+                deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+            )
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_deployment_resource_pool(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_deployment_resource_pool_rest_bad_request(
+    transport: str = "rest",
+    request_type=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_deployment_resource_pool(request)
+
+
+def test_delete_deployment_resource_pool_rest_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_deployment_resource_pool(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_deployment_resource_pool_rest_flattened_error(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_deployment_resource_pool(
+            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_deployment_resource_pool_rest_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.QueryDeployedModelsRequest,
+        dict,
+    ],
+)
+def test_query_deployed_models_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "deployment_resource_pool": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = deployment_resource_pool_service.QueryDeployedModelsResponse(
+            next_page_token="next_page_token_value",
+            total_deployed_model_count=2769,
+            total_endpoint_count=2156,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = deployment_resource_pool_service.QueryDeployedModelsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.query_deployed_models(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.QueryDeployedModelsPager)
+    assert response.next_page_token == "next_page_token_value"
+    assert response.total_deployed_model_count == 2769
+    assert response.total_endpoint_count == 2156
+
+
+def test_query_deployed_models_rest_required_fields(
+    request_type=deployment_resource_pool_service.QueryDeployedModelsRequest,
+):
+    transport_class = transports.DeploymentResourcePoolServiceRestTransport
+
+    request_init = {}
+    request_init["deployment_resource_pool"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).query_deployed_models._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["deploymentResourcePool"] = "deployment_resource_pool_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).query_deployed_models._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "deploymentResourcePool" in jsonified_request
+    assert (
+        jsonified_request["deploymentResourcePool"] == "deployment_resource_pool_value"
+    )
+
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = deployment_resource_pool_service.QueryDeployedModelsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                deployment_resource_pool_service.QueryDeployedModelsResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.query_deployed_models(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_query_deployed_models_rest_unset_required_fields():
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.query_deployed_models._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("deploymentResourcePool",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_query_deployed_models_rest_interceptors(null_interceptor):
+    transport = transports.DeploymentResourcePoolServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
+    )
+    client = DeploymentResourcePoolServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_query_deployed_models",
+    ) as post, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
+        "pre_query_deployed_models",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = deployment_resource_pool_service.QueryDeployedModelsRequest.pb(
+            deployment_resource_pool_service.QueryDeployedModelsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse.to_json(
+                deployment_resource_pool_service.QueryDeployedModelsResponse()
+            )
+        )
+
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+
+        client.query_deployed_models(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_query_deployed_models_rest_bad_request(
+    transport: str = "rest",
+    request_type=deployment_resource_pool_service.QueryDeployedModelsRequest,
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "deployment_resource_pool": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.query_deployed_models(request)
+
+
+def test_query_deployed_models_rest_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = deployment_resource_pool_service.QueryDeployedModelsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "deployment_resource_pool": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = deployment_resource_pool_service.QueryDeployedModelsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.query_deployed_models(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{deployment_resource_pool=projects/*/locations/*/deploymentResourcePools/*}:queryDeployedModels"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_query_deployed_models_rest_flattened_error(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.query_deployed_models(
+            deployment_resource_pool_service.QueryDeployedModelsRequest(),
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+
+
+def test_query_deployed_models_rest_pager(transport: str = "rest"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            deployment_resource_pool_service.QueryDeployedModelsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "deployment_resource_pool": "projects/sample1/locations/sample2/deploymentResourcePools/sample3"
+        }
+
+        pager = client.query_deployed_models(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, endpoint.DeployedModel) for i in results)
+
+        pages = list(client.query_deployed_models(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
@@ -2490,7 +4851,7 @@ def test_credentials_transport_error():
         )
 
     # It is an error to provide an api_key and a credential.
-    options = mock.Mock()
+    options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
         client = DeploymentResourcePoolServiceClient(
@@ -2537,6 +4898,7 @@ def test_transport_get_channel():
     [
         transports.DeploymentResourcePoolServiceGrpcTransport,
         transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceRestTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -2551,6 +4913,7 @@ def test_transport_adc(transport_class):
     "transport_name",
     [
         "grpc",
+        "rest",
     ],
 )
 def test_transport_kind(transport_name):
@@ -2699,6 +5062,7 @@ def test_deployment_resource_pool_service_transport_auth_adc(transport_class):
     [
         transports.DeploymentResourcePoolServiceGrpcTransport,
         transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceRestTransport,
     ],
 )
 def test_deployment_resource_pool_service_transport_auth_gdch_credentials(
@@ -2805,11 +5169,40 @@ def test_deployment_resource_pool_service_grpc_transport_client_cert_source_for_
             )
 
 
+def test_deployment_resource_pool_service_http_transport_client_cert_source_for_mtls():
+    cred = ga_credentials.AnonymousCredentials()
+    with mock.patch(
+        "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+    ) as mock_configure_mtls_channel:
+        transports.DeploymentResourcePoolServiceRestTransport(
+            credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
+        )
+        mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
+
+
+def test_deployment_resource_pool_service_rest_lro_client():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have a api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
 @pytest.mark.parametrize(
     "transport_name",
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_deployment_resource_pool_service_host_no_port(transport_name):
@@ -2820,7 +5213,11 @@ def test_deployment_resource_pool_service_host_no_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:443")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:443"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com"
+    )
 
 
 @pytest.mark.parametrize(
@@ -2828,6 +5225,7 @@ def test_deployment_resource_pool_service_host_no_port(transport_name):
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_deployment_resource_pool_service_host_with_port(transport_name):
@@ -2838,7 +5236,47 @@ def test_deployment_resource_pool_service_host_with_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:8000")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:8000"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com:8000"
+    )
+
+
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "rest",
+    ],
+)
+def test_deployment_resource_pool_service_client_transport_session_collision(
+    transport_name,
+):
+    creds1 = ga_credentials.AnonymousCredentials()
+    creds2 = ga_credentials.AnonymousCredentials()
+    client1 = DeploymentResourcePoolServiceClient(
+        credentials=creds1,
+        transport=transport_name,
+    )
+    client2 = DeploymentResourcePoolServiceClient(
+        credentials=creds2,
+        transport=transport_name,
+    )
+    session1 = client1.transport.create_deployment_resource_pool._session
+    session2 = client2.transport.create_deployment_resource_pool._session
+    assert session1 != session2
+    session1 = client1.transport.get_deployment_resource_pool._session
+    session2 = client2.transport.get_deployment_resource_pool._session
+    assert session1 != session2
+    session1 = client1.transport.list_deployment_resource_pools._session
+    session2 = client2.transport.list_deployment_resource_pools._session
+    assert session1 != session2
+    session1 = client1.transport.delete_deployment_resource_pool._session
+    session2 = client2.transport.delete_deployment_resource_pool._session
+    assert session1 != session2
+    session1 = client1.transport.query_deployed_models._session
+    session2 = client2.transport.query_deployed_models._session
+    assert session1 != session2
 
 
 def test_deployment_resource_pool_service_grpc_transport_channel():
@@ -3229,6 +5667,593 @@ async def test_transport_close_async():
         close.assert_called_once()
 
 
+def test_get_location_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
+):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
 def test_delete_operation(transport: str = "grpc"):
     client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -3254,7 +6279,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3393,7 +6418,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3532,7 +6557,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3677,7 +6702,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3822,7 +6847,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3967,7 +6992,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4742,6 +7767,7 @@ async def test_test_iam_permissions_from_dict_async():
 
 def test_transport_close():
     transports = {
+        "rest": "_session",
         "grpc": "_grpc_channel",
     }
 
@@ -4759,6 +7785,7 @@ def test_transport_close():
 
 def test_client_ctx():
     transports = [
+        "rest",
         "grpc",
     ]
     for transport in transports:
@@ -4800,7 +7827,9 @@ def test_api_key_credentials(client_class, transport_class):
             patched.assert_called_once_with(
                 credentials=mock_cred,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,

@@ -36,6 +36,9 @@ from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_experiment
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.tensorboard import logdir_loader
+from google.cloud.aiplatform.tensorboard import upload_tracker
+from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
     profile_uploader,
@@ -59,9 +62,6 @@ from tensorboard.compat.proto import graph_pb2
 from tensorboard.compat.proto import summary_pb2
 from tensorboard.compat.proto import types_pb2
 from tensorboard.plugins.graph import metadata as graph_metadata
-from tensorboard.uploader import logdir_loader
-from tensorboard.uploader import upload_tracker
-from tensorboard.uploader import util
 from tensorboard.uploader.proto import server_info_pb2
 from tensorboard.util import tb_logging
 from tensorboard.util import tensor_util
@@ -69,41 +69,6 @@ from tensorboard.util import tensor_util
 _LOGGER = base.Logger(__name__)
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
-
-# Minimum length of a logdir polling cycle in seconds. Shorter cycles will
-# sleep to avoid spinning over the logdir, which isn't great for disks and can
-# be expensive for network file systems.
-_MIN_LOGDIR_POLL_INTERVAL_SECS = 1
-
-# Maximum length of a base-128 varint as used to encode a 64-bit value
-# (without the "msb of last byte is bit 63" optimization, to be
-# compatible with protobuf and golang varints).
-_MAX_VARINT64_LENGTH_BYTES = 10
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
-
-# Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2**10)  # 128KiB
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_TENSOR_REQUEST_INTERVAL = 10
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 10
-
-# Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2**10)  # 512KiB
-
-_DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2**10)  # 24KiB
-
-# Default maximum tensor point size in bytes.
-_DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
-
-_DEFAULT_MAX_BLOB_SIZE = 10 * (2**30)  # 10GiB
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -132,10 +97,10 @@ class TensorBoardUploader(object):
         allowed_plugins: FrozenSet[str],
         experiment_display_name: Optional[str] = None,
         upload_limits: Optional[server_info_pb2.UploadLimits] = None,
-        logdir_poll_rate_limiter: Optional[util.RateLimiter] = None,
-        rpc_rate_limiter: Optional[util.RateLimiter] = None,
-        tensor_rpc_rate_limiter: Optional[util.RateLimiter] = None,
-        blob_rpc_rate_limiter: Optional[util.RateLimiter] = None,
+        logdir_poll_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
+        rpc_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
+        tensor_rpc_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
+        blob_rpc_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
         description: Optional[str] = None,
         verbosity: int = 1,
         one_shot: bool = False,
@@ -197,51 +162,55 @@ class TensorBoardUploader(object):
         if not self._upload_limits:
             self._upload_limits = server_info_pb2.UploadLimits()
             self._upload_limits.max_scalar_request_size = (
-                _DEFAULT_MAX_SCALAR_REQUEST_SIZE
+                uploader_constants.DEFAULT_MAX_SCALAR_REQUEST_SIZE
             )
             self._upload_limits.min_scalar_request_interval = (
-                _DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
             )
             self._upload_limits.min_tensor_request_interval = (
-                _DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
             )
             self._upload_limits.max_tensor_request_size = (
-                _DEFAULT_MAX_TENSOR_REQUEST_SIZE
+                uploader_constants.DEFAULT_MAX_TENSOR_REQUEST_SIZE
             )
-            self._upload_limits.max_tensor_point_size = _DEFAULT_MAX_TENSOR_POINT_SIZE
+            self._upload_limits.max_tensor_point_size = (
+                uploader_constants.DEFAULT_MAX_TENSOR_POINT_SIZE
+            )
             self._upload_limits.min_blob_request_interval = (
-                _DEFAULT_MIN_BLOB_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_BLOB_REQUEST_INTERVAL
             )
-            self._upload_limits.max_blob_request_size = _DEFAULT_MAX_BLOB_REQUEST_SIZE
-            self._upload_limits.max_blob_size = _DEFAULT_MAX_BLOB_SIZE
+            self._upload_limits.max_blob_request_size = (
+                uploader_constants.DEFAULT_MAX_BLOB_REQUEST_SIZE
+            )
+            self._upload_limits.max_blob_size = uploader_constants.DEFAULT_MAX_BLOB_SIZE
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
         self._dispatcher = None
         self._additional_senders: Dict[str, uploader_utils.RequestSender] = {}
         if logdir_poll_rate_limiter is None:
-            self._logdir_poll_rate_limiter = util.RateLimiter(
-                _MIN_LOGDIR_POLL_INTERVAL_SECS
+            self._logdir_poll_rate_limiter = uploader_utils.RateLimiter(
+                uploader_constants.MIN_LOGDIR_POLL_INTERVAL_SECS
             )
         else:
             self._logdir_poll_rate_limiter = logdir_poll_rate_limiter
 
         if rpc_rate_limiter is None:
-            self._rpc_rate_limiter = util.RateLimiter(
+            self._rpc_rate_limiter = uploader_utils.RateLimiter(
                 self._upload_limits.min_scalar_request_interval / 1000
             )
         else:
             self._rpc_rate_limiter = rpc_rate_limiter
 
         if tensor_rpc_rate_limiter is None:
-            self._tensor_rpc_rate_limiter = util.RateLimiter(
+            self._tensor_rpc_rate_limiter = uploader_utils.RateLimiter(
                 self._upload_limits.min_tensor_request_interval / 1000
             )
         else:
             self._tensor_rpc_rate_limiter = tensor_rpc_rate_limiter
 
         if blob_rpc_rate_limiter is None:
-            self._blob_rpc_rate_limiter = util.RateLimiter(
+            self._blob_rpc_rate_limiter = uploader_utils.RateLimiter(
                 self._upload_limits.min_blob_request_interval / 1000
             )
         else:
@@ -336,11 +305,7 @@ class TensorBoardUploader(object):
     def _should_profile(self) -> bool:
         """Indicate if profile plugin should be enabled."""
         if "profile" in self._allowed_plugins:
-            if not self._one_shot:
-                raise ValueError(
-                    "Profile plugin currently only supported for one shot."
-                )
-            logger.info("Profile plugin is enalbed.")
+            logger.info("Profile plugin is enabled.")
             return True
         return False
 
@@ -518,9 +483,9 @@ class _BatchedRequestSender(object):
         api: TensorboardServiceClient,
         allowed_plugins: Iterable[str],
         upload_limits: server_info_pb2.UploadLimits,
-        rpc_rate_limiter: util.RateLimiter,
-        tensor_rpc_rate_limiter: util.RateLimiter,
-        blob_rpc_rate_limiter: util.RateLimiter,
+        rpc_rate_limiter: uploader_utils.RateLimiter,
+        tensor_rpc_rate_limiter: uploader_utils.RateLimiter,
+        blob_rpc_rate_limiter: uploader_utils.RateLimiter,
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
         one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
@@ -754,7 +719,7 @@ class _BaseBatchedRequestSender(object):
         self,
         experiment_resource_id: str,
         api: TensorboardServiceClient,
-        rpc_rate_limiter: util.RateLimiter,
+        rpc_rate_limiter: uploader_utils.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
         one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
@@ -765,7 +730,7 @@ class _BaseBatchedRequestSender(object):
           experiment_resource_id: The resource id for the experiment with the following format
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
-          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          rpc_rate_limiter: uploader_utils.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
@@ -1015,7 +980,7 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
         self,
         experiment_resource_id: str,
         api: TensorboardServiceClient,
-        rpc_rate_limiter: util.RateLimiter,
+        rpc_rate_limiter: uploader_utils.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
         one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
@@ -1026,7 +991,7 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
           experiment_resource_id: The resource id for the experiment with the following format
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
-          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          rpc_rate_limiter: uploader_utils.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
@@ -1078,7 +1043,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
         self,
         experiment_resource_id: str,
         api: TensorboardServiceClient,
-        rpc_rate_limiter: util.RateLimiter,
+        rpc_rate_limiter: uploader_utils.RateLimiter,
         max_request_size: int,
         max_tensor_point_size: int,
         tracker: upload_tracker.UploadTracker,
@@ -1090,7 +1055,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
           experiment_resource_id: The resource id for the experiment with the following format
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
-          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          rpc_rate_limiter: uploader_utils.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
@@ -1228,7 +1193,7 @@ class _ByteBudgetManager(object):
             # haven't yet set any point values -- so we can't know the final
             # size of this length varint. We conservatively assume it is maximum
             # size.
-            + _MAX_VARINT64_LENGTH_BYTES
+            + uploader_constants.MAX_VARINT64_LENGTH_BYTES
             # The size of the proto key.
             + 1
         )
@@ -1278,7 +1243,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         self,
         experiment_resource_id: str,
         api: TensorboardServiceClient,
-        rpc_rate_limiter: util.RateLimiter,
+        rpc_rate_limiter: uploader_utils.RateLimiter,
         max_blob_request_size: int,
         max_blob_size: int,
         blob_storage_bucket: storage.Bucket,

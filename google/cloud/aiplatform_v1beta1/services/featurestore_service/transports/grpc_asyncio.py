@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from .base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import FeaturestoreServiceGrpcTransport
@@ -121,7 +120,7 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -738,20 +737,24 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
         operation. The imported features are guaranteed to be
         visible to subsequent read operations after the
         operation is marked as successfully done.
+
         If an import operation fails, the Feature values
         returned from reads and exports may be inconsistent. If
         consistency is required, the caller must retry the same
         import request again and wait till the new operation
         returned is marked as successfully done.
+
         There are also scenarios where the caller can cause
         inconsistency.
+
          - Source data for import contains multiple distinct
-        Feature values for    the same entity ID and timestamp.
+          Feature values for    the same entity ID and
+          timestamp.
          - Source is modified during an import. This includes
-        adding, updating, or  removing source data and/or
-        metadata. Examples of updating metadata  include but are
-        not limited to changing storage location, storage class,
-        or retention policy.
+          adding, updating, or  removing source data and/or
+          metadata. Examples of updating metadata  include but
+          are not limited to changing storage location, storage
+          class,  or retention policy.
          - Online serving cluster is under-provisioned.
 
         Returns:
@@ -782,6 +785,7 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
         r"""Return a callable for the batch read feature values method over gRPC.
 
         Batch reads Feature values from a Featurestore.
+
         This API enables batch reading Feature values, where
         each read instance in the batch may read Feature values
         of entities from one or more EntityTypes. Point-in-time
@@ -846,10 +850,12 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
         r"""Return a callable for the delete feature values method over gRPC.
 
         Delete Feature values from Featurestore.
+
         The progress of the deletion is tracked by the returned
         operation. The deleted feature values are guaranteed to
         be invisible to subsequent read operations after the
         operation is marked as successfully done.
+
         If a delete feature values operation fails, the feature
         values returned from reads and exports may be
         inconsistent. If consistency is required, the caller

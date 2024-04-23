@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,10 @@ __protobuf__ = proto.module(
         "BatchDedicatedResources",
         "ResourcesConsumed",
         "DiskSpec",
+        "PersistentDiskSpec",
         "NfsMount",
         "AutoscalingMetricSpec",
+        "ShieldedVmConfig",
     },
 )
 
@@ -65,6 +67,10 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        tpu_topology (str):
+            Immutable. The topology of the TPUs. Corresponds to the TPU
+            topologies available from GKE. (Example: tpu_topology:
+            "2x2x1").
     """
 
     machine_type: str = proto.Field(
@@ -79,6 +85,10 @@ class MachineSpec(proto.Message):
     accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    tpu_topology: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
@@ -290,6 +300,33 @@ class DiskSpec(proto.Message):
     )
 
 
+class PersistentDiskSpec(proto.Message):
+    r"""Represents the spec of [persistent
+    disk][https://cloud.google.com/compute/docs/disks/persistent-disks]
+    options.
+
+    Attributes:
+        disk_type (str):
+            Type of the disk (default is "pd-standard").
+            Valid values: "pd-ssd" (Persistent Disk Solid
+            State Drive) "pd-standard" (Persistent Disk Hard
+            Disk Drive) "pd-balanced" (Balanced Persistent
+            Disk)
+            "pd-extreme" (Extreme Persistent Disk)
+        disk_size_gb (int):
+            Size in GB of the disk (default is 100GB).
+    """
+
+    disk_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    disk_size_gb: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+
+
 class NfsMount(proto.Message):
     r"""Represents a mount configuration for Network File System
     (NFS) to mount.
@@ -348,6 +385,29 @@ class AutoscalingMetricSpec(proto.Message):
     target: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+
+
+class ShieldedVmConfig(proto.Message):
+    r"""A set of Shielded Instance options. See `Images using supported
+    Shielded VM
+    features <https://cloud.google.com/compute/docs/instances/modifying-shielded-vm>`__.
+
+    Attributes:
+        enable_secure_boot (bool):
+            Defines whether the instance has `Secure
+            Boot <https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#secure-boot>`__
+            enabled.
+
+            Secure Boot helps ensure that the system only runs authentic
+            software by verifying the digital signature of all boot
+            components, and halting the boot process if signature
+            verification fails.
+    """
+
+    enable_secure_boot: bool = proto.Field(
+        proto.BOOL,
+        number=1,
     )
 
 

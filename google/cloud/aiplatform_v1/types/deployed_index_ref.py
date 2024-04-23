@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ class DeployedIndexRef(proto.Message):
         deployed_index_id (str):
             Immutable. The ID of the DeployedIndex in the
             above IndexEndpoint.
+        display_name (str):
+            Output only. The display name of the
+            DeployedIndex.
     """
 
     index_endpoint: str = proto.Field(
@@ -47,6 +50,10 @@ class DeployedIndexRef(proto.Message):
     deployed_index_id: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

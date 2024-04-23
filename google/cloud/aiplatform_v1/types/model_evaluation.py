@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -103,7 +103,8 @@ class ModelEvaluation(proto.Message):
             The metadata of the ModelEvaluation. For the ModelEvaluation
             uploaded from Managed Pipeline, metadata contains a
             structured value with keys of "pipeline_job_id",
-            "evaluation_dataset_type", "evaluation_dataset_path".
+            "evaluation_dataset_type", "evaluation_dataset_path",
+            "row_based_metrics_path".
     """
 
     class ModelEvaluationExplanationSpec(proto.Message):

@@ -39,6 +39,10 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    extension_execution_service_client_v1beta1,
+    extension_registry_service_client_v1beta1,
+    feature_online_store_admin_service_client_v1beta1,
+    feature_online_store_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -49,14 +53,20 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    prediction_service_async_client_v1beta1,
     schedule_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
     model_garden_service_client_v1beta1,
+    persistent_resource_service_client_v1beta1,
+    reasoning_engine_service_client_v1beta1,
+    reasoning_engine_execution_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
     endpoint_service_client_v1,
+    feature_online_store_admin_service_client_v1,
+    feature_online_store_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -67,8 +77,11 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
+    prediction_service_async_client_v1,
+    schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
+    persistent_resource_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -81,12 +94,15 @@ VertexAiServiceClient = TypeVar(
     dataset_service_client_v1beta1.DatasetServiceClient,
     deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
     index_service_client_v1beta1.IndexServiceClient,
     index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
+    prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
     match_service_client_v1beta1.MatchServiceClient,
@@ -97,13 +113,17 @@ VertexAiServiceClient = TypeVar(
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1.FeaturestoreServiceClient,
     metadata_service_client_v1.MetadataServiceClient,
     model_service_client_v1.ModelServiceClient,
     prediction_service_client_v1.PredictionServiceClient,
+    prediction_service_async_client_v1.PredictionServiceAsyncClient,
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
+    schedule_service_client_v1.ScheduleServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
 )
@@ -373,6 +393,7 @@ class ClientWithOverride:
             client_options: client_options.ClientOptions,
             client_info: gapic_v1.client_info.ClientInfo,
             credentials: Optional[auth_credentials.Credentials] = None,
+            transport: Optional[str] = None,
         ):
             """Stores parameters needed to instantiate client.
 
@@ -385,20 +406,32 @@ class ClientWithOverride:
                     Required. Client info to pass to client.
                 credentials (auth_credentials.credentials):
                     Optional. Client credentials to pass to client.
+                transport (str):
+                    Optional. Transport type to pass to client.
+                    NOTE: "rest" transport functionality is currently in a
+                    beta state (preview).
             """
 
             self._client_class = client_class
             self._credentials = credentials
             self._client_options = client_options
             self._client_info = client_info
+            self._api_transport = transport
 
         def __getattr__(self, name: str) -> Any:
             """Instantiates client and returns attribute of the client."""
-            temporary_client = self._client_class(
+
+            kwargs = dict(
                 credentials=self._credentials,
                 client_options=self._client_options,
                 client_info=self._client_info,
             )
+
+            if self._api_transport is not None:
+                kwargs["transport"] = self._api_transport
+
+            temporary_client = self._client_class(**kwargs)
+
             return getattr(temporary_client, name)
 
     @property
@@ -433,6 +466,7 @@ class ClientWithOverride:
         client_options: client_options.ClientOptions,
         client_info: gapic_v1.client_info.ClientInfo,
         credentials: Optional[auth_credentials.Credentials] = None,
+        transport: Optional[str] = None,
     ):
         """Stores parameters needed to instantiate client.
 
@@ -443,7 +477,19 @@ class ClientWithOverride:
                 Required. Client info to pass to client.
             credentials (auth_credentials.credentials):
                 Optional. Client credentials to pass to client.
+            transport (str):
+                Optional. Transport type to pass to client.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview).
         """
+        kwargs = dict(
+            credentials=credentials,
+            client_options=client_options,
+            client_info=client_info,
+        )
+
+        if transport is not None:
+            kwargs["transport"] = transport
 
         self._clients = {
             version: self.WrappedClient(
@@ -451,13 +497,10 @@ class ClientWithOverride:
                 client_options=client_options,
                 client_info=client_info,
                 credentials=credentials,
+                transport=transport,
             )
             if self._is_temporary
-            else client_class(
-                client_options=client_options,
-                client_info=client_info,
-                credentials=credentials,
-            )
+            else client_class(**kwargs)
             for version, client_class in self._version_map
         }
 
@@ -514,6 +557,28 @@ class EndpointClientWithOverride(ClientWithOverride):
     )
 
 
+class ExtensionExecutionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            extension_execution_service_client_v1beta1.ExtensionExecutionServiceClient,
+        ),
+    )
+
+
+class ExtensionRegistryClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            extension_registry_service_client_v1beta1.ExtensionRegistryServiceClient,
+        ),
+    )
+
+
 class IndexClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -531,6 +596,36 @@ class IndexEndpointClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreAdminClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
         ),
     )
 
@@ -597,8 +692,9 @@ class PipelineJobClientWithOverride(ClientWithOverride):
 
 class ScheduleClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, schedule_service_client_v1.ScheduleServiceClient),
         (compat.V1BETA1, schedule_service_client_v1beta1.ScheduleServiceClient),
     )
 
@@ -609,6 +705,18 @@ class PredictionClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, prediction_service_client_v1.PredictionServiceClient),
         (compat.V1BETA1, prediction_service_client_v1beta1.PredictionServiceClient),
+    )
+
+
+class PredictionAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, prediction_service_async_client_v1.PredictionServiceAsyncClient),
+        (
+            compat.V1BETA1,
+            prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
+        ),
     )
 
 
@@ -654,6 +762,43 @@ class ModelGardenClientWithOverride(ClientWithOverride):
     )
 
 
+class PersistentResourceClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            persistent_resource_service_client_v1.PersistentResourceServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,
+        ),
+    )
+
+
+class ReasoningEngineClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            reasoning_engine_service_client_v1beta1.ReasoningEngineServiceClient,
+        ),
+    )
+
+
+class ReasoningEngineExecutionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            reasoning_engine_execution_service_client_v1beta1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -670,6 +815,9 @@ VertexAiServiceClientWithOverride = TypeVar(
     TensorboardClientWithOverride,
     VizierClientWithOverride,
     ModelGardenClientWithOverride,
+    PersistentResourceClientWithOverride,
+    ReasoningEngineClientWithOverride,
+    ReasoningEngineExecutionClientWithOverride,
 )
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,14 +33,14 @@ from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -59,7 +59,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -75,8 +75,12 @@ class FeaturestoreServiceAsyncClient:
 
     _client: FeaturestoreServiceClient
 
+    # Copy defaults from the synchronous client for use here.
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = FeaturestoreServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = FeaturestoreServiceClient.DEFAULT_MTLS_ENDPOINT
+    _DEFAULT_ENDPOINT_TEMPLATE = FeaturestoreServiceClient._DEFAULT_ENDPOINT_TEMPLATE
+    _DEFAULT_UNIVERSE = FeaturestoreServiceClient._DEFAULT_UNIVERSE
 
     entity_type_path = staticmethod(FeaturestoreServiceClient.entity_type_path)
     parse_entity_type_path = staticmethod(
@@ -191,6 +195,25 @@ class FeaturestoreServiceAsyncClient:
         """
         return self._client.transport
 
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._client._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used
+                by the client instance.
+        """
+        return self._client._universe_domain
+
     get_transport_class = functools.partial(
         type(FeaturestoreServiceClient).get_transport_class,
         type(FeaturestoreServiceClient),
@@ -204,7 +227,7 @@ class FeaturestoreServiceAsyncClient:
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the featurestore service client.
+        """Instantiates the featurestore service async client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -215,22 +238,40 @@ class FeaturestoreServiceAsyncClient:
             transport (Union[str, ~.FeaturestoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (ClientOptions): Custom options for the client. It
-                won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
+                your own client library.
 
         Raises:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
@@ -297,7 +338,7 @@ class FeaturestoreServiceAsyncClient:
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 Featurestores. Format:
-                ``projects/{project}/locations/{location}'``
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -322,7 +363,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``featurestore_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -372,6 +413,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -442,7 +486,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -487,6 +531,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -551,7 +598,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -596,6 +643,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -692,7 +742,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -742,6 +792,9 @@ class FeaturestoreServiceAsyncClient:
                 (("featurestore.name", request.featurestore.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -830,7 +883,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -884,6 +937,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -981,7 +1037,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1031,6 +1087,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1101,7 +1160,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1147,6 +1206,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1211,7 +1273,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1256,6 +1318,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1354,7 +1419,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1404,6 +1469,9 @@ class FeaturestoreServiceAsyncClient:
                 (("entity_type.name", request.entity_type.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1483,7 +1551,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1538,6 +1606,9 @@ class FeaturestoreServiceAsyncClient:
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
         # Send the request.
         response = await rpc(
             request,
@@ -1588,12 +1659,8 @@ class FeaturestoreServiceAsyncClient:
                 client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1beta1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1beta1.CreateFeatureRequest(
                     parent="parent_value",
-                    feature=feature,
                     feature_id="feature_id_value",
                 )
 
@@ -1611,10 +1678,15 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeature].
+                Request message for
+                [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature].
             parent (:class:`str`):
-                Required. The resource name of the EntityType to create
-                a Feature. Format:
+                Required. The resource name of the EntityType or
+                FeatureGroup to create a Feature. Format for entity_type
+                as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1633,12 +1705,13 @@ class FeaturestoreServiceAsyncClient:
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
-                The value must be unique within an EntityType.
+                The value must be unique within an
+                EntityType/FeatureGroup.
 
                 This corresponds to the ``feature_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1648,9 +1721,9 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information that describes an attribute of an entity type.
-                   For example, apple is an entity type, and color is a
-                   feature that describes apple.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information.
+                   For example, color is a feature that describes an
+                   apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1687,6 +1760,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1741,7 +1817,6 @@ class FeaturestoreServiceAsyncClient:
                 # Initialize request argument(s)
                 requests = aiplatform_v1beta1.CreateFeatureRequest()
                 requests.parent = "parent_value"
-                requests.feature.value_type = "BYTES"
                 requests.feature_id = "feature_id_value"
 
                 request = aiplatform_v1beta1.BatchCreateFeaturesRequest(
@@ -1782,7 +1857,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1828,6 +1903,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1889,14 +1967,19 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeature].
+                Request message for
+                [FeatureRegistryService.GetFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeature].
             name (:class:`str`):
-                Required. The name of the Feature resource. Format:
+                Required. The name of the Feature resource. Format for
+                entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1904,11 +1987,9 @@ class FeaturestoreServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Feature:
-                Feature Metadata information that
-                describes an attribute of an entity
-                type. For example, apple is an entity
-                type, and color is a feature that
-                describes apple.
+                Feature Metadata information.
+                For example, color is a feature that
+                describes an apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1941,6 +2022,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1995,15 +2079,19 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
+                Request message for
+                [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures].
             parent (:class:`str`):
                 Required. The resource name of the Location to list
-                Features. Format:
+                Features. Format for entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2013,6 +2101,8 @@ class FeaturestoreServiceAsyncClient:
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.ListFeaturesAsyncPager:
                 Response message for
                    [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
+                   Response message for
+                   [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2048,6 +2138,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2099,11 +2192,7 @@ class FeaturestoreServiceAsyncClient:
                 client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1beta1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1beta1.UpdateFeatureRequest(
-                    feature=feature,
                 )
 
                 # Make the request
@@ -2116,10 +2205,13 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeature].
+                Request message for
+                [FeatureRegistryService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeature].
             feature (:class:`google.cloud.aiplatform_v1beta1.types.Feature`):
                 Required. The Feature's ``name`` field is used to
                 identify the Feature to be updated. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2138,12 +2230,13 @@ class FeaturestoreServiceAsyncClient:
 
                 -  ``description``
                 -  ``labels``
-                -  ``disable_monitoring``
+                -  ``disable_monitoring`` (Not supported for
+                   FeatureRegistry Feature)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2151,11 +2244,9 @@ class FeaturestoreServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Feature:
-                Feature Metadata information that
-                describes an attribute of an entity
-                type. For example, apple is an entity
-                type, and color is a feature that
-                describes apple.
+                Feature Metadata information.
+                For example, color is a feature that
+                describes an apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -2192,6 +2283,9 @@ class FeaturestoreServiceAsyncClient:
                 (("feature.name", request.feature.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2251,15 +2345,18 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeature].
+                Request message for
+                [FeatureRegistryService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeature].
             name (:class:`str`):
                 Required. The name of the Features to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2312,6 +2409,9 @@ class FeaturestoreServiceAsyncClient:
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
         # Send the request.
         response = await rpc(
             request,
@@ -2348,20 +2448,24 @@ class FeaturestoreServiceAsyncClient:
         operation. The imported features are guaranteed to be
         visible to subsequent read operations after the
         operation is marked as successfully done.
+
         If an import operation fails, the Feature values
         returned from reads and exports may be inconsistent. If
         consistency is required, the caller must retry the same
         import request again and wait till the new operation
         returned is marked as successfully done.
+
         There are also scenarios where the caller can cause
         inconsistency.
+
          - Source data for import contains multiple distinct
-        Feature values for    the same entity ID and timestamp.
+          Feature values for    the same entity ID and
+          timestamp.
          - Source is modified during an import. This includes
-        adding, updating, or  removing source data and/or
-        metadata. Examples of updating metadata  include but are
-        not limited to changing storage location, storage class,
-        or retention policy.
+          adding, updating, or  removing source data and/or
+          metadata. Examples of updating metadata  include but
+          are not limited to changing storage location, storage
+          class,  or retention policy.
          - Online serving cluster is under-provisioned.
 
         .. code-block:: python
@@ -2416,7 +2520,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2463,6 +2567,9 @@ class FeaturestoreServiceAsyncClient:
             ),
         )
 
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
         # Send the request.
         response = await rpc(
             request,
@@ -2494,6 +2601,7 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Batch reads Feature values from a Featurestore.
+
         This API enables batch reading Feature values, where
         each read instance in the batch may read Feature values
         of entities from one or more EntityTypes. Point-in-time
@@ -2555,7 +2663,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2601,6 +2709,9 @@ class FeaturestoreServiceAsyncClient:
                 (("featurestore", request.featurestore),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2685,7 +2796,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2732,6 +2843,9 @@ class FeaturestoreServiceAsyncClient:
             ),
         )
 
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
         # Send the request.
         response = await rpc(
             request,
@@ -2763,10 +2877,12 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Delete Feature values from Featurestore.
+
         The progress of the deletion is tracked by the returned
         operation. The deleted feature values are guaranteed to
         be invisible to subsequent read operations after the
         operation is marked as successfully done.
+
         If a delete feature values operation fails, the feature
         values returned from reads and exports may be
         inconsistent. If consistency is required, the caller
@@ -2821,7 +2937,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2867,6 +2983,9 @@ class FeaturestoreServiceAsyncClient:
                 (("entity_type", request.entity_type),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3016,7 +3135,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``query`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3064,6 +3183,9 @@ class FeaturestoreServiceAsyncClient:
             gapic_v1.routing_header.to_grpc_metadata((("location", request.location),)),
         )
 
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
         # Send the request.
         response = await rpc(
             request,
@@ -3098,7 +3220,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3115,7 +3237,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3126,6 +3248,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3152,7 +3277,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3169,7 +3294,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3180,6 +3305,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3211,7 +3339,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3227,7 +3355,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3238,6 +3366,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -3265,7 +3396,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3281,7 +3412,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3292,6 +3423,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -3321,7 +3455,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3338,7 +3472,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3349,6 +3483,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3377,7 +3514,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3458,7 +3595,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3469,6 +3606,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3498,7 +3638,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3579,7 +3719,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3590,6 +3730,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3620,7 +3763,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3638,7 +3781,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3649,6 +3792,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3675,7 +3821,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3692,7 +3838,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3703,6 +3849,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3729,7 +3878,7 @@ class FeaturestoreServiceAsyncClient:
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3746,7 +3895,7 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3757,6 +3906,9 @@ class FeaturestoreServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3769,7 +3921,7 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "FeaturestoreServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

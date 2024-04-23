@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,8 +58,7 @@ class Schedule(proto.Message):
 
             This field is a member of `oneof`_ ``request``.
         name (str):
-            Output only. The resource name of the
-            Schedule.
+            Immutable. The resource name of the Schedule.
         display_name (str):
             Required. User provided name of the Schedule.
             The name can be up to 128 characters long and

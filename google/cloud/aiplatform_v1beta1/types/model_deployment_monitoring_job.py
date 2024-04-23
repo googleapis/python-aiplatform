@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -147,9 +147,10 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the job under customer project. Customer could
             do their own query & analysis. There could be 4
             log tables in maximum:
+
             1. Training data logging predict
-            request/response 2. Serving data logging predict
-            request/response
+                request/response
+            2. Serving data logging predict request/response
         log_ttl (google.protobuf.duration_pb2.Duration):
             The TTL of BigQuery tables in user projects
             which stores logs. A day is the basic unit of
@@ -165,6 +166,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -371,6 +373,10 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
             The created BigQuery table to store logs. Customer could do
             their own query & analysis. Format:
             ``bq://<project_id>.model_deployment_monitoring_<endpoint_id>.<tolower(log_source)>_<tolower(log_type)>``
+        request_response_logging_schema_version (str):
+            Output only. The schema version of the
+            request/response logging BigQuery table. Default
+            to v1 if unset.
     """
 
     class LogSource(proto.Enum):
@@ -416,6 +422,10 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
     bigquery_table_path: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    request_response_logging_schema_version: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 

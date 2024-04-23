@@ -128,17 +128,9 @@ def mock_storage_blob_download_to_filename():
         yield mock_blob_download_to_filename
 
 
-@pytest.fixture()
-def mock_bucket_not_exist():
-    with patch("google.cloud.storage.Blob.from_string") as mock_bucket_not_exist, patch(
-        "google.cloud.storage.Bucket.exists", return_value=False
-    ):
-        yield mock_bucket_not_exist
-
-
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-east5")
+        aiplatform.utils.validate_region(region="europe-west10")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
@@ -147,7 +139,7 @@ def test_invalid_region_does_not_raise_with_valid_region():
 
 @pytest.fixture
 def copy_tree_mock():
-    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+    with mock.patch("shutil.copytree") as copy_tree_mock:
         yield copy_tree_mock
 
 
@@ -587,8 +579,13 @@ class TestGcsUtils:
         )
         assert output == "gs://project-vertex-pipelines-us-central1/output_artifacts/"
 
+    @patch.object(storage.Bucket, "exists", return_value=False)
+    @patch.object(storage, "Client")
+    @patch.object(
+        gcs_utils.resource_manager_utils, "get_project_number", return_value=12345
+    )
     def test_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
-        self, mock_bucket_not_exist, mock_storage_client
+        self, mock_bucket_not_exist, mock_storage_client, mock_get_project_number
     ):
         output = (
             gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
@@ -597,6 +594,7 @@ class TestGcsUtils:
         )
         assert mock_storage_client.called
         assert mock_bucket_not_exist.called
+        assert mock_get_project_number.called
         assert (
             output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
         )
@@ -967,7 +965,7 @@ class TestPredictionUtils:
         prediction_utils.download_model_artifacts(model_dir_name)
 
         assert not mock_storage_client.called
-        copy_tree_mock.assert_called_once_with(model_dir_name, ".")
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".", dirs_exist_ok=True)
 
 
 @pytest.fixture(scope="function")

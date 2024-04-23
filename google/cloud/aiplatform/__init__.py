@@ -56,6 +56,9 @@ from google.cloud.aiplatform.jobs import (
     ModelDeploymentMonitoringJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
+from google.cloud.aiplatform.pipeline_job_schedules import (
+    PipelineJobSchedule,
+)
 from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
     TensorboardExperiment,
@@ -135,6 +138,10 @@ __all__ = (
     "start_execution",
     "save_model",
     "get_experiment_model",
+    "autolog",
+    "upload_tb_log",
+    "start_upload_tb_log",
+    "end_upload_tb_log",
     "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
@@ -146,12 +153,7 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
-    "EmailAlertConfig",
     "Endpoint",
-    "DriftDetectionConfig",
-    "ExplanationConfig",
-    "ObjectiveConfig",
-    "SkewDetectionConfig",
     "EntityType",
     "Execution",
     "Experiment",
@@ -167,10 +169,9 @@ __all__ = (
     "ModelEvaluation",
     "ModelDeploymentMonitoringJob",
     "PipelineJob",
+    "PipelineJobSchedule",
     "PrivateEndpoint",
-    "RandomSampleConfig",
     "SequenceToSequencePlusForecastingTrainingJob",
-    "ScheduleConfig",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",

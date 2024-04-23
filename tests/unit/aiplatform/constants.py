@@ -26,12 +26,14 @@ from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
 
 from google.cloud.aiplatform.compat.types import (
+    context,
     custom_job,
     encryption_spec,
     endpoint,
@@ -74,6 +76,9 @@ class TrainingJobConstants:
     }
     _TEST_REPLICA_COUNT = 1
     _TEST_MACHINE_TYPE = "n1-standard-4"
+    _TEST_MACHINE_TYPE_TPU = "cloud-tpu"
+    _TEST_MACHINE_TYPE_TPU_V5E = "ct5lp-hightpu-4t"
+    _TEST_ACCELERATOR_TPU_TYPE = "TPU_V3"
     _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
     _TEST_ACCELERATOR_COUNT = 1
     _TEST_BOOT_DISK_TYPE = "pd-standard"
@@ -101,13 +106,14 @@ class TrainingJobConstants:
 
     _TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
 
+    _TEST_MACHINE_SPEC = {
+        "machine_type": "n1-standard-4",
+        "accelerator_type": "NVIDIA_TESLA_K80",
+        "accelerator_count": 1,
+    }
     _TEST_WORKER_POOL_SPEC = [
         {
-            "machine_spec": {
-                "machine_type": "n1-standard-4",
-                "accelerator_type": "NVIDIA_TESLA_K80",
-                "accelerator_count": 1,
-            },
+            "machine_spec": _TEST_MACHINE_SPEC,
             "replica_count": 1,
             "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
             "container_spec": {
@@ -117,12 +123,42 @@ class TrainingJobConstants:
             },
         }
     ]
+    _TEST_TPU_V5E_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE_TPU_V5E,
+                "tpu_topology": "2x2",
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+            },
+        }
+    ]
+    _TEST_TPU_V3_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE_TPU,
+                "accelerator_type": _TEST_ACCELERATOR_TPU_TYPE,
+                "accelerator_count": 32,
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+            },
+        }
+    ]
     _TEST_ID = "1028944691210842416"
     _TEST_NETWORK = (
         f"projects/{ProjectConstants._TEST_PROJECT}/global/networks/{_TEST_ID}"
     )
+    _TEST_RESERVED_IP_RANGES = ["example_ip_range"]
     _TEST_TIMEOUT = 8000
+    _TEST_TIMEOUT_SECONDS = duration_pb2.Duration(seconds=_TEST_TIMEOUT)
     _TEST_RESTART_JOB_ON_WORKER_RESTART = True
+    _TEST_DISABLE_RETRIES = True
 
     _TEST_BASE_CUSTOM_JOB_PROTO = custom_job.CustomJob(
         display_name=_TEST_DISPLAY_NAME,
@@ -132,8 +168,9 @@ class TrainingJobConstants:
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
             ),
             scheduling=custom_job.Scheduling(
-                timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
+                timeout=_TEST_TIMEOUT_SECONDS,
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                disable_retries=_TEST_DISABLE_RETRIES,
             ),
             service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
@@ -160,6 +197,28 @@ class TrainingJobConstants:
         "projects/my-project/locations/us-central1/trainingPipelines/12345"
     )
     _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+
+    def create_tpu_job_proto(tpu_version):
+        worker_pool_spec = (
+            TrainingJobConstants._TEST_TPU_V5E_WORKER_POOL_SPEC
+            if tpu_version == "v5e"
+            else TrainingJobConstants._TEST_TPU_V3_WORKER_POOL_SPEC
+        )
+        return custom_job.CustomJob(
+            display_name=TrainingJobConstants._TEST_DISPLAY_NAME,
+            job_spec=custom_job.CustomJobSpec(
+                worker_pool_specs=worker_pool_spec,
+                base_output_directory=io.GcsDestination(
+                    output_uri_prefix=TrainingJobConstants._TEST_BASE_OUTPUT_DIR
+                ),
+                scheduling=custom_job.Scheduling(
+                    timeout=TrainingJobConstants._TEST_TIMEOUT_SECONDS,
+                    restart_job_on_worker_restart=TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART,
+                ),
+                service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
+                network=TrainingJobConstants._TEST_NETWORK,
+            ),
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -329,6 +388,30 @@ class DatasetConstants:
 
 
 @dataclasses.dataclass(frozen=True)
+class ExperimentConstants:
+    """Defines constants used by Experiments and Metadata tests."""
+
+    _TEST_EXPERIMENT = "test-experiment"
+    _TEST_CONTEXT_ID = _TEST_EXPERIMENT
+    _TEST_METADATA_PARENT = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/metadataStores/default"
+    _TEST_CONTEXT_NAME = f"{_TEST_METADATA_PARENT}/contexts/{_TEST_CONTEXT_ID}"
+    _TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
+
+    _EXPERIMENT_MOCK = context.Context(
+        name=_TEST_CONTEXT_NAME,
+        display_name=_TEST_EXPERIMENT,
+        description=_TEST_EXPERIMENT_DESCRIPTION,
+        schema_title=metadata_constants.SYSTEM_EXPERIMENT,
+        schema_version=metadata_constants.SCHEMA_VERSIONS[
+            metadata_constants.SYSTEM_EXPERIMENT
+        ],
+        metadata={**metadata_constants.EXPERIMENT_METADATA},
+    )
+
+    _TEST_METADATASTORE = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/metadataStores/default"
+
+
+@dataclasses.dataclass(frozen=True)
 class MatchingEngineConstants:
     """Defines constants used by tests that create MatchingEngine resources."""
 
@@ -341,3 +424,15 @@ class MatchingEngineConstants:
     _TEST_DISPLAY_NAME_UPDATE = "my new display name"
     _TEST_DESCRIPTION_UPDATE = "my description update"
     _TEST_REQUEST_METADATA = ()
+
+
+@dataclasses.dataclass(frozen=True)
+class PersistentResourceConstants:
+    """Defines constants used by tests that create PersistentResource resources."""
+
+    _TEST_PERSISTENT_RESOURCE_ID = "test_persistent_resource_id"
+    _TEST_PERSISTENT_RESOURCE_DISPLAY_NAME = "test_display_name"
+    _TEST_RESOURCE_POOL = {
+        "machine_spec": TrainingJobConstants._TEST_MACHINE_SPEC,
+        "replica_count": 1,
+    }

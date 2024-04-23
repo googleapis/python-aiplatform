@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_p
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 
@@ -68,7 +67,7 @@ class PipelineServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -131,6 +130,10 @@ class PipelineServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
@@ -179,8 +182,18 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_delete_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.batch_delete_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
                 self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_cancel_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.batch_cancel_pipeline_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -294,11 +307,29 @@ class PipelineServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def batch_delete_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchDeletePipelineJobsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def cancel_pipeline_job(
         self,
     ) -> Callable[
         [pipeline_service.CancelPipelineJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_cancel_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchCancelPipelineJobsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

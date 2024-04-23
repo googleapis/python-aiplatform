@@ -35,6 +35,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.featurestore.feature import Feature
 from google.cloud.aiplatform.compat.services import (
     featurestore_service_client,
 )
@@ -721,8 +722,10 @@ def update_feature_mock():
     with patch.object(
         featurestore_service_client.FeaturestoreServiceClient, "update_feature"
     ) as update_feature_mock:
-        update_feature_lro_mock = mock.Mock(operation.Operation)
-        update_feature_mock.return_value = update_feature_lro_mock
+        update_feature_mock.return_value = gca_feature.Feature(
+            name=_TEST_FEATURE_NAME,
+            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+        )
         yield update_feature_mock
 
 
@@ -937,7 +940,7 @@ class TestFeaturestore:
         get_entity_type_mock.assert_called_once_with(
             name=_TEST_ENTITY_TYPE_NAME, retry=base._DEFAULT_RETRY
         )
-        assert type(my_entity_type) == aiplatform.EntityType
+        assert isinstance(my_entity_type, aiplatform.EntityType)
 
     @pytest.mark.usefixtures("get_featurestore_mock")
     def test_update_featurestore(self, update_featurestore_mock):
@@ -1049,7 +1052,7 @@ class TestFeaturestore:
         )
         assert len(my_featurestore_list) == len(_TEST_FEATURESTORE_LIST)
         for my_featurestore in my_featurestore_list:
-            assert type(my_featurestore) == aiplatform.Featurestore
+            assert isinstance(my_featurestore, aiplatform.Featurestore)
 
     @pytest.mark.parametrize(
         "force, sync",
@@ -1093,7 +1096,7 @@ class TestFeaturestore:
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
-            assert type(my_entity_type) == aiplatform.EntityType
+            assert isinstance(my_entity_type, aiplatform.EntityType)
 
     @pytest.mark.usefixtures("get_featurestore_mock")
     def test_list_entity_types_with_no_init(self, list_entity_types_mock):
@@ -1109,7 +1112,7 @@ class TestFeaturestore:
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
-            assert type(my_entity_type) == aiplatform.EntityType
+            assert isinstance(my_entity_type, aiplatform.EntityType)
 
     @pytest.mark.parametrize(
         "force, sync",
@@ -2071,7 +2074,7 @@ class TestEntityType:
         get_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name, retry=base._DEFAULT_RETRY
         )
-        assert type(my_featurestore) == aiplatform.Featurestore
+        assert isinstance(my_featurestore, aiplatform.Featurestore)
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_get_feature(self, get_feature_mock):
@@ -2083,7 +2086,7 @@ class TestEntityType:
         get_feature_mock.assert_called_once_with(
             name=my_feature.resource_name, retry=base._DEFAULT_RETRY
         )
-        assert type(my_feature) == aiplatform.Feature
+        assert isinstance(my_feature, aiplatform.Feature)
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_update_entity_type(self, update_entity_type_mock):
@@ -2123,7 +2126,7 @@ class TestEntityType:
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
-            assert type(my_entity_type) == aiplatform.EntityType
+            assert isinstance(my_entity_type, aiplatform.EntityType)
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_list_features(self, list_features_mock):
@@ -2137,7 +2140,7 @@ class TestEntityType:
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
-            assert type(my_feature) == aiplatform.Feature
+            assert isinstance(my_feature, aiplatform.Feature)
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_list_features_with_no_init(self, list_features_mock):
@@ -2154,7 +2157,7 @@ class TestEntityType:
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
-            assert type(my_feature) == aiplatform.Feature
+            assert isinstance(my_feature, aiplatform.Feature)
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
@@ -2646,7 +2649,7 @@ class TestEntityType:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
-        assert type(result) == pd.DataFrame
+        assert isinstance(result, pd.DataFrame)
         assert len(result) == 1
         assert result.entity_id[0] == _TEST_READ_ENTITY_ID
         assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
@@ -2697,7 +2700,7 @@ class TestEntityType:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
-        assert type(result) == pd.DataFrame
+        assert isinstance(result, pd.DataFrame)
         assert len(result) == 1
         assert result.entity_id[0] == _TEST_READ_ENTITY_ID
         assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
@@ -3674,7 +3677,7 @@ class TestFeature:
         get_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name, retry=base._DEFAULT_RETRY
         )
-        assert type(my_featurestore) == aiplatform.Featurestore
+        assert isinstance(my_featurestore, aiplatform.Featurestore)
 
     @pytest.mark.usefixtures("get_feature_mock")
     def test_get_entity_type(self, get_entity_type_mock):
@@ -3686,14 +3689,14 @@ class TestFeature:
         get_entity_type_mock.assert_called_once_with(
             name=my_entity_type.resource_name, retry=base._DEFAULT_RETRY
         )
-        assert type(my_entity_type) == aiplatform.EntityType
+        assert isinstance(my_entity_type, aiplatform.EntityType)
 
     @pytest.mark.usefixtures("get_feature_mock")
     def test_update_feature(self, update_feature_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_feature = aiplatform.Feature(feature_name=_TEST_FEATURE_NAME)
-        my_feature.update(
+        updated_feature = my_feature.update(
             labels=_TEST_LABELS_UPDATE,
             update_request_timeout=None,
         )
@@ -3708,6 +3711,8 @@ class TestFeature:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
+
+        assert isinstance(updated_feature, Feature)
 
     @pytest.mark.parametrize(
         "entity_type_name, featurestore_id",
@@ -3728,7 +3733,7 @@ class TestFeature:
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
-            assert type(my_feature) == aiplatform.Feature
+            assert isinstance(my_feature, aiplatform.Feature)
 
     @pytest.mark.usefixtures("get_feature_mock")
     def test_search_features(self, search_features_mock):
@@ -3741,7 +3746,7 @@ class TestFeature:
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
-            assert type(my_feature) == aiplatform.Feature
+            assert isinstance(my_feature, aiplatform.Feature)
 
     @pytest.mark.usefixtures("get_feature_mock")
     @pytest.mark.parametrize("sync", [True, False])

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -32,10 +33,13 @@ __protobuf__ = proto.module(
     manifest={
         "Model",
         "LargeModelReference",
+        "ModelGardenSource",
+        "GenieSource",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
         "ModelSourceInfo",
+        "Probe",
     },
 )
 
@@ -114,13 +118,12 @@ class Model(proto.Message):
             ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
             and all binaries it contains are copied and stored
-            internally by Vertex AI. Not present for AutoML Models or
-            Large Models.
+            internally by Vertex AI. Not required for AutoML Models.
         artifact_uri (str):
             Immutable. The path to the directory
             containing the Model artifact and any of its
-            supporting files. Not present for AutoML Models
-            or Large Models.
+            supporting files. Not required for AutoML
+            Models.
         supported_deployment_resources_types (MutableSequence[google.cloud.aiplatform_v1beta1.types.Model.DeploymentResourcesType]):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
@@ -278,6 +281,7 @@ class Model(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
@@ -287,8 +291,8 @@ class Model(proto.Message):
         model_source_info (google.cloud.aiplatform_v1beta1.types.ModelSourceInfo):
             Output only. Source of a model. It can either
             be automl training pipeline, custom training
-            pipeline, BigQuery ML, or existing Vertex AI
-            Model.
+            pipeline, BigQuery ML, or saved and tuned from
+            Genie or Model Garden.
         original_model_info (google.cloud.aiplatform_v1beta1.types.Model.OriginalModelInfo):
             Output only. If this Model is a copy of
             another Model, this contains info about the
@@ -298,6 +302,11 @@ class Model(proto.Message):
             created in MetadataStore when creating the Model. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
+        base_model_source (google.cloud.aiplatform_v1beta1.types.Model.BaseModelSource):
+            Optional. User input field to specify the
+            base model source. Currently it only supports
+            specifing the Model Garden models and Genie
+            models.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -406,6 +415,43 @@ class Model(proto.Message):
         model: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+
+    class BaseModelSource(proto.Message):
+        r"""User input field to specify the base model source. Currently
+        it only supports specifing the Model Garden models and Genie
+        models.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            model_garden_source (google.cloud.aiplatform_v1beta1.types.ModelGardenSource):
+                Source information of Model Garden models.
+
+                This field is a member of `oneof`_ ``source``.
+            genie_source (google.cloud.aiplatform_v1beta1.types.GenieSource):
+                Information about the base model of Genie
+                models.
+
+                This field is a member of `oneof`_ ``source``.
+        """
+
+        model_garden_source: "ModelGardenSource" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="source",
+            message="ModelGardenSource",
+        )
+        genie_source: "GenieSource" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="source",
+            message="GenieSource",
         )
 
     name: str = proto.Field(
@@ -539,6 +585,11 @@ class Model(proto.Message):
         proto.STRING,
         number=44,
     )
+    base_model_source: BaseModelSource = proto.Field(
+        proto.MESSAGE,
+        number=50,
+        message=BaseModelSource,
+    )
 
 
 class LargeModelReference(proto.Message):
@@ -554,6 +605,37 @@ class LargeModelReference(proto.Message):
     """
 
     name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ModelGardenSource(proto.Message):
+    r"""Contains information about the source of the models generated
+    from Model Garden.
+
+    Attributes:
+        public_model_name (str):
+            Required. The model garden source model
+            resource name.
+    """
+
+    public_model_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GenieSource(proto.Message):
+    r"""Contains information about the source of the models generated
+    from Generative AI Studio.
+
+    Attributes:
+        base_model_uri (str):
+            Required. The public base model URI.
+    """
+
+    base_model_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -864,6 +946,31 @@ class ModelContainerSpec(proto.Message):
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+        grpc_ports (MutableSequence[google.cloud.aiplatform_v1beta1.types.Port]):
+            Immutable. List of ports to expose from the container.
+            Vertex AI sends gRPC prediction requests that it receives to
+            the first port on this list. Vertex AI also sends liveness
+            and health checks to this port.
+
+            If you do not specify this field, gRPC requests to the
+            container will be disabled.
+
+            Vertex AI does not use ports other than the first one
+            listed. This field corresponds to the ``ports`` field of the
+            Kubernetes Containers v1 core API.
+        deployment_timeout (google.protobuf.duration_pb2.Duration):
+            Immutable. Deployment timeout.
+            Limit for deployment timeout is 2 hours.
+        shared_memory_size_mb (int):
+            Immutable. The amount of the VM memory to
+            reserve as the shared memory for the model in
+            megabytes.
+        startup_probe (google.cloud.aiplatform_v1beta1.types.Probe):
+            Immutable. Specification for Kubernetes
+            startup probe.
+        health_probe (google.cloud.aiplatform_v1beta1.types.Probe):
+            Immutable. Specification for Kubernetes
+            readiness probe.
     """
 
     image_uri: str = proto.Field(
@@ -896,6 +1003,30 @@ class ModelContainerSpec(proto.Message):
         proto.STRING,
         number=7,
     )
+    grpc_ports: MutableSequence["Port"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message="Port",
+    )
+    deployment_timeout: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=duration_pb2.Duration,
+    )
+    shared_memory_size_mb: int = proto.Field(
+        proto.INT64,
+        number=11,
+    )
+    startup_probe: "Probe" = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message="Probe",
+    )
+    health_probe: "Probe" = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message="Probe",
+    )
 
 
 class Port(proto.Message):
@@ -927,7 +1058,10 @@ class ModelSourceInfo(proto.Message):
     """
 
     class ModelSourceType(proto.Enum):
-        r"""Source of the model.
+        r"""Source of the model. Different from ``objective`` field, this
+        ``ModelSourceType`` enum indicates the source from which the model
+        was accessed or obtained, whereas the ``objective`` indicates the
+        overall aim or function of this model.
 
         Values:
             MODEL_SOURCE_TYPE_UNSPECIFIED (0):
@@ -946,6 +1080,11 @@ class ModelSourceInfo(proto.Message):
                 Garden.
             GENIE (5):
                 The Model is saved or tuned from Genie.
+            CUSTOM_TEXT_EMBEDDING (6):
+                The Model is uploaded by text embedding
+                finetuning pipeline.
+            MARKETPLACE (7):
+                The Model is saved or tuned from Marketplace.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
@@ -953,6 +1092,8 @@ class ModelSourceInfo(proto.Message):
         BQML = 3
         MODEL_GARDEN = 4
         GENIE = 5
+        CUSTOM_TEXT_EMBEDDING = 6
+        MARKETPLACE = 7
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,
@@ -962,6 +1103,68 @@ class ModelSourceInfo(proto.Message):
     copy: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+
+
+class Probe(proto.Message):
+    r"""Probe describes a health check to be performed against a
+    container to determine whether it is alive or ready to receive
+    traffic.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        exec_ (google.cloud.aiplatform_v1beta1.types.Probe.ExecAction):
+            Exec specifies the action to take.
+
+            This field is a member of `oneof`_ ``probe_type``.
+        period_seconds (int):
+            How often (in seconds) to perform the probe. Default to 10
+            seconds. Minimum value is 1. Must be less than
+            timeout_seconds.
+
+            Maps to Kubernetes probe argument 'periodSeconds'.
+        timeout_seconds (int):
+            Number of seconds after which the probe times out. Defaults
+            to 1 second. Minimum value is 1. Must be greater or equal to
+            period_seconds.
+
+            Maps to Kubernetes probe argument 'timeoutSeconds'.
+    """
+
+    class ExecAction(proto.Message):
+        r"""ExecAction specifies a command to execute.
+
+        Attributes:
+            command (MutableSequence[str]):
+                Command is the command line to execute inside the container,
+                the working directory for the command is root ('/') in the
+                container's filesystem. The command is simply exec'd, it is
+                not run inside a shell, so traditional shell instructions
+                ('|', etc) won't work. To use a shell, you need to
+                explicitly call out to that shell. Exit status of 0 is
+                treated as live/healthy and non-zero is unhealthy.
+        """
+
+        command: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+
+    exec_: ExecAction = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="probe_type",
+        message=ExecAction,
+    )
+    period_seconds: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    timeout_seconds: int = proto.Field(
+        proto.INT32,
+        number=3,
     )
 
 

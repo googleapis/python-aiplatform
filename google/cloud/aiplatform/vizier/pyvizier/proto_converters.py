@@ -7,6 +7,7 @@ from google.protobuf import duration_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform.compat.types import study as study_pb2
+from google.cloud.aiplatform.vizier.pyvizier import ExternalType
 from google.cloud.aiplatform.vizier.pyvizier import ScaleType
 from google.cloud.aiplatform.vizier.pyvizier import ParameterType
 from google.cloud.aiplatform.vizier.pyvizier import ParameterValue
@@ -122,12 +123,14 @@ class ParameterConfigConverter:
           ValueError: See the "strict_validtion" arg documentation.
         """
         feasible_values = []
+        external_type = ExternalType.INTERNAL
         oneof_name = proto._pb.WhichOneof("parameter_value_spec")
         if oneof_name == "integer_value_spec":
             bounds = (
                 int(proto.integer_value_spec.min_value),
                 int(proto.integer_value_spec.max_value),
             )
+            external_type = ExternalType.INTEGER
         elif oneof_name == "double_value_spec":
             bounds = (
                 proto.double_value_spec.min_value,
@@ -139,10 +142,17 @@ class ParameterConfigConverter:
         elif oneof_name == "categorical_value_spec":
             bounds = None
             feasible_values = proto.categorical_value_spec.values
+            # Boolean values are encoded as categoricals, check for the special
+            # hard-coded values.
+            boolean_values = ["False", "True"]
+            if sorted(list(feasible_values)) == boolean_values:
+                external_type = ExternalType.BOOLEAN
 
         default_value = None
         if getattr(proto, oneof_name).default_value:
             default_value = getattr(proto, oneof_name).default_value
+            if external_type == ExternalType.INTEGER:
+                default_value = int(default_value)
 
         if proto.conditional_parameter_specs:
             children = []
@@ -166,6 +176,7 @@ class ParameterConfigConverter:
                 children=children,
                 scale_type=scale_type,
                 default_value=default_value,
+                external_type=external_type,
             )
         except ValueError as e:
             raise ValueError(
@@ -222,15 +233,15 @@ class ParameterConfigConverter:
                 )
             )
 
-            if parent_proto.HasField("discrete_value_spec"):
+            if "discrete_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_discrete_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("categorical_value_spec"):
+            elif "categorical_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_categorical_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("integer_value_spec"):
+            elif "integer_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_int_values.values[:] = parent_values
             else:
                 raise ValueError("DOUBLE type cannot have child parameters")

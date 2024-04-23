@@ -15,35 +15,25 @@
 # limitations under the License.
 #
 
-from typing import Optional
+from typing import List, Optional
 
-from google.cloud.aiplatform import base
-from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.pipeline_jobs import (
+    PipelineJob as PipelineJobGa,
+)
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    PipelineServiceClient as PipelineServiceClientGa,
+)
+from google.cloud import aiplatform_v1beta1
+from google.cloud.aiplatform import compat, pipeline_job_schedules
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.constants import pipeline as pipeline_constants
+
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 
-_LOGGER = base.Logger(__name__)
-
-_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
-
-_PIPELINE_ERROR_STATES = pipeline_constants._PIPELINE_ERROR_STATES
-
-# Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
-
-# Pattern for an Artifact Registry URL.
-_VALID_AR_URL = pipeline_constants._VALID_AR_URL
-
-# Pattern for any JSON or YAML file over HTTPS.
-_VALID_HTTPS_URL = pipeline_constants._VALID_HTTPS_URL
-
-_READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
-
 
 class _PipelineJob(
-    pipeline_jobs.PipelineJob,
+    PipelineJobGa,
     experiment_loggable_schemas=(
         experiment_resources._ExperimentLoggableSchema(
             title=metadata_constants.SYSTEM_PIPELINE_RUN
@@ -116,21 +106,9 @@ class _PipelineJob(
         Returns:
             A Vertex AI PipelineJobSchedule.
         """
-        from google.cloud.aiplatform.preview.pipelinejobschedule import (
-            pipeline_job_schedules,
-        )
-
-        if not display_name:
-            display_name = self._generate_display_name(prefix="PipelineJobSchedule")
-        utils.validate_display_name(display_name)
-
-        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
-            pipeline_job=self,
+        return super().create_schedule(
+            cron=cron_expression,
             display_name=display_name,
-        )
-
-        pipeline_job_schedule.create(
-            cron_expression=cron_expression,
             start_time=start_time,
             end_time=end_time,
             allow_queueing=allow_queueing,
@@ -140,4 +118,65 @@ class _PipelineJob(
             network=network,
             create_request_timeout=create_request_timeout,
         )
-        return pipeline_job_schedule
+
+    @classmethod
+    def batch_delete(
+        cls,
+        names: List[str],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> aiplatform_v1beta1.BatchDeletePipelineJobsResponse:
+        """
+        Example Usage:
+          aiplatform.init(
+            project='your_project_name',
+            location='your_location',
+          )
+          aiplatform.PipelineJob.batch_delete(
+            names=['pipeline_job_name', 'pipeline_job_name2']
+          )
+
+        Args:
+            names (List[str]):
+                Required. The fully-qualified resource name or ID of the
+                Pipeline Jobs to batch delete. Example:
+                "projects/123/locations/us-central1/pipelineJobs/456"
+                or "456" when project and location are initialized or passed.
+            project (str):
+                Optional. Project containing the Pipeline Jobs to
+                batch delete. If not set, the project given to `aiplatform.init`
+                will be used.
+            location (str):
+                Optional. Location containing the Pipeline Jobs to
+                batch delete. If not set, the location given to `aiplatform.init`
+                will be used.
+
+        Returns:
+          BatchDeletePipelineJobsResponse contains PipelineJobs deleted.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1beta1.BatchDeletePipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        client = cls._instantiate_client(
+            location=user_location,
+            appended_user_agent=["preview-pipeline-jobs-batch-delete"],
+        )
+        v1beta1_client = client.select_version(compat.V1BETA1)
+        operation = v1beta1_client.batch_delete_pipeline_jobs(request)
+        return operation.result()

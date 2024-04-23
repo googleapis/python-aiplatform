@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union
+from typing import Optional, Union
 
 from google.cloud import aiplatform
 
@@ -20,9 +20,9 @@ from google.cloud import aiplatform
 #  [START aiplatform_sdk_autologging_with_auto_run_creation_sample]
 def autologging_with_auto_run_creation_sample(
     experiment_name: str,
-    experiment_tensorboard: Union[str, aiplatform.Tensorboard],
     project: str,
     location: str,
+    experiment_tensorboard: Optional[Union[str, aiplatform.Tensorboard]] = None,
 ):
     aiplatform.init(
         experiment=experiment_name,

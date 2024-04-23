@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,18 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
+from collections.abc import Iterable
+from google.protobuf import json_format
+import json
 import math
 import pytest
+from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
+from requests import Response
+from requests import Request, PreparedRequest
+from requests.sessions import Session
+from google.protobuf import json_format
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -86,7 +94,7 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
@@ -94,6 +102,7 @@ from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from google.type import money_pb2  # type: ignore
 import google.auth
@@ -111,6 +120,17 @@ def modify_default_endpoint(client):
         "foo.googleapis.com"
         if ("localhost" in client.DEFAULT_ENDPOINT)
         else client.DEFAULT_ENDPOINT
+    )
+
+
+# If default endpoint template is localhost, then default mtls endpoint will be the same.
+# This method modifies the default endpoint template so the client can produce a different
+# mtls endpoint for endpoint testing purposes.
+def modify_default_endpoint_template(client):
+    return (
+        "test.{UNIVERSE_DOMAIN}"
+        if ("localhost" in client._DEFAULT_ENDPOINT_TEMPLATE)
+        else client._DEFAULT_ENDPOINT_TEMPLATE
     )
 
 
@@ -140,11 +160,260 @@ def test__get_default_mtls_endpoint():
     assert JobServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
 
 
+def test__read_environment_variables():
+    assert JobServiceClient._read_environment_variables() == (False, "auto", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        assert JobServiceClient._read_environment_variables() == (True, "auto", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        assert JobServiceClient._read_environment_variables() == (False, "auto", None)
+
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            JobServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        assert JobServiceClient._read_environment_variables() == (False, "never", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        assert JobServiceClient._read_environment_variables() == (False, "always", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
+        assert JobServiceClient._read_environment_variables() == (False, "auto", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            JobServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
+        assert JobServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            "foo.com",
+        )
+
+
+def test__get_client_cert_source():
+    mock_provided_cert_source = mock.Mock()
+    mock_default_cert_source = mock.Mock()
+
+    assert JobServiceClient._get_client_cert_source(None, False) is None
+    assert (
+        JobServiceClient._get_client_cert_source(mock_provided_cert_source, False)
+        is None
+    )
+    assert (
+        JobServiceClient._get_client_cert_source(mock_provided_cert_source, True)
+        == mock_provided_cert_source
+    )
+
+    with mock.patch(
+        "google.auth.transport.mtls.has_default_client_cert_source", return_value=True
+    ):
+        with mock.patch(
+            "google.auth.transport.mtls.default_client_cert_source",
+            return_value=mock_default_cert_source,
+        ):
+            assert (
+                JobServiceClient._get_client_cert_source(None, True)
+                is mock_default_cert_source
+            )
+            assert (
+                JobServiceClient._get_client_cert_source(
+                    mock_provided_cert_source, "true"
+                )
+                is mock_provided_cert_source
+            )
+
+
+@mock.patch.object(
+    JobServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceClient),
+)
+@mock.patch.object(
+    JobServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceAsyncClient),
+)
+def test__get_api_endpoint():
+    api_override = "foo.com"
+    mock_client_cert_source = mock.Mock()
+    default_universe = JobServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=mock_universe
+    )
+
+    assert (
+        JobServiceClient._get_api_endpoint(
+            api_override, mock_client_cert_source, default_universe, "always"
+        )
+        == api_override
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "auto"
+        )
+        == JobServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(None, None, default_universe, "auto")
+        == default_endpoint
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(None, None, default_universe, "always")
+        == JobServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "always"
+        )
+        == JobServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(None, None, mock_universe, "never")
+        == mock_endpoint
+    )
+    assert (
+        JobServiceClient._get_api_endpoint(None, None, default_universe, "never")
+        == default_endpoint
+    )
+
+    with pytest.raises(MutualTLSChannelError) as excinfo:
+        JobServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, mock_universe, "auto"
+        )
+    assert (
+        str(excinfo.value)
+        == "mTLS is not supported in any universe other than googleapis.com."
+    )
+
+
+def test__get_universe_domain():
+    client_universe_domain = "foo.com"
+    universe_domain_env = "bar.com"
+
+    assert (
+        JobServiceClient._get_universe_domain(
+            client_universe_domain, universe_domain_env
+        )
+        == client_universe_domain
+    )
+    assert (
+        JobServiceClient._get_universe_domain(None, universe_domain_env)
+        == universe_domain_env
+    )
+    assert (
+        JobServiceClient._get_universe_domain(None, None)
+        == JobServiceClient._DEFAULT_UNIVERSE
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        JobServiceClient._get_universe_domain("", None)
+    assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (JobServiceClient, transports.JobServiceGrpcTransport, "grpc"),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest"),
+    ],
+)
+def test__validate_universe_domain(client_class, transport_class, transport_name):
+    client = client_class(
+        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
+    )
+    assert client._validate_universe_domain() == True
+
+    # Test the case when universe is already validated.
+    assert client._validate_universe_domain() == True
+
+    if transport_name == "grpc":
+        # Test the case where credentials are provided by the
+        # `local_channel_credentials`. The default universes in both match.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        client = client_class(transport=transport_class(channel=channel))
+        assert client._validate_universe_domain() == True
+
+        # Test the case where credentials do not exist: e.g. a transport is provided
+        # with no credentials. Validation should still succeed because there is no
+        # mismatch with non-existent credentials.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        transport = transport_class(channel=channel)
+        transport._credentials = None
+        client = client_class(transport=transport)
+        assert client._validate_universe_domain() == True
+
+    # TODO: This is needed to cater for older versions of google-auth
+    # Make this test unconditional once the minimum supported version of
+    # google-auth becomes 2.23.0 or higher.
+    google_auth_major, google_auth_minor = [
+        int(part) for part in google.auth.__version__.split(".")[0:2]
+    ]
+    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
+        credentials = ga_credentials.AnonymousCredentials()
+        credentials._universe_domain = "foo.com"
+        # Test the case when there is a universe mismatch from the credentials.
+        client = client_class(transport=transport_class(credentials=credentials))
+        with pytest.raises(ValueError) as excinfo:
+            client._validate_universe_domain()
+        assert (
+            str(excinfo.value)
+            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+        )
+
+        # Test the case when there is a universe mismatch from the client.
+        #
+        # TODO: Make this test unconditional once the minimum supported version of
+        # google-api-core becomes 2.15.0 or higher.
+        api_core_major, api_core_minor = [
+            int(part) for part in api_core_version.__version__.split(".")[0:2]
+        ]
+        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
+            client = client_class(
+                client_options={"universe_domain": "bar.com"},
+                transport=transport_class(
+                    credentials=ga_credentials.AnonymousCredentials(),
+                ),
+            )
+            with pytest.raises(ValueError) as excinfo:
+                client._validate_universe_domain()
+            assert (
+                str(excinfo.value)
+                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+            )
+
+    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
+    with pytest.raises(ValueError):
+        client._compare_universes("foo.bar", None)
+
+
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
         (JobServiceClient, "grpc"),
         (JobServiceAsyncClient, "grpc_asyncio"),
+        (JobServiceClient, "rest"),
     ],
 )
 def test_job_service_client_from_service_account_info(client_class, transport_name):
@@ -158,7 +427,11 @@ def test_job_service_client_from_service_account_info(client_class, transport_na
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 @pytest.mark.parametrize(
@@ -166,6 +439,7 @@ def test_job_service_client_from_service_account_info(client_class, transport_na
     [
         (transports.JobServiceGrpcTransport, "grpc"),
         (transports.JobServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.JobServiceRestTransport, "rest"),
     ],
 )
 def test_job_service_client_service_account_always_use_jwt(
@@ -191,6 +465,7 @@ def test_job_service_client_service_account_always_use_jwt(
     [
         (JobServiceClient, "grpc"),
         (JobServiceAsyncClient, "grpc_asyncio"),
+        (JobServiceClient, "rest"),
     ],
 )
 def test_job_service_client_from_service_account_file(client_class, transport_name):
@@ -211,13 +486,18 @@ def test_job_service_client_from_service_account_file(client_class, transport_na
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 def test_job_service_client_get_transport_class():
     transport = JobServiceClient.get_transport_class()
     available_transports = [
         transports.JobServiceGrpcTransport,
+        transports.JobServiceRestTransport,
     ]
     assert transport in available_transports
 
@@ -234,15 +514,18 @@ def test_job_service_client_get_transport_class():
             transports.JobServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest"),
     ],
 )
 @mock.patch.object(
-    JobServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(JobServiceClient)
+    JobServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceClient),
 )
 @mock.patch.object(
     JobServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(JobServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceAsyncClient),
 )
 def test_job_service_client_client_options(
     client_class, transport_class, transport_name
@@ -284,7 +567,9 @@ def test_job_service_client_client_options(
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,
@@ -314,15 +599,23 @@ def test_job_service_client_client_options(
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
-        with pytest.raises(MutualTLSChannelError):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
@@ -332,7 +625,9 @@ def test_job_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id="octopus",
@@ -350,7 +645,9 @@ def test_job_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -377,15 +674,19 @@ def test_job_service_client_client_options(
             "grpc_asyncio",
             "false",
         ),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest", "true"),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest", "false"),
     ],
 )
 @mock.patch.object(
-    JobServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(JobServiceClient)
+    JobServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceClient),
 )
 @mock.patch.object(
     JobServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(JobServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
 def test_job_service_client_mtls_env_auto(
@@ -408,7 +709,9 @@ def test_job_service_client_mtls_env_auto(
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
-                expected_host = client.DEFAULT_ENDPOINT
+                expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                )
             else:
                 expected_client_cert_source = client_cert_source_callback
                 expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -440,7 +743,9 @@ def test_job_service_client_mtls_env_auto(
                     return_value=client_cert_source_callback,
                 ):
                     if use_client_cert_env == "false":
-                        expected_host = client.DEFAULT_ENDPOINT
+                        expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                            UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                        )
                         expected_client_cert_source = None
                     else:
                         expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -474,7 +779,9 @@ def test_job_service_client_mtls_env_auto(
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
-                    host=client.DEFAULT_ENDPOINT,
+                    host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                        UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                    ),
                     scopes=None,
                     client_cert_source_for_mtls=None,
                     quota_project_id=None,
@@ -560,6 +867,113 @@ def test_job_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
+    # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
+    # unsupported value.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+        )
+
+    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+        )
+
+
+@pytest.mark.parametrize("client_class", [JobServiceClient, JobServiceAsyncClient])
+@mock.patch.object(
+    JobServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceClient),
+)
+@mock.patch.object(
+    JobServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(JobServiceAsyncClient),
+)
+def test_job_service_client_client_api_endpoint(client_class):
+    mock_client_cert_source = client_cert_source_callback
+    api_override = "foo.com"
+    default_universe = JobServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=mock_universe
+    )
+
+    # If ClientOptions.api_endpoint is set and GOOGLE_API_USE_CLIENT_CERTIFICATE="true",
+    # use ClientOptions.api_endpoint as the api endpoint regardless.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+        ):
+            options = client_options.ClientOptions(
+                client_cert_source=mock_client_cert_source, api_endpoint=api_override
+            )
+            client = client_class(
+                client_options=options,
+                credentials=ga_credentials.AnonymousCredentials(),
+            )
+            assert client.api_endpoint == api_override
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == default_endpoint
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="always",
+    # use the DEFAULT_MTLS_ENDPOINT as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+
+    # If ClientOptions.api_endpoint is not set, GOOGLE_API_USE_MTLS_ENDPOINT="auto" (default),
+    # GOOGLE_API_USE_CLIENT_CERTIFICATE="false" (default), default cert source doesn't exist,
+    # and ClientOptions.universe_domain="bar.com",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with universe domain as the api endpoint.
+    options = client_options.ClientOptions()
+    universe_exists = hasattr(options, "universe_domain")
+    if universe_exists:
+        options = client_options.ClientOptions(universe_domain=mock_universe)
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    else:
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    assert client.api_endpoint == (
+        mock_endpoint if universe_exists else default_endpoint
+    )
+    assert client.universe_domain == (
+        mock_universe if universe_exists else default_universe
+    )
+
+    # If ClientOptions does not have a universe domain attribute and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    options = client_options.ClientOptions()
+    if hasattr(options, "universe_domain"):
+        delattr(options, "universe_domain")
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+        assert client.api_endpoint == default_endpoint
+
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
@@ -570,6 +984,7 @@ def test_job_service_client_get_mtls_endpoint_and_cert_source(client_class):
             transports.JobServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest"),
     ],
 )
 def test_job_service_client_client_options_scopes(
@@ -585,7 +1000,9 @@ def test_job_service_client_client_options_scopes(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=["1", "2"],
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -605,6 +1022,7 @@ def test_job_service_client_client_options_scopes(
             "grpc_asyncio",
             grpc_helpers_async,
         ),
+        (JobServiceClient, transports.JobServiceRestTransport, "rest", None),
     ],
 )
 def test_job_service_client_client_options_credentials_file(
@@ -619,7 +1037,9 @@ def test_job_service_client_client_options_credentials_file(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -672,7 +1092,9 @@ def test_job_service_client_create_channel_credentials_file(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -745,7 +1167,8 @@ def test_create_custom_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateCustomJobRequest()
+        request = job_service.CreateCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_custom_job.CustomJob)
@@ -767,6 +1190,60 @@ def test_create_custom_job_empty_call():
         type(client.transport.create_custom_job), "__call__"
     ) as call:
         client.create_custom_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateCustomJobRequest()
+
+
+def test_create_custom_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateCustomJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_custom_job), "__call__"
+    ) as call:
+        client.create_custom_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateCustomJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_custom_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_custom_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_custom_job.CustomJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+            )
+        )
+        response = await client.create_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateCustomJobRequest()
@@ -802,7 +1279,8 @@ async def test_create_custom_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateCustomJobRequest()
+        request = job_service.CreateCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_custom_job.CustomJob)
@@ -1007,7 +1485,8 @@ def test_get_custom_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetCustomJobRequest()
+        request = job_service.GetCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, custom_job.CustomJob)
@@ -1027,6 +1506,56 @@ def test_get_custom_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
         client.get_custom_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetCustomJobRequest()
+
+
+def test_get_custom_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetCustomJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
+        client.get_custom_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetCustomJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_custom_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            custom_job.CustomJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+            )
+        )
+        response = await client.get_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetCustomJobRequest()
@@ -1060,7 +1589,8 @@ async def test_get_custom_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetCustomJobRequest()
+        request = job_service.GetCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, custom_job.CustomJob)
@@ -1245,7 +1775,8 @@ def test_list_custom_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListCustomJobsRequest()
+        request = job_service.ListCustomJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListCustomJobsPager)
@@ -1263,6 +1794,58 @@ def test_list_custom_jobs_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
         client.list_custom_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListCustomJobsRequest()
+
+
+def test_list_custom_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListCustomJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
+        client.list_custom_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListCustomJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_custom_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListCustomJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_custom_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListCustomJobsRequest()
@@ -1294,7 +1877,8 @@ async def test_list_custom_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListCustomJobsRequest()
+        request = job_service.ListCustomJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListCustomJobsAsyncPager)
@@ -1451,7 +2035,7 @@ async def test_list_custom_jobs_flattened_error_async():
 
 def test_list_custom_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -1501,7 +2085,7 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_custom_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -1543,7 +2127,7 @@ def test_list_custom_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_custom_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1593,7 +2177,7 @@ async def test_list_custom_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_custom_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1629,9 +2213,11 @@ async def test_list_custom_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_custom_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -1665,7 +2251,8 @@ def test_delete_custom_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteCustomJobRequest()
+        request = job_service.DeleteCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1684,6 +2271,56 @@ def test_delete_custom_job_empty_call():
         type(client.transport.delete_custom_job), "__call__"
     ) as call:
         client.delete_custom_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteCustomJobRequest()
+
+
+def test_delete_custom_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteCustomJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_custom_job), "__call__"
+    ) as call:
+        client.delete_custom_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteCustomJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_custom_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_custom_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteCustomJobRequest()
@@ -1715,7 +2352,8 @@ async def test_delete_custom_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteCustomJobRequest()
+        request = job_service.DeleteCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1905,7 +2543,8 @@ def test_cancel_custom_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelCustomJobRequest()
+        request = job_service.CancelCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -1924,6 +2563,54 @@ def test_cancel_custom_job_empty_call():
         type(client.transport.cancel_custom_job), "__call__"
     ) as call:
         client.cancel_custom_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelCustomJobRequest()
+
+
+def test_cancel_custom_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CancelCustomJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_custom_job), "__call__"
+    ) as call:
+        client.cancel_custom_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelCustomJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_custom_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_custom_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CancelCustomJobRequest()
@@ -1953,7 +2640,8 @@ async def test_cancel_custom_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelCustomJobRequest()
+        request = job_service.CancelCustomJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2149,7 +2837,8 @@ def test_create_data_labeling_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateDataLabelingJobRequest()
+        request = job_service.CreateDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_data_labeling_job.DataLabelingJob)
@@ -2177,6 +2866,66 @@ def test_create_data_labeling_job_empty_call():
         type(client.transport.create_data_labeling_job), "__call__"
     ) as call:
         client.create_data_labeling_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateDataLabelingJobRequest()
+
+
+def test_create_data_labeling_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateDataLabelingJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_data_labeling_job), "__call__"
+    ) as call:
+        client.create_data_labeling_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateDataLabelingJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_data_labeling_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_data_labeling_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_data_labeling_job.DataLabelingJob(
+                name="name_value",
+                display_name="display_name_value",
+                datasets=["datasets_value"],
+                labeler_count=1375,
+                instruction_uri="instruction_uri_value",
+                inputs_schema_uri="inputs_schema_uri_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                labeling_progress=1810,
+                specialist_pools=["specialist_pools_value"],
+            )
+        )
+        response = await client.create_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateDataLabelingJobRequest()
@@ -2219,7 +2968,8 @@ async def test_create_data_labeling_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateDataLabelingJobRequest()
+        request = job_service.CreateDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_data_labeling_job.DataLabelingJob)
@@ -2438,7 +3188,8 @@ def test_get_data_labeling_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetDataLabelingJobRequest()
+        request = job_service.GetDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, data_labeling_job.DataLabelingJob)
@@ -2466,6 +3217,66 @@ def test_get_data_labeling_job_empty_call():
         type(client.transport.get_data_labeling_job), "__call__"
     ) as call:
         client.get_data_labeling_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetDataLabelingJobRequest()
+
+
+def test_get_data_labeling_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetDataLabelingJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_data_labeling_job), "__call__"
+    ) as call:
+        client.get_data_labeling_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetDataLabelingJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_labeling_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_data_labeling_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            data_labeling_job.DataLabelingJob(
+                name="name_value",
+                display_name="display_name_value",
+                datasets=["datasets_value"],
+                labeler_count=1375,
+                instruction_uri="instruction_uri_value",
+                inputs_schema_uri="inputs_schema_uri_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                labeling_progress=1810,
+                specialist_pools=["specialist_pools_value"],
+            )
+        )
+        response = await client.get_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetDataLabelingJobRequest()
@@ -2507,7 +3318,8 @@ async def test_get_data_labeling_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetDataLabelingJobRequest()
+        request = job_service.GetDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, data_labeling_job.DataLabelingJob)
@@ -2708,7 +3520,8 @@ def test_list_data_labeling_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListDataLabelingJobsRequest()
+        request = job_service.ListDataLabelingJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDataLabelingJobsPager)
@@ -2728,6 +3541,64 @@ def test_list_data_labeling_jobs_empty_call():
         type(client.transport.list_data_labeling_jobs), "__call__"
     ) as call:
         client.list_data_labeling_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListDataLabelingJobsRequest()
+
+
+def test_list_data_labeling_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListDataLabelingJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_data_labeling_jobs), "__call__"
+    ) as call:
+        client.list_data_labeling_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListDataLabelingJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_data_labeling_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_data_labeling_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListDataLabelingJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_data_labeling_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListDataLabelingJobsRequest()
@@ -2762,7 +3633,8 @@ async def test_list_data_labeling_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListDataLabelingJobsRequest()
+        request = job_service.ListDataLabelingJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDataLabelingJobsAsyncPager)
@@ -2927,7 +3799,7 @@ async def test_list_data_labeling_jobs_flattened_error_async():
 
 def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -2979,7 +3851,7 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -3023,7 +3895,7 @@ def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3075,7 +3947,7 @@ async def test_list_data_labeling_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3113,9 +3985,11 @@ async def test_list_data_labeling_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_data_labeling_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3149,7 +4023,8 @@ def test_delete_data_labeling_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteDataLabelingJobRequest()
+        request = job_service.DeleteDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3168,6 +4043,56 @@ def test_delete_data_labeling_job_empty_call():
         type(client.transport.delete_data_labeling_job), "__call__"
     ) as call:
         client.delete_data_labeling_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteDataLabelingJobRequest()
+
+
+def test_delete_data_labeling_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteDataLabelingJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_data_labeling_job), "__call__"
+    ) as call:
+        client.delete_data_labeling_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteDataLabelingJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_data_labeling_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_data_labeling_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteDataLabelingJobRequest()
@@ -3200,7 +4125,8 @@ async def test_delete_data_labeling_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteDataLabelingJobRequest()
+        request = job_service.DeleteDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3390,7 +4316,8 @@ def test_cancel_data_labeling_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelDataLabelingJobRequest()
+        request = job_service.CancelDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -3409,6 +4336,54 @@ def test_cancel_data_labeling_job_empty_call():
         type(client.transport.cancel_data_labeling_job), "__call__"
     ) as call:
         client.cancel_data_labeling_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelDataLabelingJobRequest()
+
+
+def test_cancel_data_labeling_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CancelDataLabelingJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_data_labeling_job), "__call__"
+    ) as call:
+        client.cancel_data_labeling_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelDataLabelingJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_data_labeling_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_data_labeling_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CancelDataLabelingJobRequest()
@@ -3439,7 +4414,8 @@ async def test_cancel_data_labeling_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelDataLabelingJobRequest()
+        request = job_service.CancelDataLabelingJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -3632,7 +4608,8 @@ def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc")
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
+        request = job_service.CreateHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -3657,6 +4634,63 @@ def test_create_hyperparameter_tuning_job_empty_call():
         type(client.transport.create_hyperparameter_tuning_job), "__call__"
     ) as call:
         client.create_hyperparameter_tuning_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
+
+
+def test_create_hyperparameter_tuning_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateHyperparameterTuningJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        client.create_hyperparameter_tuning_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateHyperparameterTuningJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_hyperparameter_tuning_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+                name="name_value",
+                display_name="display_name_value",
+                max_trial_count=1609,
+                parallel_trial_count=2128,
+                max_failed_trial_count=2317,
+                state=job_state.JobState.JOB_STATE_QUEUED,
+            )
+        )
+        response = await client.create_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
@@ -3696,7 +4730,8 @@ async def test_create_hyperparameter_tuning_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
+        request = job_service.CreateHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -3921,7 +4956,8 @@ def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetHyperparameterTuningJobRequest()
+        request = job_service.GetHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -3946,6 +4982,63 @@ def test_get_hyperparameter_tuning_job_empty_call():
         type(client.transport.get_hyperparameter_tuning_job), "__call__"
     ) as call:
         client.get_hyperparameter_tuning_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetHyperparameterTuningJobRequest()
+
+
+def test_get_hyperparameter_tuning_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetHyperparameterTuningJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        client.get_hyperparameter_tuning_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetHyperparameterTuningJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_hyperparameter_tuning_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            hyperparameter_tuning_job.HyperparameterTuningJob(
+                name="name_value",
+                display_name="display_name_value",
+                max_trial_count=1609,
+                parallel_trial_count=2128,
+                max_failed_trial_count=2317,
+                state=job_state.JobState.JOB_STATE_QUEUED,
+            )
+        )
+        response = await client.get_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetHyperparameterTuningJobRequest()
@@ -3985,7 +5078,8 @@ async def test_get_hyperparameter_tuning_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetHyperparameterTuningJobRequest()
+        request = job_service.GetHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -4183,7 +5277,8 @@ def test_list_hyperparameter_tuning_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
+        request = job_service.ListHyperparameterTuningJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListHyperparameterTuningJobsPager)
@@ -4203,6 +5298,62 @@ def test_list_hyperparameter_tuning_jobs_empty_call():
         type(client.transport.list_hyperparameter_tuning_jobs), "__call__"
     ) as call:
         client.list_hyperparameter_tuning_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
+
+
+def test_list_hyperparameter_tuning_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListHyperparameterTuningJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_hyperparameter_tuning_jobs), "__call__"
+    ) as call:
+        client.list_hyperparameter_tuning_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListHyperparameterTuningJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_hyperparameter_tuning_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_hyperparameter_tuning_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListHyperparameterTuningJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_hyperparameter_tuning_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
@@ -4237,7 +5388,8 @@ async def test_list_hyperparameter_tuning_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
+        request = job_service.ListHyperparameterTuningJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListHyperparameterTuningJobsAsyncPager)
@@ -4402,7 +5554,7 @@ async def test_list_hyperparameter_tuning_jobs_flattened_error_async():
 
 def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -4457,7 +5609,7 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -4501,7 +5653,7 @@ def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4556,7 +5708,7 @@ async def test_list_hyperparameter_tuning_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4594,9 +5746,11 @@ async def test_list_hyperparameter_tuning_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_hyperparameter_tuning_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -4630,7 +5784,8 @@ def test_delete_hyperparameter_tuning_job(request_type, transport: str = "grpc")
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
+        request = job_service.DeleteHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4649,6 +5804,56 @@ def test_delete_hyperparameter_tuning_job_empty_call():
         type(client.transport.delete_hyperparameter_tuning_job), "__call__"
     ) as call:
         client.delete_hyperparameter_tuning_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
+
+
+def test_delete_hyperparameter_tuning_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteHyperparameterTuningJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        client.delete_hyperparameter_tuning_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteHyperparameterTuningJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_hyperparameter_tuning_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
@@ -4681,7 +5886,8 @@ async def test_delete_hyperparameter_tuning_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
+        request = job_service.DeleteHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4871,7 +6077,8 @@ def test_cancel_hyperparameter_tuning_job(request_type, transport: str = "grpc")
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
+        request = job_service.CancelHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -4890,6 +6097,54 @@ def test_cancel_hyperparameter_tuning_job_empty_call():
         type(client.transport.cancel_hyperparameter_tuning_job), "__call__"
     ) as call:
         client.cancel_hyperparameter_tuning_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
+
+
+def test_cancel_hyperparameter_tuning_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CancelHyperparameterTuningJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        client.cancel_hyperparameter_tuning_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelHyperparameterTuningJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_hyperparameter_tuning_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_hyperparameter_tuning_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
@@ -4920,7 +6175,8 @@ async def test_cancel_hyperparameter_tuning_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
+        request = job_service.CancelHyperparameterTuningJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -5109,7 +6365,8 @@ def test_create_nas_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateNasJobRequest()
+        request = job_service.CreateNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_nas_job.NasJob)
@@ -5130,6 +6387,57 @@ def test_create_nas_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
         client.create_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateNasJobRequest()
+
+
+def test_create_nas_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateNasJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        client.create_nas_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateNasJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_nas_job.NasJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                enable_restricted_image_training=True,
+            )
+        )
+        response = await client.create_nas_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateNasJobRequest()
@@ -5164,7 +6472,8 @@ async def test_create_nas_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateNasJobRequest()
+        request = job_service.CreateNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_nas_job.NasJob)
@@ -5359,7 +6668,8 @@ def test_get_nas_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetNasJobRequest()
+        request = job_service.GetNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, nas_job.NasJob)
@@ -5380,6 +6690,57 @@ def test_get_nas_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
         client.get_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasJobRequest()
+
+
+def test_get_nas_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetNasJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        client.get_nas_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                enable_restricted_image_training=True,
+            )
+        )
+        response = await client.get_nas_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetNasJobRequest()
@@ -5414,7 +6775,8 @@ async def test_get_nas_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetNasJobRequest()
+        request = job_service.GetNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, nas_job.NasJob)
@@ -5596,7 +6958,8 @@ def test_list_nas_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListNasJobsRequest()
+        request = job_service.ListNasJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNasJobsPager)
@@ -5614,6 +6977,58 @@ def test_list_nas_jobs_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
         client.list_nas_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasJobsRequest()
+
+
+def test_list_nas_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListNasJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        client.list_nas_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_nas_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListNasJobsRequest()
@@ -5645,7 +7060,8 @@ async def test_list_nas_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListNasJobsRequest()
+        request = job_service.ListNasJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNasJobsAsyncPager)
@@ -5802,7 +7218,7 @@ async def test_list_nas_jobs_flattened_error_async():
 
 def test_list_nas_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -5852,7 +7268,7 @@ def test_list_nas_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_nas_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -5894,7 +7310,7 @@ def test_list_nas_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_nas_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5944,7 +7360,7 @@ async def test_list_nas_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_nas_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5980,9 +7396,11 @@ async def test_list_nas_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_nas_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -6014,7 +7432,8 @@ def test_delete_nas_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteNasJobRequest()
+        request = job_service.DeleteNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -6031,6 +7450,52 @@ def test_delete_nas_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
         client.delete_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteNasJobRequest()
+
+
+def test_delete_nas_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteNasJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        client.delete_nas_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteNasJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_nas_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteNasJobRequest()
@@ -6060,7 +7525,8 @@ async def test_delete_nas_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteNasJobRequest()
+        request = job_service.DeleteNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -6240,7 +7706,8 @@ def test_cancel_nas_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelNasJobRequest()
+        request = job_service.CancelNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -6257,6 +7724,50 @@ def test_cancel_nas_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
         client.cancel_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelNasJobRequest()
+
+
+def test_cancel_nas_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CancelNasJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        client.cancel_nas_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelNasJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_nas_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CancelNasJobRequest()
@@ -6284,7 +7795,8 @@ async def test_cancel_nas_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelNasJobRequest()
+        request = job_service.CancelNasJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -6465,7 +7977,8 @@ def test_get_nas_trial_detail(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetNasTrialDetailRequest()
+        request = job_service.GetNasTrialDetailRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, nas_job.NasTrialDetail)
@@ -6486,6 +7999,59 @@ def test_get_nas_trial_detail_empty_call():
         type(client.transport.get_nas_trial_detail), "__call__"
     ) as call:
         client.get_nas_trial_detail()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasTrialDetailRequest()
+
+
+def test_get_nas_trial_detail_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetNasTrialDetailRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        client.get_nas_trial_detail(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasTrialDetailRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasTrialDetail(
+                name="name_value",
+                parameters="parameters_value",
+            )
+        )
+        response = await client.get_nas_trial_detail()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetNasTrialDetailRequest()
@@ -6520,7 +8086,8 @@ async def test_get_nas_trial_detail_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetNasTrialDetailRequest()
+        request = job_service.GetNasTrialDetailRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, nas_job.NasTrialDetail)
@@ -6714,7 +8281,8 @@ def test_list_nas_trial_details(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListNasTrialDetailsRequest()
+        request = job_service.ListNasTrialDetailsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNasTrialDetailsPager)
@@ -6734,6 +8302,60 @@ def test_list_nas_trial_details_empty_call():
         type(client.transport.list_nas_trial_details), "__call__"
     ) as call:
         client.list_nas_trial_details()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasTrialDetailsRequest()
+
+
+def test_list_nas_trial_details_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListNasTrialDetailsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        client.list_nas_trial_details(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasTrialDetailsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasTrialDetailsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_nas_trial_details()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListNasTrialDetailsRequest()
@@ -6767,7 +8389,8 @@ async def test_list_nas_trial_details_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListNasTrialDetailsRequest()
+        request = job_service.ListNasTrialDetailsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNasTrialDetailsAsyncPager)
@@ -6932,7 +8555,7 @@ async def test_list_nas_trial_details_flattened_error_async():
 
 def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -6984,7 +8607,7 @@ def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
 
 def test_list_nas_trial_details_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -7028,7 +8651,7 @@ def test_list_nas_trial_details_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_nas_trial_details_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7080,7 +8703,7 @@ async def test_list_nas_trial_details_async_pager():
 @pytest.mark.asyncio
 async def test_list_nas_trial_details_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7118,9 +8741,11 @@ async def test_list_nas_trial_details_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_nas_trial_details(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -7163,7 +8788,8 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateBatchPredictionJobRequest()
+        request = job_service.CreateBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_batch_prediction_job.BatchPredictionJob)
@@ -7190,6 +8816,65 @@ def test_create_batch_prediction_job_empty_call():
         type(client.transport.create_batch_prediction_job), "__call__"
     ) as call:
         client.create_batch_prediction_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateBatchPredictionJobRequest()
+
+
+def test_create_batch_prediction_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateBatchPredictionJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_batch_prediction_job), "__call__"
+    ) as call:
+        client.create_batch_prediction_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateBatchPredictionJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_batch_prediction_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_batch_prediction_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_batch_prediction_job.BatchPredictionJob(
+                name="name_value",
+                display_name="display_name_value",
+                model="model_value",
+                model_version_id="model_version_id_value",
+                service_account="service_account_value",
+                generate_explanation=True,
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
+            )
+        )
+        response = await client.create_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateBatchPredictionJobRequest()
@@ -7231,7 +8916,8 @@ async def test_create_batch_prediction_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateBatchPredictionJobRequest()
+        request = job_service.CreateBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_batch_prediction_job.BatchPredictionJob)
@@ -7456,7 +9142,8 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetBatchPredictionJobRequest()
+        request = job_service.GetBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, batch_prediction_job.BatchPredictionJob)
@@ -7483,6 +9170,65 @@ def test_get_batch_prediction_job_empty_call():
         type(client.transport.get_batch_prediction_job), "__call__"
     ) as call:
         client.get_batch_prediction_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetBatchPredictionJobRequest()
+
+
+def test_get_batch_prediction_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetBatchPredictionJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_batch_prediction_job), "__call__"
+    ) as call:
+        client.get_batch_prediction_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetBatchPredictionJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_batch_prediction_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_batch_prediction_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            batch_prediction_job.BatchPredictionJob(
+                name="name_value",
+                display_name="display_name_value",
+                model="model_value",
+                model_version_id="model_version_id_value",
+                service_account="service_account_value",
+                generate_explanation=True,
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
+            )
+        )
+        response = await client.get_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetBatchPredictionJobRequest()
@@ -7524,7 +9270,8 @@ async def test_get_batch_prediction_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetBatchPredictionJobRequest()
+        request = job_service.GetBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, batch_prediction_job.BatchPredictionJob)
@@ -7724,7 +9471,8 @@ def test_list_batch_prediction_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListBatchPredictionJobsRequest()
+        request = job_service.ListBatchPredictionJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListBatchPredictionJobsPager)
@@ -7744,6 +9492,62 @@ def test_list_batch_prediction_jobs_empty_call():
         type(client.transport.list_batch_prediction_jobs), "__call__"
     ) as call:
         client.list_batch_prediction_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListBatchPredictionJobsRequest()
+
+
+def test_list_batch_prediction_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListBatchPredictionJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_batch_prediction_jobs), "__call__"
+    ) as call:
+        client.list_batch_prediction_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListBatchPredictionJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_batch_prediction_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_batch_prediction_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListBatchPredictionJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_batch_prediction_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListBatchPredictionJobsRequest()
@@ -7778,7 +9582,8 @@ async def test_list_batch_prediction_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListBatchPredictionJobsRequest()
+        request = job_service.ListBatchPredictionJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListBatchPredictionJobsAsyncPager)
@@ -7943,7 +9748,7 @@ async def test_list_batch_prediction_jobs_flattened_error_async():
 
 def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -7997,7 +9802,7 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -8041,7 +9846,7 @@ def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8095,7 +9900,7 @@ async def test_list_batch_prediction_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8133,9 +9938,11 @@ async def test_list_batch_prediction_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_batch_prediction_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -8169,7 +9976,8 @@ def test_delete_batch_prediction_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteBatchPredictionJobRequest()
+        request = job_service.DeleteBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8188,6 +9996,56 @@ def test_delete_batch_prediction_job_empty_call():
         type(client.transport.delete_batch_prediction_job), "__call__"
     ) as call:
         client.delete_batch_prediction_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteBatchPredictionJobRequest()
+
+
+def test_delete_batch_prediction_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteBatchPredictionJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_batch_prediction_job), "__call__"
+    ) as call:
+        client.delete_batch_prediction_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteBatchPredictionJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_batch_prediction_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_batch_prediction_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteBatchPredictionJobRequest()
@@ -8220,7 +10078,8 @@ async def test_delete_batch_prediction_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteBatchPredictionJobRequest()
+        request = job_service.DeleteBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8410,7 +10269,8 @@ def test_cancel_batch_prediction_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelBatchPredictionJobRequest()
+        request = job_service.CancelBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -8429,6 +10289,54 @@ def test_cancel_batch_prediction_job_empty_call():
         type(client.transport.cancel_batch_prediction_job), "__call__"
     ) as call:
         client.cancel_batch_prediction_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelBatchPredictionJobRequest()
+
+
+def test_cancel_batch_prediction_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CancelBatchPredictionJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_batch_prediction_job), "__call__"
+    ) as call:
+        client.cancel_batch_prediction_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelBatchPredictionJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_batch_prediction_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_batch_prediction_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CancelBatchPredictionJobRequest()
@@ -8459,7 +10367,8 @@ async def test_cancel_batch_prediction_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CancelBatchPredictionJobRequest()
+        request = job_service.CancelBatchPredictionJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -8654,7 +10563,8 @@ def test_create_model_deployment_monitoring_job(request_type, transport: str = "
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateModelDeploymentMonitoringJobRequest()
+        request = job_service.CreateModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8686,6 +10596,65 @@ def test_create_model_deployment_monitoring_job_empty_call():
         type(client.transport.create_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.create_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateModelDeploymentMonitoringJobRequest()
+
+
+def test_create_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.CreateModelDeploymentMonitoringJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.create_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateModelDeploymentMonitoringJobRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value",
+                display_name="display_name_value",
+                endpoint="endpoint_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
+                predict_instance_schema_uri="predict_instance_schema_uri_value",
+                analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
+            )
+        )
+        response = await client.create_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.CreateModelDeploymentMonitoringJobRequest()
@@ -8727,7 +10696,8 @@ async def test_create_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.CreateModelDeploymentMonitoringJobRequest()
+        request = job_service.CreateModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8965,10 +10935,8 @@ def test_search_model_deployment_monitoring_stats_anomalies(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
-        )
+        request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8991,6 +10959,71 @@ def test_search_model_deployment_monitoring_stats_anomalies_empty_call():
         "__call__",
     ) as call:
         client.search_model_deployment_monitoring_stats_anomalies()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
+        )
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+        model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+        deployed_model_id="deployed_model_id_value",
+        feature_display_name="feature_display_name_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_deployment_monitoring_stats_anomalies),
+        "__call__",
+    ) as call:
+        client.search_model_deployment_monitoring_stats_anomalies(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            deployed_model_id="deployed_model_id_value",
+            feature_display_name="feature_display_name_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_search_model_deployment_monitoring_stats_anomalies_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_deployment_monitoring_stats_anomalies),
+        "__call__",
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.search_model_deployment_monitoring_stats_anomalies()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -9031,10 +11064,8 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
-        )
+        request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -9225,7 +11256,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(
     transport_name: str = "grpc",
 ):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -9287,7 +11318,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_pages(
     transport_name: str = "grpc",
 ):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -9334,7 +11365,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_pages(
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9391,7 +11422,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9429,9 +11460,11 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.search_model_deployment_monitoring_stats_anomalies(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -9474,7 +11507,8 @@ def test_get_model_deployment_monitoring_job(request_type, transport: str = "grp
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetModelDeploymentMonitoringJobRequest()
+        request = job_service.GetModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -9506,6 +11540,65 @@ def test_get_model_deployment_monitoring_job_empty_call():
         type(client.transport.get_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.get_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetModelDeploymentMonitoringJobRequest()
+
+
+def test_get_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.GetModelDeploymentMonitoringJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.get_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetModelDeploymentMonitoringJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value",
+                display_name="display_name_value",
+                endpoint="endpoint_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
+                predict_instance_schema_uri="predict_instance_schema_uri_value",
+                analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
+            )
+        )
+        response = await client.get_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.GetModelDeploymentMonitoringJobRequest()
@@ -9547,7 +11640,8 @@ async def test_get_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.GetModelDeploymentMonitoringJobRequest()
+        request = job_service.GetModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -9758,7 +11852,8 @@ def test_list_model_deployment_monitoring_jobs(request_type, transport: str = "g
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListModelDeploymentMonitoringJobsRequest()
+        request = job_service.ListModelDeploymentMonitoringJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelDeploymentMonitoringJobsPager)
@@ -9778,6 +11873,62 @@ def test_list_model_deployment_monitoring_jobs_empty_call():
         type(client.transport.list_model_deployment_monitoring_jobs), "__call__"
     ) as call:
         client.list_model_deployment_monitoring_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListModelDeploymentMonitoringJobsRequest()
+
+
+def test_list_model_deployment_monitoring_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ListModelDeploymentMonitoringJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_deployment_monitoring_jobs), "__call__"
+    ) as call:
+        client.list_model_deployment_monitoring_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListModelDeploymentMonitoringJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_model_deployment_monitoring_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_deployment_monitoring_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListModelDeploymentMonitoringJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_model_deployment_monitoring_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ListModelDeploymentMonitoringJobsRequest()
@@ -9812,7 +11963,8 @@ async def test_list_model_deployment_monitoring_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ListModelDeploymentMonitoringJobsRequest()
+        request = job_service.ListModelDeploymentMonitoringJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelDeploymentMonitoringJobsAsyncPager)
@@ -9977,7 +12129,7 @@ async def test_list_model_deployment_monitoring_jobs_flattened_error_async():
 
 def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -10032,7 +12184,7 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
 
 def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
@@ -10076,7 +12228,7 @@ def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_async_pager():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10131,7 +12283,7 @@ async def test_list_model_deployment_monitoring_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_async_pages():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10169,9 +12321,11 @@ async def test_list_model_deployment_monitoring_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_model_deployment_monitoring_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -10205,7 +12359,8 @@ def test_update_model_deployment_monitoring_job(request_type, transport: str = "
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.UpdateModelDeploymentMonitoringJobRequest()
+        request = job_service.UpdateModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -10224,6 +12379,52 @@ def test_update_model_deployment_monitoring_job_empty_call():
         type(client.transport.update_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.update_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.UpdateModelDeploymentMonitoringJobRequest()
+
+
+def test_update_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.UpdateModelDeploymentMonitoringJobRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.update_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.UpdateModelDeploymentMonitoringJobRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.UpdateModelDeploymentMonitoringJobRequest()
@@ -10256,7 +12457,8 @@ async def test_update_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.UpdateModelDeploymentMonitoringJobRequest()
+        request = job_service.UpdateModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -10468,7 +12670,8 @@ def test_delete_model_deployment_monitoring_job(request_type, transport: str = "
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteModelDeploymentMonitoringJobRequest()
+        request = job_service.DeleteModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -10487,6 +12690,56 @@ def test_delete_model_deployment_monitoring_job_empty_call():
         type(client.transport.delete_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.delete_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteModelDeploymentMonitoringJobRequest()
+
+
+def test_delete_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.DeleteModelDeploymentMonitoringJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.delete_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteModelDeploymentMonitoringJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.DeleteModelDeploymentMonitoringJobRequest()
@@ -10519,7 +12772,8 @@ async def test_delete_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.DeleteModelDeploymentMonitoringJobRequest()
+        request = job_service.DeleteModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -10709,7 +12963,8 @@ def test_pause_model_deployment_monitoring_job(request_type, transport: str = "g
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.PauseModelDeploymentMonitoringJobRequest()
+        request = job_service.PauseModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -10728,6 +12983,54 @@ def test_pause_model_deployment_monitoring_job_empty_call():
         type(client.transport.pause_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.pause_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.PauseModelDeploymentMonitoringJobRequest()
+
+
+def test_pause_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.PauseModelDeploymentMonitoringJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.pause_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.pause_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.PauseModelDeploymentMonitoringJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_pause_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.pause_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.pause_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.PauseModelDeploymentMonitoringJobRequest()
@@ -10758,7 +13061,8 @@ async def test_pause_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.PauseModelDeploymentMonitoringJobRequest()
+        request = job_service.PauseModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -10944,7 +13248,8 @@ def test_resume_model_deployment_monitoring_job(request_type, transport: str = "
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ResumeModelDeploymentMonitoringJobRequest()
+        request = job_service.ResumeModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -10963,6 +13268,54 @@ def test_resume_model_deployment_monitoring_job_empty_call():
         type(client.transport.resume_model_deployment_monitoring_job), "__call__"
     ) as call:
         client.resume_model_deployment_monitoring_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ResumeModelDeploymentMonitoringJobRequest()
+
+
+def test_resume_model_deployment_monitoring_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = job_service.ResumeModelDeploymentMonitoringJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.resume_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        client.resume_model_deployment_monitoring_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ResumeModelDeploymentMonitoringJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_resume_model_deployment_monitoring_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.resume_model_deployment_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.resume_model_deployment_monitoring_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == job_service.ResumeModelDeploymentMonitoringJobRequest()
@@ -10993,7 +13346,8 @@ async def test_resume_model_deployment_monitoring_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == job_service.ResumeModelDeploymentMonitoringJobRequest()
+        request = job_service.ResumeModelDeploymentMonitoringJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -11151,6 +13505,11669 @@ async def test_resume_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateCustomJobRequest,
+        dict,
+    ],
+)
+def test_create_custom_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["custom_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "job_spec": {
+            "persistent_resource_id": "persistent_resource_id_value",
+            "worker_pool_specs": [
+                {
+                    "container_spec": {
+                        "image_uri": "image_uri_value",
+                        "command": ["command_value1", "command_value2"],
+                        "args": ["args_value1", "args_value2"],
+                        "env": [{"name": "name_value", "value": "value_value"}],
+                    },
+                    "python_package_spec": {
+                        "executor_image_uri": "executor_image_uri_value",
+                        "package_uris": ["package_uris_value1", "package_uris_value2"],
+                        "python_module": "python_module_value",
+                        "args": ["args_value1", "args_value2"],
+                        "env": {},
+                    },
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                    },
+                    "replica_count": 1384,
+                    "nfs_mounts": [
+                        {
+                            "server": "server_value",
+                            "path": "path_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
+                    "disk_spec": {
+                        "boot_disk_type": "boot_disk_type_value",
+                        "boot_disk_size_gb": 1792,
+                    },
+                }
+            ],
+            "scheduling": {
+                "timeout": {"seconds": 751, "nanos": 543},
+                "restart_job_on_worker_restart": True,
+                "disable_retries": True,
+            },
+            "service_account": "service_account_value",
+            "network": "network_value",
+            "reserved_ip_ranges": [
+                "reserved_ip_ranges_value1",
+                "reserved_ip_ranges_value2",
+            ],
+            "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
+            "protected_artifact_location_id": "protected_artifact_location_id_value",
+            "tensorboard": "tensorboard_value",
+            "enable_web_access": True,
+            "enable_dashboard_access": True,
+            "experiment": "experiment_value",
+            "experiment_run": "experiment_run_value",
+            "models": ["models_value1", "models_value2"],
+        },
+        "state": 1,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "start_time": {},
+        "end_time": {},
+        "update_time": {},
+        "error": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "web_access_uris": {},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateCustomJobRequest.meta.fields["custom_job"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["custom_job"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["custom_job"][field])):
+                    del request_init["custom_job"][field][i][subfield]
+            else:
+                del request_init["custom_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_custom_job.CustomJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_custom_job.CustomJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_custom_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_custom_job.CustomJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
+
+def test_create_custom_job_rest_required_fields(
+    request_type=job_service.CreateCustomJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_custom_job.CustomJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_custom_job.CustomJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_custom_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_custom_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_custom_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "customJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_custom_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_custom_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_create_custom_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateCustomJobRequest.pb(
+            job_service.CreateCustomJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = gca_custom_job.CustomJob.to_json(
+            gca_custom_job.CustomJob()
+        )
+
+        request = job_service.CreateCustomJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_custom_job.CustomJob()
+
+        client.create_custom_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_custom_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CreateCustomJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_custom_job(request)
+
+
+def test_create_custom_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_custom_job.CustomJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            custom_job=gca_custom_job.CustomJob(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_custom_job.CustomJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_custom_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/customJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_custom_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_custom_job(
+            job_service.CreateCustomJobRequest(),
+            parent="parent_value",
+            custom_job=gca_custom_job.CustomJob(name="name_value"),
+        )
+
+
+def test_create_custom_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetCustomJobRequest,
+        dict,
+    ],
+)
+def test_get_custom_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = custom_job.CustomJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = custom_job.CustomJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_custom_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, custom_job.CustomJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
+
+def test_get_custom_job_rest_required_fields(
+    request_type=job_service.GetCustomJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = custom_job.CustomJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = custom_job.CustomJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_custom_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_custom_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_custom_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_custom_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_custom_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_custom_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetCustomJobRequest.pb(
+            job_service.GetCustomJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = custom_job.CustomJob.to_json(custom_job.CustomJob())
+
+        request = job_service.GetCustomJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = custom_job.CustomJob()
+
+        client.get_custom_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_custom_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetCustomJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_custom_job(request)
+
+
+def test_get_custom_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = custom_job.CustomJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/customJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = custom_job.CustomJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_custom_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/customJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_custom_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_custom_job(
+            job_service.GetCustomJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_custom_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListCustomJobsRequest,
+        dict,
+    ],
+)
+def test_list_custom_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListCustomJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListCustomJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_custom_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListCustomJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_custom_jobs_rest_required_fields(
+    request_type=job_service.ListCustomJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_custom_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_custom_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListCustomJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListCustomJobsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_custom_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_custom_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_custom_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_custom_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_custom_jobs"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_custom_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListCustomJobsRequest.pb(
+            job_service.ListCustomJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = job_service.ListCustomJobsResponse.to_json(
+            job_service.ListCustomJobsResponse()
+        )
+
+        request = job_service.ListCustomJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListCustomJobsResponse()
+
+        client.list_custom_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_custom_jobs_rest_bad_request(
+    transport: str = "rest", request_type=job_service.ListCustomJobsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_custom_jobs(request)
+
+
+def test_list_custom_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListCustomJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListCustomJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_custom_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/customJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_custom_jobs_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_custom_jobs(
+            job_service.ListCustomJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_custom_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListCustomJobsResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_custom_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, custom_job.CustomJob) for i in results)
+
+        pages = list(client.list_custom_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteCustomJobRequest,
+        dict,
+    ],
+)
+def test_delete_custom_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_custom_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_custom_job_rest_required_fields(
+    request_type=job_service.DeleteCustomJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_custom_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_custom_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_custom_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_custom_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_custom_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_delete_custom_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteCustomJobRequest.pb(
+            job_service.DeleteCustomJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteCustomJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_custom_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_custom_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.DeleteCustomJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_custom_job(request)
+
+
+def test_delete_custom_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/customJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_custom_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/customJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_custom_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_custom_job(
+            job_service.DeleteCustomJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_custom_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelCustomJobRequest,
+        dict,
+    ],
+)
+def test_cancel_custom_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.cancel_custom_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_custom_job_rest_required_fields(
+    request_type=job_service.CancelCustomJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_custom_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.cancel_custom_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_cancel_custom_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.cancel_custom_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_cancel_custom_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_cancel_custom_job"
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.CancelCustomJobRequest.pb(
+            job_service.CancelCustomJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.CancelCustomJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.cancel_custom_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_cancel_custom_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CancelCustomJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/customJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_custom_job(request)
+
+
+def test_cancel_custom_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/customJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.cancel_custom_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/customJobs/*}:cancel"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_cancel_custom_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_custom_job(
+            job_service.CancelCustomJobRequest(),
+            name="name_value",
+        )
+
+
+def test_cancel_custom_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateDataLabelingJobRequest,
+        dict,
+    ],
+)
+def test_create_data_labeling_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["data_labeling_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "datasets": ["datasets_value1", "datasets_value2"],
+        "annotation_labels": {},
+        "labeler_count": 1375,
+        "instruction_uri": "instruction_uri_value",
+        "inputs_schema_uri": "inputs_schema_uri_value",
+        "inputs": {
+            "null_value": 0,
+            "number_value": 0.1285,
+            "string_value": "string_value_value",
+            "bool_value": True,
+            "struct_value": {"fields": {}},
+            "list_value": {"values": {}},
+        },
+        "state": 1,
+        "labeling_progress": 1810,
+        "current_spend": {
+            "currency_code": "currency_code_value",
+            "units": 563,
+            "nanos": 543,
+        },
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "error": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "labels": {},
+        "specialist_pools": ["specialist_pools_value1", "specialist_pools_value2"],
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "active_learning_config": {
+            "max_data_item_count": 2005,
+            "max_data_item_percentage": 2506,
+            "sample_config": {
+                "initial_batch_sample_percentage": 3241,
+                "following_batch_sample_percentage": 3472,
+                "sample_strategy": 1,
+            },
+            "training_config": {"timeout_training_milli_hours": 3016},
+        },
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateDataLabelingJobRequest.meta.fields[
+        "data_labeling_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["data_labeling_job"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["data_labeling_job"][field])):
+                    del request_init["data_labeling_job"][field][i][subfield]
+            else:
+                del request_init["data_labeling_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_data_labeling_job.DataLabelingJob(
+            name="name_value",
+            display_name="display_name_value",
+            datasets=["datasets_value"],
+            labeler_count=1375,
+            instruction_uri="instruction_uri_value",
+            inputs_schema_uri="inputs_schema_uri_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            labeling_progress=1810,
+            specialist_pools=["specialist_pools_value"],
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_data_labeling_job.DataLabelingJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_data_labeling_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_data_labeling_job.DataLabelingJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.datasets == ["datasets_value"]
+    assert response.labeler_count == 1375
+    assert response.instruction_uri == "instruction_uri_value"
+    assert response.inputs_schema_uri == "inputs_schema_uri_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.labeling_progress == 1810
+    assert response.specialist_pools == ["specialist_pools_value"]
+
+
+def test_create_data_labeling_job_rest_required_fields(
+    request_type=job_service.CreateDataLabelingJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_data_labeling_job.DataLabelingJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_data_labeling_job.DataLabelingJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_data_labeling_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_data_labeling_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_data_labeling_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "dataLabelingJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_data_labeling_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_data_labeling_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_create_data_labeling_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateDataLabelingJobRequest.pb(
+            job_service.CreateDataLabelingJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = gca_data_labeling_job.DataLabelingJob.to_json(
+            gca_data_labeling_job.DataLabelingJob()
+        )
+
+        request = job_service.CreateDataLabelingJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_data_labeling_job.DataLabelingJob()
+
+        client.create_data_labeling_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_data_labeling_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CreateDataLabelingJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_data_labeling_job(request)
+
+
+def test_create_data_labeling_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_data_labeling_job.DataLabelingJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            data_labeling_job=gca_data_labeling_job.DataLabelingJob(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_data_labeling_job.DataLabelingJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_data_labeling_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/dataLabelingJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_data_labeling_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_data_labeling_job(
+            job_service.CreateDataLabelingJobRequest(),
+            parent="parent_value",
+            data_labeling_job=gca_data_labeling_job.DataLabelingJob(name="name_value"),
+        )
+
+
+def test_create_data_labeling_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetDataLabelingJobRequest,
+        dict,
+    ],
+)
+def test_get_data_labeling_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = data_labeling_job.DataLabelingJob(
+            name="name_value",
+            display_name="display_name_value",
+            datasets=["datasets_value"],
+            labeler_count=1375,
+            instruction_uri="instruction_uri_value",
+            inputs_schema_uri="inputs_schema_uri_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            labeling_progress=1810,
+            specialist_pools=["specialist_pools_value"],
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = data_labeling_job.DataLabelingJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_data_labeling_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, data_labeling_job.DataLabelingJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.datasets == ["datasets_value"]
+    assert response.labeler_count == 1375
+    assert response.instruction_uri == "instruction_uri_value"
+    assert response.inputs_schema_uri == "inputs_schema_uri_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.labeling_progress == 1810
+    assert response.specialist_pools == ["specialist_pools_value"]
+
+
+def test_get_data_labeling_job_rest_required_fields(
+    request_type=job_service.GetDataLabelingJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = data_labeling_job.DataLabelingJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = data_labeling_job.DataLabelingJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_data_labeling_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_data_labeling_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_data_labeling_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_data_labeling_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_data_labeling_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_data_labeling_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetDataLabelingJobRequest.pb(
+            job_service.GetDataLabelingJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = data_labeling_job.DataLabelingJob.to_json(
+            data_labeling_job.DataLabelingJob()
+        )
+
+        request = job_service.GetDataLabelingJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = data_labeling_job.DataLabelingJob()
+
+        client.get_data_labeling_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_data_labeling_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetDataLabelingJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_data_labeling_job(request)
+
+
+def test_get_data_labeling_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = data_labeling_job.DataLabelingJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = data_labeling_job.DataLabelingJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_data_labeling_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_data_labeling_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_data_labeling_job(
+            job_service.GetDataLabelingJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_data_labeling_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListDataLabelingJobsRequest,
+        dict,
+    ],
+)
+def test_list_data_labeling_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListDataLabelingJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListDataLabelingJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_data_labeling_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDataLabelingJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_data_labeling_jobs_rest_required_fields(
+    request_type=job_service.ListDataLabelingJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_data_labeling_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_data_labeling_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "order_by",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListDataLabelingJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListDataLabelingJobsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_data_labeling_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_data_labeling_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_data_labeling_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "orderBy",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_data_labeling_jobs"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_data_labeling_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListDataLabelingJobsRequest.pb(
+            job_service.ListDataLabelingJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = job_service.ListDataLabelingJobsResponse.to_json(
+            job_service.ListDataLabelingJobsResponse()
+        )
+
+        request = job_service.ListDataLabelingJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListDataLabelingJobsResponse()
+
+        client.list_data_labeling_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_data_labeling_jobs_rest_bad_request(
+    transport: str = "rest", request_type=job_service.ListDataLabelingJobsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_data_labeling_jobs(request)
+
+
+def test_list_data_labeling_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListDataLabelingJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListDataLabelingJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_data_labeling_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/dataLabelingJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_data_labeling_jobs_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_data_labeling_jobs(
+            job_service.ListDataLabelingJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_data_labeling_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListDataLabelingJobsResponse(
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                    data_labeling_job.DataLabelingJob(),
+                    data_labeling_job.DataLabelingJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListDataLabelingJobsResponse(
+                data_labeling_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListDataLabelingJobsResponse(
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListDataLabelingJobsResponse(
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                    data_labeling_job.DataLabelingJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListDataLabelingJobsResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_data_labeling_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, data_labeling_job.DataLabelingJob) for i in results)
+
+        pages = list(client.list_data_labeling_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteDataLabelingJobRequest,
+        dict,
+    ],
+)
+def test_delete_data_labeling_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_data_labeling_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_data_labeling_job_rest_required_fields(
+    request_type=job_service.DeleteDataLabelingJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_data_labeling_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_data_labeling_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_data_labeling_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_data_labeling_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_delete_data_labeling_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteDataLabelingJobRequest.pb(
+            job_service.DeleteDataLabelingJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteDataLabelingJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_data_labeling_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_data_labeling_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.DeleteDataLabelingJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_data_labeling_job(request)
+
+
+def test_delete_data_labeling_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_data_labeling_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_data_labeling_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_data_labeling_job(
+            job_service.DeleteDataLabelingJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_data_labeling_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelDataLabelingJobRequest,
+        dict,
+    ],
+)
+def test_cancel_data_labeling_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.cancel_data_labeling_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_data_labeling_job_rest_required_fields(
+    request_type=job_service.CancelDataLabelingJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_data_labeling_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.cancel_data_labeling_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_cancel_data_labeling_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.cancel_data_labeling_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_cancel_data_labeling_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_cancel_data_labeling_job"
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.CancelDataLabelingJobRequest.pb(
+            job_service.CancelDataLabelingJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.CancelDataLabelingJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.cancel_data_labeling_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_cancel_data_labeling_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CancelDataLabelingJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_data_labeling_job(request)
+
+
+def test_cancel_data_labeling_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/dataLabelingJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.cancel_data_labeling_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*}:cancel"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_cancel_data_labeling_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_data_labeling_job(
+            job_service.CancelDataLabelingJobRequest(),
+            name="name_value",
+        )
+
+
+def test_cancel_data_labeling_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateHyperparameterTuningJobRequest,
+        dict,
+    ],
+)
+def test_create_hyperparameter_tuning_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["hyperparameter_tuning_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "study_spec": {
+            "decay_curve_stopping_spec": {"use_elapsed_duration": True},
+            "median_automated_stopping_spec": {"use_elapsed_duration": True},
+            "convex_stop_config": {
+                "max_num_steps": 1411,
+                "min_num_steps": 1409,
+                "autoregressive_order": 2163,
+                "learning_rate_parameter_name": "learning_rate_parameter_name_value",
+                "use_seconds": True,
+            },
+            "convex_automated_stopping_spec": {
+                "max_step_count": 1513,
+                "min_step_count": 1511,
+                "min_measurement_count": 2257,
+                "learning_rate_parameter_name": "learning_rate_parameter_name_value",
+                "use_elapsed_duration": True,
+                "update_all_stopped_trials": True,
+            },
+            "metrics": [
+                {
+                    "metric_id": "metric_id_value",
+                    "goal": 1,
+                    "safety_config": {
+                        "safety_threshold": 0.17200000000000001,
+                        "desired_min_safe_trials_fraction": 0.33640000000000003,
+                    },
+                }
+            ],
+            "parameters": [
+                {
+                    "double_value_spec": {
+                        "min_value": 0.96,
+                        "max_value": 0.962,
+                        "default_value": 0.13770000000000002,
+                    },
+                    "integer_value_spec": {
+                        "min_value": 960,
+                        "max_value": 962,
+                        "default_value": 1377,
+                    },
+                    "categorical_value_spec": {
+                        "values": ["values_value1", "values_value2"],
+                        "default_value": "default_value_value",
+                    },
+                    "discrete_value_spec": {
+                        "values": [0.657, 0.658],
+                        "default_value": 0.13770000000000002,
+                    },
+                    "parameter_id": "parameter_id_value",
+                    "scale_type": 1,
+                    "conditional_parameter_specs": [
+                        {
+                            "parent_discrete_values": {"values": [0.657, 0.658]},
+                            "parent_int_values": {"values": [657, 658]},
+                            "parent_categorical_values": {
+                                "values": ["values_value1", "values_value2"]
+                            },
+                            "parameter_spec": {},
+                        }
+                    ],
+                }
+            ],
+            "algorithm": 2,
+            "observation_noise": 1,
+            "measurement_selection_type": 1,
+            "transfer_learning_config": {
+                "disable_transfer_learning": True,
+                "prior_study_names": [
+                    "prior_study_names_value1",
+                    "prior_study_names_value2",
+                ],
+            },
+            "study_stopping_config": {
+                "should_stop_asap": {"value": True},
+                "minimum_runtime_constraint": {
+                    "max_duration": {"seconds": 751, "nanos": 543},
+                    "end_time": {"seconds": 751, "nanos": 543},
+                },
+                "maximum_runtime_constraint": {},
+                "min_num_trials": {"value": 541},
+                "max_num_trials": {},
+                "max_num_trials_no_progress": {},
+                "max_duration_no_progress": {},
+            },
+        },
+        "max_trial_count": 1609,
+        "parallel_trial_count": 2128,
+        "max_failed_trial_count": 2317,
+        "trial_job_spec": {
+            "persistent_resource_id": "persistent_resource_id_value",
+            "worker_pool_specs": [
+                {
+                    "container_spec": {
+                        "image_uri": "image_uri_value",
+                        "command": ["command_value1", "command_value2"],
+                        "args": ["args_value1", "args_value2"],
+                        "env": [{"name": "name_value", "value": "value_value"}],
+                    },
+                    "python_package_spec": {
+                        "executor_image_uri": "executor_image_uri_value",
+                        "package_uris": ["package_uris_value1", "package_uris_value2"],
+                        "python_module": "python_module_value",
+                        "args": ["args_value1", "args_value2"],
+                        "env": {},
+                    },
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                    },
+                    "replica_count": 1384,
+                    "nfs_mounts": [
+                        {
+                            "server": "server_value",
+                            "path": "path_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
+                    "disk_spec": {
+                        "boot_disk_type": "boot_disk_type_value",
+                        "boot_disk_size_gb": 1792,
+                    },
+                }
+            ],
+            "scheduling": {
+                "timeout": {},
+                "restart_job_on_worker_restart": True,
+                "disable_retries": True,
+            },
+            "service_account": "service_account_value",
+            "network": "network_value",
+            "reserved_ip_ranges": [
+                "reserved_ip_ranges_value1",
+                "reserved_ip_ranges_value2",
+            ],
+            "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
+            "protected_artifact_location_id": "protected_artifact_location_id_value",
+            "tensorboard": "tensorboard_value",
+            "enable_web_access": True,
+            "enable_dashboard_access": True,
+            "experiment": "experiment_value",
+            "experiment_run": "experiment_run_value",
+            "models": ["models_value1", "models_value2"],
+        },
+        "trials": [
+            {
+                "name": "name_value",
+                "id": "id_value",
+                "state": 1,
+                "parameters": [
+                    {
+                        "parameter_id": "parameter_id_value",
+                        "value": {
+                            "null_value": 0,
+                            "number_value": 0.1285,
+                            "string_value": "string_value_value",
+                            "bool_value": True,
+                            "struct_value": {"fields": {}},
+                            "list_value": {"values": {}},
+                        },
+                    }
+                ],
+                "final_measurement": {
+                    "elapsed_duration": {},
+                    "step_count": 1092,
+                    "metrics": [{"metric_id": "metric_id_value", "value": 0.541}],
+                },
+                "measurements": {},
+                "start_time": {},
+                "end_time": {},
+                "client_id": "client_id_value",
+                "infeasible_reason": "infeasible_reason_value",
+                "custom_job": "custom_job_value",
+                "web_access_uris": {},
+            }
+        ],
+        "state": 1,
+        "create_time": {},
+        "start_time": {},
+        "end_time": {},
+        "update_time": {},
+        "error": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateHyperparameterTuningJobRequest.meta.fields[
+        "hyperparameter_tuning_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "hyperparameter_tuning_job"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(
+                    0, len(request_init["hyperparameter_tuning_job"][field])
+                ):
+                    del request_init["hyperparameter_tuning_job"][field][i][subfield]
+            else:
+                del request_init["hyperparameter_tuning_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+            name="name_value",
+            display_name="display_name_value",
+            max_trial_count=1609,
+            parallel_trial_count=2128,
+            max_failed_trial_count=2317,
+            state=job_state.JobState.JOB_STATE_QUEUED,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_hyperparameter_tuning_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_hyperparameter_tuning_job.HyperparameterTuningJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.max_trial_count == 1609
+    assert response.parallel_trial_count == 2128
+    assert response.max_failed_trial_count == 2317
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
+
+def test_create_hyperparameter_tuning_job_rest_required_fields(
+    request_type=job_service.CreateHyperparameterTuningJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_hyperparameter_tuning_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_hyperparameter_tuning_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.create_hyperparameter_tuning_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "hyperparameterTuningJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_hyperparameter_tuning_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_create_hyperparameter_tuning_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateHyperparameterTuningJobRequest.pb(
+            job_service.CreateHyperparameterTuningJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
+                gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+            )
+        )
+
+        request = job_service.CreateHyperparameterTuningJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+
+        client.create_hyperparameter_tuning_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_hyperparameter_tuning_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.CreateHyperparameterTuningJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_hyperparameter_tuning_job(request)
+
+
+def test_create_hyperparameter_tuning_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            hyperparameter_tuning_job=gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+                name="name_value"
+            ),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_hyperparameter_tuning_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/hyperparameterTuningJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_hyperparameter_tuning_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_hyperparameter_tuning_job(
+            job_service.CreateHyperparameterTuningJobRequest(),
+            parent="parent_value",
+            hyperparameter_tuning_job=gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+                name="name_value"
+            ),
+        )
+
+
+def test_create_hyperparameter_tuning_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetHyperparameterTuningJobRequest,
+        dict,
+    ],
+)
+def test_get_hyperparameter_tuning_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = hyperparameter_tuning_job.HyperparameterTuningJob(
+            name="name_value",
+            display_name="display_name_value",
+            max_trial_count=1609,
+            parallel_trial_count=2128,
+            max_failed_trial_count=2317,
+            state=job_state.JobState.JOB_STATE_QUEUED,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_hyperparameter_tuning_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, hyperparameter_tuning_job.HyperparameterTuningJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.max_trial_count == 1609
+    assert response.parallel_trial_count == 2128
+    assert response.max_failed_trial_count == 2317
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
+
+def test_get_hyperparameter_tuning_job_rest_required_fields(
+    request_type=job_service.GetHyperparameterTuningJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_hyperparameter_tuning_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_hyperparameter_tuning_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_hyperparameter_tuning_job._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_hyperparameter_tuning_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_hyperparameter_tuning_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetHyperparameterTuningJobRequest.pb(
+            job_service.GetHyperparameterTuningJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
+                hyperparameter_tuning_job.HyperparameterTuningJob()
+            )
+        )
+
+        request = job_service.GetHyperparameterTuningJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+
+        client.get_hyperparameter_tuning_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_hyperparameter_tuning_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetHyperparameterTuningJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_hyperparameter_tuning_job(request)
+
+
+def test_get_hyperparameter_tuning_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = hyperparameter_tuning_job.HyperparameterTuningJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_hyperparameter_tuning_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_hyperparameter_tuning_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_hyperparameter_tuning_job(
+            job_service.GetHyperparameterTuningJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_hyperparameter_tuning_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListHyperparameterTuningJobsRequest,
+        dict,
+    ],
+)
+def test_list_hyperparameter_tuning_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListHyperparameterTuningJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListHyperparameterTuningJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_hyperparameter_tuning_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListHyperparameterTuningJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_hyperparameter_tuning_jobs_rest_required_fields(
+    request_type=job_service.ListHyperparameterTuningJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_hyperparameter_tuning_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_hyperparameter_tuning_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListHyperparameterTuningJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListHyperparameterTuningJobsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_hyperparameter_tuning_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_hyperparameter_tuning_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_hyperparameter_tuning_jobs._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_hyperparameter_tuning_jobs"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_hyperparameter_tuning_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListHyperparameterTuningJobsRequest.pb(
+            job_service.ListHyperparameterTuningJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            job_service.ListHyperparameterTuningJobsResponse.to_json(
+                job_service.ListHyperparameterTuningJobsResponse()
+            )
+        )
+
+        request = job_service.ListHyperparameterTuningJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListHyperparameterTuningJobsResponse()
+
+        client.list_hyperparameter_tuning_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_hyperparameter_tuning_jobs_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.ListHyperparameterTuningJobsRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_hyperparameter_tuning_jobs(request)
+
+
+def test_list_hyperparameter_tuning_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListHyperparameterTuningJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListHyperparameterTuningJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_hyperparameter_tuning_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/hyperparameterTuningJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_hyperparameter_tuning_jobs_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_hyperparameter_tuning_jobs(
+            job_service.ListHyperparameterTuningJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_hyperparameter_tuning_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListHyperparameterTuningJobsResponse(
+                hyperparameter_tuning_jobs=[
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListHyperparameterTuningJobsResponse(
+                hyperparameter_tuning_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListHyperparameterTuningJobsResponse(
+                hyperparameter_tuning_jobs=[
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListHyperparameterTuningJobsResponse(
+                hyperparameter_tuning_jobs=[
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                    hyperparameter_tuning_job.HyperparameterTuningJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListHyperparameterTuningJobsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_hyperparameter_tuning_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, hyperparameter_tuning_job.HyperparameterTuningJob)
+            for i in results
+        )
+
+        pages = list(
+            client.list_hyperparameter_tuning_jobs(request=sample_request).pages
+        )
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteHyperparameterTuningJobRequest,
+        dict,
+    ],
+)
+def test_delete_hyperparameter_tuning_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_hyperparameter_tuning_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_hyperparameter_tuning_job_rest_required_fields(
+    request_type=job_service.DeleteHyperparameterTuningJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_hyperparameter_tuning_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_hyperparameter_tuning_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.delete_hyperparameter_tuning_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_hyperparameter_tuning_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_delete_hyperparameter_tuning_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteHyperparameterTuningJobRequest.pb(
+            job_service.DeleteHyperparameterTuningJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteHyperparameterTuningJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_hyperparameter_tuning_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_hyperparameter_tuning_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.DeleteHyperparameterTuningJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_hyperparameter_tuning_job(request)
+
+
+def test_delete_hyperparameter_tuning_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_hyperparameter_tuning_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_hyperparameter_tuning_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_hyperparameter_tuning_job(
+            job_service.DeleteHyperparameterTuningJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_hyperparameter_tuning_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelHyperparameterTuningJobRequest,
+        dict,
+    ],
+)
+def test_cancel_hyperparameter_tuning_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.cancel_hyperparameter_tuning_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_hyperparameter_tuning_job_rest_required_fields(
+    request_type=job_service.CancelHyperparameterTuningJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_hyperparameter_tuning_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.cancel_hyperparameter_tuning_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_cancel_hyperparameter_tuning_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.cancel_hyperparameter_tuning_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_cancel_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_cancel_hyperparameter_tuning_job"
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.CancelHyperparameterTuningJobRequest.pb(
+            job_service.CancelHyperparameterTuningJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.CancelHyperparameterTuningJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.cancel_hyperparameter_tuning_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_cancel_hyperparameter_tuning_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.CancelHyperparameterTuningJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_hyperparameter_tuning_job(request)
+
+
+def test_cancel_hyperparameter_tuning_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/hyperparameterTuningJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.cancel_hyperparameter_tuning_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}:cancel"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_cancel_hyperparameter_tuning_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_hyperparameter_tuning_job(
+            job_service.CancelHyperparameterTuningJobRequest(),
+            name="name_value",
+        )
+
+
+def test_cancel_hyperparameter_tuning_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateNasJobRequest,
+        dict,
+    ],
+)
+def test_create_nas_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["nas_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "nas_job_spec": {
+            "multi_trial_algorithm_spec": {
+                "multi_trial_algorithm": 1,
+                "metric": {"metric_id": "metric_id_value", "goal": 1},
+                "search_trial_spec": {
+                    "search_trial_job_spec": {
+                        "persistent_resource_id": "persistent_resource_id_value",
+                        "worker_pool_specs": [
+                            {
+                                "container_spec": {
+                                    "image_uri": "image_uri_value",
+                                    "command": ["command_value1", "command_value2"],
+                                    "args": ["args_value1", "args_value2"],
+                                    "env": [
+                                        {"name": "name_value", "value": "value_value"}
+                                    ],
+                                },
+                                "python_package_spec": {
+                                    "executor_image_uri": "executor_image_uri_value",
+                                    "package_uris": [
+                                        "package_uris_value1",
+                                        "package_uris_value2",
+                                    ],
+                                    "python_module": "python_module_value",
+                                    "args": ["args_value1", "args_value2"],
+                                    "env": {},
+                                },
+                                "machine_spec": {
+                                    "machine_type": "machine_type_value",
+                                    "accelerator_type": 1,
+                                    "accelerator_count": 1805,
+                                    "tpu_topology": "tpu_topology_value",
+                                },
+                                "replica_count": 1384,
+                                "nfs_mounts": [
+                                    {
+                                        "server": "server_value",
+                                        "path": "path_value",
+                                        "mount_point": "mount_point_value",
+                                    }
+                                ],
+                                "disk_spec": {
+                                    "boot_disk_type": "boot_disk_type_value",
+                                    "boot_disk_size_gb": 1792,
+                                },
+                            }
+                        ],
+                        "scheduling": {
+                            "timeout": {"seconds": 751, "nanos": 543},
+                            "restart_job_on_worker_restart": True,
+                            "disable_retries": True,
+                        },
+                        "service_account": "service_account_value",
+                        "network": "network_value",
+                        "reserved_ip_ranges": [
+                            "reserved_ip_ranges_value1",
+                            "reserved_ip_ranges_value2",
+                        ],
+                        "base_output_directory": {
+                            "output_uri_prefix": "output_uri_prefix_value"
+                        },
+                        "protected_artifact_location_id": "protected_artifact_location_id_value",
+                        "tensorboard": "tensorboard_value",
+                        "enable_web_access": True,
+                        "enable_dashboard_access": True,
+                        "experiment": "experiment_value",
+                        "experiment_run": "experiment_run_value",
+                        "models": ["models_value1", "models_value2"],
+                    },
+                    "max_trial_count": 1609,
+                    "max_parallel_trial_count": 2549,
+                    "max_failed_trial_count": 2317,
+                },
+                "train_trial_spec": {
+                    "train_trial_job_spec": {},
+                    "max_parallel_trial_count": 2549,
+                    "frequency": 978,
+                },
+            },
+            "resume_nas_job_id": "resume_nas_job_id_value",
+            "search_space_spec": "search_space_spec_value",
+        },
+        "nas_job_output": {
+            "multi_trial_job_output": {
+                "search_trials": [
+                    {
+                        "id": "id_value",
+                        "state": 1,
+                        "final_measurement": {
+                            "elapsed_duration": {},
+                            "step_count": 1092,
+                            "metrics": [
+                                {"metric_id": "metric_id_value", "value": 0.541}
+                            ],
+                        },
+                        "start_time": {"seconds": 751, "nanos": 543},
+                        "end_time": {},
+                    }
+                ],
+                "train_trials": {},
+            }
+        },
+        "state": 1,
+        "create_time": {},
+        "start_time": {},
+        "end_time": {},
+        "update_time": {},
+        "error": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "enable_restricted_image_training": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateNasJobRequest.meta.fields["nas_job"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["nas_job"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["nas_job"][field])):
+                    del request_init["nas_job"][field][i][subfield]
+            else:
+                del request_init["nas_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_nas_job.NasJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            enable_restricted_image_training=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_nas_job.NasJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_nas_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+def test_create_nas_job_rest_required_fields(
+    request_type=job_service.CreateNasJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_nas_job.NasJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_nas_job.NasJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_nas_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_nas_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_nas_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "nasJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_nas_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_nas_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_create_nas_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateNasJobRequest.pb(
+            job_service.CreateNasJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = gca_nas_job.NasJob.to_json(gca_nas_job.NasJob())
+
+        request = job_service.CreateNasJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_nas_job.NasJob()
+
+        client.create_nas_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_nas_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CreateNasJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_nas_job(request)
+
+
+def test_create_nas_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_nas_job.NasJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_nas_job.NasJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_nas_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/nasJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_nas_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_nas_job(
+            job_service.CreateNasJobRequest(),
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+
+
+def test_create_nas_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetNasJobRequest,
+        dict,
+    ],
+)
+def test_get_nas_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = nas_job.NasJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            enable_restricted_image_training=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = nas_job.NasJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_nas_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+def test_get_nas_job_rest_required_fields(request_type=job_service.GetNasJobRequest):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = nas_job.NasJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = nas_job.NasJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_nas_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_nas_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_nas_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_nas_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_nas_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetNasJobRequest.pb(job_service.GetNasJobRequest())
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = nas_job.NasJob.to_json(nas_job.NasJob())
+
+        request = job_service.GetNasJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = nas_job.NasJob()
+
+        client.get_nas_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_nas_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetNasJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_nas_job(request)
+
+
+def test_get_nas_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = nas_job.NasJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = nas_job.NasJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_nas_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/nasJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_nas_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_nas_job(
+            job_service.GetNasJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_nas_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListNasJobsRequest,
+        dict,
+    ],
+)
+def test_list_nas_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListNasJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListNasJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_nas_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_nas_jobs_rest_required_fields(
+    request_type=job_service.ListNasJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_nas_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_nas_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListNasJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListNasJobsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_nas_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_nas_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_nas_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_nas_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_nas_jobs"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_nas_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListNasJobsRequest.pb(job_service.ListNasJobsRequest())
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = job_service.ListNasJobsResponse.to_json(
+            job_service.ListNasJobsResponse()
+        )
+
+        request = job_service.ListNasJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListNasJobsResponse()
+
+        client.list_nas_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_nas_jobs_rest_bad_request(
+    transport: str = "rest", request_type=job_service.ListNasJobsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_nas_jobs(request)
+
+
+def test_list_nas_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListNasJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListNasJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_nas_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/nasJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_nas_jobs_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_nas_jobs(
+            job_service.ListNasJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_nas_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(job_service.ListNasJobsResponse.to_json(x) for x in response)
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_nas_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, nas_job.NasJob) for i in results)
+
+        pages = list(client.list_nas_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteNasJobRequest,
+        dict,
+    ],
+)
+def test_delete_nas_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_nas_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_nas_job_rest_required_fields(
+    request_type=job_service.DeleteNasJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_nas_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_nas_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_nas_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_nas_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_nas_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_delete_nas_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteNasJobRequest.pb(
+            job_service.DeleteNasJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteNasJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_nas_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_nas_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.DeleteNasJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_nas_job(request)
+
+
+def test_delete_nas_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_nas_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/nasJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_nas_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_nas_job(
+            job_service.DeleteNasJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_nas_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelNasJobRequest,
+        dict,
+    ],
+)
+def test_cancel_nas_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.cancel_nas_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_nas_job_rest_required_fields(
+    request_type=job_service.CancelNasJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_nas_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.cancel_nas_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_cancel_nas_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.cancel_nas_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_cancel_nas_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_cancel_nas_job"
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.CancelNasJobRequest.pb(
+            job_service.CancelNasJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.CancelNasJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.cancel_nas_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_cancel_nas_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CancelNasJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_nas_job(request)
+
+
+def test_cancel_nas_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/nasJobs/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.cancel_nas_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/nasJobs/*}:cancel"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_cancel_nas_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_nas_job(
+            job_service.CancelNasJobRequest(),
+            name="name_value",
+        )
+
+
+def test_cancel_nas_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetNasTrialDetailRequest,
+        dict,
+    ],
+)
+def test_get_nas_trial_detail_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/nasJobs/sample3/nasTrialDetails/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = nas_job.NasTrialDetail(
+            name="name_value",
+            parameters="parameters_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = nas_job.NasTrialDetail.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_nas_trial_detail(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasTrialDetail)
+    assert response.name == "name_value"
+    assert response.parameters == "parameters_value"
+
+
+def test_get_nas_trial_detail_rest_required_fields(
+    request_type=job_service.GetNasTrialDetailRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_nas_trial_detail._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_nas_trial_detail._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = nas_job.NasTrialDetail()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = nas_job.NasTrialDetail.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_nas_trial_detail(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_nas_trial_detail_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_nas_trial_detail._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_trial_detail"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_nas_trial_detail"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetNasTrialDetailRequest.pb(
+            job_service.GetNasTrialDetailRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = nas_job.NasTrialDetail.to_json(
+            nas_job.NasTrialDetail()
+        )
+
+        request = job_service.GetNasTrialDetailRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = nas_job.NasTrialDetail()
+
+        client.get_nas_trial_detail(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_nas_trial_detail_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetNasTrialDetailRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/nasJobs/sample3/nasTrialDetails/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_nas_trial_detail(request)
+
+
+def test_get_nas_trial_detail_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = nas_job.NasTrialDetail()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/nasJobs/sample3/nasTrialDetails/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = nas_job.NasTrialDetail.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_nas_trial_detail(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/nasJobs/*/nasTrialDetails/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_nas_trial_detail_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_nas_trial_detail(
+            job_service.GetNasTrialDetailRequest(),
+            name="name_value",
+        )
+
+
+def test_get_nas_trial_detail_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListNasTrialDetailsRequest,
+        dict,
+    ],
+)
+def test_list_nas_trial_details_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListNasTrialDetailsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListNasTrialDetailsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_nas_trial_details(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasTrialDetailsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_nas_trial_details_rest_required_fields(
+    request_type=job_service.ListNasTrialDetailsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_nas_trial_details._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_nas_trial_details._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListNasTrialDetailsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListNasTrialDetailsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_nas_trial_details(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_nas_trial_details_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_nas_trial_details._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_nas_trial_details_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_nas_trial_details"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_nas_trial_details"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListNasTrialDetailsRequest.pb(
+            job_service.ListNasTrialDetailsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = job_service.ListNasTrialDetailsResponse.to_json(
+            job_service.ListNasTrialDetailsResponse()
+        )
+
+        request = job_service.ListNasTrialDetailsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListNasTrialDetailsResponse()
+
+        client.list_nas_trial_details(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_nas_trial_details_rest_bad_request(
+    transport: str = "rest", request_type=job_service.ListNasTrialDetailsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/nasJobs/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_nas_trial_details(request)
+
+
+def test_list_nas_trial_details_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListNasTrialDetailsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/nasJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListNasTrialDetailsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_nas_trial_details(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/nasJobs/*}/nasTrialDetails"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_nas_trial_details_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_nas_trial_details(
+            job_service.ListNasTrialDetailsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_nas_trial_details_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListNasTrialDetailsResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/nasJobs/sample3"
+        }
+
+        pager = client.list_nas_trial_details(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, nas_job.NasTrialDetail) for i in results)
+
+        pages = list(client.list_nas_trial_details(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateBatchPredictionJobRequest,
+        dict,
+    ],
+)
+def test_create_batch_prediction_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["batch_prediction_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "model": "model_value",
+        "model_version_id": "model_version_id_value",
+        "unmanaged_container_model": {
+            "artifact_uri": "artifact_uri_value",
+            "predict_schemata": {
+                "instance_schema_uri": "instance_schema_uri_value",
+                "parameters_schema_uri": "parameters_schema_uri_value",
+                "prediction_schema_uri": "prediction_schema_uri_value",
+            },
+            "container_spec": {
+                "image_uri": "image_uri_value",
+                "command": ["command_value1", "command_value2"],
+                "args": ["args_value1", "args_value2"],
+                "env": [{"name": "name_value", "value": "value_value"}],
+                "ports": [{"container_port": 1511}],
+                "predict_route": "predict_route_value",
+                "health_route": "health_route_value",
+                "grpc_ports": {},
+                "deployment_timeout": {"seconds": 751, "nanos": 543},
+                "shared_memory_size_mb": 2231,
+                "startup_probe": {
+                    "exec_": {"command": ["command_value1", "command_value2"]},
+                    "period_seconds": 1489,
+                    "timeout_seconds": 1621,
+                },
+                "health_probe": {},
+            },
+        },
+        "input_config": {
+            "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+            "bigquery_source": {"input_uri": "input_uri_value"},
+            "instances_format": "instances_format_value",
+        },
+        "instance_config": {
+            "instance_type": "instance_type_value",
+            "key_field": "key_field_value",
+            "included_fields": ["included_fields_value1", "included_fields_value2"],
+            "excluded_fields": ["excluded_fields_value1", "excluded_fields_value2"],
+        },
+        "model_parameters": {
+            "null_value": 0,
+            "number_value": 0.1285,
+            "string_value": "string_value_value",
+            "bool_value": True,
+            "struct_value": {"fields": {}},
+            "list_value": {"values": {}},
+        },
+        "output_config": {
+            "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"},
+            "bigquery_destination": {"output_uri": "output_uri_value"},
+            "predictions_format": "predictions_format_value",
+        },
+        "dedicated_resources": {
+            "machine_spec": {
+                "machine_type": "machine_type_value",
+                "accelerator_type": 1,
+                "accelerator_count": 1805,
+                "tpu_topology": "tpu_topology_value",
+            },
+            "starting_replica_count": 2355,
+            "max_replica_count": 1805,
+        },
+        "service_account": "service_account_value",
+        "manual_batch_tuning_parameters": {"batch_size": 1052},
+        "generate_explanation": True,
+        "explanation_spec": {
+            "parameters": {
+                "sampled_shapley_attribution": {"path_count": 1077},
+                "integrated_gradients_attribution": {
+                    "step_count": 1092,
+                    "smooth_grad_config": {
+                        "noise_sigma": 0.11660000000000001,
+                        "feature_noise_sigma": {
+                            "noise_sigma": [{"name": "name_value", "sigma": 0.529}]
+                        },
+                        "noisy_sample_count": 1947,
+                    },
+                    "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                },
+                "xrai_attribution": {
+                    "step_count": 1092,
+                    "smooth_grad_config": {},
+                    "blur_baseline_config": {},
+                },
+                "examples": {
+                    "example_gcs_source": {"data_format": 1, "gcs_source": {}},
+                    "nearest_neighbor_search_config": {},
+                    "presets": {"query": 1, "modality": 1},
+                    "gcs_source": {},
+                    "neighbor_count": 1494,
+                },
+                "top_k": 541,
+                "output_indices": {},
+            },
+            "metadata": {
+                "inputs": {},
+                "outputs": {},
+                "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                "latent_space_source": "latent_space_source_value",
+            },
+        },
+        "output_info": {
+            "gcs_output_directory": "gcs_output_directory_value",
+            "bigquery_output_dataset": "bigquery_output_dataset_value",
+            "bigquery_output_table": "bigquery_output_table_value",
+        },
+        "state": 1,
+        "error": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "partial_failures": {},
+        "resources_consumed": {"replica_hours": 0.13920000000000002},
+        "completion_stats": {
+            "successful_count": 1736,
+            "failed_count": 1261,
+            "incomplete_count": 1720,
+            "successful_forecast_point_count": 3335,
+        },
+        "create_time": {"seconds": 751, "nanos": 543},
+        "start_time": {},
+        "end_time": {},
+        "update_time": {},
+        "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "model_monitoring_config": {
+            "objective_configs": [
+                {
+                    "training_dataset": {
+                        "dataset": "dataset_value",
+                        "gcs_source": {},
+                        "bigquery_source": {},
+                        "data_format": "data_format_value",
+                        "target_field": "target_field_value",
+                        "logging_sampling_strategy": {
+                            "random_sample_config": {"sample_rate": 0.1165}
+                        },
+                    },
+                    "training_prediction_skew_detection_config": {
+                        "skew_thresholds": {},
+                        "attribution_score_skew_thresholds": {},
+                        "default_skew_threshold": {"value": 0.541},
+                    },
+                    "prediction_drift_detection_config": {
+                        "drift_thresholds": {},
+                        "attribution_score_drift_thresholds": {},
+                        "default_drift_threshold": {},
+                    },
+                    "explanation_config": {
+                        "enable_feature_attributes": True,
+                        "explanation_baseline": {
+                            "gcs": {},
+                            "bigquery": {},
+                            "prediction_format": 2,
+                        },
+                    },
+                }
+            ],
+            "alert_config": {
+                "email_alert_config": {
+                    "user_emails": ["user_emails_value1", "user_emails_value2"]
+                },
+                "enable_logging": True,
+                "notification_channels": [
+                    "notification_channels_value1",
+                    "notification_channels_value2",
+                ],
+            },
+            "analysis_instance_schema_uri": "analysis_instance_schema_uri_value",
+            "stats_anomalies_base_directory": {},
+        },
+        "model_monitoring_stats_anomalies": [
+            {
+                "objective": 1,
+                "deployed_model_id": "deployed_model_id_value",
+                "anomaly_count": 1401,
+                "feature_stats": [
+                    {
+                        "feature_display_name": "feature_display_name_value",
+                        "threshold": {},
+                        "training_stats": {
+                            "score": 0.54,
+                            "stats_uri": "stats_uri_value",
+                            "anomaly_uri": "anomaly_uri_value",
+                            "distribution_deviation": 0.23700000000000002,
+                            "anomaly_detection_threshold": 0.28750000000000003,
+                            "start_time": {},
+                            "end_time": {},
+                        },
+                        "prediction_stats": {},
+                    }
+                ],
+            }
+        ],
+        "model_monitoring_status": {},
+        "disable_container_logging": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateBatchPredictionJobRequest.meta.fields[
+        "batch_prediction_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "batch_prediction_job"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["batch_prediction_job"][field])):
+                    del request_init["batch_prediction_job"][field][i][subfield]
+            else:
+                del request_init["batch_prediction_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_batch_prediction_job.BatchPredictionJob(
+            name="name_value",
+            display_name="display_name_value",
+            model="model_value",
+            model_version_id="model_version_id_value",
+            service_account="service_account_value",
+            generate_explanation=True,
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_batch_prediction_job.BatchPredictionJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_batch_prediction_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_batch_prediction_job.BatchPredictionJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
+    assert response.generate_explanation is True
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
+
+
+def test_create_batch_prediction_job_rest_required_fields(
+    request_type=job_service.CreateBatchPredictionJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_batch_prediction_job.BatchPredictionJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_batch_prediction_job.BatchPredictionJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_batch_prediction_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_batch_prediction_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_batch_prediction_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "batchPredictionJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_batch_prediction_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_create_batch_prediction_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateBatchPredictionJobRequest.pb(
+            job_service.CreateBatchPredictionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = gca_batch_prediction_job.BatchPredictionJob.to_json(
+            gca_batch_prediction_job.BatchPredictionJob()
+        )
+
+        request = job_service.CreateBatchPredictionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_batch_prediction_job.BatchPredictionJob()
+
+        client.create_batch_prediction_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_batch_prediction_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CreateBatchPredictionJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_batch_prediction_job(request)
+
+
+def test_create_batch_prediction_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_batch_prediction_job.BatchPredictionJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            batch_prediction_job=gca_batch_prediction_job.BatchPredictionJob(
+                name="name_value"
+            ),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_batch_prediction_job.BatchPredictionJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_batch_prediction_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/batchPredictionJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_batch_prediction_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_batch_prediction_job(
+            job_service.CreateBatchPredictionJobRequest(),
+            parent="parent_value",
+            batch_prediction_job=gca_batch_prediction_job.BatchPredictionJob(
+                name="name_value"
+            ),
+        )
+
+
+def test_create_batch_prediction_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetBatchPredictionJobRequest,
+        dict,
+    ],
+)
+def test_get_batch_prediction_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = batch_prediction_job.BatchPredictionJob(
+            name="name_value",
+            display_name="display_name_value",
+            model="model_value",
+            model_version_id="model_version_id_value",
+            service_account="service_account_value",
+            generate_explanation=True,
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = batch_prediction_job.BatchPredictionJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_batch_prediction_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, batch_prediction_job.BatchPredictionJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
+    assert response.generate_explanation is True
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
+
+
+def test_get_batch_prediction_job_rest_required_fields(
+    request_type=job_service.GetBatchPredictionJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = batch_prediction_job.BatchPredictionJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = batch_prediction_job.BatchPredictionJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_batch_prediction_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_batch_prediction_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_batch_prediction_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_batch_prediction_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_batch_prediction_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetBatchPredictionJobRequest.pb(
+            job_service.GetBatchPredictionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = batch_prediction_job.BatchPredictionJob.to_json(
+            batch_prediction_job.BatchPredictionJob()
+        )
+
+        request = job_service.GetBatchPredictionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = batch_prediction_job.BatchPredictionJob()
+
+        client.get_batch_prediction_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_batch_prediction_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.GetBatchPredictionJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_batch_prediction_job(request)
+
+
+def test_get_batch_prediction_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = batch_prediction_job.BatchPredictionJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = batch_prediction_job.BatchPredictionJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_batch_prediction_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/batchPredictionJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_batch_prediction_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_batch_prediction_job(
+            job_service.GetBatchPredictionJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_batch_prediction_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListBatchPredictionJobsRequest,
+        dict,
+    ],
+)
+def test_list_batch_prediction_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListBatchPredictionJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListBatchPredictionJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_batch_prediction_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListBatchPredictionJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_batch_prediction_jobs_rest_required_fields(
+    request_type=job_service.ListBatchPredictionJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_batch_prediction_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_batch_prediction_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListBatchPredictionJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListBatchPredictionJobsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_batch_prediction_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_batch_prediction_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_batch_prediction_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_batch_prediction_jobs"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_list_batch_prediction_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListBatchPredictionJobsRequest.pb(
+            job_service.ListBatchPredictionJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = job_service.ListBatchPredictionJobsResponse.to_json(
+            job_service.ListBatchPredictionJobsResponse()
+        )
+
+        request = job_service.ListBatchPredictionJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListBatchPredictionJobsResponse()
+
+        client.list_batch_prediction_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_batch_prediction_jobs_rest_bad_request(
+    transport: str = "rest", request_type=job_service.ListBatchPredictionJobsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_batch_prediction_jobs(request)
+
+
+def test_list_batch_prediction_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListBatchPredictionJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListBatchPredictionJobsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_batch_prediction_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/batchPredictionJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_batch_prediction_jobs_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_batch_prediction_jobs(
+            job_service.ListBatchPredictionJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_batch_prediction_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListBatchPredictionJobsResponse(
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                    batch_prediction_job.BatchPredictionJob(),
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListBatchPredictionJobsResponse(
+                batch_prediction_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListBatchPredictionJobsResponse(
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListBatchPredictionJobsResponse(
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListBatchPredictionJobsResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_batch_prediction_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, batch_prediction_job.BatchPredictionJob) for i in results
+        )
+
+        pages = list(client.list_batch_prediction_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteBatchPredictionJobRequest,
+        dict,
+    ],
+)
+def test_delete_batch_prediction_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_batch_prediction_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_batch_prediction_job_rest_required_fields(
+    request_type=job_service.DeleteBatchPredictionJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_batch_prediction_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_batch_prediction_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_batch_prediction_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_batch_prediction_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_delete_batch_prediction_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteBatchPredictionJobRequest.pb(
+            job_service.DeleteBatchPredictionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteBatchPredictionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_batch_prediction_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_batch_prediction_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.DeleteBatchPredictionJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_batch_prediction_job(request)
+
+
+def test_delete_batch_prediction_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_batch_prediction_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/batchPredictionJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_batch_prediction_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_batch_prediction_job(
+            job_service.DeleteBatchPredictionJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_batch_prediction_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelBatchPredictionJobRequest,
+        dict,
+    ],
+)
+def test_cancel_batch_prediction_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.cancel_batch_prediction_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_batch_prediction_job_rest_required_fields(
+    request_type=job_service.CancelBatchPredictionJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).cancel_batch_prediction_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.cancel_batch_prediction_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_cancel_batch_prediction_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.cancel_batch_prediction_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_cancel_batch_prediction_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_cancel_batch_prediction_job"
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.CancelBatchPredictionJobRequest.pb(
+            job_service.CancelBatchPredictionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.CancelBatchPredictionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.cancel_batch_prediction_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_cancel_batch_prediction_job_rest_bad_request(
+    transport: str = "rest", request_type=job_service.CancelBatchPredictionJobRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_batch_prediction_job(request)
+
+
+def test_cancel_batch_prediction_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/batchPredictionJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.cancel_batch_prediction_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/batchPredictionJobs/*}:cancel"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_cancel_batch_prediction_job_rest_flattened_error(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_batch_prediction_job(
+            job_service.CancelBatchPredictionJobRequest(),
+            name="name_value",
+        )
+
+
+def test_cancel_batch_prediction_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_create_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["model_deployment_monitoring_job"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "endpoint": "endpoint_value",
+        "state": 1,
+        "schedule_state": 1,
+        "latest_monitoring_pipeline_metadata": {
+            "run_time": {"seconds": 751, "nanos": 543},
+            "status": {
+                "code": 411,
+                "message": "message_value",
+                "details": [
+                    {
+                        "type_url": "type.googleapis.com/google.protobuf.Duration",
+                        "value": b"\x08\x0c\x10\xdb\x07",
+                    }
+                ],
+            },
+        },
+        "model_deployment_monitoring_objective_configs": [
+            {
+                "deployed_model_id": "deployed_model_id_value",
+                "objective_config": {
+                    "training_dataset": {
+                        "dataset": "dataset_value",
+                        "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                        "bigquery_source": {"input_uri": "input_uri_value"},
+                        "data_format": "data_format_value",
+                        "target_field": "target_field_value",
+                        "logging_sampling_strategy": {
+                            "random_sample_config": {"sample_rate": 0.1165}
+                        },
+                    },
+                    "training_prediction_skew_detection_config": {
+                        "skew_thresholds": {},
+                        "attribution_score_skew_thresholds": {},
+                        "default_skew_threshold": {"value": 0.541},
+                    },
+                    "prediction_drift_detection_config": {
+                        "drift_thresholds": {},
+                        "attribution_score_drift_thresholds": {},
+                        "default_drift_threshold": {},
+                    },
+                    "explanation_config": {
+                        "enable_feature_attributes": True,
+                        "explanation_baseline": {
+                            "gcs": {"output_uri_prefix": "output_uri_prefix_value"},
+                            "bigquery": {"output_uri": "output_uri_value"},
+                            "prediction_format": 2,
+                        },
+                    },
+                },
+            }
+        ],
+        "model_deployment_monitoring_schedule_config": {
+            "monitor_interval": {"seconds": 751, "nanos": 543},
+            "monitor_window": {},
+        },
+        "logging_sampling_strategy": {},
+        "model_monitoring_alert_config": {
+            "email_alert_config": {
+                "user_emails": ["user_emails_value1", "user_emails_value2"]
+            },
+            "enable_logging": True,
+            "notification_channels": [
+                "notification_channels_value1",
+                "notification_channels_value2",
+            ],
+        },
+        "predict_instance_schema_uri": "predict_instance_schema_uri_value",
+        "sample_predict_instance": {
+            "null_value": 0,
+            "number_value": 0.1285,
+            "string_value": "string_value_value",
+            "bool_value": True,
+            "struct_value": {"fields": {}},
+            "list_value": {"values": {}},
+        },
+        "analysis_instance_schema_uri": "analysis_instance_schema_uri_value",
+        "bigquery_tables": [
+            {
+                "log_source": 1,
+                "log_type": 1,
+                "bigquery_table_path": "bigquery_table_path_value",
+                "request_response_logging_schema_version": "request_response_logging_schema_version_value",
+            }
+        ],
+        "log_ttl": {},
+        "labels": {},
+        "create_time": {},
+        "update_time": {},
+        "next_schedule_time": {},
+        "stats_anomalies_base_directory": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "enable_monitoring_pipeline_logs": True,
+        "error": {},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.CreateModelDeploymentMonitoringJobRequest.meta.fields[
+        "model_deployment_monitoring_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "model_deployment_monitoring_job"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(
+                    0, len(request_init["model_deployment_monitoring_job"][field])
+                ):
+                    del request_init["model_deployment_monitoring_job"][field][i][
+                        subfield
+                    ]
+            else:
+                del request_init["model_deployment_monitoring_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+            name="name_value",
+            display_name="display_name_value",
+            endpoint="endpoint_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
+            predict_instance_schema_uri="predict_instance_schema_uri_value",
+            analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+    )
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.endpoint == "endpoint_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert (
+        response.schedule_state
+        == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING
+    )
+    assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
+    assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
+
+
+def test_create_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.CreateModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.create_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "modelDeploymentMonitoringJob",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_model_deployment_monitoring_job",
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_create_model_deployment_monitoring_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
+            job_service.CreateModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
+                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+            )
+        )
+
+        request = job_service.CreateModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+        )
+
+        client.create_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.CreateModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.create_model_deployment_monitoring_job(request)
+
+
+def test_create_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+        )
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            model_deployment_monitoring_job=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value"
+            ),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/modelDeploymentMonitoringJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_model_deployment_monitoring_job(
+            job_service.CreateModelDeploymentMonitoringJobRequest(),
+            parent="parent_value",
+            model_deployment_monitoring_job=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value"
+            ),
+        )
+
+
+def test_create_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+        dict,
+    ],
+)
+def test_search_model_deployment_monitoring_stats_anomalies_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "model_deployment_monitoring_job": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.search_model_deployment_monitoring_stats_anomalies(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager
+    )
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_required_fields(
+    request_type=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["model_deployment_monitoring_job"] = ""
+    request_init["deployed_model_id"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_deployment_monitoring_stats_anomalies._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request[
+        "modelDeploymentMonitoringJob"
+    ] = "model_deployment_monitoring_job_value"
+    jsonified_request["deployedModelId"] = "deployed_model_id_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_deployment_monitoring_stats_anomalies._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "modelDeploymentMonitoringJob" in jsonified_request
+    assert (
+        jsonified_request["modelDeploymentMonitoringJob"]
+        == "model_deployment_monitoring_job_value"
+    )
+    assert "deployedModelId" in jsonified_request
+    assert jsonified_request["deployedModelId"] == "deployed_model_id_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.search_model_deployment_monitoring_stats_anomalies(
+                request
+            )
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.search_model_deployment_monitoring_stats_anomalies._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "modelDeploymentMonitoringJob",
+                "deployedModelId",
+                "objectives",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
+    null_interceptor,
+):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_search_model_deployment_monitoring_stats_anomalies",
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_search_model_deployment_monitoring_stats_anomalies",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
+            )
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.to_json(
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
+            )
+        )
+
+        request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
+        )
+
+        client.search_model_deployment_monitoring_stats_anomalies(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "model_deployment_monitoring_job": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.search_model_deployment_monitoring_stats_anomalies(request)
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
+        )
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model_deployment_monitoring_job": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            deployed_model_id="deployed_model_id_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.search_model_deployment_monitoring_stats_anomalies(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{model_deployment_monitoring_job=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:searchModelDeploymentMonitoringStatsAnomalies"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.search_model_deployment_monitoring_stats_anomalies(
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(),
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            deployed_model_id="deployed_model_id_value",
+        )
+
+
+def test_search_model_deployment_monitoring_stats_anomalies_rest_pager(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                monitoring_stats=[
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                monitoring_stats=[],
+                next_page_token="def",
+            ),
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                monitoring_stats=[
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                monitoring_stats=[
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                    gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "model_deployment_monitoring_job": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        pager = client.search_model_deployment_monitoring_stats_anomalies(
+            request=sample_request
+        )
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(
+                i, gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies
+            )
+            for i in results
+        )
+
+        pages = list(
+            client.search_model_deployment_monitoring_stats_anomalies(
+                request=sample_request
+            ).pages
+        )
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_get_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+            name="name_value",
+            display_name="display_name_value",
+            endpoint="endpoint_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
+            predict_instance_schema_uri="predict_instance_schema_uri_value",
+            analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+    )
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.endpoint == "endpoint_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert (
+        response.schedule_state
+        == model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING
+    )
+    assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
+    assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
+
+
+def test_get_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.GetModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_deployment_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_deployment_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.get_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_model_deployment_monitoring_job"
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "pre_get_model_deployment_monitoring_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.GetModelDeploymentMonitoringJobRequest.pb(
+            job_service.GetModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
+                model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+            )
+        )
+
+        request = job_service.GetModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+        )
+
+        client.get_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.GetModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_model_deployment_monitoring_job(request)
+
+
+def test_get_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_deployment_monitoring_job.ModelDeploymentMonitoringJob.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_model_deployment_monitoring_job(
+            job_service.GetModelDeploymentMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_get_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListModelDeploymentMonitoringJobsRequest,
+        dict,
+    ],
+)
+def test_list_model_deployment_monitoring_jobs_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListModelDeploymentMonitoringJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListModelDeploymentMonitoringJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_model_deployment_monitoring_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListModelDeploymentMonitoringJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_model_deployment_monitoring_jobs_rest_required_fields(
+    request_type=job_service.ListModelDeploymentMonitoringJobsRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_deployment_monitoring_jobs._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_deployment_monitoring_jobs._get_unset_required_fields(
+        jsonified_request
+    )
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = job_service.ListModelDeploymentMonitoringJobsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_model_deployment_monitoring_jobs(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_model_deployment_monitoring_jobs_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.list_model_deployment_monitoring_jobs._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_model_deployment_monitoring_jobs",
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_list_model_deployment_monitoring_jobs",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
+            job_service.ListModelDeploymentMonitoringJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            job_service.ListModelDeploymentMonitoringJobsResponse.to_json(
+                job_service.ListModelDeploymentMonitoringJobsResponse()
+            )
+        )
+
+        request = job_service.ListModelDeploymentMonitoringJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+
+        client.list_model_deployment_monitoring_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_model_deployment_monitoring_jobs_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.ListModelDeploymentMonitoringJobsRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_model_deployment_monitoring_jobs(request)
+
+
+def test_list_model_deployment_monitoring_jobs_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = job_service.ListModelDeploymentMonitoringJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_model_deployment_monitoring_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/modelDeploymentMonitoringJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_model_deployment_monitoring_jobs_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_model_deployment_monitoring_jobs(
+            job_service.ListModelDeploymentMonitoringJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_model_deployment_monitoring_jobs_rest_pager(transport: str = "rest"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            job_service.ListModelDeploymentMonitoringJobsResponse(
+                model_deployment_monitoring_jobs=[
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListModelDeploymentMonitoringJobsResponse(
+                model_deployment_monitoring_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListModelDeploymentMonitoringJobsResponse(
+                model_deployment_monitoring_jobs=[
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListModelDeploymentMonitoringJobsResponse(
+                model_deployment_monitoring_jobs=[
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                    model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            job_service.ListModelDeploymentMonitoringJobsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_model_deployment_monitoring_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, model_deployment_monitoring_job.ModelDeploymentMonitoringJob)
+            for i in results
+        )
+
+        pages = list(
+            client.list_model_deployment_monitoring_jobs(request=sample_request).pages
+        )
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.UpdateModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_update_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "model_deployment_monitoring_job": {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+    }
+    request_init["model_deployment_monitoring_job"] = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3",
+        "display_name": "display_name_value",
+        "endpoint": "endpoint_value",
+        "state": 1,
+        "schedule_state": 1,
+        "latest_monitoring_pipeline_metadata": {
+            "run_time": {"seconds": 751, "nanos": 543},
+            "status": {
+                "code": 411,
+                "message": "message_value",
+                "details": [
+                    {
+                        "type_url": "type.googleapis.com/google.protobuf.Duration",
+                        "value": b"\x08\x0c\x10\xdb\x07",
+                    }
+                ],
+            },
+        },
+        "model_deployment_monitoring_objective_configs": [
+            {
+                "deployed_model_id": "deployed_model_id_value",
+                "objective_config": {
+                    "training_dataset": {
+                        "dataset": "dataset_value",
+                        "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                        "bigquery_source": {"input_uri": "input_uri_value"},
+                        "data_format": "data_format_value",
+                        "target_field": "target_field_value",
+                        "logging_sampling_strategy": {
+                            "random_sample_config": {"sample_rate": 0.1165}
+                        },
+                    },
+                    "training_prediction_skew_detection_config": {
+                        "skew_thresholds": {},
+                        "attribution_score_skew_thresholds": {},
+                        "default_skew_threshold": {"value": 0.541},
+                    },
+                    "prediction_drift_detection_config": {
+                        "drift_thresholds": {},
+                        "attribution_score_drift_thresholds": {},
+                        "default_drift_threshold": {},
+                    },
+                    "explanation_config": {
+                        "enable_feature_attributes": True,
+                        "explanation_baseline": {
+                            "gcs": {"output_uri_prefix": "output_uri_prefix_value"},
+                            "bigquery": {"output_uri": "output_uri_value"},
+                            "prediction_format": 2,
+                        },
+                    },
+                },
+            }
+        ],
+        "model_deployment_monitoring_schedule_config": {
+            "monitor_interval": {"seconds": 751, "nanos": 543},
+            "monitor_window": {},
+        },
+        "logging_sampling_strategy": {},
+        "model_monitoring_alert_config": {
+            "email_alert_config": {
+                "user_emails": ["user_emails_value1", "user_emails_value2"]
+            },
+            "enable_logging": True,
+            "notification_channels": [
+                "notification_channels_value1",
+                "notification_channels_value2",
+            ],
+        },
+        "predict_instance_schema_uri": "predict_instance_schema_uri_value",
+        "sample_predict_instance": {
+            "null_value": 0,
+            "number_value": 0.1285,
+            "string_value": "string_value_value",
+            "bool_value": True,
+            "struct_value": {"fields": {}},
+            "list_value": {"values": {}},
+        },
+        "analysis_instance_schema_uri": "analysis_instance_schema_uri_value",
+        "bigquery_tables": [
+            {
+                "log_source": 1,
+                "log_type": 1,
+                "bigquery_table_path": "bigquery_table_path_value",
+                "request_response_logging_schema_version": "request_response_logging_schema_version_value",
+            }
+        ],
+        "log_ttl": {},
+        "labels": {},
+        "create_time": {},
+        "update_time": {},
+        "next_schedule_time": {},
+        "stats_anomalies_base_directory": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "enable_monitoring_pipeline_logs": True,
+        "error": {},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = job_service.UpdateModelDeploymentMonitoringJobRequest.meta.fields[
+        "model_deployment_monitoring_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "model_deployment_monitoring_job"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(
+                    0, len(request_init["model_deployment_monitoring_job"][field])
+                ):
+                    del request_init["model_deployment_monitoring_job"][field][i][
+                        subfield
+                    ]
+            else:
+                del request_init["model_deployment_monitoring_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_update_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.UpdateModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("update_mask",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "patch",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.update_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_update_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.update_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (
+        set(("updateMask",))
+        & set(
+            (
+                "modelDeploymentMonitoringJob",
+                "updateMask",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_update_model_deployment_monitoring_job",
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_update_model_deployment_monitoring_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
+            job_service.UpdateModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.UpdateModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.update_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.UpdateModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "model_deployment_monitoring_job": {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.update_model_deployment_monitoring_job(request)
+
+
+def test_update_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model_deployment_monitoring_job": {
+                "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+            }
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model_deployment_monitoring_job=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value"
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.update_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{model_deployment_monitoring_job.name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_update_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_model_deployment_monitoring_job(
+            job_service.UpdateModelDeploymentMonitoringJobRequest(),
+            model_deployment_monitoring_job=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                name="name_value"
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
+def test_update_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_delete_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.DeleteModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.delete_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_model_deployment_monitoring_job",
+    ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_delete_model_deployment_monitoring_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
+            job_service.DeleteModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = job_service.DeleteModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.DeleteModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_model_deployment_monitoring_job(request)
+
+
+def test_delete_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_model_deployment_monitoring_job(
+            job_service.DeleteModelDeploymentMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_delete_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.PauseModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_pause_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.pause_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_pause_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.PauseModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).pause_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).pause_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.pause_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_pause_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.pause_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_pause_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_pause_model_deployment_monitoring_job",
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.PauseModelDeploymentMonitoringJobRequest.pb(
+            job_service.PauseModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.PauseModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.pause_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_pause_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.PauseModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.pause_model_deployment_monitoring_job(request)
+
+
+def test_pause_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.pause_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:pause"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_pause_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.pause_model_deployment_monitoring_job(
+            job_service.PauseModelDeploymentMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_pause_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ResumeModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
+)
+def test_resume_model_deployment_monitoring_job_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.resume_model_deployment_monitoring_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_resume_model_deployment_monitoring_job_rest_required_fields(
+    request_type=job_service.ResumeModelDeploymentMonitoringJobRequest,
+):
+    transport_class = transports.JobServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).resume_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).resume_model_deployment_monitoring_job._get_unset_required_fields(
+        jsonified_request
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.resume_model_deployment_monitoring_job(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_resume_model_deployment_monitoring_job_rest_unset_required_fields():
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.resume_model_deployment_monitoring_job._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_resume_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
+    transport = transports.JobServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
+    )
+    client = JobServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "pre_resume_model_deployment_monitoring_job",
+    ) as pre:
+        pre.assert_not_called()
+        pb_message = job_service.ResumeModelDeploymentMonitoringJobRequest.pb(
+            job_service.ResumeModelDeploymentMonitoringJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+
+        request = job_service.ResumeModelDeploymentMonitoringJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+
+        client.resume_model_deployment_monitoring_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+
+
+def test_resume_model_deployment_monitoring_job_rest_bad_request(
+    transport: str = "rest",
+    request_type=job_service.ResumeModelDeploymentMonitoringJobRequest,
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.resume_model_deployment_monitoring_job(request)
+
+
+def test_resume_model_deployment_monitoring_job_rest_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelDeploymentMonitoringJobs/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.resume_model_deployment_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:resume"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_resume_model_deployment_monitoring_job_rest_flattened_error(
+    transport: str = "rest",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.resume_model_deployment_monitoring_job(
+            job_service.ResumeModelDeploymentMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_resume_model_deployment_monitoring_job_rest_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.JobServiceGrpcTransport(
@@ -11185,7 +25202,7 @@ def test_credentials_transport_error():
         )
 
     # It is an error to provide an api_key and a credential.
-    options = mock.Mock()
+    options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
         client = JobServiceClient(
@@ -11232,6 +25249,7 @@ def test_transport_get_channel():
     [
         transports.JobServiceGrpcTransport,
         transports.JobServiceGrpcAsyncIOTransport,
+        transports.JobServiceRestTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -11246,6 +25264,7 @@ def test_transport_adc(transport_class):
     "transport_name",
     [
         "grpc",
+        "rest",
     ],
 )
 def test_transport_kind(transport_name):
@@ -11433,6 +25452,7 @@ def test_job_service_transport_auth_adc(transport_class):
     [
         transports.JobServiceGrpcTransport,
         transports.JobServiceGrpcAsyncIOTransport,
+        transports.JobServiceRestTransport,
     ],
 )
 def test_job_service_transport_auth_gdch_credentials(transport_class):
@@ -11530,11 +25550,40 @@ def test_job_service_grpc_transport_client_cert_source_for_mtls(transport_class)
             )
 
 
+def test_job_service_http_transport_client_cert_source_for_mtls():
+    cred = ga_credentials.AnonymousCredentials()
+    with mock.patch(
+        "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+    ) as mock_configure_mtls_channel:
+        transports.JobServiceRestTransport(
+            credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
+        )
+        mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
+
+
+def test_job_service_rest_lro_client():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have a api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
 @pytest.mark.parametrize(
     "transport_name",
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_job_service_host_no_port(transport_name):
@@ -11545,7 +25594,11 @@ def test_job_service_host_no_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:443")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:443"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com"
+    )
 
 
 @pytest.mark.parametrize(
@@ -11553,6 +25606,7 @@ def test_job_service_host_no_port(transport_name):
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_job_service_host_with_port(transport_name):
@@ -11563,7 +25617,139 @@ def test_job_service_host_with_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:8000")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:8000"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com:8000"
+    )
+
+
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "rest",
+    ],
+)
+def test_job_service_client_transport_session_collision(transport_name):
+    creds1 = ga_credentials.AnonymousCredentials()
+    creds2 = ga_credentials.AnonymousCredentials()
+    client1 = JobServiceClient(
+        credentials=creds1,
+        transport=transport_name,
+    )
+    client2 = JobServiceClient(
+        credentials=creds2,
+        transport=transport_name,
+    )
+    session1 = client1.transport.create_custom_job._session
+    session2 = client2.transport.create_custom_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_custom_job._session
+    session2 = client2.transport.get_custom_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_custom_jobs._session
+    session2 = client2.transport.list_custom_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.delete_custom_job._session
+    session2 = client2.transport.delete_custom_job._session
+    assert session1 != session2
+    session1 = client1.transport.cancel_custom_job._session
+    session2 = client2.transport.cancel_custom_job._session
+    assert session1 != session2
+    session1 = client1.transport.create_data_labeling_job._session
+    session2 = client2.transport.create_data_labeling_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_data_labeling_job._session
+    session2 = client2.transport.get_data_labeling_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_data_labeling_jobs._session
+    session2 = client2.transport.list_data_labeling_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.delete_data_labeling_job._session
+    session2 = client2.transport.delete_data_labeling_job._session
+    assert session1 != session2
+    session1 = client1.transport.cancel_data_labeling_job._session
+    session2 = client2.transport.cancel_data_labeling_job._session
+    assert session1 != session2
+    session1 = client1.transport.create_hyperparameter_tuning_job._session
+    session2 = client2.transport.create_hyperparameter_tuning_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_hyperparameter_tuning_job._session
+    session2 = client2.transport.get_hyperparameter_tuning_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_hyperparameter_tuning_jobs._session
+    session2 = client2.transport.list_hyperparameter_tuning_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.delete_hyperparameter_tuning_job._session
+    session2 = client2.transport.delete_hyperparameter_tuning_job._session
+    assert session1 != session2
+    session1 = client1.transport.cancel_hyperparameter_tuning_job._session
+    session2 = client2.transport.cancel_hyperparameter_tuning_job._session
+    assert session1 != session2
+    session1 = client1.transport.create_nas_job._session
+    session2 = client2.transport.create_nas_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_nas_job._session
+    session2 = client2.transport.get_nas_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_nas_jobs._session
+    session2 = client2.transport.list_nas_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.delete_nas_job._session
+    session2 = client2.transport.delete_nas_job._session
+    assert session1 != session2
+    session1 = client1.transport.cancel_nas_job._session
+    session2 = client2.transport.cancel_nas_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_nas_trial_detail._session
+    session2 = client2.transport.get_nas_trial_detail._session
+    assert session1 != session2
+    session1 = client1.transport.list_nas_trial_details._session
+    session2 = client2.transport.list_nas_trial_details._session
+    assert session1 != session2
+    session1 = client1.transport.create_batch_prediction_job._session
+    session2 = client2.transport.create_batch_prediction_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_batch_prediction_job._session
+    session2 = client2.transport.get_batch_prediction_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_batch_prediction_jobs._session
+    session2 = client2.transport.list_batch_prediction_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.delete_batch_prediction_job._session
+    session2 = client2.transport.delete_batch_prediction_job._session
+    assert session1 != session2
+    session1 = client1.transport.cancel_batch_prediction_job._session
+    session2 = client2.transport.cancel_batch_prediction_job._session
+    assert session1 != session2
+    session1 = client1.transport.create_model_deployment_monitoring_job._session
+    session2 = client2.transport.create_model_deployment_monitoring_job._session
+    assert session1 != session2
+    session1 = (
+        client1.transport.search_model_deployment_monitoring_stats_anomalies._session
+    )
+    session2 = (
+        client2.transport.search_model_deployment_monitoring_stats_anomalies._session
+    )
+    assert session1 != session2
+    session1 = client1.transport.get_model_deployment_monitoring_job._session
+    session2 = client2.transport.get_model_deployment_monitoring_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_model_deployment_monitoring_jobs._session
+    session2 = client2.transport.list_model_deployment_monitoring_jobs._session
+    assert session1 != session2
+    session1 = client1.transport.update_model_deployment_monitoring_job._session
+    session2 = client2.transport.update_model_deployment_monitoring_job._session
+    assert session1 != session2
+    session1 = client1.transport.delete_model_deployment_monitoring_job._session
+    session2 = client2.transport.delete_model_deployment_monitoring_job._session
+    assert session1 != session2
+    session1 = client1.transport.pause_model_deployment_monitoring_job._session
+    session2 = client2.transport.pause_model_deployment_monitoring_job._session
+    assert session1 != session2
+    session1 = client1.transport.resume_model_deployment_monitoring_job._session
+    session2 = client2.transport.resume_model_deployment_monitoring_job._session
+    assert session1 != session2
 
 
 def test_job_service_grpc_transport_channel():
@@ -12066,10 +26252,38 @@ def test_parse_notification_channel_path():
     assert expected == actual
 
 
-def test_tensorboard_path():
+def test_persistent_resource_path():
     project = "cuttlefish"
     location = "mussel"
-    tensorboard = "winkle"
+    persistent_resource = "winkle"
+    expected = "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
+        project=project,
+        location=location,
+        persistent_resource=persistent_resource,
+    )
+    actual = JobServiceClient.persistent_resource_path(
+        project, location, persistent_resource
+    )
+    assert expected == actual
+
+
+def test_parse_persistent_resource_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "persistent_resource": "abalone",
+    }
+    path = JobServiceClient.persistent_resource_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_persistent_resource_path(path)
+    assert expected == actual
+
+
+def test_tensorboard_path():
+    project = "squid"
+    location = "clam"
+    tensorboard = "whelk"
     expected = (
         "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
             project=project,
@@ -12083,9 +26297,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "tensorboard": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "tensorboard": "nudibranch",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -12095,10 +26309,10 @@ def test_parse_tensorboard_path():
 
 
 def test_trial_path():
-    project = "squid"
-    location = "clam"
-    study = "whelk"
-    trial = "octopus"
+    project = "cuttlefish"
+    location = "mussel"
+    study = "winkle"
+    trial = "nautilus"
     expected = (
         "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project,
@@ -12113,10 +26327,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "study": "cuttlefish",
-        "trial": "mussel",
+        "project": "scallop",
+        "location": "abalone",
+        "study": "squid",
+        "trial": "clam",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -12126,7 +26340,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "whelk"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -12136,7 +26350,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "octopus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -12146,7 +26360,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "scallop"
+    folder = "oyster"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -12156,7 +26370,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "nudibranch",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -12166,7 +26380,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "squid"
+    organization = "cuttlefish"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -12176,7 +26390,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "mussel",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -12186,7 +26400,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "whelk"
+    project = "winkle"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -12196,7 +26410,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "nautilus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -12206,8 +26420,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "scallop"
+    location = "abalone"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -12218,8 +26432,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "squid",
+        "location": "clam",
     }
     path = JobServiceClient.common_location_path(**expected)
 
@@ -12265,6 +26479,593 @@ async def test_transport_close_async():
         close.assert_called_once()
 
 
+def test_get_location_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
 def test_delete_operation(transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -12290,7 +27091,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12429,7 +27230,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12568,7 +27369,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12713,7 +27514,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12858,7 +27659,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -13003,7 +27804,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -13774,6 +28575,7 @@ async def test_test_iam_permissions_from_dict_async():
 
 def test_transport_close():
     transports = {
+        "rest": "_session",
         "grpc": "_grpc_channel",
     }
 
@@ -13791,6 +28593,7 @@ def test_transport_close():
 
 def test_client_ctx():
     transports = [
+        "rest",
         "grpc",
     ]
     for transport in transports:
@@ -13826,7 +28629,9 @@ def test_api_key_credentials(client_class, transport_class):
             patched.assert_called_once_with(
                 credentials=mock_cred,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,

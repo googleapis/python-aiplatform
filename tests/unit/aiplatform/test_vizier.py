@@ -292,7 +292,7 @@ class TestStudy:
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY
         )
-        assert type(study) == Study
+        assert isinstance(study, Study)
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_create_study_already_exists(
@@ -320,7 +320,7 @@ class TestStudy:
         lookup_study_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME}
         )
-        assert type(study) == Study
+        assert isinstance(study, Study)
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_materialize_study_config(self, create_study_mock):
@@ -347,7 +347,7 @@ class TestStudy:
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY
         )
-        assert type(study_config) == pyvizier.StudyConfig
+        assert isinstance(study_config, pyvizier.StudyConfig)
 
     @pytest.mark.usefixtures("get_study_mock", "get_trial_mock")
     def test_suggest(self, create_study_mock, suggest_trials_mock):
@@ -378,7 +378,7 @@ class TestStudy:
                 "client_id": "test_worker",
             }
         )
-        assert type(trials[0]) == Trial
+        assert isinstance(trials[0], Trial)
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_from_uid(self):
@@ -386,7 +386,7 @@ class TestStudy:
 
         study = Study.from_uid(uid=_TEST_STUDY_ID)
 
-        assert type(study) == Study
+        assert isinstance(study, Study)
         assert study.name == _TEST_STUDY_ID
 
     @pytest.mark.usefixtures("get_study_mock")
@@ -438,7 +438,7 @@ class TestStudy:
         list_optimal_trials_mock.assert_called_once_with(
             request={"parent": _TEST_STUDY_NAME}
         )
-        assert type(trials[0]) == Trial
+        assert isinstance(trials[0], Trial)
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock", "get_trial_mock")
     def test_list_trials(self, list_trials_mock):
@@ -463,7 +463,7 @@ class TestStudy:
         trials = study.trials()
 
         list_trials_mock.assert_called_once_with(request={"parent": _TEST_STUDY_NAME})
-        assert type(trials[0]) == Trial
+        assert isinstance(trials[0], Trial)
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
     def test_get_trial(self, get_trial_mock):
@@ -488,7 +488,7 @@ class TestStudy:
         trial = study.get_trial(1)
 
         get_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME, retry=ANY)
-        assert type(trial) == Trial
+        assert isinstance(trial, Trial)
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -508,7 +508,7 @@ class TestTrial:
         trial.delete()
 
         delete_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME)
-        assert type(trial) == Trial
+        assert isinstance(trial, Trial)
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete(self, complete_trial_mock):
@@ -532,7 +532,7 @@ class TestTrial:
                 ),
             }
         )
-        assert type(measurement) == pyvizier.Measurement
+        assert isinstance(measurement, pyvizier.Measurement)
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete_empty_measurement(self, complete_trial_empty_measurement_mock):
@@ -987,11 +987,15 @@ class TestTrialConverterToProto:
 class TestParameterConfigConverterToProto:
     def test_discrete_config_to_proto(self):
         feasible_values = (-1, 3, 2)
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
         parameter_config = pyvizier.ParameterConfig.factory(
             "name",
             feasible_values=feasible_values,
             scale_type=pyvizier.ScaleType.LOG,
             default_value=2,
+            children=[([-1], child_parameter_config)],
         )
 
         proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
@@ -1002,10 +1006,50 @@ class TestParameterConfigConverterToProto:
             proto.scale_type
             == study_pb2.StudySpec.ParameterSpec.ScaleType.UNIT_LOG_SCALE
         )
+        assert len(proto.conditional_parameter_specs) == 1
+
+        spec = proto.conditional_parameter_specs[0]
+        assert spec.parameter_spec.parameter_id == "child"
+        assert spec.parameter_spec.double_value_spec.min_value == -1.0
+        assert spec.parameter_spec.double_value_spec.max_value == 1.0
+        assert len(spec.parent_discrete_values.values) == 1
+        assert spec.parent_discrete_values.values[0] == -1
+
+    def test_categorical_config_to_proto_with_children(self):
+        feasible_values = ("option_a", "option_b")
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
+        parameter_config = pyvizier.ParameterConfig.factory(
+            "name",
+            feasible_values=feasible_values,
+            children=[(["option_a"], child_parameter_config)],
+        )
+        proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
+        assert len(proto.conditional_parameter_specs) == 1
+        spec = proto.conditional_parameter_specs[0]
+        assert len(spec.parent_categorical_values.values) == 1
+        assert spec.parent_categorical_values.values[0] == "option_a"
+
+    def test_integer_config_to_proto_with_children(self):
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
+        parameter_config = pyvizier.ParameterConfig.factory(
+            "name", bounds=(1, 10), children=[([6], child_parameter_config)]
+        )
+        proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
+        assert len(proto.conditional_parameter_specs) == 1
+        spec = proto.conditional_parameter_specs[0]
+        assert len(spec.parent_int_values.values) == 1
+        assert spec.parent_int_values.values[0] == 6
 
 
 class TestParameterConfigConverterFromProto:
-    def test_creates_from_good_proto(self):
+    """Test ParameterConfigConverter.from_proto."""
+
+    def test_from_proto_discrete(self):
+        """Test from_proto."""
         proto = study_pb2.StudySpec.ParameterSpec(
             parameter_id="name",
             discrete_value_spec=study_pb2.StudySpec.ParameterSpec.DiscreteValueSpec(
@@ -1020,3 +1064,38 @@ class TestParameterConfigConverterFromProto:
         assert parameter_config.bounds == (1.0, 3.0)
         assert parameter_config.feasible_values == [1.0, 2.0, 3.0]
         assert parameter_config.default_value == 2.0
+        assert parameter_config.external_type == pyvizier.ExternalType.INTERNAL
+
+    def test_from_proto_integer(self):
+        """Test from_proto."""
+        proto = study_pb2.StudySpec.ParameterSpec(
+            parameter_id="name",
+            integer_value_spec=study_pb2.StudySpec.ParameterSpec.IntegerValueSpec(
+                default_value=2, min_value=1, max_value=3
+            ),
+        )
+
+        parameter_config = proto_converters.ParameterConfigConverter.from_proto(proto)
+
+        assert parameter_config.name == proto.parameter_id
+        assert parameter_config.type == pyvizier.ParameterType.INTEGER
+        assert parameter_config.bounds == (1, 3)
+        assert parameter_config.default_value == 2
+        assert parameter_config.external_type == pyvizier.ExternalType.INTEGER
+
+    def test_from_proto_bool(self):
+        """Test from_proto."""
+        proto = study_pb2.StudySpec.ParameterSpec(
+            parameter_id="name",
+            categorical_value_spec=study_pb2.StudySpec.ParameterSpec.CategoricalValueSpec(
+                default_value="True", values=["True", "False"]
+            ),
+        )
+
+        parameter_config = proto_converters.ParameterConfigConverter.from_proto(proto)
+
+        assert parameter_config.name == proto.parameter_id
+        assert parameter_config.type == pyvizier.ParameterType.CATEGORICAL
+        assert parameter_config.feasible_values == ["False", "True"]
+        assert parameter_config.default_value == "True"
+        assert parameter_config.external_type == pyvizier.ExternalType.BOOLEAN

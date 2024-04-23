@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ from typing import Dict, Type
 from .base import TensorboardServiceTransport
 from .grpc import TensorboardServiceGrpcTransport
 from .grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
+from .rest import TensorboardServiceRestTransport
+from .rest import TensorboardServiceRestInterceptor
 
 
 # Compile a registry of transports.
@@ -27,9 +29,12 @@ _transport_registry = (
 )  # type: Dict[str, Type[TensorboardServiceTransport]]
 _transport_registry["grpc"] = TensorboardServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = TensorboardServiceRestTransport
 
 __all__ = (
     "TensorboardServiceTransport",
     "TensorboardServiceGrpcTransport",
     "TensorboardServiceGrpcAsyncIOTransport",
+    "TensorboardServiceRestTransport",
+    "TensorboardServiceRestInterceptor",
 )

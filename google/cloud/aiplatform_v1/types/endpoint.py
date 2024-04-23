@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ class Endpoint(proto.Message):
             A map from a DeployedModel's ID to the
             percentage of this Endpoint's traffic that
             should be forwarded to that DeployedModel.
+
             If a DeployedModel's ID is not listed in this
             map, then it receives no traffic.
 
@@ -80,6 +81,7 @@ class Endpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -221,12 +223,18 @@ class DeployedModel(proto.Message):
             only a modest additional configuration.
 
             This field is a member of `oneof`_ ``prediction_resources``.
+        shared_resources (str):
+            The resource name of the shared DeploymentResourcePool to
+            deploy on. Format:
+            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+
+            This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Immutable. The ID of the DeployedModel. If not provided upon
             deployment, Vertex AI will generate a value for this ID.
 
             This value should be 1-10 characters, and valid characters
-            are /[0-9]/.
+            are ``/[0-9]/``.
         model (str):
             Required. The resource name of the Model that this is the
             deployment of. Note that the Model may be in a different
@@ -266,6 +274,12 @@ class DeployedModel(proto.Message):
             is not populated, all fields of the
             [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
+        disable_explanations (bool):
+            If true, deploy the model without explainable feature,
+            regardless the existence of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec].
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -292,6 +306,7 @@ class DeployedModel(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
+
             Note that logs may incur a cost, especially if
             your project receives prediction requests at a
             high queries per second rate (QPS). Estimate
@@ -316,6 +331,11 @@ class DeployedModel(proto.Message):
         number=8,
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
+    )
+    shared_resources: str = proto.Field(
+        proto.STRING,
+        number=17,
+        oneof="prediction_resources",
     )
     id: str = proto.Field(
         proto.STRING,
@@ -342,6 +362,10 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=9,
         message=explanation.ExplanationSpec,
+    )
+    disable_explanations: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
     service_account: str = proto.Field(
         proto.STRING,

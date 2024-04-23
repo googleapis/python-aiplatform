@@ -21,19 +21,19 @@ import os
 import re
 from typing import Tuple
 
-from tensorboard.uploader import upload_tracker
-from tensorboard.uploader import util
 from tensorboard.uploader.proto import server_info_pb2
+from google.api_core import exceptions
+from google.cloud import storage
+from google.cloud import aiplatform
+from google.cloud.aiplatform import training_utils
+from google.cloud.aiplatform.compat.types import tensorboard_experiment
+from google.cloud.aiplatform.tensorboard import upload_tracker
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
+from google.cloud.aiplatform.utils import TensorboardClientWithOverride
+
 from tensorboard.util import tb_logging
 
-from google.api_core import exceptions
-from google.cloud import aiplatform
-from google.cloud import storage
-from google.cloud.aiplatform.utils import TensorboardClientWithOverride
-from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.compat.types import tensorboard_experiment
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.cloud.aiplatform import training_utils
 
 logger = tb_logging.get_logger()
 
@@ -167,7 +167,7 @@ def create_profile_request_sender() -> profile_uploader.ProfileRequestSender:
 
     upload_limits = _make_upload_limits()
 
-    blob_rpc_rate_limiter = util.RateLimiter(
+    blob_rpc_rate_limiter = uploader_utils.RateLimiter(
         upload_limits.min_blob_request_interval / 100
     )
 

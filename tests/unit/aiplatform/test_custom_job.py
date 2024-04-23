@@ -29,8 +29,10 @@ from google.rpc import status_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job_compat,
+    io,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -64,7 +66,7 @@ _TEST_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/container:image"
 _TEST_RUN_ARGS = test_constants.TrainingJobConstants._TEST_RUN_ARGS
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_EXPERIMENT_RUN = "test-experiment-run"
-
+_TEST_TIMEOUT_SECONDS = test_constants.TrainingJobConstants._TEST_TIMEOUT_SECONDS
 
 _TEST_WORKER_POOL_SPEC = test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC
 
@@ -88,6 +90,13 @@ _TEST_WORKER_POOL_SPEC_WITH_EXPERIMENTS = [
         },
     }
 ]
+
+_TEST_WORKER_POOL_SPEC_WITH_TPU_V5E = (
+    test_constants.TrainingJobConstants._TEST_TPU_V5E_WORKER_POOL_SPEC
+)
+_TEST_WORKER_POOL_SPEC_WITH_TPU_V3 = (
+    test_constants.TrainingJobConstants._TEST_TPU_V3_WORKER_POOL_SPEC
+)
 
 _TEST_PYTHON_PACKAGE_SPEC = gca_custom_job_compat.PythonPackageSpec(
     executor_image_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
@@ -126,11 +135,20 @@ _TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
 _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
+_TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
 
 _TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
 _TEST_BASE_CUSTOM_JOB_PROTO = (
     test_constants.TrainingJobConstants._TEST_BASE_CUSTOM_JOB_PROTO
+)
+
+_TEST_TPU_V5E_CUSTOM_JOB_PROTO = (
+    test_constants.TrainingJobConstants.create_tpu_job_proto(tpu_version="v5e")
+)
+
+_TEST_TPU_V3_CUSTOM_JOB_PROTO = (
+    test_constants.TrainingJobConstants.create_tpu_job_proto(tpu_version="v3")
 )
 
 # Experiment args
@@ -196,6 +214,19 @@ def _get_custom_job_proto_with_enable_web_access(state=None, name=None, error=No
     return custom_job_proto
 
 
+def _get_custom_tpu_job_proto(state=None, name=None, error=None, tpu_version=None):
+    custom_job_proto = (
+        copy.deepcopy(_TEST_TPU_V5E_CUSTOM_JOB_PROTO)
+        if tpu_version == "v5e"
+        else copy.deepcopy(_TEST_TPU_V3_CUSTOM_JOB_PROTO)
+    )
+
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+    custom_job_proto.error = error
+    return custom_job_proto
+
+
 @pytest.fixture
 def mock_builtin_open():
     with patch("builtins.open", mock_open(read_data="data")) as mock_file:
@@ -219,6 +250,56 @@ def get_custom_job_mock():
             _get_custom_job_proto(
                 name=_TEST_CUSTOM_JOB_NAME,
                 state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def get_custom_tpu_v5e_job_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+                tpu_version="v5e",
+            ),
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+                tpu_version="v5e",
+            ),
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+                tpu_version="v5e",
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def get_custom_tpu_v3_job_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+                tpu_version="v3",
+            ),
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+                tpu_version="v3",
+            ),
+            _get_custom_tpu_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+                tpu_version="v3",
             ),
         ]
         yield get_custom_job_mock
@@ -405,6 +486,8 @@ class TestCustomJob:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_STAGING_BUCKET,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+            network=_TEST_NETWORK,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         job = aiplatform.CustomJob(
@@ -415,12 +498,11 @@ class TestCustomJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -465,6 +547,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -516,6 +599,7 @@ class TestCustomJob:
             create_request_timeout=None,
             experiment=_TEST_EXPERIMENT,
             experiment_run=_TEST_EXPERIMENT_RUN,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -544,6 +628,8 @@ class TestCustomJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_custom_job_with_timeout(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
@@ -569,6 +655,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=180.0,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -610,6 +697,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -656,6 +744,7 @@ class TestCustomJob:
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 sync=sync,
                 create_request_timeout=None,
+                disable_retries=_TEST_DISABLE_RETRIES,
             )
 
             job.wait()
@@ -696,6 +785,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=False,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -844,6 +934,8 @@ class TestCustomJob:
         "update_context_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_from_local_script_prebuilt_container_with_all_args(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
@@ -906,6 +998,8 @@ class TestCustomJob:
         "update_context_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_from_local_script_custom_container_with_all_args(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
@@ -981,6 +1075,8 @@ class TestCustomJob:
             job.run()
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_custom_job_with_enable_web_access(
         self,
         create_custom_job_mock_with_enable_web_access,
@@ -1012,6 +1108,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -1043,6 +1140,8 @@ class TestCustomJob:
                 assert job.web_access_uris == _TEST_WEB_ACCESS_URIS
                 break
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_log_access_web_uris_after_get(
         self, get_custom_job_mock_with_enable_web_access
     ):
@@ -1083,6 +1182,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -1149,6 +1249,7 @@ class TestCustomJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait_for_resource_creation()
@@ -1157,3 +1258,117 @@ class TestCustomJob:
         assert "resource name" in job.__repr__()
 
         job.wait()
+
+    def test_create_custom_job_tpu_v5e(
+        self, create_custom_job_mock, get_custom_tpu_v5e_job_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            network=_TEST_NETWORK,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC_WITH_TPU_V5E,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+        )
+
+        job.run(
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = gca_custom_job_compat.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            job_spec=gca_custom_job_compat.CustomJobSpec(
+                worker_pool_specs=_TEST_WORKER_POOL_SPEC_WITH_TPU_V5E,
+                base_output_directory=io.GcsDestination(
+                    output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+                ),
+                scheduling=gca_custom_job_compat.Scheduling(
+                    timeout=_TEST_TIMEOUT_SECONDS,
+                    restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                ),
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+            ),
+        )
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    def test_create_custom_job_tpu_v3(
+        self, create_custom_job_mock, get_custom_tpu_v3_job_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            network=_TEST_NETWORK,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC_WITH_TPU_V3,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+        )
+
+        job.run(
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = gca_custom_job_compat.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            job_spec=gca_custom_job_compat.CustomJobSpec(
+                worker_pool_specs=_TEST_WORKER_POOL_SPEC_WITH_TPU_V3,
+                base_output_directory=io.GcsDestination(
+                    output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+                ),
+                scheduling=gca_custom_job_compat.Scheduling(
+                    timeout=_TEST_TIMEOUT_SECONDS,
+                    restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                ),
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+            ),
+        )
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )

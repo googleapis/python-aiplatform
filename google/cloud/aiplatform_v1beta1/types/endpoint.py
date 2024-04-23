@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ class Endpoint(proto.Message):
             A map from a DeployedModel's ID to the
             percentage of this Endpoint's traffic that
             should be forwarded to that DeployedModel.
+
             If a DeployedModel's ID is not listed in this
             map, then it receives no traffic.
 
@@ -80,6 +81,7 @@ class Endpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -234,7 +236,7 @@ class DeployedModel(proto.Message):
             deployment, Vertex AI will generate a value for this ID.
 
             This value should be 1-10 characters, and valid characters
-            are /[0-9]/.
+            are ``/[0-9]/``.
         model (str):
             Required. The resource name of the Model that this is the
             deployment of. Note that the Model may be in a different
@@ -302,6 +304,7 @@ class DeployedModel(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
+
             Note that logs may incur a cost, especially if
             your project receives prediction requests at a
             high queries per second rate (QPS). Estimate

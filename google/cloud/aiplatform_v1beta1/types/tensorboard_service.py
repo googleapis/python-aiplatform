@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,12 +37,14 @@ __protobuf__ = proto.module(
     manifest={
         "CreateTensorboardRequest",
         "GetTensorboardRequest",
-        "ReadTensorboardUsageRequest",
-        "ReadTensorboardUsageResponse",
         "ListTensorboardsRequest",
         "ListTensorboardsResponse",
         "UpdateTensorboardRequest",
         "DeleteTensorboardRequest",
+        "ReadTensorboardUsageRequest",
+        "ReadTensorboardUsageResponse",
+        "ReadTensorboardSizeRequest",
+        "ReadTensorboardSizeResponse",
         "CreateTensorboardExperimentRequest",
         "GetTensorboardExperimentRequest",
         "ListTensorboardExperimentsRequest",
@@ -120,75 +122,6 @@ class GetTensorboardRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
-    )
-
-
-class ReadTensorboardUsageRequest(proto.Message):
-    r"""Request message for [TensorboardService.GetTensorboardUsage][].
-
-    Attributes:
-        tensorboard (str):
-            Required. The name of the Tensorboard resource. Format:
-            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
-    """
-
-    tensorboard: str = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-
-
-class ReadTensorboardUsageResponse(proto.Message):
-    r"""Response message for
-    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
-
-    Attributes:
-        monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):
-            Maps year-month (YYYYMM) string to per month
-            usage data.
-    """
-
-    class PerUserUsageData(proto.Message):
-        r"""Per user usage data.
-
-        Attributes:
-            username (str):
-                User's username
-            view_count (int):
-                Number of times the user has read data within
-                the Tensorboard.
-        """
-
-        username: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        view_count: int = proto.Field(
-            proto.INT64,
-            number=2,
-        )
-
-    class PerMonthUsageData(proto.Message):
-        r"""Per month usage data
-
-        Attributes:
-            user_usage_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerUserUsageData]):
-                Usage data for each user in the given month.
-        """
-
-        user_usage_data: MutableSequence[
-            "ReadTensorboardUsageResponse.PerUserUsageData"
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="ReadTensorboardUsageResponse.PerUserUsageData",
-        )
-
-    monthly_usage_data: MutableMapping[str, PerMonthUsageData] = proto.MapField(
-        proto.STRING,
-        proto.MESSAGE,
-        number=1,
-        message=PerMonthUsageData,
     )
 
 
@@ -326,6 +259,107 @@ class DeleteTensorboardRequest(proto.Message):
     )
 
 
+class ReadTensorboardUsageRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
+
+    Attributes:
+        tensorboard (str):
+            Required. The name of the Tensorboard resource. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+    """
+
+    tensorboard: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ReadTensorboardUsageResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
+
+    Attributes:
+        monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):
+            Maps year-month (YYYYMM) string to per month
+            usage data.
+    """
+
+    class PerUserUsageData(proto.Message):
+        r"""Per user usage data.
+
+        Attributes:
+            username (str):
+                User's username
+            view_count (int):
+                Number of times the user has read data within
+                the Tensorboard.
+        """
+
+        username: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        view_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class PerMonthUsageData(proto.Message):
+        r"""Per month usage data
+
+        Attributes:
+            user_usage_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerUserUsageData]):
+                Usage data for each user in the given month.
+        """
+
+        user_usage_data: MutableSequence[
+            "ReadTensorboardUsageResponse.PerUserUsageData"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="ReadTensorboardUsageResponse.PerUserUsageData",
+        )
+
+    monthly_usage_data: MutableMapping[str, PerMonthUsageData] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=1,
+        message=PerMonthUsageData,
+    )
+
+
+class ReadTensorboardSizeRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize].
+
+    Attributes:
+        tensorboard (str):
+            Required. The name of the Tensorboard resource. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+    """
+
+    tensorboard: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ReadTensorboardSizeResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize].
+
+    Attributes:
+        storage_size_byte (int):
+            Payload storage size for the TensorBoard
+    """
+
+    storage_size_byte: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+
+
 class CreateTensorboardExperimentRequest(proto.Message):
     r"""Request message for
     [TensorboardService.CreateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardExperiment].
@@ -343,7 +377,7 @@ class CreateTensorboardExperimentRequest(proto.Message):
             experiment's resource name.
 
             This value should be 1-128 characters, and valid characters
-            are /[a-z][0-9]-/.
+            are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(
@@ -585,7 +619,7 @@ class CreateTensorboardRunRequest(proto.Message):
             resource name.
 
             This value should be 1-128 characters, and valid characters
-            are /[a-z][0-9]-/.
+            are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(

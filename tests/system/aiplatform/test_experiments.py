@@ -16,6 +16,7 @@
 #
 import tempfile
 
+import uuid
 import pytest
 
 from google.api_core import exceptions
@@ -42,6 +43,8 @@ _RUN_2 = "run-2"
 _PARAMS_2 = {"sdk-param-test-1": 0.2, "sdk-param-test-2": 0.4}
 _METRICS_2 = {"sdk-metric-test-1": 1.6, "sdk-metric-test-2": 200.0}
 
+_READ_TIME_SERIES_BATCH_SIZE = 20
+
 _TIME_SERIES_METRIC_KEY = "accuracy"
 
 _CLASSIFICATION_METRICS = {
@@ -63,6 +66,8 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
     def setup_class(cls):
         cls._experiment_name = cls._make_display_name("")[:64]
+        cls._experiment_name_2 = cls._make_display_name("")[:64]
+        cls._experiment_model_name = cls._make_display_name("sklearn-model")[:64]
         cls._dataset_artifact_name = cls._make_display_name("")[:64]
         cls._dataset_artifact_uri = cls._make_display_name("ds-uri")
         cls._pipeline_job_id = cls._make_display_name("job-id")
@@ -161,6 +166,33 @@ class TestExperiments(e2e_base.TestEndToEnd):
             _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)],
         }
 
+    def test_get_time_series_data_frame_batch_read_success(self, shared_state):
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._experiment_name_2,
+        )
+        shared_state["resources"] = [tensorboard]
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name_2,
+            experiment_tensorboard=tensorboard,
+        )
+        shared_state["resources"].append(
+            aiplatform.metadata.metadata._experiment_tracker.experiment
+        )
+        aiplatform.start_run(_RUN)
+        for i in range(_READ_TIME_SERIES_BATCH_SIZE + 1):
+            aiplatform.log_time_series_metrics({f"{_TIME_SERIES_METRIC_KEY}-{i}": 1})
+
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN, experiment=self._experiment_name_2
+        )
+        time_series_result = run.get_time_series_data_frame()
+
+        assert len(time_series_result) > _READ_TIME_SERIES_BATCH_SIZE
+
     def test_log_classification_metrics(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -201,7 +233,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         model_artifact = aiplatform.log_model(
             model=model,
-            artifact_id="sklearn-model",
+            artifact_id=self._experiment_model_name,
             uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
             input_example=train_x,
         )
@@ -209,7 +241,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         experiment_model = run.get_experiment_models()[0]
-        assert experiment_model.name == "sklearn-model"
+        assert "sklearn-model" in experiment_model.name
         assert (
             experiment_model.uri
             == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
@@ -417,6 +449,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_2["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
         true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 0.0
+        true_df_dict_2.update(pipelines_param_and_metrics)
 
         true_df_dict_3 = {
             "experiment_name": self._experiment_name,
@@ -443,7 +476,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             key=lambda d: d["run_name"],
         ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
-    def test_delete_run(self):
+    def test_delete_run_does_not_exist_raises_exception(self):
         run = aiplatform.ExperimentRun(
             run_name=_RUN,
             experiment=self._experiment_name,
@@ -455,7 +488,113 @@ class TestExperiments(e2e_base.TestEndToEnd):
         with pytest.raises(exceptions.NotFound):
             aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
 
-    def test_delete_experiment(self):
+    def test_delete_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+
+        run.delete(delete_backing_tensorboard_run=True)
+
+        with pytest.raises(exceptions.NotFound):
+            aiplatform.ExperimentRun(
+                run_name=_RUN,
+                experiment=self._experiment_name,
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+            )
+
+    def test_reuse_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete(delete_backing_tensorboard_run=True)
+
+        aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert run.name == _RUN
+
+    def test_delete_run_then_tensorboard_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete()
+        tensorboard_run_artifact = aiplatform.metadata.artifact.Artifact(
+            artifact_name=f"{self._experiment_name}-{_RUN}-tb-run"
+        )
+        tensorboard_run_resource = aiplatform.TensorboardRun(
+            tensorboard_run_artifact.metadata["resourceName"]
+        )
+        tensorboard_run_resource.delete()
+        tensorboard_run_artifact.delete()
+
+        aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert run.name == _RUN
+
+    def test_delete_wout_backing_tensorboard_reuse_run_raises_exception(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete()
+
+        with pytest.raises(ValueError):
+            aiplatform.start_run(_RUN)
+
+    def test_delete_experiment_does_not_exist_raises_exception(self):
         experiment = aiplatform.Experiment(
             experiment_name=self._experiment_name,
             project=e2e_base._PROJECT,
@@ -511,3 +650,61 @@ class TestExperiments(e2e_base.TestEndToEnd):
             )
             == tensorboard.resource_name
         )
+
+    def test_get_backing_tensorboard_resource_returns_tensorboard(self, shared_state):
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("")[:64],
+        )
+        shared_state["resources"] = [tensorboard]
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        assert (
+            experiment.get_backing_tensorboard_resource().resource_name
+            == tensorboard.resource_name
+        )
+
+    def test_get_backing_tensorboard_resource_returns_none(self):
+        new_experiment_name = f"example-{uuid.uuid1()}"
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=new_experiment_name,
+            experiment_tensorboard=False,
+        )
+        new_experiment = aiplatform.Experiment(
+            new_experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        assert new_experiment.get_backing_tensorboard_resource() is None
+
+    def test_delete_backing_tensorboard_experiment_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        experiment.get_backing_tensorboard_resource().delete()
+        run = aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        assert experiment.get_backing_tensorboard_resource() is None
+        assert run.name == _RUN

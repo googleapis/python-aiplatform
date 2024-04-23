@@ -36,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+from google.protobuf import duration_pb2
 import proto
 
 from google.cloud import aiplatform
@@ -48,6 +49,7 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import _explanation_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform import model_evaluation
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -91,6 +93,11 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "model.mar",
     "saved_model.pb",
     "saved_model.pbtxt",
+]
+
+_SUPPORTED_EVAL_PREDICTION_TYPES = [
+    "classification",
+    "regression",
 ]
 
 
@@ -138,6 +145,8 @@ class Prediction(NamedTuple):
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
+        metadata:
+            The metadata that is the output of the predictions call.
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
@@ -149,13 +158,13 @@ class Prediction(NamedTuple):
 
     predictions: List[Any]
     deployed_model_id: str
+    metadata: Optional[Any] = None
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
 class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
-
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
@@ -221,12 +230,38 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
-        self._prediction_client = self._instantiate_prediction_client(
-            location=self.location,
-            credentials=credentials,
-        )
         self.authorized_session = None
         self.raw_predict_request_url = None
+
+    @property
+    def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_client_value", None):
+            self._prediction_client_value = initializer.global_config.create_client(
+                client_class=utils.PredictionClientWithOverride,
+                credentials=self.credentials,
+                location_override=self.location,
+                prediction_client=True,
+            )
+        return self._prediction_client_value
+
+    @property
+    def _prediction_async_client(self) -> utils.PredictionAsyncClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_async_client_value", None):
+            self._prediction_async_client_value = (
+                initializer.global_config.create_client(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=self.credentials,
+                    location_override=self.location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_async_client_value
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -319,10 +354,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
+                Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
@@ -440,11 +475,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
+                Required. Project to retrieve endpoint from.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
+                Required. Location to retrieve endpoint from.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -564,11 +597,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             gapic_resource=gapic_resource,
             project=project,
             location=location,
-            credentials=credentials,
-        )
-
-        endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location,
             credentials=credentials,
         )
         endpoint.authorized_session = None
@@ -744,6 +772,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -755,6 +784,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -804,6 +834,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -837,6 +870,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -864,6 +900,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -872,6 +909,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync()
@@ -886,6 +924,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -894,6 +933,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -943,6 +983,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -970,6 +1013,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -989,6 +1035,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -996,6 +1043,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1018,6 +1066,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1025,6 +1074,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1084,6 +1134,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1091,6 +1144,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
+                If not specified, uses the service account set in aiplatform.init.
             explanation_spec (aiplatform.explain.ExplanationSpec):
                 Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
@@ -1107,6 +1161,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1114,6 +1171,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
         """
+
+        service_account = service_account or initializer.global_config.service_account
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
@@ -1135,6 +1194,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             display_name=deployed_model_display_name,
             service_account=service_account,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         supports_automatic_resources = (
@@ -1172,7 +1232,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             _LOGGER.info(f"Using default machine_type: {machine_type}")
 
         if use_dedicated_resources:
-
             dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
@@ -1204,6 +1263,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     dedicated_resources.autoscaling_metric_specs.extend(
                         [autoscaling_metric_spec]
                     )
+
+            if tpu_topology is not None:
+                machine_spec.tpu_topology = tpu_topology
 
             dedicated_resources.machine_spec = machine_spec
             deployed_model.dedicated_resources = dedicated_resources
@@ -1375,31 +1437,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # update local resource
         self._sync_gca_resource()
 
-    @staticmethod
-    def _instantiate_prediction_client(
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.PredictionClientWithOverride:
-        """Helper method to instantiates prediction client with optional
-        overrides for this endpoint.
-
-        Args:
-            location (str): The location of this endpoint.
-            credentials (google.auth.credentials.Credentials):
-                Optional custom credentials to use when accessing interacting with
-                the prediction client.
-
-        Returns:
-            prediction_client (prediction_service_client.PredictionServiceClient):
-                Initialized prediction client with optional overrides.
-        """
-        return initializer.global_config.create_client(
-            client_class=utils.PredictionClientWithOverride,
-            credentials=credentials,
-            location_override=location,
-            prediction_client=True,
-        )
-
     def update(
         self,
         display_name: Optional[str] = None,
@@ -1545,6 +1582,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
+                metadata=json_response.get("metadata"),
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
@@ -1562,16 +1600,85 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
+            if prediction_response._pb.metadata:
+                metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            else:
+                metadata = None
 
             return Prediction(
                 predictions=[
                     json_format.MessageToDict(item)
                     for item in prediction_response.predictions.pb
                 ],
+                metadata=metadata,
                 deployed_model_id=prediction_response.deployed_model_id,
                 model_version_id=prediction_response.model_version_id,
                 model_resource_name=prediction_response.model,
             )
+
+    async def predict_async(
+        self,
+        instances: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make an asynchronous prediction against this Endpoint.
+        Example usage:
+            ```
+            response = await my_endpoint.predict_async(instances=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.predict(
+            endpoint=self._gca_resource.name,
+            instances=instances,
+            parameters=parameters,
+            timeout=timeout,
+        )
+        if prediction_response._pb.metadata:
+            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+        else:
+            metadata = None
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.predictions.pb
+            ],
+            metadata=metadata,
+            deployed_model_id=prediction_response.deployed_model_id,
+            model_version_id=prediction_response.model_version_id,
+            model_resource_name=prediction_response.model,
+        )
 
     def raw_predict(
         self, body: bytes, headers: Dict[str, str]
@@ -1598,10 +1705,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
             self.authorized_session = google_auth_requests.AuthorizedSession(
                 self.credentials
             )
-            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
         return self.authorized_session.post(
             url=self.raw_predict_request_url, data=body, headers=headers
@@ -1652,6 +1759,70 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self.wait()
 
         explain_response = self._prediction_client.explain(
+            endpoint=self.resource_name,
+            instances=instances,
+            parameters=parameters,
+            deployed_model_id=deployed_model_id,
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=explain_response.explanations,
+        )
+
+    async def explain_async(
+        self,
+        instances: List[Dict],
+        *,
+        parameters: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make a prediction with explanations against this Endpoint.
+
+        Example usage:
+            ```
+            response = await my_endpoint.explain_async(instances=[...])
+            my_explanations = response.explanations
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            deployed_model_id (str):
+                Optional. If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions, explanations, and Model ID.
+        """
+        self.wait()
+
+        explain_response = await self._prediction_async_client.explain(
             endpoint=self.resource_name,
             instances=instances,
             parameters=parameters,
@@ -2149,6 +2320,7 @@ class PrivateEndpoint(Endpoint):
 
         return Prediction(
             predictions=prediction_response.get("predictions"),
+            metadata=prediction_response.get("metadata"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 
@@ -2285,6 +2457,7 @@ class PrivateEndpoint(Endpoint):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -2292,6 +2465,7 @@ class PrivateEndpoint(Endpoint):
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -2331,6 +2505,9 @@ class PrivateEndpoint(Endpoint):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -2378,10 +2555,12 @@ class PrivateEndpoint(Endpoint):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
+            disable_container_logging=disable_container_logging,
         )
 
     def undeploy(
@@ -2448,7 +2627,6 @@ class PrivateEndpoint(Endpoint):
 
 
 class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
-
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
     _getter_method = "get_model"
@@ -2619,7 +2797,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         projects/{project}/locations/{location}/models/{model_id}@{version_id}).
         The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to distinguish from
         version_id. A default version alias will be created for the first version
-        of the model, and there must be exactly one default version alias for a model."""
+        of the model, and there must be exactly one default version alias for a model.
+        """
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_aliases")
 
@@ -2832,6 +3011,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        serving_container_grpc_ports: Optional[Sequence[int]] = None,
         local_model: Optional["LocalModel"] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2847,6 +3027,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         staging_bucket: Optional[str] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
+        serving_container_deployment_timeout: Optional[int] = None,
+        serving_container_shared_memory_size_mb: Optional[int] = None,
+        serving_container_startup_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_startup_probe_period_seconds: Optional[int] = None,
+        serving_container_startup_probe_timeout_seconds: Optional[int] = None,
+        serving_container_health_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_health_probe_period_seconds: Optional[int] = None,
+        serving_container_health_probe_timeout_seconds: Optional[int] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -2930,6 +3118,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            serving_container_grpc_ports: Optional[Sequence[int]]=None,
+                Declaration of ports that are exposed by the container. Vertex AI sends gRPC
+                prediction requests that it receives to the first port on this list. Vertex
+                AI also sends liveness and health checks to this port.
+                If you do not specify this field, gRPC requests to the container will be
+                disabled.
+                Vertex AI does not use ports other than the first one listed. This field
+                corresponds to the `ports` field of the Kubernetes Containers v1 core API.
             local_model (Optional[LocalModel]):
                 Optional. A LocalModel instance that includes a `serving_container_spec`.
                 If provided, the `serving_container_spec` of the LocalModel instance
@@ -3026,6 +3222,31 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
+            serving_container_deployment_timeout (int):
+                Optional. Deployment timeout in seconds.
+            serving_container_shared_memory_size_mb (int):
+                Optional. The amount of the VM memory to reserve as the shared
+                memory for the model in megabytes.
+            serving_container_startup_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by startup
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the startup probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the startup probe times
+                out. Defaults to 1 second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by health
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the health probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the health probe times
+                out. Defaults to 1 second. Minimum value is 1.
 
         Returns:
             model (aiplatform.Model):
@@ -3052,7 +3273,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             container_spec = local_model.get_serving_container_spec()
             appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
         else:
-            if not serving_container_image_uri:
+            # Referenced models do not have container_image and artifact_uri
+            # Skip the container_image if this is a referenced model
+            if not serving_container_image_uri and artifact_uri:
                 raise ValueError(
                     "The parameter `serving_container_image_uri` is required "
                     "if no `local_model` is provided."
@@ -3060,6 +3283,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
             env = None
             ports = None
+            grpc_ports = None
+            deployment_timeout = (
+                duration_pb2.Duration(seconds=serving_container_deployment_timeout)
+                if serving_container_deployment_timeout
+                else None
+            )
+            startup_probe = None
+            health_probe = None
 
             if serving_container_environment_variables:
                 env = [
@@ -3071,6 +3302,41 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     gca_model_compat.Port(container_port=port)
                     for port in serving_container_ports
                 ]
+            if serving_container_grpc_ports:
+                grpc_ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_grpc_ports
+                ]
+            if (
+                serving_container_startup_probe_exec
+                or serving_container_startup_probe_period_seconds
+                or serving_container_startup_probe_timeout_seconds
+            ):
+                startup_probe_exec = None
+                if serving_container_startup_probe_exec:
+                    startup_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_startup_probe_exec
+                    )
+                startup_probe = gca_model_compat.Probe(
+                    exec=startup_probe_exec,
+                    period_seconds=serving_container_startup_probe_period_seconds,
+                    timeout_seconds=serving_container_startup_probe_timeout_seconds,
+                )
+            if (
+                serving_container_health_probe_exec
+                or serving_container_health_probe_period_seconds
+                or serving_container_health_probe_timeout_seconds
+            ):
+                health_probe_exec = None
+                if serving_container_health_probe_exec:
+                    health_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_health_probe_exec
+                    )
+                health_probe = gca_model_compat.Probe(
+                    exec=health_probe_exec,
+                    period_seconds=serving_container_health_probe_period_seconds,
+                    timeout_seconds=serving_container_health_probe_timeout_seconds,
+                )
 
             container_spec = gca_model_compat.ModelContainerSpec(
                 image_uri=serving_container_image_uri,
@@ -3078,8 +3344,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 args=serving_container_args,
                 env=env,
                 ports=ports,
+                grpc_ports=grpc_ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                deployment_timeout=deployment_timeout,
+                shared_memory_size_mb=serving_container_shared_memory_size_mb,
+                startup_probe=startup_probe,
+                health_probe=health_probe,
             )
 
         model_predict_schemata = None
@@ -3193,6 +3464,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -3206,6 +3478,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3255,6 +3528,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3306,6 +3582,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3348,6 +3627,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -3359,6 +3639,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3373,6 +3654,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -3383,6 +3665,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3432,6 +3715,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3476,6 +3762,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3519,6 +3808,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -3526,6 +3816,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -4880,7 +5171,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 _LOGGER.warning(
                     f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
                 )
-            return evaluations[0] if evaluations else evaluations
+            _ipython_utils.display_model_evaluation_button(evaluations[0])
+            return evaluations[0]
         else:
             resource_uri_parts = self._parse_resource_name(self.resource_name)
             evaluation_resource_name = (
@@ -4890,10 +5182,237 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 )
             )
 
-            return model_evaluation.ModelEvaluation(
+            evaluation = model_evaluation.ModelEvaluation(
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+            _ipython_utils.display_model_evaluation_button(evaluation)
+            return evaluation
+
+    def evaluate(
+        self,
+        prediction_type: str,
+        target_field_name: str,
+        gcs_source_uris: Optional[List[str]] = None,
+        bigquery_source_uri: Optional[str] = None,
+        bigquery_destination_output_uri: Optional[str] = None,
+        class_labels: Optional[List[str]] = None,
+        prediction_label_column: Optional[str] = None,
+        prediction_score_column: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        service_account: Optional[str] = None,
+        generate_feature_attributions: bool = False,
+        evaluation_pipeline_display_name: Optional[str] = None,
+        evaluation_metrics_display_name: Optional[str] = None,
+        network: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+    ) -> "model_evaluation._ModelEvaluationJob":
+        """Creates a model evaluation job running on Vertex Pipelines and returns the resulting
+        ModelEvaluationJob resource.
+
+        Example usage:
+
+            ```
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+            my_evaluation_job = my_model.evaluate(
+                prediction_type="classification",
+                target_field_name="type",
+                data_source_uris=["gs://sdk-model-eval/my-prediction-data.csv"],
+                staging_bucket="gs://my-staging-bucket/eval_pipeline_root",
+            )
+            my_evaluation_job.wait()
+            my_evaluation = my_evaluation_job.get_model_evaluation()
+            my_evaluation.metrics
+            ```
+
+        Args:
+            prediction_type (str):
+                Required. The problem type being addressed by this evaluation run. 'classification' and 'regression'
+                are the currently supported problem types.
+            target_field_name (str):
+                Required. The column name of the field containing the label for this prediction task.
+            gcs_source_uris (List[str]):
+                Optional. A list of Cloud Storage data files containing the ground truth data to use for this
+                evaluation job. These files should contain your model's prediction column. Currently only Google Cloud Storage
+                urls are supported, for example: "gs://path/to/your/data.csv". The provided data files must be
+                either CSV or JSONL. One of `gcs_source_uris` or `bigquery_source_uri` is required.
+            bigquery_source_uri (str):
+                Optional. A bigquery table URI containing the ground truth data to use for this evaluation job. This uri should
+                be in the format 'bq://my-project-id.dataset.table'. One of `gcs_source_uris` or `bigquery_source_uri` is
+                required.
+            bigquery_destination_output_uri (str):
+                Optional. A bigquery table URI where the Batch Prediction job associated with your Model Evaluation will write
+                prediction output. This can be a BigQuery URI to a project ('bq://my-project'), a dataset
+                ('bq://my-project.my-dataset'), or a table ('bq://my-project.my-dataset.my-table'). Required if `bigquery_source_uri`
+                is provided.
+            class_labels (List[str]):
+                Optional. For custom (non-AutoML) classification models, a list of possible class names, in the
+                same order that predictions are generated. This argument is required when prediction_type is 'classification'.
+                For example, in a classification model with 3 possible classes that are outputted in the format: [0.97, 0.02, 0.01]
+                with the class names "cat", "dog", and "fish", the value of `class_labels` should be `["cat", "dog", "fish"]` where
+                the class "cat" corresponds with 0.97 in the example above.
+            prediction_label_column (str):
+                Optional. The column name of the field containing classes the model is scoring. Formatted to be able to find nested
+                columns, delimeted by `.`. If not set, defaulted to `prediction.classes` for classification.
+            prediction_score_column (str):
+                Optional. The column name of the field containing batch prediction scores. Formatted to be able to find nested columns,
+                delimeted by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
+                for a `regression` problem_type.
+            staging_bucket (str):
+                Optional. The GCS directory to use for staging files from this evaluation job. Defaults to the value set in
+                aiplatform.init(staging_bucket=...) if not provided. Required if staging_bucket is not set in aiplatform.init().
+            service_account (str):
+                Specifies the service account for workload run-as account for this Model Evaluation PipelineJob.
+                Users submitting jobs must have act-as permission on this run-as account. The service account running
+                this Model Evaluation job needs the following permissions: Dataflow Worker, Storage Admin,
+                Vertex AI Administrator, and Vertex AI Service Agent.
+            generate_feature_attributions (boolean):
+                Optional. Whether the model evaluation job should generate feature attributions. Defaults to False if not specified.
+            evaluation_pipeline_display_name (str):
+                Optional. The display name of your model evaluation job. This is the display name that will be applied to the
+                Vertex Pipeline run for your evaluation job. If not set, a display name will be generated automatically.
+            evaluation_metrics_display_name (str):
+                Optional. The display name of the model evaluation resource uploaded to Vertex from your Model Evaluation pipeline.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer managed encryption key used to protect the job. Has the
+                form: ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``. The key needs to be in the same
+                region as where the compute resource is created. If this is set, then all
+                resources created by the PipelineJob for this Model Evaluation will be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to the PipelineJob executing
+                this model evaluation job. Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the provided experiment, and parameters from this PipelineJob
+                will be associated as parameters to the provided experiment.
+        Returns:
+            model_evaluation.ModelEvaluationJob: Instantiated representation of the
+            _ModelEvaluationJob.
+        Raises:
+            ValueError:
+                If staging_bucket was not set in aiplatform.init() and staging_bucket was not provided.
+                If the provided `prediction_type` is not valid.
+                If the provided `data_source_uris` don't start with 'gs://'.
+        """
+
+        if (gcs_source_uris is None) == (bigquery_source_uri is None):
+            raise ValueError(
+                "Exactly one of `gcs_source_uris` or `bigquery_source_uri` must be provided."
+            )
+
+        if isinstance(gcs_source_uris, str):
+            gcs_source_uris = [gcs_source_uris]
+
+        if bigquery_source_uri and not isinstance(bigquery_source_uri, str):
+            raise ValueError("The provided `bigquery_source_uri` must be a string.")
+
+        if bigquery_source_uri and not bigquery_destination_output_uri:
+            raise ValueError(
+                "`bigquery_destination_output_uri` must be provided if `bigquery_source_uri` is used as the data source."
+            )
+
+        if gcs_source_uris is not None and not all(
+            uri.startswith("gs://") for uri in gcs_source_uris
+        ):
+            raise ValueError("`gcs_source_uris` must start with 'gs://'.")
+
+        if bigquery_source_uri is not None and not bigquery_source_uri.startswith(
+            "bq://"
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        if (
+            bigquery_destination_output_uri is not None
+            and not bigquery_destination_output_uri.startswith("bq://")
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS = [".jsonl", ".csv"]
+
+        if not staging_bucket and initializer.global_config.staging_bucket:
+            staging_bucket = initializer.global_config.staging_bucket
+        elif not staging_bucket and not initializer.global_config.staging_bucket:
+            raise ValueError(
+                "Please provide `evaluation_staging_bucket` when calling evaluate or set one using aiplatform.init(staging_bucket=...)"
+            )
+
+        if prediction_type not in _SUPPORTED_EVAL_PREDICTION_TYPES:
+            raise ValueError(
+                f"Please provide a supported model prediction type, one of: {_SUPPORTED_EVAL_PREDICTION_TYPES}."
+            )
+
+        if generate_feature_attributions:
+            if not self._gca_resource.explanation_spec:
+                raise ValueError(
+                    "To generate feature attributions with your evaluation, call evaluate on a model with an explanation spec. To run evaluation on the current model, call evaluate with `generate_feature_attributions=False`."
+                )
+
+        instances_format = None
+
+        if gcs_source_uris:
+            data_file_path_obj = pathlib.Path(gcs_source_uris[0])
+
+            data_file_extension = data_file_path_obj.suffix
+            if data_file_extension not in SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS:
+                _LOGGER.warning(
+                    f"Only the following data file extensions are currently supported: '{SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS}'"
+                )
+            else:
+                instances_format = data_file_extension[1:]
+
+        elif bigquery_source_uri:
+            instances_format = "bigquery"
+
+        if (
+            self._gca_resource.metadata_schema_uri
+            == "https://storage.googleapis.com/google-cloud-aiplatform/schema/model/metadata/automl_tabular_1.0.0.yaml"
+        ):
+            model_type = "automl_tabular"
+        else:
+            model_type = "other"
+
+        if (
+            model_type == "other"
+            and prediction_type == "classification"
+            and not class_labels
+        ):
+            raise ValueError(
+                "Please provide `class_labels` when running evaluation on a custom classification model."
+            )
+
+        return model_evaluation._ModelEvaluationJob.submit(
+            model_name=self.versioned_resource_name,
+            prediction_type=prediction_type,
+            target_field_name=target_field_name,
+            gcs_source_uris=gcs_source_uris,
+            bigquery_source_uri=bigquery_source_uri,
+            batch_predict_bigquery_destination_output_uri=bigquery_destination_output_uri,
+            class_labels=class_labels,
+            prediction_label_column=prediction_label_column,
+            prediction_score_column=prediction_score_column,
+            service_account=service_account,
+            pipeline_root=staging_bucket,
+            instances_format=instances_format,
+            model_type=model_type,
+            generate_feature_attributions=generate_feature_attributions,
+            evaluation_pipeline_display_name=evaluation_pipeline_display_name,
+            evaluation_metrics_display_name=evaluation_metrics_display_name,
+            network=network,
+            encryption_spec_key_name=encryption_spec_key_name,
+            credentials=self.credentials,
+            experiment=experiment,
+        )
 
 
 # TODO (b/232546878): Async support

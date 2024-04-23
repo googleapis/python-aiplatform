@@ -1373,6 +1373,7 @@ class _CustomTrainingJob(_TrainingJob):
         boot_disk_size_gb: int = 100,
         reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1417,6 +1418,10 @@ class _CustomTrainingJob(_TrainingJob):
                 The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
+            tpu_topology (str):
+                Optional. Only required if the machine type is a TPU
+                v5 version.
+
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1454,6 +1459,7 @@ class _CustomTrainingJob(_TrainingJob):
                 boot_disk_size_gb=boot_disk_size_gb,
                 reduction_server_replica_count=reduction_server_replica_count,
                 reduction_server_machine_type=reduction_server_machine_type,
+                tpu_topology=tpu_topology,
             ).pool_specs
         )
 
@@ -1488,6 +1494,8 @@ class _CustomTrainingJob(_TrainingJob):
         enable_web_access: bool = False,
         enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1534,6 +1542,18 @@ class _CustomTrainingJob(_TrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1560,12 +1580,15 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["enable_web_access"] = enable_web_access
         if enable_dashboard_access:
             training_task_inputs["enable_dashboard_access"] = enable_dashboard_access
+        if persistent_resource_id:
+            training_task_inputs["persistent_resource_id"] = persistent_resource_id
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             timeout = f"{timeout}s" if timeout else None
             scheduling = {
                 "timeout": timeout,
                 "restart_job_on_worker_restart": restart_job_on_worker_restart,
+                "disable_retries": disable_retries,
             }
             training_task_inputs["scheduling"] = scheduling
 
@@ -1836,6 +1859,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        enable_probabilistic_inference: bool = False,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -2074,6 +2098,15 @@ class _ForecastingTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            enable_probabilistic_inference (bool):
+                If probabilistic inference is enabled, the model will fit a
+                distribution that captures the uncertainty of a prediction. At
+                inference time, the predictive distribution is used to make a
+                point prediction that minimizes the optimization objective. For
+                example, the mean of a predictive distribution is the point
+                prediction that minimizes RMSE loss. If quantiles are specified,
+                then the quantiles of the distribution are also returned. The
+                optimization objective cannot be minimize-quantile-loss.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -2142,6 +2175,7 @@ class _ForecastingTrainingJob(_TrainingJob):
             holiday_regions=holiday_regions,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            enable_probabilistic_inference=enable_probabilistic_inference,
         )
 
     @base.optional_sync()
@@ -2187,6 +2221,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        enable_probabilistic_inference: bool = False,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -2315,11 +2350,12 @@ class _ForecastingTrainingJob(_TrainingJob):
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
                 Quantiles to use for the `minimize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
+                [AutoMLForecastingTrainingJob.optimization_objective]. This
+                argument is required in this case. Quantiles may also optionally
+                be used if probabilistic inference is enabled.
 
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
+                Accepts up to 5 quantiles in the form of a double from 0 to 1,
+                exclusive. Each quantile must be unique.
             validation_options (str):
                 Validation options for the data validation component. The available options are:
                 "fail-pipeline" - (default), will validate against the validation and fail the pipeline
@@ -2432,6 +2468,15 @@ class _ForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            enable_probabilistic_inference (bool):
+                If probabilistic inference is enabled, the model will fit a
+                distribution that captures the uncertainty of a prediction. At
+                inference time, the predictive distribution is used to make a
+                point prediction that minimizes the optimization objective. For
+                example, the mean of a predictive distribution is the point
+                prediction that minimizes RMSE loss. If quantiles are specified,
+                then the quantiles of the distribution are also returned. The
+                optimization objective cannot be minimize-quantile-loss.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -2460,8 +2505,18 @@ class _ForecastingTrainingJob(_TrainingJob):
             max_count=window_max_count,
         )
 
-        # TODO(b/244643824): Replace additional experiments with a new job arg.
-        enable_probabilistic_inference = self._convert_enable_probabilistic_inference()
+        # Probabilistic inference flag should be removed from additional
+        # experiments in all cases since it is only an additional experiment in
+        # the SDK. If both are set, always prefer job arg for setting the field.
+        # TODO(b/244643824): Deprecate probabilistic inference in additional
+        # experiment and only use job arg.
+        additional_experiment_probabilistic_inference = (
+            self._convert_enable_probabilistic_inference()
+        )
+        if not enable_probabilistic_inference:
+            enable_probabilistic_inference = (
+                additional_experiment_probabilistic_inference
+            )
 
         training_task_inputs_dict = {
             # required inputs
@@ -2923,6 +2978,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3206,12 +3264,30 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology must
+                be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -3224,6 +3300,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         # make and copy package
@@ -3266,6 +3343,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     def submit(
@@ -3316,6 +3395,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3599,6 +3681,23 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology must
+                be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3617,6 +3716,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         # make and copy package
@@ -3660,6 +3760,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             block=False,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -3705,6 +3807,8 @@ class CustomTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -3890,6 +3994,17 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Optional. The timeout for the create request in seconds
             block (bool):
                 Optional. If True, block until complete.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3942,6 +4057,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
         model = self._run_job(
@@ -4263,6 +4380,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4539,6 +4659,23 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4550,6 +4687,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 were not provided in constructor.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -4562,6 +4700,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(
@@ -4598,6 +4737,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     def submit(
@@ -4648,6 +4789,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -4924,6 +5068,23 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4947,6 +5108,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(
@@ -4984,6 +5146,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             block=False,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5028,6 +5192,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -5209,6 +5375,17 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Optional. The timeout for the create request in seconds.
             block (bool):
                 Optional. If True, block until complete.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5255,6 +5432,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
         model = self._run_job(
@@ -7172,6 +7351,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -7305,6 +7487,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+                If not specified, uses the service account set in aiplatform.init.
             network (str):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
@@ -7448,12 +7631,30 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -7466,6 +7667,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(
@@ -7502,6 +7704,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -7545,6 +7749,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -7711,6 +7917,17 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7757,6 +7974,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
         model = self._run_job(

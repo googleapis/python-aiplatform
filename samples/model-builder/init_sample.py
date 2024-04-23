@@ -25,6 +25,7 @@ def init_sample(
     staging_bucket: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
     encryption_spec_key_name: Optional[str] = None,
+    service_account: Optional[str] = None,
 ):
 
     from google.cloud import aiplatform
@@ -36,6 +37,7 @@ def init_sample(
         staging_bucket=staging_bucket,
         credentials=credentials,
         encryption_spec_key_name=encryption_spec_key_name,
+        service_account=service_account,
     )
 
 

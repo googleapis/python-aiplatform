@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_create_tensorboard_sample]
 def create_tensorboard_sample(
     project: str,
-    display_name: str,
     location: str,
+    display_name: Optional[str] = None,
 ):
     aiplatform.init(project=project, location=location)
 
@@ -29,8 +30,12 @@ def create_tensorboard_sample(
         location=location,
     )
 
-    print(tensorboard.display_name)
-    print(tensorboard.resource_name)
+    aiplatform.init(
+        project=project,
+        location=location,
+        experiment_tensorboard=tensorboard
+    )
+
     return tensorboard
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ class VideoClassificationPredictionResult(proto.Message):
         type_ (str):
             The type of the prediction. The requested
             types can be configured via parameters. This
-            will be one of - segment-classification
+            will be one of
+            - segment-classification
             - shot-classification
             - one-sec-interval-classification
         time_segment_start (google.protobuf.duration_pb2.Duration):

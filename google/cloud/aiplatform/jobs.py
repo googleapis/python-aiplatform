@@ -24,9 +24,6 @@ import time
 import tempfile
 import uuid
 
-from google.cloud import storage
-from google.cloud import bigquery
-
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -85,6 +82,19 @@ _JOB_ERROR_STATES = (
     gca_job_state.JobState.JOB_STATE_CANCELLED,
     gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
     gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+)
+
+_JOB_PENDING_STATES = (
+    gca_job_state.JobState.JOB_STATE_QUEUED,
+    gca_job_state.JobState.JOB_STATE_PENDING,
+    gca_job_state.JobState.JOB_STATE_RUNNING,
+    gca_job_state.JobState.JOB_STATE_CANCELLING,
+    gca_job_state.JobState.JOB_STATE_UPDATING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_QUEUED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PENDING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_RUNNING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_UPDATING,
 )
 
 # _block_until_complete wait times
@@ -241,6 +251,14 @@ class _Job(base.VertexAiStatefulResource):
             raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
         else:
             _LOGGER.log_action_completed_against_resource("run", "completed", self)
+
+    def wait_for_completion(self) -> None:
+        """Waits for job to complete.
+
+        Raises:
+            RuntimeError: If job failed or cancelled.
+        """
+        self._block_until_complete()
 
     @classmethod
     def list(
@@ -599,6 +617,530 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        return cls._submit_impl(
+            job_display_name=job_display_name,
+            model_name=model_name,
+            instances_format=instances_format,
+            predictions_format=predictions_format,
+            gcs_source=gcs_source,
+            bigquery_source=bigquery_source,
+            gcs_destination_prefix=gcs_destination_prefix,
+            bigquery_destination_prefix=bigquery_destination_prefix,
+            model_parameters=model_parameters,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+            generate_explanation=generate_explanation,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+            batch_size=batch_size,
+            model_monitoring_objective_config=model_monitoring_objective_config,
+            model_monitoring_alert_config=model_monitoring_alert_config,
+            analysis_instance_schema_uri=analysis_instance_schema_uri,
+            service_account=service_account,
+            # Main distinction of `create` vs `submit`:
+            wait_for_completion=True,
+        )
+
+    @classmethod
+    def submit(
+        cls,
+        *,
+        job_display_name: Optional[str] = None,
+        model_name: Union[str, "aiplatform.Model"],
+        instances_format: str = "jsonl",
+        predictions_format: str = "jsonl",
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        bigquery_source: Optional[str] = None,
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
+    ) -> "BatchPredictionJob":
+        """Sumbit a batch prediction job (not waiting for completion).
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            model_name (Union[str, aiplatform.Model]):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
+
+                Or an instance of aiplatform.Model.
+            instances_format (str):
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
+            predictions_format (str):
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overridden to
+                "bigquery".
+            gcs_source (Optional[Sequence[str]]):
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+
+            bigquery_source (Optional[str]):
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `bq://projectId.bqDatasetId.bqTableId`
+            gcs_destination_prefix (Optional[str]):
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix (Optional[str]):
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                and
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
+            model_parameters (Optional[Dict]):
+                The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type (Optional[str]):
+                The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type (Optional[str]):
+                The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count (Optional[int]):
+                The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count (Optional[int]):
+                The number of machine replicas used at the start of the batch
+                operation. If not set, Vertex AI decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count (Optional[int]):
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+        """
+        return cls._submit_impl(
+            job_display_name=job_display_name,
+            model_name=model_name,
+            instances_format=instances_format,
+            predictions_format=predictions_format,
+            gcs_source=gcs_source,
+            bigquery_source=bigquery_source,
+            gcs_destination_prefix=gcs_destination_prefix,
+            bigquery_destination_prefix=bigquery_destination_prefix,
+            model_parameters=model_parameters,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+            generate_explanation=generate_explanation,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            create_request_timeout=create_request_timeout,
+            batch_size=batch_size,
+            model_monitoring_objective_config=model_monitoring_objective_config,
+            model_monitoring_alert_config=model_monitoring_alert_config,
+            analysis_instance_schema_uri=analysis_instance_schema_uri,
+            service_account=service_account,
+            # Main distinction of `create` vs `submit`:
+            wait_for_completion=False,
+            sync=True,
+        )
+
+    @classmethod
+    def _submit_impl(
+        cls,
+        *,
+        job_display_name: Optional[str] = None,
+        model_name: Union[str, "aiplatform.Model"],
+        instances_format: str = "jsonl",
+        predictions_format: str = "jsonl",
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        bigquery_source: Optional[str] = None,
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
+        wait_for_completion: bool = False,
+    ) -> "BatchPredictionJob":
+        """Create a batch prediction job.
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            model_name (Union[str, aiplatform.Model]):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
+
+                Or an instance of aiplatform.Model.
+            instances_format (str):
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
+            predictions_format (str):
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overridden to
+                "bigquery".
+            gcs_source (Optional[Sequence[str]]):
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+
+            bigquery_source (Optional[str]):
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `bq://projectId.bqDatasetId.bqTableId`
+            gcs_destination_prefix (Optional[str]):
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix (Optional[str]):
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                and
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
+            model_parameters (Optional[Dict]):
+                The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type (Optional[str]):
+                The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type (Optional[str]):
+                The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count (Optional[int]):
+                The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count (Optional[int]):
+                The number of machine replicas used at the start of the batch
+                operation. If not set, Vertex AI decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count (Optional[int]):
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            wait_for_completion (bool):
+                Whether to wait for the job completion.
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+        """
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         if model_monitoring_objective_config:
             from google.cloud.aiplatform.compat.types import (
@@ -685,7 +1227,7 @@ class BatchPredictionJob(_Job):
         else:
             input_config.instances_format = instances_format
             input_config.gcs_source = gca_io_compat.GcsSource(
-                uris=gcs_source if type(gcs_source) == list else [gcs_source]
+                uris=gcs_source if isinstance(gcs_source, list) else [gcs_source]
             )
 
         if bigquery_destination_prefix:
@@ -761,6 +1303,7 @@ class BatchPredictionJob(_Job):
                 )
             gapic_batch_prediction_job.explanation_spec = explanation_spec
 
+        service_account = service_account or initializer.global_config.service_account
         if service_account:
             gapic_batch_prediction_job.service_account = service_account
 
@@ -791,18 +1334,19 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.model_monitoring_config = gapic_mm_config
 
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
-        return cls._create(
+        return cls._submit_and_optionally_wait_with_sync_support(
             empty_batch_prediction_job=empty_batch_prediction_job,
             model_or_model_name=model_name,
             gca_batch_prediction_job=gapic_batch_prediction_job,
             generate_explanation=generate_explanation,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            wait_for_completion=wait_for_completion,
         )
 
     @classmethod
     @base.optional_sync(return_input_arg="empty_batch_prediction_job")
-    def _create(
+    def _submit_and_optionally_wait_with_sync_support(
         cls,
         empty_batch_prediction_job: "BatchPredictionJob",
         model_or_model_name: Union[str, "aiplatform.Model"],
@@ -810,6 +1354,7 @@ class BatchPredictionJob(_Job):
         generate_explanation: bool,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        wait_for_completion: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -828,6 +1373,8 @@ class BatchPredictionJob(_Job):
                 results.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            wait_for_completion (bool):
+                Whether to wait for the job completion.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -871,14 +1418,16 @@ class BatchPredictionJob(_Job):
         _LOGGER.info(
             "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()
         )
-
-        batch_prediction_job._block_until_complete()
+        if wait_for_completion:
+            batch_prediction_job._block_until_complete()
 
         return batch_prediction_job
 
     def iter_outputs(
         self, bq_max_results: Optional[int] = 100
-    ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
+    ) -> Union[
+        Iterable["storage.Blob"], Iterable["bigquery.table.RowIterator"]  # noqa: F821
+    ]:
         """Returns an Iterable object to traverse the output files, either a
         list of GCS Blobs or a BigQuery RowIterator depending on the output
         config set when the BatchPredictionJob was created.
@@ -902,6 +1451,9 @@ class BatchPredictionJob(_Job):
                 If BatchPredictionJob succeeded and output_info does not have a
                 GCS or BQ output provided.
         """
+        # pylint: disable=g-import-not-at-top
+        from google.cloud import bigquery
+        from google.cloud import storage
 
         self._assert_gca_resource_is_available()
 
@@ -1154,7 +1706,7 @@ class DataLabelingJob(_Job):
     pass
 
 
-class CustomJob(_RunnableJob):
+class CustomJob(_RunnableJob, base.PreviewMixin):
     """Vertex AI Custom Job."""
 
     _resource_noun = "customJobs"
@@ -1165,6 +1717,7 @@ class CustomJob(_RunnableJob):
     _parse_resource_name_method = "parse_custom_job_path"
     _format_resource_name_method = "custom_job_path"
     _job_type = "training"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.jobs.CustomJob"
 
     def __init__(
         self,
@@ -1178,6 +1731,7 @@ class CustomJob(_RunnableJob):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        persistent_resource_id: Optional[str] = None,
     ):
         """Constructs a Custom Job with Worker Pool Specs.
 
@@ -1249,6 +1803,13 @@ class CustomJob(_RunnableJob):
             staging_bucket (str):
                 Optional. Bucket for produced custom job artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network and CMEK configs on
+                the job should be consistent with those on the PersistentResource,
+                otherwise, the job will be rejected.
 
         Raises:
             RuntimeError: If staging bucket was not set using aiplatform.init
@@ -1283,6 +1844,7 @@ class CustomJob(_RunnableJob):
                 base_output_directory=gca_io_compat.GcsDestination(
                     output_uri_prefix=base_output_dir
                 ),
+                persistent_resource_id=persistent_resource_id,
             ),
             labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
@@ -1361,6 +1923,8 @@ class CustomJob(_RunnableJob):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> "CustomJob":
         """Configures a custom job from a local script.
 
@@ -1464,6 +2028,19 @@ class CustomJob(_RunnableJob):
             staging_bucket (str):
                 Optional. Bucket for produced custom job artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Raises:
             RuntimeError: If staging bucket was not set using aiplatform.init
@@ -1493,6 +2070,7 @@ class CustomJob(_RunnableJob):
                 boot_disk_size_gb=boot_disk_size_gb,
                 reduction_server_replica_count=reduction_server_replica_count,
                 reduction_server_machine_type=reduction_server_machine_type,
+                tpu_topology=tpu_topology,
             ).pool_specs
         )
 
@@ -1609,6 +2187,7 @@ class CustomJob(_RunnableJob):
             labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
+            persistent_resource_id=persistent_resource_id,
         )
 
         if enable_autolog:
@@ -1628,6 +2207,8 @@ class CustomJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -1685,8 +2266,20 @@ class CustomJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         self._run(
             service_account=service_account,
@@ -1699,6 +2292,8 @@ class CustomJob(_RunnableJob):
             tensorboard=tensorboard,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     @base.optional_sync()
@@ -1714,6 +2309,8 @@ class CustomJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -1769,6 +2366,17 @@ class CustomJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
         """
         self.submit(
             service_account=service_account,
@@ -1780,6 +2388,8 @@ class CustomJob(_RunnableJob):
             experiment_run=experiment_run,
             tensorboard=tensorboard,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
         self._block_until_complete()
@@ -1796,6 +2406,8 @@ class CustomJob(_RunnableJob):
         experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -1848,6 +2460,17 @@ class CustomJob(_RunnableJob):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Raises:
             ValueError:
@@ -1862,17 +2485,20 @@ class CustomJob(_RunnableJob):
             raise ValueError(
                 "'experiment' is required since you've enabled autolog in 'from_local_script'."
             )
+
+        service_account = service_account or initializer.global_config.service_account
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
 
         if network:
             self._gca_resource.job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
+                disable_retries=disable_retries,
             )
 
         if enable_web_access:
@@ -1880,6 +2506,9 @@ class CustomJob(_RunnableJob):
 
         if tensorboard:
             self._gca_resource.job_spec.tensorboard = tensorboard
+
+        if persistent_resource_id:
+            self._gca_resource.job_spec.persistent_resource_id = persistent_resource_id
 
         # TODO(b/275105711) Update implementation after experiment/run in the proto
         if experiment:
@@ -1998,7 +2627,7 @@ class CustomJob(_RunnableJob):
         return self._gca_resource.job_spec
 
 
-class HyperparameterTuningJob(_RunnableJob):
+class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
     """Vertex AI Hyperparameter Tuning Job."""
 
     _resource_noun = "hyperparameterTuningJobs"
@@ -2009,6 +2638,9 @@ class HyperparameterTuningJob(_RunnableJob):
     _parse_resource_name_method = "parse_hyperparameter_tuning_job_path"
     _format_resource_name_method = "hyperparameter_tuning_job_path"
     _job_type = "training"
+    _preview_class = (
+        "google.cloud.aiplatform.aiplatform.preview.jobs.HyperparameterTuningJob"
+    )
 
     def __init__(
         self,
@@ -2092,7 +2724,8 @@ class HyperparameterTuningJob(_RunnableJob):
                 of any UTF-8 characters.
             custom_job (aiplatform.CustomJob):
                 Required. Configured CustomJob. The worker pool spec from this custom job
-                applies to the CustomJobs created in all the trials.
+                applies to the CustomJobs created in all the trials. A persistent_resource_id can be
+                specified on the custom job to be used when running this Hyperparameter Tuning job.
             metric_spec: Dict[str, str]
                 Required. Dictionary representing metrics to optimize. The dictionary key is the metric_id,
                 which is reported by your training job, and the dictionary value is the
@@ -2286,6 +2919,7 @@ class HyperparameterTuningJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2330,8 +2964,13 @@ class HyperparameterTuningJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         self._run(
             service_account=service_account,
@@ -2342,6 +2981,7 @@ class HyperparameterTuningJob(_RunnableJob):
             tensorboard=tensorboard,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync()
@@ -2355,6 +2995,7 @@ class HyperparameterTuningJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2397,6 +3038,10 @@ class HyperparameterTuningJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
@@ -2404,12 +3049,13 @@ class HyperparameterTuningJob(_RunnableJob):
         if network:
             self._gca_resource.trial_job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.trial_job_spec.scheduling = (
                 gca_custom_job_compat.Scheduling(
                     timeout=duration,
                     restart_job_on_worker_restart=restart_job_on_worker_restart,
+                    disable_retries=disable_retries,
                 )
             )
 
@@ -2834,6 +3480,7 @@ class ModelDeploymentMonitoringJob(_Job):
             ]
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
+        update_request_timeout: Optional[float] = None,
     ) -> "ModelDeploymentMonitoringJob":
         """Updates an existing ModelDeploymentMonitoringJob.
 
@@ -2890,6 +3537,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Optional. Use this argument to specify which deployed models to
                 apply the updated objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
+            upate_request_timeout (float):
+                Optional. Timeout in seconds for the model monitoring job update request.
         """
         self._sync_gca_resource()
         current_job = copy.deepcopy(self._gca_resource)
@@ -2936,8 +3585,9 @@ class ModelDeploymentMonitoringJob(_Job):
         lro = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+            timeout=update_request_timeout,
         )
-        self._gca_resource = lro.result()
+        self._gca_resource = lro.result(timeout=None)
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":

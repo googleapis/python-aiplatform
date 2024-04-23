@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@ from typing import Dict, Type
 from .base import MetadataServiceTransport
 from .grpc import MetadataServiceGrpcTransport
 from .grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
+from .rest import MetadataServiceRestTransport
+from .rest import MetadataServiceRestInterceptor
 
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[MetadataServiceTransport]]
 _transport_registry["grpc"] = MetadataServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = MetadataServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = MetadataServiceRestTransport
 
 __all__ = (
     "MetadataServiceTransport",
     "MetadataServiceGrpcTransport",
     "MetadataServiceGrpcAsyncIOTransport",
+    "MetadataServiceRestTransport",
+    "MetadataServiceRestInterceptor",
 )

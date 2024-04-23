@@ -32,16 +32,34 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
 )
 from google.cloud.aiplatform.compat.types import (
+    prediction_service_v1beta1 as gca_prediction_service_compat,
     deployed_model_ref_v1beta1 as gca_deployed_model_ref_compat,
     deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_compat,
+    explanation_v1beta1 as gca_explanation_compat,
     endpoint_v1beta1 as gca_endpoint_compat,
     machine_resources_v1beta1 as gca_machine_resources_compat,
     model_v1 as gca_model_compat,
 )
+from google.protobuf import json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
 _LOGGER = base.Logger(__name__)
+
+
+class Prediction(models.Prediction):
+    """Prediction class envelopes returned Model predictions and the Model id.
+
+    Attributes:
+        concurrent_explanations:
+            Map of explanations that were requested concurrently in addition to
+            the default explanation for the Model's predictions. It has the same
+            number of elements as instances to be explained. Default is None.
+    """
+
+    concurrent_explanations: Optional[
+        Dict[str, Sequence[gca_explanation_compat.Explanation]]
+    ] = None
 
 
 class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
@@ -560,6 +578,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -638,6 +657,10 @@ class Endpoint(aiplatform.Endpoint):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            disable_container_logging (bool):
+              If True, container logs from the deployed model will not be
+              written to Cloud Logging. Defaults to False.
+
         """
         self._sync_gca_resource_if_skipped()
 
@@ -674,6 +697,7 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync()
@@ -696,6 +720,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -768,6 +793,10 @@ class Endpoint(aiplatform.Endpoint):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            disable_container_logging (bool):
+              If True, container logs from the deployed model will not be
+              written to Cloud Logging. Defaults to False.
+
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -794,6 +823,7 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -823,6 +853,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        disable_container_logging: bool = False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -902,6 +933,9 @@ class Endpoint(aiplatform.Endpoint):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            disable_container_logging (bool):
+              If True, container logs from the deployed model will not be
+              written to Cloud Logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -935,12 +969,14 @@ class Endpoint(aiplatform.Endpoint):
                 deploy_request_timeout=deploy_request_timeout,
                 autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
                 autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+                disable_container_logging=disable_container_logging,
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
             model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
+            enable_container_logging=not disable_container_logging,
         )
 
         _LOGGER.info(model.supported_deployment_resources_types)
@@ -1013,6 +1049,194 @@ class Endpoint(aiplatform.Endpoint):
 
         operation_future.result(timeout=None)
 
+    def explain(
+        self,
+        instances: List[Dict],
+        parameters: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
+        explanation_spec_override: Optional[Dict] = None,
+        concurrent_explanation_spec_override: Optional[Dict] = None,
+    ) -> Prediction:
+        """Make a prediction with explanations against this Endpoint.
+
+        Example usage:
+            response = my_endpoint.explain(instances=[...])
+            my_explanations = response.explanations
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            deployed_model_id (str):
+                Optional. If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
+            explanation_spec_override (Dict):
+                Optional. Represents overrides to the explaination
+                specification used when the model was deployed.
+                The Explanation Override will
+                be merged with model's existing [Explanation Spec
+                ][google.cloud.aiplatform.v1beta1.ExplanationSpec].
+            concurrent_explanation_spec_override (Dict):
+                Optional. The ``explain`` endpoint supports multiple
+                explanations in parallel. To request concurrent explanation in
+                addition to the configured explaination method, use this field.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions, explanations, and Model ID.
+        """
+        self.wait()
+        request = gca_prediction_service_compat.ExplainRequest()
+        request.endpoint = self.resource_name
+
+        if instances is not None:
+            request.instances.extend(instances)
+        if parameters is not None:
+            request.parameters = parameters
+        if deployed_model_id is not None:
+            request.deployed_model_id = deployed_model_id
+        if explanation_spec_override is not None:
+            request.explanation_spec_override = explanation_spec_override
+        if concurrent_explanation_spec_override is not None:
+            request.concurrent_explanation_spec_override = (
+                concurrent_explanation_spec_override
+            )
+
+        explain_response = self._prediction_client.select_version("v1beta1").explain(
+            request, timeout=timeout
+        )
+
+        prediction = Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=explain_response.explanations,
+        )
+
+        concurrent_explanation = {}
+        for k, e in explain_response.concurrent_explanations.items():
+            concurrent_explanation[k] = e.explanations
+
+        prediction.concurrent_explanations = concurrent_explanation
+
+        return prediction
+
+    async def explain_async(
+        self,
+        instances: List[Dict],
+        *,
+        parameters: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
+        explanation_spec_override: Optional[Dict] = None,
+        concurrent_explanation_spec_override: Optional[Dict] = None,
+    ) -> Prediction:
+        """Make a prediction with explanations against this Endpoint.
+
+        Example usage:
+            ```
+            response = await my_endpoint.explain_async(instances=[...])
+            my_explanations = response.explanations
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            deployed_model_id (str):
+                Optional. If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
+            explanation_spec_override (Dict):
+                Optional. Represents overrides to the explaination
+                specification used when the model was deployed.
+                The Explanation Override will
+                be merged with model's existing [Explanation Spec
+                ][google.cloud.aiplatform.v1beta1.ExplanationSpec].
+            concurrent_explanation_spec_override (Dict):
+                Optional. The ``explain`` endpoint supports multiple
+                explanations in parallel. To request concurrent explanation in
+                addition to the configured explaination method, use this field.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions, explanations, and Model ID.
+        """
+        self.wait()
+
+        request = gca_prediction_service_compat.ExplainRequest()
+        request.endpoint = self.resource_name
+
+        if instances is not None:
+            request.instances.extend(instances)
+        if parameters is not None:
+            request.parameters = parameters
+        if deployed_model_id is not None:
+            request.deployed_model_id = deployed_model_id
+        if explanation_spec_override is not None:
+            request.explanation_spec_override = explanation_spec_override
+        if concurrent_explanation_spec_override is not None:
+            request.concurrent_explanation_spec_override = (
+                concurrent_explanation_spec_override
+            )
+
+        explain_response = await self._prediction_async_client.select_version(
+            "v1beta1"
+        ).explain(request, timeout=timeout)
+
+        prediction = Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=explain_response.explanations,
+        )
+
+        concurrent_explanation = {}
+        for k, e in explain_response.concurrent_explanations.items():
+            concurrent_explanation[k] = e.explanations
+
+        prediction.concurrent_explanations = concurrent_explanation
+
+        return prediction
+
 
 class Model(aiplatform.Model):
     def deploy(
@@ -1039,6 +1263,7 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1138,6 +1363,9 @@ class Model(aiplatform.Model):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            disable_container_logging (bool):
+              If True, container logs from the deployed model will not be
+              written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1192,6 +1420,7 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -1216,6 +1445,7 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1307,6 +1537,9 @@ class Model(aiplatform.Model):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            disable_container_logging (bool):
+              If True, container logs from the deployed model will not be
+              written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1357,6 +1590,7 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
