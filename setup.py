@@ -46,9 +46,7 @@ packages += [
     if package.startswith("google.cloud.aiplatform.preview.vertex_ray")
 ]
 
-# TODO(b/333098166, b/312527978): Add python_version>3.11 when tensorflow>2.16.1
-# works for tensorboard.
-tensorboard_extra_require = ["tensorflow >=2.3.0, <2.15.0; python_version<='3.11'"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
@@ -82,7 +80,7 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <0.103.1",
+    "fastapi >= 0.71.0, <=0.109.1",
     "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
@@ -142,7 +140,7 @@ ray_testing_extra_require = ray_extra_require + [
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 2.2.1, < 3.0",
-    "pydantic < 3",
+    "pydantic >= 2.6.3, < 3",
 ]
 
 rapid_evaluation_extra_require = [
@@ -155,6 +153,14 @@ langchain_extra_require = [
     "langchain-core < 0.2",
     "langchain-google-vertexai < 0.2",
 ]
+
+langchain_testing_extra_require = list(
+    set(
+        langchain_extra_require
+        + reasoning_engine_extra_require
+        + ["absl-py", "pytest-xdist"]
+    )
+)
 
 full_extra_require = list(
     set(
@@ -172,7 +178,6 @@ full_extra_require = list(
         + autologging_extra_require
         + preview_extra_require
         + ray_extra_require
-        + reasoning_engine_extra_require
         + rapid_evaluation_extra_require
     )
 )
@@ -260,7 +265,7 @@ setuptools.setup(
         "reasoningengine": reasoning_engine_extra_require,
         "rapid_evaluation": rapid_evaluation_extra_require,
         "langchain": langchain_extra_require,
-        "langchain_testing": langchain_extra_require,
+        "langchain_testing": langchain_testing_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

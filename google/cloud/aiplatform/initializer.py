@@ -192,21 +192,20 @@ class _Config:
             ValueError:
                 If experiment_description is provided but experiment is not.
         """
-
-        if api_endpoint is not None:
-            self._api_endpoint = api_endpoint
-
+        # This method mutates state, so we need to be careful with the validation
+        # First, we need to validate all passed values
+        if api_transport:
+            VALID_TRANSPORT_TYPES = ["grpc", "rest"]
+            if api_transport not in VALID_TRANSPORT_TYPES:
+                raise ValueError(
+                    f"{api_transport} is not a valid transport type. "
+                    + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
+                )
+        if location:
+            utils.validate_region(location)
         if experiment_description and experiment is None:
             raise ValueError(
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
-            )
-
-        if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
-            metadata._experiment_tracker.set_tensorboard(
-                tensorboard=experiment_tensorboard,
-                project=project,
-                location=location,
-                credentials=credentials,
             )
 
         # reset metadata_service config if project or location is updated.
@@ -217,10 +216,14 @@ class _Config:
                 logging.info("project/location updated, reset Experiment config.")
             metadata._experiment_tracker.reset()
 
+        # Then we change the main state
+        if api_endpoint is not None:
+            self._api_endpoint = api_endpoint
+        if api_transport:
+            self._api_transport = api_transport
         if project:
             self._project = project
         if location:
-            utils.validate_region(location)
             self._location = location
         if staging_bucket:
             self._staging_bucket = staging_bucket
@@ -233,21 +236,21 @@ class _Config:
         if service_account is not None:
             self._service_account = service_account
 
+        # Finally, perform secondary state updates
+        if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=experiment_tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
         if experiment:
             metadata._experiment_tracker.set_experiment(
                 experiment=experiment,
                 description=experiment_description,
                 backing_tensorboard=experiment_tensorboard,
             )
-
-        if api_transport:
-            VALID_TRANSPORT_TYPES = ["grpc", "rest"]
-            if api_transport not in VALID_TRANSPORT_TYPES:
-                raise ValueError(
-                    f"{api_transport} is not a valid transport type. "
-                    + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
-                )
-            self._api_transport = api_transport
 
     def get_encryption_spec(
         self,

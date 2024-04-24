@@ -483,9 +483,9 @@ def test_create_embedding_fv(
         FeatureView.BigQuerySource(uri="hi", entity_id_columns=["entity_id"]),
         index_config=IndexConfig(
             embedding_column="embedding",
-            filter_column=["currency_code", "gender", "shipping_country_codes"],
+            dimensions=1536,
+            filter_columns=["currency_code", "gender", "shipping_country_codes"],
             crowding_column="crowding",
-            dimentions=1536,
             distance_measure_type=DistanceMeasureType.SQUARED_L2_DISTANCE,
             algorithm_config=TreeAhConfig(),
         ),

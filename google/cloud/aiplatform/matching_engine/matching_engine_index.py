@@ -434,6 +434,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
         shard_size: Optional[str] = None,
+        feature_norm_type: Optional[
+            matching_engine_index_config.FeatureNormType
+        ] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -477,6 +480,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 range 1-100, inclusive. The default value is 10 (means 10%) if not set.
             distance_measure_type (matching_engine_index_config.DistanceMeasureType):
                 Optional. The distance measure used in nearest neighbor search.
+            feature_norm_type (matching_engine_index_config.FeatureNormType):
+                Optional. The feature norm type used in nearest neighbor search.
             description (str):
                 Optional. The description of the Index.
             labels (Dict[str, str]):
@@ -552,6 +557,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             algorithm_config=algorithm_config,
             approximate_neighbors_count=approximate_neighbors_count,
             distance_measure_type=distance_measure_type,
+            feature_norm_type=feature_norm_type,
             shard_size=shard_size,
         )
 
@@ -579,6 +585,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         dimensions: int = None,
         distance_measure_type: Optional[
             matching_engine_index_config.DistanceMeasureType
+        ] = None,
+        feature_norm_type: Optional[
+            matching_engine_index_config.FeatureNormType
         ] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -623,6 +632,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Required. The number of dimensions of the input vectors.
             distance_measure_type (matching_engine_index_config.DistanceMeasureType):
                 Optional. The distance measure used in nearest neighbor search.
+            feature_norm_type (matching_engine_index_config.FeatureNormType):
+                Optional. The feature norm type used in nearest neighbor search.
             description (str):
                 Optional. The description of the Index.
             labels (Dict[str, str]):
@@ -695,6 +706,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             dimensions=dimensions,
             algorithm_config=algorithm_config,
             distance_measure_type=distance_measure_type,
+            feature_norm_type=feature_norm_type,
             shard_size=shard_size,
         )
 

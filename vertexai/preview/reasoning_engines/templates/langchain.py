@@ -18,6 +18,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Mapping,
     Optional,
@@ -199,6 +200,40 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
         ])
 
 
+def _validate_callable_parameters_are_annotated(callable: Callable):
+    """Validates that the parameters of the callable have type annotations.
+
+    This ensures that they can be used for constructing LangChain tools that are
+    usable with Gemini function calling.
+    """
+    import inspect
+    parameters = dict(inspect.signature(callable).parameters)
+    for name, parameter in parameters.items():
+        if parameter.annotation == inspect.Parameter.empty:
+            raise TypeError(
+                f"Callable={callable.__name__} has untyped input_arg={name}. "
+                f"Please specify a type when defining it, e.g. `{name}: str`."
+            )
+
+
+def _convert_tools_or_raise(
+    tools: Sequence[Union[Callable, "BaseTool"]]
+) -> Sequence["BaseTool"]:
+    """Converts the tools into Langchain tools (if needed).
+
+    See https://blog.langchain.dev/structured-tools/ for details.
+    """
+    from langchain_core import tools as lc_tools
+    from langchain.tools.base import StructuredTool
+    result = []
+    for tool in tools:
+        if not isinstance(tool, lc_tools.BaseTool):
+            _validate_callable_parameters_are_annotated(tool)
+            tool = StructuredTool.from_function(tool)
+        result.append(tool)
+    return result
+
+
 class LangchainAgent:
     """A Langchain Agent.
 
@@ -302,19 +337,19 @@ class LangchainAgent:
                 langchain.runnables.history.RunnableWithMessageHistory if
                 chat_history is specified. If chat_history is None, this will be
                 ignored.
+
+        Raises:
+            TypeError: If there is an invalid tool (e.g. function with an input
+            that did not specify its type).
         """
         from google.cloud.aiplatform import initializer
         self._project = initializer.global_config.project
         self._location = initializer.global_config.location
         self._tools = []
         if tools:
-            from langchain_core import tools as lc_tools
-            from langchain.tools.base import StructuredTool
-            self._tools = [
-                tool if isinstance(tool, lc_tools.BaseTool)
-                else StructuredTool.from_function(tool)
-                for tool in tools
-            ]
+            # Unlike the other fields, we convert tools at initialization to
+            # validate the functions/tools before they are deployed.
+            self._tools = _convert_tools_or_raise(tools)
         self._model_name = model
         self._prompt = prompt
         self._output_parser = output_parser
@@ -355,8 +390,6 @@ class LangchainAgent:
         vertexai.init(project=self._project, location=self._location)
         self._llm = ChatVertexAI(
             model_name=self._model_name,
-            # https://github.com/langchain-ai/langchain/issues/14700
-            convert_system_message_to_human=True,
             **self._model_kwargs,
         )
         vertexai.init(project=current_project, location=current_location)
@@ -384,7 +417,7 @@ class LangchainAgent:
         input: Union[str, Mapping[str, Any]],
         config: Optional["RunnableConfig"] = None,
         **kwargs: Any,
-    ) -> Mapping[str, Any]:
+    ) -> Dict[str, Any]:
         """Queries the Agent with the given input and config.
 
         Args:
@@ -399,8 +432,11 @@ class LangchainAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
+        from langchain.load import dump as langchain_load_dump
         if isinstance(input, str):
             input = {"input": input}
         if not self._runnable:
             self.set_up()
-        return self._runnable.invoke(input=input, config=config, **kwargs)
+        return langchain_load_dump.dumpd(
+            self._runnable.invoke(input=input, config=config, **kwargs)
+        )

@@ -17,8 +17,8 @@
 
 import io
 import os
-import setuptools
 
+import setuptools  # type: ignore
 
 name = "vertexai"
 description = "Vertex AI API client library"
@@ -33,7 +33,7 @@ with open(os.path.join(package_root, "version.py")) as fp:
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <2.15.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
@@ -53,11 +53,12 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 pipelines_extra_require = [
-    "pyyaml==5.3.1",
+    "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
-    "pyarrow >= 10.0.1; python_version>='3.11'",
+    "pyarrow >= 10.0.1; python_version=='3.11'",
+    "pyarrow >= 14.0.0; python_version>='3.12'",
 ]
 
 vizier_extra_require = [
@@ -66,7 +67,7 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <0.103.1",
+    "fastapi >= 0.71.0, <=0.109.1",
     "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
@@ -74,7 +75,10 @@ prediction_extra_require = [
 
 endpoint_extra_require = ["requests >= 2.28.1"]
 
-private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.1"]
+private_endpoints_extra_require = [
+    "urllib3 >=1.21.1, <1.27",
+    "requests >= 2.28.1",
+]
 
 autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 
@@ -85,9 +89,12 @@ preview_extra_require = [
 
 ray_extra_require = [
     # Cluster only supports 2.4.0 and 2.9.3
-    "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!= 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'",
+    (
+        "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
+        " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'"
+    ),
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, <= 2.9.3; python_version>='3.11'",
+    "ray[default] >= 2.5, <= 2.9.3; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
     "pandas >= 1.0.0, < 2.2.0",
@@ -95,6 +102,47 @@ ray_extra_require = [
     # Workaround for https://github.com/ray-project/ray/issues/36990.
     # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
     "pydantic < 2",
+    "immutabledict",
+]
+
+genai_requires = (
+    "pydantic < 3",
+    "docstring_parser < 1",
+)
+
+ray_testing_extra_require = ray_extra_require + [
+    "pytest-xdist",
+    # ray train extras required for prediction tests
+    (
+        "ray[train] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
+        " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2"
+    ),
+    # Framework version constraints copied from testing_extra_require
+    "scikit-learn",
+    "tensorflow",
+    "torch >= 2.0.0, < 2.1.0",
+    "xgboost",
+    "xgboost_ray",
+]
+
+reasoning_engine_extra_require = [
+    "cloudpickle >= 2.2.1, < 3.0",
+    "pydantic < 3",
+]
+
+rapid_evaluation_extra_require = [
+    "nest_asyncio >= 1.0.0, < 1.6.0",
+    "pandas >= 1.0.0, < 2.2.0",
+]
+
+langchain_extra_require = [
+    "langchain >= 0.1.13, < 0.2",
+    "langchain-core < 0.2",
+    "langchain-google-vertexai < 0.2",
+]
+
+langchain_testing_extra_require = langchain_extra_require + [
+    "pytest-xdist",
 ]
 
 full_extra_require = list(
@@ -113,6 +161,8 @@ full_extra_require = list(
         + autologging_extra_require
         + preview_extra_require
         + ray_extra_require
+        + reasoning_engine_extra_require
+        + rapid_evaluation_extra_require
     )
 )
 testing_extra_require = (
@@ -129,15 +179,19 @@ testing_extra_require = (
         "pytest-asyncio",
         "pytest-xdist",
         "scikit-learn",
-        "tensorflow >= 2.3.0, <= 2.12.0",
+        # Lazy import requires > 2.12.0
+        "tensorflow == 2.13.0; python_version<='3.11'",
+        "tensorflow == 2.16.1; python_version>'3.11'",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
-        "torch >= 2.0.0, < 2.1.0",
-        "xgboost",
-        "xgboost_ray",
+        "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
+        "torch >= 2.2.0; python_version>'3.11'",
         "requests-toolbelt < 1.0.0",
+        "immutabledict",
+        "xgboost",
     ]
 )
+
 
 setuptools.setup(
     name=name,
@@ -150,7 +204,7 @@ setuptools.setup(
     url="https://github.com/googleapis/python-aiplatform",
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
-    install_requires=[f"google-cloud-aiplatform == {version}"],
+    install_requires=[f"google-cloud-aiplatform[all] == {version}"],
     extras_require={
         "endpoint": endpoint_extra_require,
         "full": full_extra_require,
@@ -168,6 +222,11 @@ setuptools.setup(
         "autologging": autologging_extra_require,
         "preview": preview_extra_require,
         "ray": ray_extra_require,
+        "ray_testing": ray_testing_extra_require,
+        "reasoningengine": reasoning_engine_extra_require,
+        "rapid_evaluation": rapid_evaluation_extra_require,
+        "langchain": langchain_extra_require,
+        "langchain_testing": langchain_testing_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

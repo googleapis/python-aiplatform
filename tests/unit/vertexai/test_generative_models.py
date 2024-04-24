@@ -25,6 +25,7 @@ from google.cloud.aiplatform import initializer
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
+    rag,
 )
 from vertexai.generative_models._generative_models import (
     prediction_service,
@@ -155,6 +156,9 @@ def mock_generate_content(
     has_retrieval = any(
         tool.retrieval or tool.google_search_retrieval for tool in request.tools
     )
+    has_rag_retrieval = any(
+        isinstance(tool.retrieval, rag.Retrieval) for tool in request.tools
+    )
     has_function_declarations = any(
         tool.function_declarations for tool in request.tools
     )
@@ -198,17 +202,63 @@ def mock_generate_content(
     else:
         response_part_struct = _RESPONSE_TEXT_PART_STRUCT
 
+    if has_retrieval and (not has_rag_retrieval) and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            web_search_queries=[request.contents[0].parts[0].text],
+            grounding_attributions=[
+                gapic_content_types.GroundingAttribution(
+                    segment=gapic_content_types.Segment(
+                        start_index=0,
+                        end_index=67,
+                    ),
+                    confidence_score=0.69857746,
+                    web=gapic_content_types.GroundingAttribution.Web(
+                        uri="https://math.ucr.edu/home/baez/physics/General/BlueSky/blue_sky.html",
+                        title="Why is the sky blue? - UCR Math",
+                    ),
+                ),
+            ],
+        )
+    elif has_rag_retrieval and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            retrieval_queries=[request.contents[0].parts[0].text],
+            grounding_attributions=[
+                gapic_content_types.GroundingAttribution(
+                    retrieved_context=gapic_content_types.GroundingAttribution.RetrievedContext(
+                        uri="gs://my-bucket/my-file.pdf",
+                    ),
+                    segment=gapic_content_types.Segment(
+                        start_index=0,
+                        end_index=67,
+                    ),
+                    confidence_score=0.69857746,
+                ),
+            ],
+        )
+    else:
+        grounding_metadata = None
+
+    response_part = gapic_content_types.Part(response_part_struct)
+    finish_reason = gapic_content_types.Candidate.FinishReason.STOP
+
+    # Handling the max_output_tokens limit
+    if response_part.text:
+        if request.generation_config.max_output_tokens:
+            tokens = response_part.text.split()
+            if len(tokens) >= request.generation_config.max_output_tokens:
+                tokens = tokens[: request.generation_config.max_output_tokens]
+                response_part.text = " ".join(tokens)
+                finish_reason = gapic_content_types.Candidate.FinishReason.MAX_TOKENS
+
     response = gapic_prediction_service_types.GenerateContentResponse(
         candidates=[
             gapic_content_types.Candidate(
                 index=0,
                 content=gapic_content_types.Content(
                     role="model",
-                    parts=[
-                        gapic_content_types.Part(response_part_struct),
-                    ],
+                    parts=[response_part],
                 ),
-                finish_reason=gapic_content_types.Candidate.FinishReason.STOP,
+                finish_reason=finish_reason,
                 safety_ratings=[
                     gapic_content_types.SafetyRating(rating)
                     for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
@@ -218,24 +268,7 @@ def mock_generate_content(
                         gapic_content_types.Citation(_RESPONSE_CITATION_STRUCT),
                     ]
                 ),
-                grounding_metadata=gapic_content_types.GroundingMetadata(
-                    web_search_queries=[request.contents[0].parts[0].text],
-                    grounding_attributions=[
-                        gapic_content_types.GroundingAttribution(
-                            segment=gapic_content_types.Segment(
-                                start_index=0,
-                                end_index=67,
-                            ),
-                            confidence_score=0.69857746,
-                            web=gapic_content_types.GroundingAttribution.Web(
-                                uri="https://math.ucr.edu/home/baez/physics/General/BlueSky/blue_sky.html",
-                                title="Why is the sky blue? - UCR Math",
-                            ),
-                        ),
-                    ],
-                )
-                if has_retrieval and request.contents[0].parts[0].text
-                else None,
+                grounding_metadata=grounding_metadata,
             ),
         ],
     )
@@ -245,6 +278,20 @@ def mock_generate_content(
     ):
         finish_reason = gapic_content_types.Candidate.FinishReason.OTHER
         response.candidates[0].finish_reason = finish_reason
+
+    request_token_count = sum(
+        len(gapic_content_types.Content.to_json(content).split())
+        for content in request.contents
+    )
+    response_token_count = sum(
+        len(gapic_content_types.Content.to_json(candidate.content).split())
+        for candidate in response.candidates
+    )
+    response.usage_metadata.prompt_token_count = request_token_count
+    response.usage_metadata.candidates_token_count = response_token_count
+    response.usage_metadata.total_token_count = (
+        request_token_count + response_token_count
+    )
 
     return response
 
@@ -371,6 +418,8 @@ class TestGenerativeModels:
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text
+        # TODO(avolkov): Add usage metadata to the mock
+        assert response.usage_metadata.total_token_count
 
         model2 = generative_models.GenerativeModel(
             "gemini-pro",
@@ -388,6 +437,8 @@ class TestGenerativeModels:
                 candidate_count=1,
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
+                presence_penalty=0.0,
+                frequency_penalty=0.0,
             ),
             safety_settings=[
                 generative_models.SafetySetting(
@@ -403,6 +454,33 @@ class TestGenerativeModels:
             ],
         )
         assert response2.text
+
+        model3 = generative_models.GenerativeModel("gemini-1.5-pro-preview-0409")
+        response3 = model3.generate_content(
+            "Why is sky blue? Respond in JSON.",
+            generation_config=generative_models.GenerationConfig(
+                temperature=0.2,
+                top_p=0.9,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=200,
+                stop_sequences=["\n\n\n"],
+                response_mime_type="application/json",
+            ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
+        )
+        assert response3.text
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
@@ -500,6 +578,8 @@ class TestGenerativeModels:
             chat.send_message("Please block with block_reason=OTHER.")
 
         assert e.match("Blocked for testing")
+        # Checking that the original response and the block reason are accessible.
+        assert e.value.responses[0].prompt_feedback.block_reason.name == "OTHER"
         # Checking that history did not get updated
         assert len(chat.history) == 2
 
@@ -522,6 +602,39 @@ class TestGenerativeModels:
             chat.send_message("Please block response with finish_reason=OTHER.")
 
         # Checking that history did not get updated
+        assert not chat.history
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_finish_reason_max_tokens_in_generate_content_and_send_message(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            generation_config=generative_models.GenerationConfig(
+                max_output_tokens=5,
+            ),
+        )
+        chat = model.start_chat()
+
+        # Test that generate_content succeeds:
+        response1 = model.generate_content("Why is sky blue?")
+        assert response1.text
+        assert len(response1.text.split()) <= 5
+        assert response1.candidates[0].finish_reason.name == "MAX_TOKENS"
+
+        # Test that ChatSession.send_message raises error:
+        with pytest.raises(generative_models.ResponseValidationError):
+            chat.send_message("Please block response with finish_reason=OTHER.")
+
+        # Verify that history did not get updated
         assert not chat.history
 
     @mock.patch.object(
@@ -730,6 +843,28 @@ class TestGenerativeModels:
         )
         response = model.generate_content(
             "Why is sky blue?", tools=[google_search_retriever_tool]
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_generate_content_vertex_rag_retriever(self):
+        model = preview_generative_models.GenerativeModel("gemini-pro")
+        rag_retriever_tool = preview_generative_models.Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_corpora=[
+                        f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556"
+                    ],
+                    similarity_top_k=1,
+                ),
+            ),
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[rag_retriever_tool]
         )
         assert response.text
 

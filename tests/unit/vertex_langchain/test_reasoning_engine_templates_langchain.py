@@ -24,10 +24,13 @@ from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
 import pytest
 
+
 from langchain_core import agents
 from langchain_core import messages
 from langchain_core import outputs
 from langchain_core import tools as lc_tools
+from langchain.load import dump as langchain_load_dump
+from langchain.tools.base import StructuredTool
 
 
 _DEFAULT_PLACE_TOOL_ACTIVITY = "museums"
@@ -75,6 +78,12 @@ def vertexai_init_mock():
         yield vertexai_init_mock
 
 
+@pytest.fixture
+def langchain_dump_mock():
+    with mock.patch.object(langchain_load_dump, "dumpd") as langchain_dump_mock:
+        yield langchain_dump_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLangchainAgent:
     def setup_method(self):
@@ -100,7 +109,7 @@ class TestLangchainAgent:
             model=_TEST_MODEL,
             tools=[
                 place_tool_query,
-                place_photo_query,
+                StructuredTool.from_function(place_photo_query),
             ],
         )
         for tool in agent._tools:
@@ -112,7 +121,7 @@ class TestLangchainAgent:
         agent.set_up()
         assert agent._runnable is not None
 
-    def test_query(self):
+    def test_query(self, langchain_dump_mock):
         agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
         agent._runnable = mock.Mock()
         mocks = mock.Mock()
@@ -178,3 +187,22 @@ class TestDefaultOutputParserErrors:
         agent.set_up()
         with pytest.raises(ValueError, match=r"Can only parse messages"):
             agent._output_parser.parse("text")
+
+
+class TestConvertToolsOrRaise:
+    def test_convert_tools_or_raise(self, vertexai_init_mock):
+        pass
+
+
+def _return_input_no_typing(input_):
+    """Returns input back to user."""
+    return input_
+
+
+class TestConvertToolsOrRaiseErrors:
+    def test_raise_untyped_input_args(self, vertexai_init_mock):
+        with pytest.raises(TypeError, match=r"has untyped input_arg"):
+            reasoning_engines.LangchainAgent(
+                model=_TEST_MODEL,
+                tools=[_return_input_no_typing],
+            )

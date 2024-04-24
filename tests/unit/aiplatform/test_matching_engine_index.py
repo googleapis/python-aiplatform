@@ -53,6 +53,7 @@ _TEST_INDEX_DISPLAY_NAME = (
 )
 _TEST_CONTENTS_DELTA_URI = "gs://contents"
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
+_TEST_INDEX_FEATURE_NORM_TYPE = "UNIT_L2_NORM"
 
 _TEST_CONTENTS_DELTA_URI_UPDATE = "gs://contents_update"
 _TEST_IS_COMPLETE_OVERWRITE_UPDATE = True
@@ -374,6 +375,7 @@ class TestMatchingEngineIndex:
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
             leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
             description=_TEST_INDEX_DESCRIPTION,
@@ -403,6 +405,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": shard_size,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
@@ -447,6 +450,7 @@ class TestMatchingEngineIndex:
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
             leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
             description=_TEST_INDEX_DESCRIPTION,
@@ -476,6 +480,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": shard_size,
                 },
             },
@@ -506,6 +511,7 @@ class TestMatchingEngineIndex:
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
             leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
             description=_TEST_INDEX_DESCRIPTION,
@@ -527,6 +533,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": None,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
@@ -564,6 +571,7 @@ class TestMatchingEngineIndex:
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
@@ -586,6 +594,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": shard_size,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
@@ -627,6 +636,7 @@ class TestMatchingEngineIndex:
             display_name=_TEST_INDEX_DISPLAY_NAME,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
@@ -648,6 +658,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": None,
                 },
             },
@@ -677,6 +688,7 @@ class TestMatchingEngineIndex:
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
         )
@@ -691,6 +703,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
                     "shardSize": None,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,

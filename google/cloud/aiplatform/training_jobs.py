@@ -1373,6 +1373,7 @@ class _CustomTrainingJob(_TrainingJob):
         boot_disk_size_gb: int = 100,
         reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1417,6 +1418,10 @@ class _CustomTrainingJob(_TrainingJob):
                 The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
+            tpu_topology (str):
+                Optional. Only required if the machine type is a TPU
+                v5 version.
+
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1454,6 +1459,7 @@ class _CustomTrainingJob(_TrainingJob):
                 boot_disk_size_gb=boot_disk_size_gb,
                 reduction_server_replica_count=reduction_server_replica_count,
                 reduction_server_machine_type=reduction_server_machine_type,
+                tpu_topology=tpu_topology,
             ).pool_specs
         )
 
@@ -2974,6 +2980,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3268,6 +3275,12 @@ class CustomTrainingJob(_CustomTrainingJob):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology must
+                be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3287,6 +3300,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         # make and copy package
@@ -3383,6 +3397,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3677,6 +3692,12 @@ class CustomTrainingJob(_CustomTrainingJob):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology must
+                be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3695,6 +3716,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         # make and copy package
@@ -4360,6 +4382,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4647,6 +4670,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4671,6 +4700,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(
@@ -4761,6 +4791,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -5048,6 +5079,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5071,6 +5108,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(
@@ -7315,6 +7353,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -7603,6 +7642,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7622,6 +7667,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb=boot_disk_size_gb,
             reduction_server_replica_count=reduction_server_replica_count,
             reduction_server_machine_type=reduction_server_machine_type,
+            tpu_topology=tpu_topology,
         )
 
         return self._run(

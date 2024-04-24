@@ -47,14 +47,31 @@ _TEXT_BISON_PUBLISHER_MODEL_DICT = {
     },
 }
 
+_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/textembedding-gecko",
+    "version_id": "003",
+    "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
+    "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/textembedding-gecko@003",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/text_embedding_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/text_embedding_1.0.0.yaml",
+    },
+}
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestModelGardenModels:
     """Unit tests for the _ModelGardenModel base class."""
 
-    class FakeModelGardenModel(_model_garden_models._ModelGardenModel):
+    class FakeModelGardenBisonModel(_model_garden_models._ModelGardenModel):
 
         _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
+
+    class FakeModelGardenGeckoModel(_model_garden_models._ModelGardenModel):
+
+        _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
 
     def setup_method(self):
         reload(initializer)
@@ -63,7 +80,7 @@ class TestModelGardenModels:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_model_garden_model_with_from_pretrained(self):
+    def test_init_model_garden_bison_model_with_from_pretrained(self):
         """Tests the text generation model."""
         aiplatform.init(
             project=test_constants.ProjectConstants._TEST_PROJECT,
@@ -76,9 +93,29 @@ class TestModelGardenModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            self.FakeModelGardenModel.from_pretrained("text-bison@001")
+            self.FakeModelGardenBisonModel.from_pretrained("text-bison@001")
 
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/text-bison@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+    def test_init_model_garden_gecko_model_with_from_pretrained(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=test_constants.ProjectConstants._TEST_PROJECT,
+            location=test_constants.ProjectConstants._TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client_v1.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            self.FakeModelGardenGeckoModel.from_pretrained("textembedding-gecko@003")
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/textembedding-gecko@003",
                 retry=base._DEFAULT_RETRY,
             )

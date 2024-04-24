@@ -20,7 +20,7 @@ import os
 import sys
 import tarfile
 import typing
-from typing import Optional, Protocol, Sequence
+from typing import Optional, Protocol, Sequence, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -84,7 +84,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             cls,
             reasoning_engine: Queryable,
             *,
-            requirements: Optional[Sequence[str]] = None,
+            requirements: Optional[Union[str, Sequence[str]]] = None,
             reasoning_engine_name: Optional[str] = None,
             display_name: Optional[str] = None,
             description: Optional[str] = None,
@@ -131,8 +131,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         Args:
             reasoning_engine (ReasoningEngineInterface):
                 Required. The Reasoning Engine to be created.
-            requirements (Sequence[str]):
-                Optional. The set of PyPI dependencies needed.
+            requirements (Union[str, Sequence[str]]):
+                Optional. The set of PyPI dependencies needed. It can either be
+                the path to a single file (requirements.txt), or an ordered list
+                of strings corresponding to each line of the requirements file.
             reasoning_engine_name (str):
                 Optional. A fully-qualified resource name or ID such as
                 "projects/123/locations/us-central1/reasoningEngines/456" or
@@ -202,6 +204,16 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 "Invalid query signature. This might be due to a missing "
                 "`self` argument in the reasoning_engine.query method."
             ) from err
+        if isinstance(requirements, str):
+            try:
+                _LOGGER.info(f"Reading requirements from {requirements=}")
+                with open(requirements) as f:
+                    requirements = f.read().splitlines()
+                    _LOGGER.info(f"Read the following lines: {requirements}")
+            except IOError as err:
+                raise IOError(
+                    f"Failed to read requirements from {requirements=}"
+                ) from err
         requirements = requirements or []
         extra_packages = extra_packages or []
         for extra_package in extra_packages:
