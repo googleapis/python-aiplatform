@@ -238,17 +238,27 @@ def mock_generate_content(
     else:
         grounding_metadata = None
 
+    response_part = gapic_content_types.Part(response_part_struct)
+    finish_reason = gapic_content_types.Candidate.FinishReason.STOP
+
+    # Handling the max_output_tokens limit
+    if response_part.text:
+        if request.generation_config.max_output_tokens:
+            tokens = response_part.text.split()
+            if len(tokens) >= request.generation_config.max_output_tokens:
+                tokens = tokens[: request.generation_config.max_output_tokens]
+                response_part.text = " ".join(tokens)
+                finish_reason = gapic_content_types.Candidate.FinishReason.MAX_TOKENS
+
     response = gapic_prediction_service_types.GenerateContentResponse(
         candidates=[
             gapic_content_types.Candidate(
                 index=0,
                 content=gapic_content_types.Content(
                     role="model",
-                    parts=[
-                        gapic_content_types.Part(response_part_struct),
-                    ],
+                    parts=[response_part],
                 ),
-                finish_reason=gapic_content_types.Candidate.FinishReason.STOP,
+                finish_reason=finish_reason,
                 safety_ratings=[
                     gapic_content_types.SafetyRating(rating)
                     for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
@@ -592,6 +602,39 @@ class TestGenerativeModels:
             chat.send_message("Please block response with finish_reason=OTHER.")
 
         # Checking that history did not get updated
+        assert not chat.history
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_finish_reason_max_tokens_in_generate_content_and_send_message(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            generation_config=generative_models.GenerationConfig(
+                max_output_tokens=5,
+            ),
+        )
+        chat = model.start_chat()
+
+        # Test that generate_content succeeds:
+        response1 = model.generate_content("Why is sky blue?")
+        assert response1.text
+        assert len(response1.text.split()) <= 5
+        assert response1.candidates[0].finish_reason.name == "MAX_TOKENS"
+
+        # Test that ChatSession.send_message raises error:
+        with pytest.raises(generative_models.ResponseValidationError):
+            chat.send_message("Please block response with finish_reason=OTHER.")
+
+        # Verify that history did not get updated
         assert not chat.history
 
     @mock.patch.object(
