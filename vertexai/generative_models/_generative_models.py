@@ -43,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
+from vertexai.preview import rag
 import warnings
 
 try:
@@ -1335,7 +1336,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: "grounding.Retrieval",
+        retrieval: Union["grounding.Retrieval", "rag.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)

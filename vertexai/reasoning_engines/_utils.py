@@ -24,6 +24,15 @@ import proto
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
+try:
+    # For LangChain templates, they might not import langchain_core and get
+    #   PydanticUserError: `query` is not fully defined; you should define
+    #   `RunnableConfig`, then call `query.model_rebuild()`.
+    import langchain_core.runnables.config
+    RunnableConfig = langchain_core.runnables.config.RunnableConfig
+except ImportError:
+    RunnableConfig = Any
+
 JsonDict = Dict[str, Any]
 
 
@@ -214,11 +223,10 @@ def _import_cloudpickle_or_raise() -> types.ModuleType:
 def _import_pydantic_or_raise() -> types.ModuleType:
     """Tries to import the pydantic module."""
     try:
-        # For compatibility across Pydantic V1 and V2
-        try:
-            from pydantic import v1 as pydantic
-        except ImportError:
-            import pydantic
+        import pydantic
+        _ = pydantic.Field
+    except AttributeError:
+        from pydantic import v1 as pydantic
     except ImportError as e:
         raise ImportError(
             "pydantic is not installed. Please call "

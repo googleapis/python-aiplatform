@@ -18,6 +18,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Mapping,
     Optional,
@@ -389,8 +390,6 @@ class LangchainAgent:
         vertexai.init(project=self._project, location=self._location)
         self._llm = ChatVertexAI(
             model_name=self._model_name,
-            # https://github.com/langchain-ai/langchain/issues/14700
-            convert_system_message_to_human=True,
             **self._model_kwargs,
         )
         vertexai.init(project=current_project, location=current_location)
@@ -418,7 +417,7 @@ class LangchainAgent:
         input: Union[str, Mapping[str, Any]],
         config: Optional["RunnableConfig"] = None,
         **kwargs: Any,
-    ) -> Mapping[str, Any]:
+    ) -> Dict[str, Any]:
         """Queries the Agent with the given input and config.
 
         Args:
@@ -433,8 +432,11 @@ class LangchainAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
+        from langchain.load import dump as langchain_load_dump
         if isinstance(input, str):
             input = {"input": input}
         if not self._runnable:
             self.set_up()
-        return self._runnable.invoke(input=input, config=config, **kwargs)
+        return langchain_load_dump.dumpd(
+            self._runnable.invoke(input=input, config=config, **kwargs)
+        )
