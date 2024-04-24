@@ -1,5 +1,7 @@
 """Constants shared between TensorBoard command line uploader and SDK uploader"""
 
+import dataclasses
+
 from tensorboard.plugins.distribution import (
     metadata as distribution_metadata,
 )
@@ -56,3 +58,17 @@ DEFAULT_MAX_BLOB_REQUEST_SIZE = 64 * (2**10)  # 64KiB
 DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
 
 DEFAULT_MAX_BLOB_SIZE = 10 * (2**30)  # 10GiB
+
+
+@dataclasses.dataclass
+class UploadLimits:
+    max_scalar_request_size: int = DEFAULT_MAX_SCALAR_REQUEST_SIZE
+    max_tensor_request_size: int = DEFAULT_MAX_TENSOR_REQUEST_SIZE
+    max_blob_request_size: int = DEFAULT_MAX_BLOB_REQUEST_SIZE
+
+    min_scalar_request_interval: int = DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
+    min_tensor_request_interval: int = DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
+    min_blob_request_interval: int = DEFAULT_MIN_BLOB_REQUEST_INTERVAL
+
+    max_blob_size: int = DEFAULT_MAX_BLOB_SIZE
+    max_tensor_point_size: int = DEFAULT_MAX_TENSOR_POINT_SIZE

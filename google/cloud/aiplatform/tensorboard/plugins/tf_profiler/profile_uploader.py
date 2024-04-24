@@ -22,7 +22,6 @@ import functools
 import os
 import re
 from typing import DefaultDict, Dict, Generator, List, Optional, Set, Tuple
-from tensorboard.uploader.proto import server_info_pb2
 
 from google.cloud import storage
 from google.cloud.aiplatform.compat.services import tensorboard_service_client
@@ -30,6 +29,7 @@ from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
 from google.cloud.aiplatform.tensorboard import upload_tracker
+from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
 import grpc
 import tensorflow as tf
@@ -65,7 +65,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         self,
         experiment_resource_name: str,
         api: TensorboardServiceClient,
-        upload_limits: server_info_pb2.UploadLimits,
+        upload_limits: uploader_constants.UploadLimits,
         blob_rpc_rate_limiter: uploader_utils.RateLimiter,
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
@@ -81,7 +81,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
                     projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
             api (TensorboardServiceClient):
                 Required. Tensorboard service stub used to interact with experiment resource.
-            upload_limits (server_info_pb2.UploadLimits):
+            upload_limits (uploader_constants.UploadLimits):
                 Required. Upload limits for for api calls.
             blob_rpc_rate_limiter (uploader_utils.RateLimiter):
                 Required. A `RateLimiter` to use to limit write RPC frequency.
