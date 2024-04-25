@@ -62,7 +62,6 @@ from tensorboard.compat.proto import graph_pb2
 from tensorboard.compat.proto import summary_pb2
 from tensorboard.compat.proto import types_pb2
 from tensorboard.plugins.graph import metadata as graph_metadata
-from tensorboard.uploader.proto import server_info_pb2
 from tensorboard.util import tb_logging
 from tensorboard.util import tensor_util
 
@@ -96,7 +95,7 @@ class TensorBoardUploader(object):
         logdir: str,
         allowed_plugins: FrozenSet[str],
         experiment_display_name: Optional[str] = None,
-        upload_limits: Optional[server_info_pb2.UploadLimits] = None,
+        upload_limits: Optional[uploader_constants.UploadLimits] = None,
         logdir_poll_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
         rpc_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
         tensor_rpc_rate_limiter: Optional[uploader_utils.RateLimiter] = None,
@@ -121,7 +120,7 @@ class TensorBoardUploader(object):
           allowed_plugins: collection of string plugin names; events will only be
             uploaded if their time series's metadata specifies one of these plugin
             names
-          upload_limits: instance of tensorboard.service.UploadLimits proto.
+          upload_limits: dataclass of uploader_constants.UploadLimits.
           logdir_poll_rate_limiter: a `RateLimiter` to use to limit logdir polling
             frequency, to avoid thrashing disks, especially on networked file
             systems
@@ -160,29 +159,7 @@ class TensorBoardUploader(object):
 
         self._upload_limits = upload_limits
         if not self._upload_limits:
-            self._upload_limits = server_info_pb2.UploadLimits()
-            self._upload_limits.max_scalar_request_size = (
-                uploader_constants.DEFAULT_MAX_SCALAR_REQUEST_SIZE
-            )
-            self._upload_limits.min_scalar_request_interval = (
-                uploader_constants.DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
-            )
-            self._upload_limits.min_tensor_request_interval = (
-                uploader_constants.DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
-            )
-            self._upload_limits.max_tensor_request_size = (
-                uploader_constants.DEFAULT_MAX_TENSOR_REQUEST_SIZE
-            )
-            self._upload_limits.max_tensor_point_size = (
-                uploader_constants.DEFAULT_MAX_TENSOR_POINT_SIZE
-            )
-            self._upload_limits.min_blob_request_interval = (
-                uploader_constants.DEFAULT_MIN_BLOB_REQUEST_INTERVAL
-            )
-            self._upload_limits.max_blob_request_size = (
-                uploader_constants.DEFAULT_MAX_BLOB_REQUEST_SIZE
-            )
-            self._upload_limits.max_blob_size = uploader_constants.DEFAULT_MAX_BLOB_SIZE
+            self._upload_limits = uploader_constants.UploadLimits()
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
@@ -482,7 +459,7 @@ class _BatchedRequestSender(object):
         experiment_resource_name: str,
         api: TensorboardServiceClient,
         allowed_plugins: Iterable[str],
-        upload_limits: server_info_pb2.UploadLimits,
+        upload_limits: uploader_constants.UploadLimits,
         rpc_rate_limiter: uploader_utils.RateLimiter,
         tensor_rpc_rate_limiter: uploader_utils.RateLimiter,
         blob_rpc_rate_limiter: uploader_utils.RateLimiter,

@@ -68,6 +68,8 @@ from .services.migration_service import MigrationServiceClient
 from .services.migration_service import MigrationServiceAsyncClient
 from .services.model_garden_service import ModelGardenServiceClient
 from .services.model_garden_service import ModelGardenServiceAsyncClient
+from .services.model_monitoring_service import ModelMonitoringServiceClient
+from .services.model_monitoring_service import ModelMonitoringServiceAsyncClient
 from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
 from .services.notebook_service import NotebookServiceClient
@@ -650,11 +652,44 @@ from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import ListPublisherModelsRequest
 from .types.model_garden_service import ListPublisherModelsResponse
 from .types.model_garden_service import PublisherModelView
+from .types.model_monitor import ModelMonitor
+from .types.model_monitor import ModelMonitoringSchema
 from .types.model_monitoring import ModelMonitoringAlertConfig
 from .types.model_monitoring import ModelMonitoringConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
+from .types.model_monitoring_alert import ModelMonitoringAlert
+from .types.model_monitoring_alert import ModelMonitoringAlertCondition
+from .types.model_monitoring_alert import ModelMonitoringAnomaly
+from .types.model_monitoring_job import ModelMonitoringJob
+from .types.model_monitoring_job import ModelMonitoringJobExecutionDetail
+from .types.model_monitoring_service import CreateModelMonitoringJobRequest
+from .types.model_monitoring_service import CreateModelMonitorOperationMetadata
+from .types.model_monitoring_service import CreateModelMonitorRequest
+from .types.model_monitoring_service import DeleteModelMonitoringJobRequest
+from .types.model_monitoring_service import DeleteModelMonitorRequest
+from .types.model_monitoring_service import GetModelMonitoringJobRequest
+from .types.model_monitoring_service import GetModelMonitorRequest
+from .types.model_monitoring_service import ListModelMonitoringJobsRequest
+from .types.model_monitoring_service import ListModelMonitoringJobsResponse
+from .types.model_monitoring_service import ListModelMonitorsRequest
+from .types.model_monitoring_service import ListModelMonitorsResponse
+from .types.model_monitoring_service import SearchModelMonitoringAlertsRequest
+from .types.model_monitoring_service import SearchModelMonitoringAlertsResponse
+from .types.model_monitoring_service import SearchModelMonitoringStatsRequest
+from .types.model_monitoring_service import SearchModelMonitoringStatsResponse
+from .types.model_monitoring_service import UpdateModelMonitorOperationMetadata
+from .types.model_monitoring_service import UpdateModelMonitorRequest
+from .types.model_monitoring_spec import ModelMonitoringInput
+from .types.model_monitoring_spec import ModelMonitoringNotificationSpec
+from .types.model_monitoring_spec import ModelMonitoringObjectiveSpec
+from .types.model_monitoring_spec import ModelMonitoringOutputSpec
+from .types.model_monitoring_spec import ModelMonitoringSpec
+from .types.model_monitoring_stats import ModelMonitoringStats
+from .types.model_monitoring_stats import ModelMonitoringStatsDataPoint
+from .types.model_monitoring_stats import ModelMonitoringTabularStats
+from .types.model_monitoring_stats import SearchModelMonitoringStatsFilter
 from .types.model_service import BatchImportEvaluatedAnnotationsRequest
 from .types.model_service import BatchImportEvaluatedAnnotationsResponse
 from .types.model_service import BatchImportModelEvaluationSlicesRequest
@@ -971,6 +1006,7 @@ __all__ = (
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
+    "ModelMonitoringServiceAsyncClient",
     "ModelServiceAsyncClient",
     "NotebookServiceAsyncClient",
     "PersistentResourceServiceAsyncClient",
@@ -1106,6 +1142,9 @@ __all__ = (
     "CreateMetadataStoreOperationMetadata",
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
+    "CreateModelMonitorOperationMetadata",
+    "CreateModelMonitorRequest",
+    "CreateModelMonitoringJobRequest",
     "CreateNasJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
@@ -1165,6 +1204,8 @@ __all__ = (
     "DeleteMetadataStoreOperationMetadata",
     "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
+    "DeleteModelMonitorRequest",
+    "DeleteModelMonitoringJobRequest",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
@@ -1331,6 +1372,8 @@ __all__ = (
     "GetModelDeploymentMonitoringJobRequest",
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
+    "GetModelMonitorRequest",
+    "GetModelMonitoringJobRequest",
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
@@ -1447,6 +1490,10 @@ __all__ = (
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",
     "ListModelEvaluationsResponse",
+    "ListModelMonitoringJobsRequest",
+    "ListModelMonitoringJobsResponse",
+    "ListModelMonitorsRequest",
+    "ListModelMonitorsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1519,10 +1566,26 @@ __all__ = (
     "ModelExplanation",
     "ModelGardenServiceClient",
     "ModelGardenSource",
+    "ModelMonitor",
+    "ModelMonitoringAlert",
+    "ModelMonitoringAlertCondition",
     "ModelMonitoringAlertConfig",
+    "ModelMonitoringAnomaly",
     "ModelMonitoringConfig",
+    "ModelMonitoringInput",
+    "ModelMonitoringJob",
+    "ModelMonitoringJobExecutionDetail",
+    "ModelMonitoringNotificationSpec",
     "ModelMonitoringObjectiveConfig",
+    "ModelMonitoringObjectiveSpec",
+    "ModelMonitoringOutputSpec",
+    "ModelMonitoringSchema",
+    "ModelMonitoringServiceClient",
+    "ModelMonitoringSpec",
+    "ModelMonitoringStats",
     "ModelMonitoringStatsAnomalies",
+    "ModelMonitoringStatsDataPoint",
+    "ModelMonitoringTabularStats",
     "ModelServiceClient",
     "ModelSourceInfo",
     "MutateDeployedIndexOperationMetadata",
@@ -1691,6 +1754,11 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+    "SearchModelMonitoringAlertsRequest",
+    "SearchModelMonitoringAlertsResponse",
+    "SearchModelMonitoringStatsFilter",
+    "SearchModelMonitoringStatsRequest",
+    "SearchModelMonitoringStatsResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
     "Segment",
@@ -1812,6 +1880,8 @@ __all__ = (
     "UpdateIndexRequest",
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
+    "UpdateModelMonitorOperationMetadata",
+    "UpdateModelMonitorRequest",
     "UpdateModelRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
