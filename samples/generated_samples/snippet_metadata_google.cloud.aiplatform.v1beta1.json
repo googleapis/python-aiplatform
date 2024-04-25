@@ -29240,6 +29240,1801 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.create_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "CreateModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateModelMonitorRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "model_monitor",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitor"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_model_monitor"
+      },
+      "description": "Sample for CreateModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitor_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_CreateModelMonitor_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitor_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.create_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "CreateModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateModelMonitorRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "model_monitor",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitor"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_model_monitor"
+      },
+      "description": "Sample for CreateModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitor_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_CreateModelMonitor_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitor_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.create_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "CreateModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateModelMonitoringJobRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "model_monitoring_job",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob",
+        "shortName": "create_model_monitoring_job"
+      },
+      "description": "Sample for CreateModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitoring_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_CreateModelMonitoringJob_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitoring_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.create_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "CreateModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateModelMonitoringJobRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "model_monitoring_job",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob",
+        "shortName": "create_model_monitoring_job"
+      },
+      "description": "Sample for CreateModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitoring_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_CreateModelMonitoringJob_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_create_model_monitoring_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.delete_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "DeleteModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteModelMonitorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_model_monitor"
+      },
+      "description": "Sample for DeleteModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitor_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_DeleteModelMonitor_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitor_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.delete_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "DeleteModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteModelMonitorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_model_monitor"
+      },
+      "description": "Sample for DeleteModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitor_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_DeleteModelMonitor_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitor_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.delete_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "DeleteModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteModelMonitoringJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_model_monitoring_job"
+      },
+      "description": "Sample for DeleteModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitoring_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_DeleteModelMonitoringJob_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitoring_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.delete_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "DeleteModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteModelMonitoringJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_model_monitoring_job"
+      },
+      "description": "Sample for DeleteModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitoring_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_DeleteModelMonitoringJob_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_delete_model_monitoring_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.get_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "GetModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetModelMonitorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitor",
+        "shortName": "get_model_monitor"
+      },
+      "description": "Sample for GetModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitor_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_GetModelMonitor_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitor_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.get_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "GetModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetModelMonitorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitor",
+        "shortName": "get_model_monitor"
+      },
+      "description": "Sample for GetModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitor_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_GetModelMonitor_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitor_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.get_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "GetModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetModelMonitoringJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob",
+        "shortName": "get_model_monitoring_job"
+      },
+      "description": "Sample for GetModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitoring_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_GetModelMonitoringJob_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitoring_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.get_model_monitoring_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitoringJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "GetModelMonitoringJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetModelMonitoringJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob",
+        "shortName": "get_model_monitoring_job"
+      },
+      "description": "Sample for GetModelMonitoringJob",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitoring_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_GetModelMonitoringJob_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_get_model_monitoring_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.list_model_monitoring_jobs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitoringJobs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "ListModelMonitoringJobs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListModelMonitoringJobsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitoringJobsAsyncPager",
+        "shortName": "list_model_monitoring_jobs"
+      },
+      "description": "Sample for ListModelMonitoringJobs",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitoring_jobs_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_ListModelMonitoringJobs_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitoring_jobs_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.list_model_monitoring_jobs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitoringJobs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "ListModelMonitoringJobs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListModelMonitoringJobsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitoringJobsPager",
+        "shortName": "list_model_monitoring_jobs"
+      },
+      "description": "Sample for ListModelMonitoringJobs",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitoring_jobs_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_ListModelMonitoringJobs_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitoring_jobs_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.list_model_monitors",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitors",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "ListModelMonitors"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListModelMonitorsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitorsAsyncPager",
+        "shortName": "list_model_monitors"
+      },
+      "description": "Sample for ListModelMonitors",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitors_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_ListModelMonitors_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitors_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.list_model_monitors",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitors",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "ListModelMonitors"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListModelMonitorsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitorsPager",
+        "shortName": "list_model_monitors"
+      },
+      "description": "Sample for ListModelMonitors",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitors_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_ListModelMonitors_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_list_model_monitors_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.search_model_monitoring_alerts",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringAlerts",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "SearchModelMonitoringAlerts"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringAlertsRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringAlertsAsyncPager",
+        "shortName": "search_model_monitoring_alerts"
+      },
+      "description": "Sample for SearchModelMonitoringAlerts",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_alerts_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_SearchModelMonitoringAlerts_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_alerts_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.search_model_monitoring_alerts",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringAlerts",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "SearchModelMonitoringAlerts"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringAlertsRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringAlertsPager",
+        "shortName": "search_model_monitoring_alerts"
+      },
+      "description": "Sample for SearchModelMonitoringAlerts",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_alerts_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_SearchModelMonitoringAlerts_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_alerts_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.search_model_monitoring_stats",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringStats",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "SearchModelMonitoringStats"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringStatsRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringStatsAsyncPager",
+        "shortName": "search_model_monitoring_stats"
+      },
+      "description": "Sample for SearchModelMonitoringStats",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_stats_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_SearchModelMonitoringStats_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_stats_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.search_model_monitoring_stats",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringStats",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "SearchModelMonitoringStats"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringStatsRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringStatsPager",
+        "shortName": "search_model_monitoring_stats"
+      },
+      "description": "Sample for SearchModelMonitoringStats",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_stats_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_SearchModelMonitoringStats_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_search_model_monitoring_stats_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient",
+          "shortName": "ModelMonitoringServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.update_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.UpdateModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "UpdateModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateModelMonitorRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitor"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_model_monitor"
+      },
+      "description": "Sample for UpdateModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_update_model_monitor_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_UpdateModelMonitor_async",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_update_model_monitor_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient",
+          "shortName": "ModelMonitoringServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.update_model_monitor",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService.UpdateModelMonitor",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+            "shortName": "ModelMonitoringService"
+          },
+          "shortName": "UpdateModelMonitor"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateModelMonitorRequest"
+          },
+          {
+            "name": "model_monitor",
+            "type": "google.cloud.aiplatform_v1beta1.types.ModelMonitor"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_model_monitor"
+      },
+      "description": "Sample for UpdateModelMonitor",
+      "file": "aiplatform_v1beta1_generated_model_monitoring_service_update_model_monitor_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelMonitoringService_UpdateModelMonitor_sync",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_monitoring_service_update_model_monitor_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient",
           "shortName": "ModelServiceAsyncClient"
         },

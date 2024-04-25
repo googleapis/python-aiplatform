@@ -22,6 +22,7 @@ Services for Google Cloud Aiplatform v1beta1 API
     metadata_service
     migration_service
     model_garden_service
+    model_monitoring_service
     model_service
     notebook_service
     persistent_resource_service

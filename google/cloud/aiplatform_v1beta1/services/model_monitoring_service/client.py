@@ -47,23 +47,37 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-from google.api_core import operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import pagers
+from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import model_monitor
+from google.cloud.aiplatform_v1beta1.types import model_monitor as gca_model_monitor
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_monitoring_job as gca_model_monitoring_job,
+)
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_stats
+from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
-from .transports.rest import MigrationServiceRestTransport
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from .transports.base import ModelMonitoringServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import ModelMonitoringServiceGrpcTransport
+from .transports.grpc_asyncio import ModelMonitoringServiceGrpcAsyncIOTransport
+from .transports.rest import ModelMonitoringServiceRestTransport
 
 
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
+class ModelMonitoringServiceClientMeta(type):
+    """Metaclass for the ModelMonitoringService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -72,15 +86,15 @@ class MigrationServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
-    _transport_registry["rest"] = MigrationServiceRestTransport
+    )  # type: Dict[str, Type[ModelMonitoringServiceTransport]]
+    _transport_registry["grpc"] = ModelMonitoringServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = ModelMonitoringServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = ModelMonitoringServiceRestTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[MigrationServiceTransport]:
+    ) -> Type[ModelMonitoringServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -99,9 +113,10 @@ class MigrationServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
+class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
+    """A service for creating and managing Vertex AI Model moitoring. This
+    includes ``ModelMonitor`` resources, ``ModelMonitoringJob``
+    resources.
     """
 
     @staticmethod
@@ -154,7 +169,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ModelMonitoringServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -172,7 +187,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ModelMonitoringServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -181,72 +196,33 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> MigrationServiceTransport:
+    def transport(self) -> ModelMonitoringServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            MigrationServiceTransport: The transport used by the client
+            ModelMonitoringServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
+    def batch_prediction_job_path(
         project: str,
         location: str,
-        dataset: str,
+        batch_prediction_job: str,
     ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        """Returns a fully-qualified batch_prediction_job string."""
+        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
             project=project,
             location=location,
-            dataset=dataset,
+            batch_prediction_job=batch_prediction_job,
         )
 
     @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
+    def parse_batch_prediction_job_path(path: str) -> Dict[str, str]:
+        """Parses a batch_prediction_job path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/batchPredictionJobs/(?P<batch_prediction_job>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -274,23 +250,23 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(
+    def endpoint_path(
         project: str,
         location: str,
-        model: str,
+        endpoint: str,
     ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project,
             location=location,
-            model=model,
+            endpoint=endpoint,
         )
 
     @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -318,23 +294,69 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def version_path(
+    def model_monitor_path(
         project: str,
-        model: str,
-        version: str,
+        location: str,
+        model_monitor: str,
     ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
+        """Returns a fully-qualified model_monitor string."""
+        return "projects/{project}/locations/{location}/modelMonitors/{model_monitor}".format(
             project=project,
-            model=model,
-            version=version,
+            location=location,
+            model_monitor=model_monitor,
         )
 
     @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
+    def parse_model_monitor_path(path: str) -> Dict[str, str]:
+        """Parses a model_monitor path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelMonitors/(?P<model_monitor>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_monitoring_job_path(
+        project: str,
+        location: str,
+        model_monitor: str,
+        model_monitoring_job: str,
+    ) -> str:
+        """Returns a fully-qualified model_monitoring_job string."""
+        return "projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}".format(
+            project=project,
+            location=location,
+            model_monitor=model_monitor,
+            model_monitoring_job=model_monitoring_job,
+        )
+
+    @staticmethod
+    def parse_model_monitoring_job_path(path: str) -> Dict[str, str]:
+        """Parses a model_monitoring_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelMonitors/(?P<model_monitor>.+?)/modelMonitoringJobs/(?P<model_monitoring_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def schedule_path(
+        project: str,
+        location: str,
+        schedule: str,
+    ) -> str:
+        """Returns a fully-qualified schedule string."""
+        return "projects/{project}/locations/{location}/schedules/{schedule}".format(
+            project=project,
+            location=location,
+            schedule=schedule,
+        )
+
+    @staticmethod
+    def parse_schedule_path(path: str) -> Dict[str, str]:
+        """Parses a schedule path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/schedules/(?P<schedule>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -558,15 +580,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         elif use_mtls_endpoint == "always" or (
             use_mtls_endpoint == "auto" and client_cert_source
         ):
-            _default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
+            _default_universe = ModelMonitoringServiceClient._DEFAULT_UNIVERSE
             if universe_domain != _default_universe:
                 raise MutualTLSChannelError(
                     f"mTLS is not supported in any universe other than {_default_universe}."
                 )
-            api_endpoint = MigrationServiceClient.DEFAULT_MTLS_ENDPOINT
+            api_endpoint = ModelMonitoringServiceClient.DEFAULT_MTLS_ENDPOINT
         else:
-            api_endpoint = MigrationServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=universe_domain
+            api_endpoint = (
+                ModelMonitoringServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=universe_domain
+                )
             )
         return api_endpoint
 
@@ -586,7 +610,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Raises:
             ValueError: If the universe domain is an empty string.
         """
-        universe_domain = MigrationServiceClient._DEFAULT_UNIVERSE
+        universe_domain = ModelMonitoringServiceClient._DEFAULT_UNIVERSE
         if client_universe_domain is not None:
             universe_domain = client_universe_domain
         elif universe_domain_env is not None:
@@ -612,7 +636,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             ValueError: when client_universe does not match the universe in credentials.
         """
 
-        default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
+        default_universe = ModelMonitoringServiceClient._DEFAULT_UNIVERSE
         credentials_universe = getattr(credentials, "universe_domain", default_universe)
 
         if client_universe != credentials_universe:
@@ -636,7 +660,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         """
         self._is_universe_domain_valid = (
             self._is_universe_domain_valid
-            or MigrationServiceClient._compare_universes(
+            or ModelMonitoringServiceClient._compare_universes(
                 self.universe_domain, self.transport._credentials
             )
         )
@@ -664,11 +688,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, MigrationServiceTransport]] = None,
+        transport: Optional[Union[str, ModelMonitoringServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the model monitoring service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -676,7 +700,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, MigrationServiceTransport]): The
+            transport (Union[str, ModelMonitoringServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
                 NOTE: "rest" transport functionality is currently in a
@@ -733,11 +757,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             self._use_client_cert,
             self._use_mtls_endpoint,
             self._universe_domain_env,
-        ) = MigrationServiceClient._read_environment_variables()
-        self._client_cert_source = MigrationServiceClient._get_client_cert_source(
+        ) = ModelMonitoringServiceClient._read_environment_variables()
+        self._client_cert_source = ModelMonitoringServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
-        self._universe_domain = MigrationServiceClient._get_universe_domain(
+        self._universe_domain = ModelMonitoringServiceClient._get_universe_domain(
             universe_domain_opt, self._universe_domain_env
         )
         self._api_endpoint = None  # updated below, depending on `transport`
@@ -754,9 +778,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        transport_provided = isinstance(transport, MigrationServiceTransport)
+        transport_provided = isinstance(transport, ModelMonitoringServiceTransport)
         if transport_provided:
-            # transport is a MigrationServiceTransport instance.
+            # transport is a ModelMonitoringServiceTransport instance.
             if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -767,12 +791,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = cast(MigrationServiceTransport, transport)
+            self._transport = cast(ModelMonitoringServiceTransport, transport)
             self._api_endpoint = self._transport.host
 
         self._api_endpoint = (
             self._api_endpoint
-            or MigrationServiceClient._get_api_endpoint(
+            or ModelMonitoringServiceClient._get_api_endpoint(
                 self._client_options.api_endpoint,
                 self._client_cert_source,
                 self._universe_domain,
@@ -803,21 +827,19 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 api_audience=self._client_options.api_audience,
             )
 
-    def search_migratable_resources(
+    def create_model_monitor(
         self,
         request: Optional[
-            Union[migration_service.SearchMigratableResourcesRequest, dict]
+            Union[model_monitoring_service.CreateModelMonitorRequest, dict]
         ] = None,
         *,
         parent: Optional[str] = None,
+        model_monitor: Optional[gca_model_monitor.ModelMonitor] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
+    ) -> gac_operation.Operation:
+        r"""Creates a ModelMonitor.
 
         .. code-block:: python
 
@@ -830,31 +852,407 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_migratable_resources():
+            def sample_create_model_monitor():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
+                request = aiplatform_v1beta1.CreateModelMonitorRequest(
                     parent="parent_value",
                 )
 
                 # Make the request
-                page_result = client.search_migratable_resources(request=request)
+                operation = client.create_model_monitor(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateModelMonitorRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.CreateModelMonitor][google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitor].
+            parent (str):
+                Required. The resource name of the Location to create
+                the ModelMonitor in. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            model_monitor (google.cloud.aiplatform_v1beta1.types.ModelMonitor):
+                Required. The ModelMonitor to create.
+                This corresponds to the ``model_monitor`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ModelMonitor` Vertex AI Model Monitoring Service serves as a central hub for the analysis
+                   and visualization of data quality and performance
+                   related to models. ModelMonitor stands as a top level
+                   resource for overseeing your model monitoring tasks.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, model_monitor])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.CreateModelMonitorRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_monitoring_service.CreateModelMonitorRequest):
+            request = model_monitoring_service.CreateModelMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if model_monitor is not None:
+                request.model_monitor = model_monitor
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_model_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            gca_model_monitor.ModelMonitor,
+            metadata_type=model_monitoring_service.CreateModelMonitorOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def update_model_monitor(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.UpdateModelMonitorRequest, dict]
+        ] = None,
+        *,
+        model_monitor: Optional[gca_model_monitor.ModelMonitor] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Updates a ModelMonitor.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_model_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateModelMonitorRequest(
+                )
+
+                # Make the request
+                operation = client.update_model_monitor(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateModelMonitorRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.UpdateModelMonitor][google.cloud.aiplatform.v1beta1.ModelMonitoringService.UpdateModelMonitor].
+            model_monitor (google.cloud.aiplatform_v1beta1.types.ModelMonitor):
+                Required. The model monitoring
+                configuration which replaces the
+                resource on the server.
+
+                This corresponds to the ``model_monitor`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
+                Required. Mask specifying which
+                fields to update.
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ModelMonitor` Vertex AI Model Monitoring Service serves as a central hub for the analysis
+                   and visualization of data quality and performance
+                   related to models. ModelMonitor stands as a top level
+                   resource for overseeing your model monitoring tasks.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model_monitor, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.UpdateModelMonitorRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_monitoring_service.UpdateModelMonitorRequest):
+            request = model_monitoring_service.UpdateModelMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if model_monitor is not None:
+                request.model_monitor = model_monitor
+            if update_mask is not None:
+                request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.update_model_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("model_monitor.name", request.model_monitor.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            gca_model_monitor.ModelMonitor,
+            metadata_type=model_monitoring_service.UpdateModelMonitorOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_model_monitor(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.GetModelMonitorRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> model_monitor.ModelMonitor:
+        r"""Gets a ModelMonitor.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_model_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetModelMonitorRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_monitor(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelMonitorRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.GetModelMonitor][google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitor].
+            name (str):
+                Required. The name of the ModelMonitor resource. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ModelMonitor:
+                Vertex AI Model Monitoring Service
+                serves as a central hub for the analysis
+                and visualization of data quality and
+                performance related to models.
+                ModelMonitor stands as a top level
+                resource for overseeing your model
+                monitoring tasks.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.GetModelMonitorRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_monitoring_service.GetModelMonitorRequest):
+            request = model_monitoring_service.GetModelMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_model_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_model_monitors(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.ListModelMonitorsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListModelMonitorsPager:
+        r"""Lists ModelMonitors in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_model_monitors():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListModelMonitorsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_monitors(request=request)
 
                 # Handle the response
                 for response in page_result:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelMonitorsRequest, dict]):
                 The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+                [ModelMonitoringService.ListModelMonitors][google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitors].
             parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
+                Required. The resource name of the Location to list the
+                ModelMonitors from. Format:
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
@@ -867,9 +1265,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
+            google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitorsPager:
                 Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+                   [ModelMonitoringService.ListModelMonitors][google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitors]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -886,11 +1284,503 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.SearchMigratableResourcesRequest.
+        # in a model_monitoring_service.ListModelMonitorsRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
+        if not isinstance(request, model_monitoring_service.ListModelMonitorsRequest):
+            request = model_monitoring_service.ListModelMonitorsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_model_monitors]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListModelMonitorsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_model_monitor(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.DeleteModelMonitorRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a ModelMonitor.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_model_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteModelMonitorRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model_monitor(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelMonitorRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.DeleteModelMonitor][google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitor].
+            name (str):
+                Required. The name of the ModelMonitor resource to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/modelMonitords/{model_monitor}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.DeleteModelMonitorRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_monitoring_service.DeleteModelMonitorRequest):
+            request = model_monitoring_service.DeleteModelMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_model_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def create_model_monitoring_job(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.CreateModelMonitoringJobRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        model_monitoring_job: Optional[
+            gca_model_monitoring_job.ModelMonitoringJob
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_model_monitoring_job.ModelMonitoringJob:
+        r"""Creates a ModelMonitoringJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_model_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateModelMonitoringJobRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_model_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateModelMonitoringJobRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.CreateModelMonitoringJob][google.cloud.aiplatform.v1beta1.ModelMonitoringService.CreateModelMonitoringJob].
+            parent (str):
+                Required. The parent of the ModelMonitoringJob. Format:
+                ``projects/{project}/locations/{location}/modelMoniitors/{model_monitor}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            model_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob):
+                Required. The ModelMonitoringJob to
+                create
+
+                This corresponds to the ``model_monitoring_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob:
+                Represents a model monitoring job
+                that analyze dataset using different
+                monitoring algorithm.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, model_monitoring_job])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.CreateModelMonitoringJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, model_monitoring_service.CreateModelMonitoringJobRequest
+        ):
+            request = model_monitoring_service.CreateModelMonitoringJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if model_monitoring_job is not None:
+                request.model_monitoring_job = model_monitoring_job
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.create_model_monitoring_job
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_model_monitoring_job(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.GetModelMonitoringJobRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> model_monitoring_job.ModelMonitoringJob:
+        r"""Gets a ModelMonitoringJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_model_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetModelMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelMonitoringJobRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.GetModelMonitoringJob][google.cloud.aiplatform.v1beta1.ModelMonitoringService.GetModelMonitoringJob].
+            name (str):
+                Required. The resource name of the ModelMonitoringJob.
+                Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ModelMonitoringJob:
+                Represents a model monitoring job
+                that analyze dataset using different
+                monitoring algorithm.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.GetModelMonitoringJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, model_monitoring_service.GetModelMonitoringJobRequest
+        ):
+            request = model_monitoring_service.GetModelMonitoringJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_model_monitoring_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_model_monitoring_jobs(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.ListModelMonitoringJobsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListModelMonitoringJobsPager:
+        r"""Lists ModelMonitoringJobs. Callers may choose to read across
+        multiple Monitors as per
+        `AIP-159 <https://google.aip.dev/159>`__ by using '-' (the
+        hyphen or dash character) as a wildcard character instead of
+        modelMonitor id in the parent. Format
+        ``projects/{project_id}/locations/{location}/moodelMonitors/-/modelMonitoringJobs``
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_model_monitoring_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListModelMonitoringJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_monitoring_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelMonitoringJobsRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.ListModelMonitoringJobs][google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitoringJobs].
+            parent (str):
+                Required. The parent of the ModelMonitoringJob. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.ListModelMonitoringJobsPager:
+                Response message for
+                   [ModelMonitoringService.ListModelMonitoringJobs][google.cloud.aiplatform.v1beta1.ModelMonitoringService.ListModelMonitoringJobs].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.ListModelMonitoringJobsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, model_monitoring_service.ListModelMonitoringJobsRequest
+        ):
+            request = model_monitoring_service.ListModelMonitoringJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
@@ -899,7 +1789,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
+            self._transport.list_model_monitoring_jobs
         ]
 
         # Certain fields should be provided within the metadata header;
@@ -921,7 +1811,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
+        response = pagers.ListModelMonitoringJobsPager(
             method=rpc,
             request=request,
             response=response,
@@ -931,23 +1821,18 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def batch_migrate_resources(
+    def delete_model_monitoring_job(
         self,
         request: Optional[
-            Union[migration_service.BatchMigrateResourcesRequest, dict]
+            Union[model_monitoring_service.DeleteModelMonitoringJobRequest, dict]
         ] = None,
         *,
-        parent: Optional[str] = None,
-        migrate_resource_requests: Optional[
-            MutableSequence[migration_service.MigrateResourceRequest]
-        ] = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
+    ) -> gac_operation.Operation:
+        r"""Deletes a ModelMonitoringJob.
 
         .. code-block:: python
 
@@ -960,23 +1845,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_migrate_resources():
+            def sample_delete_model_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
 
                 # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
-
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
-                    parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
+                request = aiplatform_v1beta1.DeleteModelMonitoringJobRequest(
+                    name="name_value",
                 )
 
                 # Make the request
-                operation = client.batch_migrate_resources(request=request)
+                operation = client.delete_model_monitoring_job(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -986,25 +1865,15 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelMonitoringJobRequest, dict]):
                 The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
-            parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
-                ``projects/{project}/locations/{location}``
+                [ModelMonitoringService.DeleteModelMonitoringJob][google.cloud.aiplatform.v1beta1.ModelMonitoringService.DeleteModelMonitoringJob].
+            name (str):
+                Required. The resource name of the model monitoring job
+                to delete. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}``
 
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
-
-                This corresponds to the ``migrate_resource_requests`` field
+                This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1017,14 +1886,22 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
 
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, migrate_resource_requests])
+        has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1032,26 +1909,28 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.BatchMigrateResourcesRequest.
+        # in a model_monitoring_service.DeleteModelMonitoringJobRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
+        if not isinstance(
+            request, model_monitoring_service.DeleteModelMonitoringJobRequest
+        ):
+            request = model_monitoring_service.DeleteModelMonitoringJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+            if name is not None:
+                request.name = name
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
+        rpc = self._transport._wrapped_methods[
+            self._transport.delete_model_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Validate the universe domain.
@@ -1066,17 +1945,274 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "MigrationServiceClient":
+    def search_model_monitoring_stats(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.SearchModelMonitoringStatsRequest, dict]
+        ] = None,
+        *,
+        model_monitor: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.SearchModelMonitoringStatsPager:
+        r"""Searches Model Monitoring Stats generated within a
+        given time window.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_search_model_monitoring_stats():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SearchModelMonitoringStatsRequest(
+                    model_monitor="model_monitor_value",
+                )
+
+                # Make the request
+                page_result = client.search_model_monitoring_stats(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringStatsRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.SearchModelMonitoringStats][google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringStats].
+            model_monitor (str):
+                Required. ModelMonitor resource name. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}``
+
+                This corresponds to the ``model_monitor`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringStatsPager:
+                Response message for
+                   [ModelMonitoringService.SearchModelMonitoringStats][google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringStats].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model_monitor])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.SearchModelMonitoringStatsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, model_monitoring_service.SearchModelMonitoringStatsRequest
+        ):
+            request = model_monitoring_service.SearchModelMonitoringStatsRequest(
+                request
+            )
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if model_monitor is not None:
+                request.model_monitor = model_monitor
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.search_model_monitoring_stats
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("model_monitor", request.model_monitor),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.SearchModelMonitoringStatsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def search_model_monitoring_alerts(
+        self,
+        request: Optional[
+            Union[model_monitoring_service.SearchModelMonitoringAlertsRequest, dict]
+        ] = None,
+        *,
+        model_monitor: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.SearchModelMonitoringAlertsPager:
+        r"""Returns the Model Monitoring alerts.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_search_model_monitoring_alerts():
+                # Create a client
+                client = aiplatform_v1beta1.ModelMonitoringServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SearchModelMonitoringAlertsRequest(
+                    model_monitor="model_monitor_value",
+                )
+
+                # Make the request
+                page_result = client.search_model_monitoring_alerts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchModelMonitoringAlertsRequest, dict]):
+                The request object. Request message for
+                [ModelMonitoringService.SearchModelMonitoringAlerts][google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringAlerts].
+            model_monitor (str):
+                Required. ModelMonitor resource name. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}``
+
+                This corresponds to the ``model_monitor`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.model_monitoring_service.pagers.SearchModelMonitoringAlertsPager:
+                Response message for
+                   [ModelMonitoringService.SearchModelMonitoringAlerts][google.cloud.aiplatform.v1beta1.ModelMonitoringService.SearchModelMonitoringAlerts].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model_monitor])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_monitoring_service.SearchModelMonitoringAlertsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, model_monitoring_service.SearchModelMonitoringAlertsRequest
+        ):
+            request = model_monitoring_service.SearchModelMonitoringAlertsRequest(
+                request
+            )
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if model_monitor is not None:
+                request.model_monitor = model_monitor
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.search_model_monitoring_alerts
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("model_monitor", request.model_monitor),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.SearchModelMonitoringAlertsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def __enter__(self) -> "ModelMonitoringServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1810,4 +2946,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("ModelMonitoringServiceClient",)
