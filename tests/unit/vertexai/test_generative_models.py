@@ -860,6 +860,9 @@ class TestGenerativeModels:
                 part_new = generative_models.Part.from_dict(part.to_dict())
                 assert repr(part_new) == repr(part)
 
+        # Checking that the enums are serialized as strings, not integers.
+        assert response.to_dict()["candidates"][0]["finish_reason"] == "STOP"
+
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
         attribute="generate_content",
