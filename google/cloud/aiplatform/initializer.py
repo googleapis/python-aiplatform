@@ -109,6 +109,10 @@ class _Config:
         self._api_endpoint = None
         self._api_transport = None
 
+    def init_auto(self, *):
+        # TODO: create a GCP project with a location
+        self.init(project=project, location=location)
+
     def init(
         self,
         *,
