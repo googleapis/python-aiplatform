@@ -1926,7 +1926,12 @@ class Part:
 
     @property
     def mime_type(self) -> Optional[str]:
-        return self._raw_part.mime_type
+        part_type = self._raw_part._pb.WhichOneof("data")
+        if part_type == "inline_data":
+            return self._raw_part.inline_data.mime_type
+        if part_type == "file_data":
+            return self._raw_part.file_data.mime_type
+        raise AttributeError(f"Part has no mime_type.\nPart:\n{self.to_dict()}")
 
     @property
     def inline_data(self) -> gapic_content_types.Blob:
