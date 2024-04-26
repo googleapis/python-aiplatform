@@ -506,6 +506,58 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generate_content_response_accessor_errors(
+        self, generative_models: generative_models
+    ):
+        """Checks that the exception text contains response information."""
+        model = generative_models.GenerativeModel("gemini-pro")
+
+        # Case when response has no candidates
+        response1 = model.generate_content("Please block with block_reason=OTHER")
+
+        assert response1.prompt_feedback.block_reason.name == "OTHER"
+
+        with pytest.raises(ValueError) as e:
+            _ = response1.text
+        assert e.match("no candidates")
+        assert e.match("prompt_feedback")
+
+        # Case when response candidate content has no parts
+        response2 = model.generate_content("Please fail!")
+
+        with pytest.raises(ValueError) as e:
+            _ = response2.text
+        assert e.match("no parts")
+        assert e.match("finish_reason")
+
+        with pytest.raises(ValueError) as e:
+            _ = response2.candidates[0].text
+        assert e.match("no parts")
+        assert e.match("finish_reason")
+
+        # Case when response candidate content part has no text
+        weather_tool = generative_models.Tool(
+            function_declarations=[
+                generative_models.FunctionDeclaration.from_func(get_current_weather)
+            ],
+        )
+        response3 = model.generate_content(
+            "What's the weather like in Boston?", tools=[weather_tool]
+        )
+        with pytest.raises(ValueError) as e:
+            print(response3.text)
+        assert e.match("no text")
+        assert e.match("function_call")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_chat_send_message(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()

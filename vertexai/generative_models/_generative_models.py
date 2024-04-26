@@ -17,6 +17,7 @@
 
 import copy
 import io
+import json
 import pathlib
 from typing import (
     Any,
@@ -1658,8 +1659,23 @@ class GenerationResponse:
                 " Use `response.candidate[i].text` to get text of a particular candidate."
             )
         if not self.candidates:
-            raise ValueError("Response has no candidates (and no text).")
-        return self.candidates[0].text
+            raise ValueError(
+                "Response has no candidates (and thus no text)."
+                " The response is likely blocked by the safety filters.\n"
+                "Response:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
+        try:
+            return self.candidates[0].text
+        except (ValueError, AttributeError) as e:
+            # Enrich the error message with the whole Response.
+            # The Candidate object does not have full information.
+            raise ValueError(
+                "Cannot get the response text.\n"
+                f"{e}\n"
+                "Response:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            ) from e
 
     @property
     def prompt_feedback(
@@ -1728,7 +1744,17 @@ class Candidate:
     # GenerationPart properties
     @property
     def text(self) -> str:
-        return self.content.text
+        try:
+            return self.content.text
+        except (ValueError, AttributeError) as e:
+            # Enrich the error message with the whole Candidate.
+            # The Content object does not have full information.
+            raise ValueError(
+                "Cannot get the Candidate text.\n"
+                f"{e}\n"
+                "Candidate:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            ) from e
 
     @property
     def function_calls(self) -> Sequence[gapic_tool_types.FunctionCall]:
@@ -1799,7 +1825,12 @@ class Content:
         if len(self.parts) > 1:
             raise ValueError("Multiple content parts are not supported.")
         if not self.parts:
-            raise AttributeError("Content has no parts.")
+            raise ValueError(
+                "Response candidate content has no parts (and thus no text)."
+                " The candidate is likely blocked by the safety filters.\n"
+                "Content:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
         return self.parts[0].text
 
 
@@ -1886,7 +1917,11 @@ class Part:
     @property
     def text(self) -> str:
         if "text" not in self._raw_part:
-            raise AttributeError("Part has no text.")
+            raise AttributeError(
+                "Response candidate content part has no text.\n"
+                "Part:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
         return self._raw_part.text
 
     @property
@@ -2186,6 +2221,11 @@ def _append_gapic_part(
         base_part.text += new_part.text
     else:
         base_part._pb = copy.deepcopy(new_part._pb)
+
+
+def _dict_to_pretty_string(d: dict) -> str:
+    """Format dict as a pretty-printed JSON string."""
+    return json.dumps(d, indent=2)
 
 
 _FORMAT_TO_MIME_TYPE = {
