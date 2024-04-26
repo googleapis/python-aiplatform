@@ -146,7 +146,6 @@ class _Config:
             response = requests.post(f"https://cloudresourcemanager.googleapis.com/v1/projects/{default_project}:getAncestry", headers=headers)
             if response.status_code != 200:
                 raise RuntimeError(f"Failed to get project ancestry: {response.content}")
-            json_response = json.loads(response.content)
             last_ancestor = json.loads(response.content)["ancestor"][-1]["resourceId"]
             parent = f"{last_ancestor['type']}s/{last_ancestor['id']}"
 
