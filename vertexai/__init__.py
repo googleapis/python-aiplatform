@@ -18,10 +18,11 @@ from google.cloud.aiplatform import version as aiplatform_version
 
 __version__ = aiplatform_version.__version__
 
-from google.cloud.aiplatform import init
+from google.cloud.aiplatform import init, init_auto
 from vertexai import preview
 
 __all__ = [
     "init",
+    "init_auto",
     "preview",
 ]

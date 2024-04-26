@@ -88,6 +88,7 @@ from google.cloud import aiplatform
 aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
+init_auto = initializer.global_config.init_auto
 
 get_pipeline_df = metadata.metadata._LegacyExperimentService.get_pipeline_df
 
@@ -124,6 +125,7 @@ __all__ = (
     "explain",
     "gapic",
     "init",
+    "init_auto",
     "helpers",
     "hyperparameter_tuning",
     "log",

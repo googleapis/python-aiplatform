@@ -17,6 +17,9 @@
 
 
 from concurrent import futures
+import requests
+import uuid
+import json
 import inspect
 import logging
 import os
@@ -108,6 +111,60 @@ class _Config:
         self._service_account = None
         self._api_endpoint = None
         self._api_transport = None
+
+    def init_auto(self, *args, **kwargs):
+        """
+        Create a brand new project for the user and initialize the SDK with it.
+
+        The project will be created under the same parent org as the current environment default project.
+
+        Any arguments passed to this function will be passed to the init function, 
+        except for project, location and credentials.
+        """
+        if os.getenv("VERTEX_AUTO_PROJECT"):
+            # if the user has already created a project, use that
+            new_project = os.getenv("VERTEX_AUTO_PROJECT")
+            credentials = None
+        else:
+            # create a new project
+
+            # find credentaials and project using auth library
+            # for more robust version, see _Config._set_project_as_env_var_or_google_auth_default
+            credentials, default_project = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+
+            if not credentials.token:
+                # refresh token if needed
+                request = google.auth.transport.requests.Request()
+                credentials.refresh(request)
+            if not credentials.token:
+                raise RuntimeError("Failed to get credentials")
+
+            # find parent folder or organization
+            # I'm not too sure what the best way to do this is, so I'm just grabbing the root
+            headers = {"Authorization": f"Bearer {credentials.token}", "Content-Type": "application/json"}
+
+            response = requests.post(f"https://cloudresourcemanager.googleapis.com/v1/projects/{default_project}:getAncestry", headers=headers)
+            if response.status_code != 200:
+                raise RuntimeError(f"Failed to get project ancestry: {response.content}")
+            json_response = json.loads(response.content)
+            last_ancestor = json.loads(response.content)["ancestor"][-1]["resourceId"]
+            parent = f"{last_ancestor['type']}s/{last_ancestor['id']}"
+
+            # create a new project id
+            new_project = f"vertex-auto-{uuid.uuid4().hex[:8]}"
+
+            # make creation post request
+            data = {"projectId": new_project, "parent": parent, "displayName": "Vertex AI Auto Project"}
+            response = requests.post("https://cloudresourcemanager.googleapis.com/v3/projects/", headers=headers, data=json.dumps(data))
+            if response.status_code != 200:
+                raise RuntimeError(f"Failed to create project: {response.content}")
+            # save project id for future use
+            os.environ["VERTEX_AUTO_PROJECT"] = new_project
+            # TODO: wait until creation completes before continuing
+
+        # pick a default location
+        location = kwargs.get("location", None) or os.getenv("GOOGLE_CLOUD_REGION") or os.getenv("CLOUD_ML_REGION") or "us-central1"
+        return self.init(project=new_project, location=location, credentials=credentials, *args, **kwargs)
 
     def init(
         self,
