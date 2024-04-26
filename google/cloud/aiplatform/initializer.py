@@ -121,11 +121,10 @@ class _Config:
         Any arguments passed to this function will be passed to the init function, 
         except for project, location and credentials.
         """
-        if os.getenv("VERTEX_AUTO_PROJECT"):
-            # if the user has already created a project, use that
-            new_project = os.getenv("VERTEX_AUTO_PROJECT")
-            credentials = None
-        else:
+        # if the user has already created a project, use that
+        auto_project = os.getenv("VERTEX_AUTO_PROJECT")
+        credentials = None
+        if not auto_project:
             # create a new project
 
             # find credentaials and project using auth library
@@ -150,20 +149,20 @@ class _Config:
             parent = f"{last_ancestor['type']}s/{last_ancestor['id']}"
 
             # create a new project id
-            new_project = f"vertex-auto-{uuid.uuid4().hex[:8]}"
+            auto_project = f"vertex-auto-{uuid.uuid4().hex[:8]}"
 
             # make creation post request
-            data = {"projectId": new_project, "parent": parent, "displayName": "Vertex AI Auto Project"}
+            data = {"projectId": auto_project, "parent": parent, "displayName": "Vertex AI Auto Project"}
             response = requests.post("https://cloudresourcemanager.googleapis.com/v3/projects/", headers=headers, data=json.dumps(data))
             if response.status_code != 200:
                 raise RuntimeError(f"Failed to create project: {response.content}")
             # save project id for future use
-            os.environ["VERTEX_AUTO_PROJECT"] = new_project
+            os.environ["VERTEX_AUTO_PROJECT"] = auto_project
             # TODO: wait until creation completes before continuing
 
         # pick a default location
         location = kwargs.get("location", None) or os.getenv("GOOGLE_CLOUD_REGION") or os.getenv("CLOUD_ML_REGION") or "us-central1"
-        return self.init(project=new_project, location=location, credentials=credentials, *args, **kwargs)
+        return self.init(project=auto_project, location=location, credentials=credentials, *args, **kwargs)
 
     def init(
         self,
