@@ -41,6 +41,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.tensorboard import logdir_loader
 from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
+from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
@@ -61,7 +62,6 @@ from tensorboard.compat.proto import types_pb2
 from tensorboard.plugins.graph import metadata as graphs_metadata
 from tensorboard.plugins.scalar import metadata as scalars_metadata
 from tensorboard.summary import v1 as summary_v1
-from tensorboard.uploader.proto import server_info_pb2
 
 data_compat = uploader_lib.event_file_loader.data_compat
 dataclass_compat = uploader_lib.event_file_loader.dataclass_compat
@@ -227,7 +227,7 @@ def _create_uploader(
     if rpc_rate_limiter is _USE_DEFAULT:
         rpc_rate_limiter = uploader_utils.RateLimiter(0)
 
-    upload_limits = server_info_pb2.UploadLimits(
+    upload_limits = uploader_constants.UploadLimits(
         max_scalar_request_size=max_scalar_request_size,
         max_tensor_request_size=max_tensor_request_size,
         max_tensor_point_size=max_tensor_point_size,
@@ -264,7 +264,7 @@ def _create_dispatcher(
     if allowed_plugins is _USE_DEFAULT:
         allowed_plugins = _SCALARS_HISTOGRAMS_AND_GRAPHS
 
-    upload_limits = server_info_pb2.UploadLimits(
+    upload_limits = uploader_constants.UploadLimits(
         max_scalar_request_size=128000,
         max_tensor_request_size=128000,
         max_tensor_point_size=52000,

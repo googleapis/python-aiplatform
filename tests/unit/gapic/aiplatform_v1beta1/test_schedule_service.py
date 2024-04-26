@@ -57,10 +57,20 @@ from google.cloud.aiplatform_v1beta1.services.schedule_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
 from google.cloud.aiplatform_v1beta1.services.schedule_service import transports
+from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution
+from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import explanation_metadata
+from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
@@ -82,6 +92,7 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
@@ -3564,6 +3575,149 @@ def test_create_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_model_monitoring_job_request": {
+            "parent": "parent_value",
+            "model_monitoring_job": {
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "model_monitoring_spec": {
+                    "objective_spec": {
+                        "tabular_objective": {
+                            "feature_drift_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "categorical_metric_type": "categorical_metric_type_value",
+                                "numeric_metric_type": "numeric_metric_type_value",
+                                "default_categorical_alert_condition": {
+                                    "threshold": 0.973
+                                },
+                                "default_numeric_alert_condition": {},
+                                "feature_alert_conditions": {},
+                            },
+                            "prediction_output_drift_spec": {},
+                            "feature_attribution_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "default_alert_condition": {},
+                                "feature_alert_conditions": {},
+                                "batch_explanation_dedicated_resources": {
+                                    "machine_spec": {
+                                        "machine_type": "machine_type_value",
+                                        "accelerator_type": 1,
+                                        "accelerator_count": 1805,
+                                        "tpu_topology": "tpu_topology_value",
+                                    },
+                                    "starting_replica_count": 2355,
+                                    "max_replica_count": 1805,
+                                },
+                            },
+                        },
+                        "explanation_spec": {
+                            "parameters": {
+                                "sampled_shapley_attribution": {"path_count": 1077},
+                                "integrated_gradients_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {
+                                        "noise_sigma": 0.11660000000000001,
+                                        "feature_noise_sigma": {
+                                            "noise_sigma": [
+                                                {"name": "name_value", "sigma": 0.529}
+                                            ]
+                                        },
+                                        "noisy_sample_count": 1947,
+                                    },
+                                    "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                                },
+                                "xrai_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {},
+                                    "blur_baseline_config": {},
+                                },
+                                "examples": {
+                                    "example_gcs_source": {
+                                        "data_format": 1,
+                                        "gcs_source": {
+                                            "uris": ["uris_value1", "uris_value2"]
+                                        },
+                                    },
+                                    "nearest_neighbor_search_config": {
+                                        "null_value": 0,
+                                        "number_value": 0.1285,
+                                        "string_value": "string_value_value",
+                                        "bool_value": True,
+                                        "struct_value": {},
+                                        "list_value": {"values": {}},
+                                    },
+                                    "presets": {"query": 1, "modality": 1},
+                                    "gcs_source": {},
+                                    "neighbor_count": 1494,
+                                },
+                                "top_k": 541,
+                                "output_indices": {},
+                            },
+                            "metadata": {
+                                "inputs": {},
+                                "outputs": {},
+                                "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                                "latent_space_source": "latent_space_source_value",
+                            },
+                        },
+                        "baseline_dataset": {
+                            "columnized_dataset": {
+                                "vertex_dataset": "vertex_dataset_value",
+                                "gcs_source": {
+                                    "gcs_uri": "gcs_uri_value",
+                                    "format_": 1,
+                                },
+                                "bigquery_source": {
+                                    "table_uri": "table_uri_value",
+                                    "query": "query_value",
+                                },
+                                "timestamp_field": "timestamp_field_value",
+                            },
+                            "batch_prediction_output": {
+                                "batch_prediction_job": "batch_prediction_job_value"
+                            },
+                            "vertex_endpoint_logs": {
+                                "endpoints": ["endpoints_value1", "endpoints_value2"]
+                            },
+                            "time_interval": {"start_time": {}, "end_time": {}},
+                            "time_offset": {
+                                "offset": "offset_value",
+                                "window": "window_value",
+                            },
+                        },
+                        "target_dataset": {},
+                    },
+                    "notification_spec": {
+                        "email_config": {
+                            "user_emails": ["user_emails_value1", "user_emails_value2"]
+                        },
+                        "enable_cloud_logging": True,
+                        "notification_channel_configs": [
+                            {"notification_channel": "notification_channel_value"}
+                        ],
+                    },
+                    "output_spec": {
+                        "gcs_base_directory": {
+                            "output_uri_prefix": "output_uri_prefix_value"
+                        }
+                    },
+                },
+                "create_time": {},
+                "update_time": {},
+                "state": 1,
+                "schedule": "schedule_value",
+                "job_execution_detail": {
+                    "baseline_datasets": [
+                        {"location": "location_value", "time_range": {}}
+                    ],
+                    "target_datasets": {},
+                    "objective_status": {},
+                    "error": {},
+                },
+                "schedule_time": {},
+            },
+            "model_monitoring_job_id": "model_monitoring_job_id_value",
+        },
         "name": "name_value",
         "display_name": "display_name_value",
         "start_time": {},
@@ -5453,6 +5607,149 @@ def test_update_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_model_monitoring_job_request": {
+            "parent": "parent_value",
+            "model_monitoring_job": {
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "model_monitoring_spec": {
+                    "objective_spec": {
+                        "tabular_objective": {
+                            "feature_drift_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "categorical_metric_type": "categorical_metric_type_value",
+                                "numeric_metric_type": "numeric_metric_type_value",
+                                "default_categorical_alert_condition": {
+                                    "threshold": 0.973
+                                },
+                                "default_numeric_alert_condition": {},
+                                "feature_alert_conditions": {},
+                            },
+                            "prediction_output_drift_spec": {},
+                            "feature_attribution_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "default_alert_condition": {},
+                                "feature_alert_conditions": {},
+                                "batch_explanation_dedicated_resources": {
+                                    "machine_spec": {
+                                        "machine_type": "machine_type_value",
+                                        "accelerator_type": 1,
+                                        "accelerator_count": 1805,
+                                        "tpu_topology": "tpu_topology_value",
+                                    },
+                                    "starting_replica_count": 2355,
+                                    "max_replica_count": 1805,
+                                },
+                            },
+                        },
+                        "explanation_spec": {
+                            "parameters": {
+                                "sampled_shapley_attribution": {"path_count": 1077},
+                                "integrated_gradients_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {
+                                        "noise_sigma": 0.11660000000000001,
+                                        "feature_noise_sigma": {
+                                            "noise_sigma": [
+                                                {"name": "name_value", "sigma": 0.529}
+                                            ]
+                                        },
+                                        "noisy_sample_count": 1947,
+                                    },
+                                    "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                                },
+                                "xrai_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {},
+                                    "blur_baseline_config": {},
+                                },
+                                "examples": {
+                                    "example_gcs_source": {
+                                        "data_format": 1,
+                                        "gcs_source": {
+                                            "uris": ["uris_value1", "uris_value2"]
+                                        },
+                                    },
+                                    "nearest_neighbor_search_config": {
+                                        "null_value": 0,
+                                        "number_value": 0.1285,
+                                        "string_value": "string_value_value",
+                                        "bool_value": True,
+                                        "struct_value": {},
+                                        "list_value": {"values": {}},
+                                    },
+                                    "presets": {"query": 1, "modality": 1},
+                                    "gcs_source": {},
+                                    "neighbor_count": 1494,
+                                },
+                                "top_k": 541,
+                                "output_indices": {},
+                            },
+                            "metadata": {
+                                "inputs": {},
+                                "outputs": {},
+                                "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                                "latent_space_source": "latent_space_source_value",
+                            },
+                        },
+                        "baseline_dataset": {
+                            "columnized_dataset": {
+                                "vertex_dataset": "vertex_dataset_value",
+                                "gcs_source": {
+                                    "gcs_uri": "gcs_uri_value",
+                                    "format_": 1,
+                                },
+                                "bigquery_source": {
+                                    "table_uri": "table_uri_value",
+                                    "query": "query_value",
+                                },
+                                "timestamp_field": "timestamp_field_value",
+                            },
+                            "batch_prediction_output": {
+                                "batch_prediction_job": "batch_prediction_job_value"
+                            },
+                            "vertex_endpoint_logs": {
+                                "endpoints": ["endpoints_value1", "endpoints_value2"]
+                            },
+                            "time_interval": {"start_time": {}, "end_time": {}},
+                            "time_offset": {
+                                "offset": "offset_value",
+                                "window": "window_value",
+                            },
+                        },
+                        "target_dataset": {},
+                    },
+                    "notification_spec": {
+                        "email_config": {
+                            "user_emails": ["user_emails_value1", "user_emails_value2"]
+                        },
+                        "enable_cloud_logging": True,
+                        "notification_channel_configs": [
+                            {"notification_channel": "notification_channel_value"}
+                        ],
+                    },
+                    "output_spec": {
+                        "gcs_base_directory": {
+                            "output_uri_prefix": "output_uri_prefix_value"
+                        }
+                    },
+                },
+                "create_time": {},
+                "update_time": {},
+                "state": 1,
+                "schedule": "schedule_value",
+                "job_execution_detail": {
+                    "baseline_datasets": [
+                        {"location": "location_value", "time_range": {}}
+                    ],
+                    "target_datasets": {},
+                    "objective_status": {},
+                    "error": {},
+                },
+                "schedule_time": {},
+            },
+            "model_monitoring_job_id": "model_monitoring_job_id_value",
+        },
         "name": "projects/sample1/locations/sample2/schedules/sample3",
         "display_name": "display_name_value",
         "start_time": {},
@@ -6469,11 +6766,39 @@ def test_parse_artifact_path():
     assert expected == actual
 
 
-def test_context_path():
+def test_batch_prediction_job_path():
     project = "winkle"
     location = "nautilus"
-    metadata_store = "scallop"
-    context = "abalone"
+    batch_prediction_job = "scallop"
+    expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+        project=project,
+        location=location,
+        batch_prediction_job=batch_prediction_job,
+    )
+    actual = ScheduleServiceClient.batch_prediction_job_path(
+        project, location, batch_prediction_job
+    )
+    assert expected == actual
+
+
+def test_parse_batch_prediction_job_path():
+    expected = {
+        "project": "abalone",
+        "location": "squid",
+        "batch_prediction_job": "clam",
+    }
+    path = ScheduleServiceClient.batch_prediction_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_batch_prediction_job_path(path)
+    assert expected == actual
+
+
+def test_context_path():
+    project = "whelk"
+    location = "octopus"
+    metadata_store = "oyster"
+    context = "nudibranch"
     expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
         project=project,
         location=location,
@@ -6488,10 +6813,10 @@ def test_context_path():
 
 def test_parse_context_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
-        "metadata_store": "whelk",
-        "context": "octopus",
+        "project": "cuttlefish",
+        "location": "mussel",
+        "metadata_store": "winkle",
+        "context": "nautilus",
     }
     path = ScheduleServiceClient.context_path(**expected)
 
@@ -6501,9 +6826,9 @@ def test_parse_context_path():
 
 
 def test_custom_job_path():
-    project = "oyster"
-    location = "nudibranch"
-    custom_job = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    custom_job = "squid"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
         project=project,
         location=location,
@@ -6515,9 +6840,9 @@ def test_custom_job_path():
 
 def test_parse_custom_job_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "custom_job": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "custom_job": "octopus",
     }
     path = ScheduleServiceClient.custom_job_path(**expected)
 
@@ -6526,11 +6851,63 @@ def test_parse_custom_job_path():
     assert expected == actual
 
 
-def test_execution_path():
+def test_dataset_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = ScheduleServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "dataset": "nautilus",
+    }
+    path = ScheduleServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
     project = "scallop"
     location = "abalone"
-    metadata_store = "squid"
-    execution = "clam"
+    endpoint = "squid"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = ScheduleServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
+        "endpoint": "octopus",
+    }
+    path = ScheduleServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_execution_path():
+    project = "oyster"
+    location = "nudibranch"
+    metadata_store = "cuttlefish"
+    execution = "mussel"
     expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
         project=project,
         location=location,
@@ -6545,10 +6922,10 @@ def test_execution_path():
 
 def test_parse_execution_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
-        "metadata_store": "oyster",
-        "execution": "nudibranch",
+        "project": "winkle",
+        "location": "nautilus",
+        "metadata_store": "scallop",
+        "execution": "abalone",
     }
     path = ScheduleServiceClient.execution_path(**expected)
 
@@ -6557,9 +6934,68 @@ def test_parse_execution_path():
     assert expected == actual
 
 
-def test_network_path():
+def test_model_monitor_path():
+    project = "squid"
+    location = "clam"
+    model_monitor = "whelk"
+    expected = (
+        "projects/{project}/locations/{location}/modelMonitors/{model_monitor}".format(
+            project=project,
+            location=location,
+            model_monitor=model_monitor,
+        )
+    )
+    actual = ScheduleServiceClient.model_monitor_path(project, location, model_monitor)
+    assert expected == actual
+
+
+def test_parse_model_monitor_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "model_monitor": "nudibranch",
+    }
+    path = ScheduleServiceClient.model_monitor_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_model_monitor_path(path)
+    assert expected == actual
+
+
+def test_model_monitoring_job_path():
     project = "cuttlefish"
-    network = "mussel"
+    location = "mussel"
+    model_monitor = "winkle"
+    model_monitoring_job = "nautilus"
+    expected = "projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}".format(
+        project=project,
+        location=location,
+        model_monitor=model_monitor,
+        model_monitoring_job=model_monitoring_job,
+    )
+    actual = ScheduleServiceClient.model_monitoring_job_path(
+        project, location, model_monitor, model_monitoring_job
+    )
+    assert expected == actual
+
+
+def test_parse_model_monitoring_job_path():
+    expected = {
+        "project": "scallop",
+        "location": "abalone",
+        "model_monitor": "squid",
+        "model_monitoring_job": "clam",
+    }
+    path = ScheduleServiceClient.model_monitoring_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_model_monitoring_job_path(path)
+    assert expected == actual
+
+
+def test_network_path():
+    project = "whelk"
+    network = "octopus"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -6570,8 +7006,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "winkle",
-        "network": "nautilus",
+        "project": "oyster",
+        "network": "nudibranch",
     }
     path = ScheduleServiceClient.network_path(**expected)
 
@@ -6581,9 +7017,9 @@ def test_parse_network_path():
 
 
 def test_pipeline_job_path():
-    project = "scallop"
-    location = "abalone"
-    pipeline_job = "squid"
+    project = "cuttlefish"
+    location = "mussel"
+    pipeline_job = "winkle"
     expected = (
         "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project,
@@ -6597,9 +7033,9 @@ def test_pipeline_job_path():
 
 def test_parse_pipeline_job_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "pipeline_job": "octopus",
+        "project": "nautilus",
+        "location": "scallop",
+        "pipeline_job": "abalone",
     }
     path = ScheduleServiceClient.pipeline_job_path(**expected)
 
@@ -6609,9 +7045,9 @@ def test_parse_pipeline_job_path():
 
 
 def test_schedule_path():
-    project = "oyster"
-    location = "nudibranch"
-    schedule = "cuttlefish"
+    project = "squid"
+    location = "clam"
+    schedule = "whelk"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -6623,9 +7059,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "schedule": "nautilus",
+        "project": "octopus",
+        "location": "oyster",
+        "schedule": "nudibranch",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
@@ -6635,7 +7071,7 @@ def test_parse_schedule_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6645,7 +7081,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "mussel",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -6655,7 +7091,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -6665,7 +7101,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "nautilus",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -6675,7 +7111,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -6685,7 +7121,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "abalone",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -6695,7 +7131,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -6705,7 +7141,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "clam",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -6715,8 +7151,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -6727,8 +7163,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 
