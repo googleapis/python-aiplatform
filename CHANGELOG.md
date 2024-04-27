@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.49.0](https://github.com/googleapis/python-aiplatform/compare/v1.48.0...v1.49.0) (2024-04-27)
+
+
+### Features
+
+* Add additional parameters for `GenerationConfig` ([0599ca1](https://github.com/googleapis/python-aiplatform/commit/0599ca18342aece9d8b9b35534294de541593ef9))
+* Add FeatureNormType to `MatchingEngineIndexConfig`. ([c0e7acc](https://github.com/googleapis/python-aiplatform/commit/c0e7acc27e67ef1a951bb4bd97f489164dda14f9))
+* Add mappings to pipeline templates for text-embedding models. ([6279924](https://github.com/googleapis/python-aiplatform/commit/627992484ec16fbf7fdfc9c963046e10e3d7c6bf))
+* Add support for TPU v5 lite pod(v5e) for custom training jobs. Custom training jobs now accept the v5e machine types as listed in https://cloud.google.com/tpu/docs/tpus-in-gke#v5e. ([415912e](https://github.com/googleapis/python-aiplatform/commit/415912e9258d2b960c7da730902d7f15116cc474))
+* Fix typo in Vertex Feature Store SDK. ([b5404e7](https://github.com/googleapis/python-aiplatform/commit/b5404e7106059358dd7fcd21d487e5e31ed4d128))
+* GenAI - Improved the exception messages when candidates, parts or text are not available ([e82264d](https://github.com/googleapis/python-aiplatform/commit/e82264d273e35d3b305d434181badfb63a37c79c))
+* Support PreflightValidation in Preview PipelineJob submit function. ([e88dc0d](https://github.com/googleapis/python-aiplatform/commit/e88dc0d65ffaed3de9850e8eaadbfa41eb769e06))
+* Tune_model method for class TextEmbeddingModel. ([3eda55d](https://github.com/googleapis/python-aiplatform/commit/3eda55d25a8e3816eec0fb3c43f7c16c8a2d9b32))
+* Vertex RAG for enhanced generative AI ([39b5149](https://github.com/googleapis/python-aiplatform/commit/39b5149c18355a233dae7ada2f18c8072a6b59f1))
+
+
+### Bug Fixes
+
+* GCS Bucket subdirectory not being creating while using ReasoningEngine create method ([3d22a18](https://github.com/googleapis/python-aiplatform/commit/3d22a18abdacc7cb53d4b5fef941fa1a34caec08))
+* GenAI - Fixed the `Part.mime_type` property ([819a44e](https://github.com/googleapis/python-aiplatform/commit/819a44ea9b624912c31843881fd6130febb8ec57))
+* Handle missing import for RunnableConfig when generating schema for LangChain templates ([76c5d6d](https://github.com/googleapis/python-aiplatform/commit/76c5d6d6e99be5e7a8ec81e85aa383b1a39fef66))
+* Parse intermediate steps from LangChain into JSON. ([754c89d](https://github.com/googleapis/python-aiplatform/commit/754c89d8514dde707255bf0e3602dfddff49f268))
+* Register TensorFlow models from Ray checkpoints for more recent TensorFlow version, addressing the deprecation of SavedModel format in keras 3 ([1341e2c](https://github.com/googleapis/python-aiplatform/commit/1341e2c57907f7867d4237e84c5bb9b77e5dd5f5))
+* Tensorboard uploader - move remaining tensorboard uploader code to aiplatform ([f34094b](https://github.com/googleapis/python-aiplatform/commit/f34094b50ea161c2b9f0653be8b5931e922bb8f6))
+
 ## [1.48.0](https://github.com/googleapis/python-aiplatform/compare/v1.47.0...v1.48.0) (2024-04-17)
 
 
