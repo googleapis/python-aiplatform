@@ -21,3 +21,8 @@ _PICKLE_FILE_NAME = "model.pkl"
 _PICKLE_EXTENTION = ".pkl"
 
 _XGBOOST_VERSION = "1.6"
+# TensorFlow 2.13 requires typing_extensions<4.6 and will cause errors in Ray.
+# https://github.com/tensorflow/tensorflow/blob/v2.13.0/tensorflow/tools/pip_package/setup.py#L100
+# 2.13 is the latest supported version of Vertex prebuilt prediction container.
+# Set 2.12 as default here since 2.13 cause errors.
+_TENSORFLOW_VERSION = "2.12"

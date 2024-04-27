@@ -24,6 +24,7 @@ from typing import Callable, Optional, Union, TYPE_CHECKING
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.preview.vertex_ray.predict.util import constants
 from google.cloud.aiplatform.preview.vertex_ray.predict.util import (
     predict_utils,
 )
@@ -44,6 +45,7 @@ def register_tensorflow(
     artifact_uri: Optional[str] = None,
     _model: Optional[Union["tf.keras.Model", Callable[[], "tf.keras.Model"]]] = None,
     display_name: Optional[str] = None,
+    tensorflow_version: Optional[str] = None,
     **kwargs,
 ) -> aiplatform.Model:
     """Uploads a Ray Tensorflow Checkpoint as Tensorflow Model to Model Registry.
@@ -79,6 +81,11 @@ def register_tensorflow(
         display_name (str):
             Optional. The display name of the Model. The name can be up to 128
             characters long and can be consist of any UTF-8 characters.
+        tensorflow_version (str):
+                Optional. The version of the Tensorflow serving container.
+                Supported versions:
+                https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers
+                If the version is not specified, the latest version is used.
         **kwargs:
             Any kwargs will be passed to aiplatform.Model registration.
 
@@ -89,6 +96,9 @@ def register_tensorflow(
     Raises:
         ValueError: Invalid Argument.
     """
+
+    if tensorflow_version is None:
+        tensorflow_version = constants._TENSORFLOW_VERSION
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket
     predict_utils.validate_artifact_uri(artifact_uri)
     prefix = "ray-on-vertex-registered-tensorflow-model"
@@ -99,10 +109,16 @@ def register_tensorflow(
     )
     tf_model = _get_tensorflow_model_from(checkpoint, model=_model)
     model_dir = os.path.join(artifact_uri, prefix)
-    tf_model.save(model_dir)
+    try:
+        import tensorflow as tf
+
+        tf.saved_model.save(tf_model, model_dir)
+    except ImportError:
+        logging.warning("TensorFlow must be installed to save the trained model.")
     return aiplatform.Model.upload_tensorflow_saved_model(
         saved_model_dir=model_dir,
         display_name=display_model_name,
+        tensorflow_version=tensorflow_version,
         **kwargs,
     )
 
@@ -139,13 +155,13 @@ def _get_tensorflow_model_from(
 
         return checkpoint.get_model(model)
 
-    # get_model() signature changed in future versions
     try:
-        from tensorflow import keras
+        import tensorflow as tf
 
         try:
-            return keras.models.load_model(checkpoint.path)
+            return tf.saved_model.load(checkpoint.path)
         except OSError:
-            return keras.models.load_model("gs://" + checkpoint.path)
+            return tf.saved_model.load("gs://" + checkpoint.path)
+
     except ImportError:
         logging.warning("TensorFlow must be installed to load the trained model.")
