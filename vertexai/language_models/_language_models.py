@@ -3542,6 +3542,7 @@ class _LanguageModelTuningJob:
         self._model = type(self._base_model).get_tuned_model(
             tuned_model_name=vertex_model_name
         )
+        self._model.tuned_model_name = vertex_model_name
         return self._model
 
     @property
