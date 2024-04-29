@@ -259,6 +259,22 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_v1beta1_service_create():
+    with mock.patch.object(
+        v1beta1_pipeline_service.PipelineServiceClient, "create_pipeline_job"
+    ) as mock_create_pipeline_job:
+        mock_create_pipeline_job.return_value = v1beta1_pipeline_job.PipelineJob(
+            name=_TEST_PIPELINE_JOB_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            create_time=_TEST_PIPELINE_CREATE_TIME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+        )
+        yield mock_create_pipeline_job
+
+
+@pytest.fixture
 def mock_pipeline_v1_service_batch_cancel():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "batch_cancel_pipeline_jobs"
@@ -2221,3 +2237,33 @@ class TestPipelineJob:
         )
 
         assert mock_pipeline_v1_service_batch_cancel.call_count == 1
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_v1beta1_service_create",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_submit_v1beta1_pipeline_job_returns_response(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+        mock_pipeline_v1beta1_service_create,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            enable_preflight_validations=True,
+        )
+
+        job.submit()
+
+        assert mock_pipeline_v1beta1_service_create.call_count == 1
