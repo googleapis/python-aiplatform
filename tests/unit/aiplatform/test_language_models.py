@@ -4132,6 +4132,7 @@ class TestLanguageModels:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        metadata = (("x-metadata-key", "metadata-value"),)
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
@@ -4140,12 +4141,14 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = preview_language_models.TextEmbeddingModel.from_pretrained(
-                "textembedding-gecko@001"
+                "textembedding-gecko@001",
+                metadata=metadata,
             )
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/textembedding-gecko@001",
             retry=base._DEFAULT_RETRY,
+            metadata=metadata,
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -4173,6 +4176,7 @@ class TestLanguageModels:
                 ],
                 auto_truncate=False,
                 output_dimensionality=3,
+                metadata=metadata,
             )
             prediction_instances = mock_predict.call_args[1]["instances"]
             assert prediction_instances == [
