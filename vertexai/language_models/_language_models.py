@@ -16,6 +16,7 @@
 
 import abc
 import dataclasses
+import collections.abc
 from typing import (
     Any,
     AsyncIterator,
@@ -974,6 +975,7 @@ class TuningEvaluationSpec:
     enable_early_stopping: Optional[bool] = None
     enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
+
 
 # Evaluation spec fields that are not supported by RLHF tuning
 _UNUSED_RLHF_EVAL_SPECS = (
@@ -2053,30 +2055,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=parameters,
         )
 
-    def _parse_text_embedding_response(
-        self,
-        prediction_response: aiplatform.models.Prediction,
-        prediction_idx: int = 0,
-    ) -> "TextEmbedding":
-        """Parses the text embedding model response."""
-        prediction = prediction_response.predictions[prediction_idx]
-        embeddings = prediction["embeddings"]
-        statistics = embeddings["statistics"]
-        return TextEmbedding(
-            values=embeddings["values"],
-            statistics=TextEmbeddingStatistics(
-                token_count=statistics["token_count"],
-                truncated=statistics["truncated"],
-            ),
-            _prediction_response=prediction_response,
-        )
-
     def get_embeddings(
         self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
-        output_dimensionality: Optional[int] = None
+        output_dimensionality: Optional[int] = None,
     ) -> List["TextEmbedding"]:
         """Calculates embeddings for the given texts.
 
@@ -2099,15 +2083,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        results = []
-        for prediction_idx in range(len(prediction_response.predictions)):
-            result = self._parse_text_embedding_response(
-                prediction_response=prediction_response,
-                prediction_idx=prediction_idx,
+        return [
+            TextEmbedding._parse_text_embedding_response(
+                prediction_response, i_prediction
             )
-            results.append(result)
-
-        return results
+            for i_prediction, _ in enumerate(prediction_response.predictions)
+        ]
 
     async def get_embeddings_async(
         self,
@@ -2129,7 +2110,7 @@ class TextEmbeddingModel(_LanguageModel):
         prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
-            output_dimensionality=output_dimensionality
+            output_dimensionality=output_dimensionality,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -2137,15 +2118,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        results = []
-        for prediction_idx in range(len(prediction_response.predictions)):
-            result = self._parse_text_embedding_response(
-                prediction_response=prediction_response,
-                prediction_idx=prediction_idx,
+        return [
+            TextEmbedding._parse_text_embedding_response(
+                prediction_response, i_prediction
             )
-            results.append(result)
-
-        return results
+            for i_prediction, _ in enumerate(prediction_response.predictions)
+        ]
 
 
 class _PreviewTextEmbeddingModel(
@@ -2174,6 +2152,36 @@ class TextEmbedding:
     values: List[float]
     statistics: Optional[TextEmbeddingStatistics] = None
     _prediction_response: Optional[aiplatform.models.Prediction] = None
+
+    @classmethod
+    def _parse_text_embedding_response(
+        cls, prediction_response: aiplatform.models.Prediction, prediction_index: int
+    ) -> "TextEmbedding":
+        """Creates a `TextEmbedding` object from a prediction.
+
+        Args:
+            prediction_response: `aiplatform.models.Prediction` object.
+
+        Returns:
+            `TextEmbedding` object.
+        """
+        prediction = prediction_response.predictions[prediction_index]
+        is_prediction_from_pretrained_models = isinstance(
+            prediction, collections.abc.Mapping
+        )
+        if is_prediction_from_pretrained_models:
+            embeddings = prediction["embeddings"]
+            embedding_stats = embeddings["statistics"]
+            return cls(
+                values=embeddings["values"],
+                statistics=TextEmbeddingStatistics(
+                    token_count=embedding_stats["token_count"],
+                    truncated=embedding_stats["truncated"],
+                ),
+                _prediction_response=prediction_response,
+            )
+        else:
+            return cls(values=prediction, _prediction_response=prediction_response)
 
 
 @dataclasses.dataclass
@@ -3145,7 +3153,6 @@ class _CodeGenerationModel(_LanguageModel):
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
-
 
     def _create_prediction_request(
         self,
