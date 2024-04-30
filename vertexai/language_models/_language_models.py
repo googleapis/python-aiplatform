@@ -3491,33 +3491,41 @@ def _get_invalid_rlhf_model_msg(
     )
 
 
-class _LanguageModelTuningJob:
-    """LanguageModelTuningJob represents a fine-tuning job."""
+class _TuningJob:
+    """TuningJob represents a fine-tuning job."""
 
     def __init__(
         self,
-        base_model: _LanguageModel,
         job: aiplatform.PipelineJob,
     ):
         """Internal constructor. Do not call directly."""
-        self._base_model = base_model
         self._job = job
-        self._model: Optional[_LanguageModel] = None
+        self._tuned_model_name: Optional[str] = None
 
-    def get_tuned_model(self) -> "_LanguageModel":
-        """Blocks until the tuning is complete and returns a `LanguageModel` object."""
-        if self._model:
-            return self._model
+    def _get_tuned_model_name(self) -> str:
+        """Extracts the tuned model name from the tuning pipeline job.
+
+        This method is used for both tuning, RLHF and distillation.
+
+        Returns:
+            The Vertex Model resource name of the tuned model.
+        """
+        if self._tuned_model_name:
+            return self._tuned_model_name
         self._job.wait()
 
         # Getting tuned model from the pipeline.
         model_task = None
         # Searching for the model uploading task first.
         # Note: Distillation does not have pipeline outputs yet.
+        upload_model_task_names = [
+            "upload-llm-model",  # Most tuning pipelines
+            "upload-model",  # New distillation pipeline uses "upload-model"
+        ]
         upload_model_tasks = [
             task_info
             for task_info in self._job.gca_resource.job_detail.task_details
-            if task_info.task_name == "upload-llm-model"
+            if task_info.task_name in upload_model_task_names
         ]
         if len(upload_model_tasks) == 1:
             model_task = upload_model_tasks[0]
@@ -3539,10 +3547,8 @@ class _LanguageModelTuningJob:
             "output:model_resource_name"
         ].strip()
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
-        self._model = type(self._base_model).get_tuned_model(
-            tuned_model_name=vertex_model_name
-        )
-        return self._model
+        self._tuned_model_name = vertex_model_name
+        return vertex_model_name
 
     @property
     def _status(self) -> Optional[aiplatform_types.pipeline_state.PipelineState]:
@@ -3552,6 +3558,31 @@ class _LanguageModelTuningJob:
     def _cancel(self):
         """Cancels the job."""
         self._job.cancel()
+
+
+class _LanguageModelTuningJob(_TuningJob):
+    """LanguageModelTuningJob represents a fine-tuning job."""
+
+    def __init__(
+        self,
+        base_model: _LanguageModel,
+        job: aiplatform.PipelineJob,
+    ):
+        """Internal constructor. Do not call directly."""
+        super().__init__(job=job)
+        self._base_model = base_model
+        self._model: Optional[_LanguageModel] = None
+
+    def get_tuned_model(self) -> "_LanguageModel":
+        """Blocks until the tuning is complete and returns a `LanguageModel` object."""
+        if self._model:
+            return self._model
+        vertex_model_name = self._get_tuned_model_name()
+        _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
+        self._model = type(self._base_model).get_tuned_model(
+            tuned_model_name=vertex_model_name
+        )
+        return self._model
 
 
 def _get_tuned_models_dir_uri(model_id: str) -> str:
