@@ -28,7 +28,7 @@ from google.cloud.aiplatform.compat import types
 from vertexai.resources.preview import (
     FeatureOnlineStore,
     FeatureOnlineStoreType,
-    FeatureView,
+    FeatureViewBigQuerySource,
     IndexConfig,
     DistanceMeasureType,
     TreeAhConfig,
@@ -361,15 +361,26 @@ def test_delete(force, delete_fos_mock, get_fos_mock, fos_logger_mock, sync=True
     )
 
 
-def test_create_bq_fv_none_source_raises_error(get_fos_mock):
+def test_create_fv_none_source_raises_error(get_fos_mock):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
     fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
 
     with pytest.raises(
         ValueError,
-        match=re.escape("Please specify valid big_query_source."),
+        match=re.escape("Please specify a valid source."),
     ):
-        fos.create_feature_view_from_big_query("bq_fv", None)
+        fos.create_feature_view("bq_fv", None)
+
+
+def test_create_fv_wrong_object_type_raises_error(get_fos_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Only FeatureViewBigQuerySource is a supported source."),
+    ):
+        fos.create_feature_view("bq_fv", fos)
 
 
 def test_create_bq_fv_bad_uri_raises_error(get_fos_mock):
@@ -378,11 +389,11 @@ def test_create_bq_fv_bad_uri_raises_error(get_fos_mock):
 
     with pytest.raises(
         ValueError,
-        match=re.escape("Please specify URI in big_query_source."),
+        match=re.escape("Please specify URI in BigQuery source."),
     ):
-        fos.create_feature_view_from_big_query(
+        fos.create_feature_view(
             "bq_fv",
-            FeatureView.BigQuerySource(uri=None, entity_id_columns=["entity_id"]),
+            FeatureViewBigQuerySource(uri=None, entity_id_columns=["entity_id"]),
         )
 
 
@@ -395,11 +406,11 @@ def test_create_bq_fv_bad_entity_id_columns_raises_error(
 
     with pytest.raises(
         ValueError,
-        match=re.escape("Please specify entity ID columns in big_query_source."),
+        match=re.escape("Please specify entity ID columns in BigQuery source."),
     ):
-        fos.create_feature_view_from_big_query(
+        fos.create_feature_view(
             "bq_fv",
-            FeatureView.BigQuerySource(uri="hi", entity_id_columns=entity_id_columns),
+            FeatureViewBigQuerySource(uri="hi", entity_id_columns=entity_id_columns),
         )
 
 
@@ -416,9 +427,9 @@ def test_create_bq_fv(
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
     fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
 
-    fv = fos.create_feature_view_from_big_query(
+    fv = fos.create_feature_view(
         _TEST_FV1_ID,
-        FeatureView.BigQuerySource(
+        FeatureViewBigQuerySource(
             uri=_TEST_FV1_BQ_URI, entity_id_columns=_TEST_FV1_ENTITY_ID_COLUMNS
         ),
         labels=_TEST_FV1_LABELS,
@@ -478,9 +489,9 @@ def test_create_embedding_fv(
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
     fos = FeatureOnlineStore(_TEST_ESF_OPTIMIZED_FOS_ID)
 
-    embedding_fv = fos.create_feature_view_from_big_query(
+    embedding_fv = fos.create_feature_view(
         _TEST_OPTIMIZED_EMBEDDING_FV_ID,
-        FeatureView.BigQuerySource(uri="hi", entity_id_columns=["entity_id"]),
+        FeatureViewBigQuerySource(uri="hi", entity_id_columns=["entity_id"]),
         index_config=IndexConfig(
             embedding_column="embedding",
             dimensions=1536,

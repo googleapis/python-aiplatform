@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from dataclasses import dataclass
 import re
 from typing import List, Optional
 from google.cloud.aiplatform import initializer
@@ -342,8 +341,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             )
         else:
             raise ValueError(
-                f"Either entity_id or embedding_value needs to be provided for"
-                f" search."
+                "Either entity_id or embedding_value needs to be provided for search."
             )
         response = self._get_online_store_client.search_nearest_entities(
             request=fos_service.SearchNearestEntitiesRequest(
@@ -364,11 +362,6 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             timeout=request_timeout,
         )
         return fv_utils.SearchNearestEntitiesResponse(response)
-
-    @dataclass
-    class BigQuerySource:
-        uri: str
-        entity_id_columns: List[str]
 
     class FeatureViewSync(base.VertexAiResourceNounWithFutureManager):
         """Class for managing Feature View Sync resources."""

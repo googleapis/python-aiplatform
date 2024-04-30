@@ -45,6 +45,12 @@ class PublicEndpointNotFoundError(RuntimeError):
 
 
 @dataclass
+class FeatureViewBigQuerySource:
+    uri: str
+    entity_id_columns: List[str]
+
+
+@dataclass
 class FeatureViewReadResponse:
     _response: fos_service.FetchFeatureValuesResponse
 
