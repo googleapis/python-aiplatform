@@ -1739,6 +1739,10 @@ class Candidate:
     def citation_metadata(self) -> gapic_content_types.CitationMetadata:
         return self._raw_candidate.citation_metadata
 
+    @property
+    def grounding_metadata(self) -> gapic_content_types.GroundingMetadata:
+        return self._raw_candidate.grounding_metadata
+
     # GenerationPart properties
     @property
     def text(self) -> str:
