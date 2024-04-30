@@ -24,6 +24,7 @@ import ray
 import ray.cloudpickle as cpickle
 import tempfile
 from typing import Optional, TYPE_CHECKING
+import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -32,6 +33,9 @@ from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.preview.vertex_ray.predict.util import constants
 from google.cloud.aiplatform.preview.vertex_ray.predict.util import (
     predict_utils,
+)
+from google.cloud.aiplatform.preview.vertex_ray.util._validation_utils import (
+    _V2_4_WARNING_MESSAGE,
 )
 
 
@@ -123,6 +127,7 @@ def _get_estimator_from(
 
     ray_version = ray.__version__
     if ray_version == "2.4.0":
+        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
         if not isinstance(checkpoint, ray_sklearn.SklearnCheckpoint):
             raise ValueError(
                 "[Ray on Vertex AI]: arg checkpoint should be a"

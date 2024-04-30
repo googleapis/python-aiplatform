@@ -18,6 +18,7 @@
 import ray.data
 from ray.data.dataset import Dataset
 from typing import Any, Dict, Optional
+import warnings
 
 from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasource import (
     BigQueryDatasource,
@@ -29,6 +30,10 @@ try:
     )
 except ImportError:
     _BigQueryDatasink = None
+
+from google.cloud.aiplatform.preview.vertex_ray.util._validation_utils import (
+    _V2_4_WARNING_MESSAGE,
+)
 
 
 def read_bigquery(
@@ -56,6 +61,7 @@ def write_bigquery(
     ray_remote_args: Dict[str, Any] = None,
 ) -> Any:
     if ray.__version__ == "2.4.0":
+        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
         return ds.write_datasource(
             BigQueryDatasource(),
             project_id=project_id,

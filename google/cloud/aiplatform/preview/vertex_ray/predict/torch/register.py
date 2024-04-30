@@ -20,8 +20,12 @@ import os
 import ray
 from ray.air._internal.torch_utils import load_torch_model
 import tempfile
+from google.cloud.aiplatform.preview.vertex_ray.util._validation_utils import (
+    _V2_4_WARNING_MESSAGE,
+)
 from google.cloud.aiplatform.utils import gcs_utils
 from typing import Optional
+import warnings
 
 
 try:
@@ -61,6 +65,7 @@ def get_pytorch_model_from(
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
+        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
         if not isinstance(checkpoint, ray_torch.TorchCheckpoint):
             raise ValueError(
                 "[Ray on Vertex AI]: arg checkpoint should be a"
