@@ -1054,7 +1054,6 @@ class ChatSession:
         if not full_response:
             return
 
-
         if len(full_response.candidates) > 0:
             # Adding the request and the first response candidate to history
             response_message = full_response.candidates[0].content
@@ -1122,7 +1121,6 @@ class ChatSession:
                 yield chunk
             if not full_response:
                 return
-           
 
             if len(full_response.candidates) > 0:
                 # Adding the request and the first response candidate to history
