@@ -16,6 +16,7 @@
 
 import abc
 import dataclasses
+import collections.abc
 from typing import (
     Any,
     AsyncIterator,
@@ -974,6 +975,7 @@ class TuningEvaluationSpec:
     enable_early_stopping: Optional[bool] = None
     enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
+
 
 # Evaluation spec fields that are not supported by RLHF tuning
 _UNUSED_RLHF_EVAL_SPECS = (
@@ -2053,30 +2055,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=parameters,
         )
 
-    def _parse_text_embedding_response(
-        self,
-        prediction_response: aiplatform.models.Prediction,
-        prediction_idx: int = 0,
-    ) -> "TextEmbedding":
-        """Parses the text embedding model response."""
-        prediction = prediction_response.predictions[prediction_idx]
-        embeddings = prediction["embeddings"]
-        statistics = embeddings["statistics"]
-        return TextEmbedding(
-            values=embeddings["values"],
-            statistics=TextEmbeddingStatistics(
-                token_count=statistics["token_count"],
-                truncated=statistics["truncated"],
-            ),
-            _prediction_response=prediction_response,
-        )
-
     def get_embeddings(
         self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
-        output_dimensionality: Optional[int] = None
+        output_dimensionality: Optional[int] = None,
     ) -> List["TextEmbedding"]:
         """Calculates embeddings for the given texts.
 
@@ -2099,15 +2083,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        results = []
-        for prediction_idx in range(len(prediction_response.predictions)):
-            result = self._parse_text_embedding_response(
-                prediction_response=prediction_response,
-                prediction_idx=prediction_idx,
+        return [
+            TextEmbedding._parse_text_embedding_response(
+                prediction_response, i_prediction
             )
-            results.append(result)
-
-        return results
+            for i_prediction, _ in enumerate(prediction_response.predictions)
+        ]
 
     async def get_embeddings_async(
         self,
@@ -2129,7 +2110,7 @@ class TextEmbeddingModel(_LanguageModel):
         prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
-            output_dimensionality=output_dimensionality
+            output_dimensionality=output_dimensionality,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -2137,15 +2118,12 @@ class TextEmbeddingModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        results = []
-        for prediction_idx in range(len(prediction_response.predictions)):
-            result = self._parse_text_embedding_response(
-                prediction_response=prediction_response,
-                prediction_idx=prediction_idx,
+        return [
+            TextEmbedding._parse_text_embedding_response(
+                prediction_response, i_prediction
             )
-            results.append(result)
-
-        return results
+            for i_prediction, _ in enumerate(prediction_response.predictions)
+        ]
 
 
 class _PreviewTextEmbeddingModel(
@@ -2174,6 +2152,36 @@ class TextEmbedding:
     values: List[float]
     statistics: Optional[TextEmbeddingStatistics] = None
     _prediction_response: Optional[aiplatform.models.Prediction] = None
+
+    @classmethod
+    def _parse_text_embedding_response(
+        cls, prediction_response: aiplatform.models.Prediction, prediction_index: int
+    ) -> "TextEmbedding":
+        """Creates a `TextEmbedding` object from a prediction.
+
+        Args:
+            prediction_response: `aiplatform.models.Prediction` object.
+
+        Returns:
+            `TextEmbedding` object.
+        """
+        prediction = prediction_response.predictions[prediction_index]
+        is_prediction_from_pretrained_models = isinstance(
+            prediction, collections.abc.Mapping
+        )
+        if is_prediction_from_pretrained_models:
+            embeddings = prediction["embeddings"]
+            embedding_stats = embeddings["statistics"]
+            return cls(
+                values=embeddings["values"],
+                statistics=TextEmbeddingStatistics(
+                    token_count=embedding_stats["token_count"],
+                    truncated=embedding_stats["truncated"],
+                ),
+                _prediction_response=prediction_response,
+            )
+        else:
+            return cls(values=prediction, _prediction_response=prediction_response)
 
 
 @dataclasses.dataclass
@@ -3146,7 +3154,6 @@ class _CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
-
     def _create_prediction_request(
         self,
         prefix: str,
@@ -3491,33 +3498,41 @@ def _get_invalid_rlhf_model_msg(
     )
 
 
-class _LanguageModelTuningJob:
-    """LanguageModelTuningJob represents a fine-tuning job."""
+class _TuningJob:
+    """TuningJob represents a fine-tuning job."""
 
     def __init__(
         self,
-        base_model: _LanguageModel,
         job: aiplatform.PipelineJob,
     ):
         """Internal constructor. Do not call directly."""
-        self._base_model = base_model
         self._job = job
-        self._model: Optional[_LanguageModel] = None
+        self._tuned_model_name: Optional[str] = None
 
-    def get_tuned_model(self) -> "_LanguageModel":
-        """Blocks until the tuning is complete and returns a `LanguageModel` object."""
-        if self._model:
-            return self._model
+    def _get_tuned_model_name(self) -> str:
+        """Extracts the tuned model name from the tuning pipeline job.
+
+        This method is used for both tuning, RLHF and distillation.
+
+        Returns:
+            The Vertex Model resource name of the tuned model.
+        """
+        if self._tuned_model_name:
+            return self._tuned_model_name
         self._job.wait()
 
         # Getting tuned model from the pipeline.
         model_task = None
         # Searching for the model uploading task first.
         # Note: Distillation does not have pipeline outputs yet.
+        upload_model_task_names = [
+            "upload-llm-model",  # Most tuning pipelines
+            "upload-model",  # New distillation pipeline uses "upload-model"
+        ]
         upload_model_tasks = [
             task_info
             for task_info in self._job.gca_resource.job_detail.task_details
-            if task_info.task_name == "upload-llm-model"
+            if task_info.task_name in upload_model_task_names
         ]
         if len(upload_model_tasks) == 1:
             model_task = upload_model_tasks[0]
@@ -3539,10 +3554,8 @@ class _LanguageModelTuningJob:
             "output:model_resource_name"
         ].strip()
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
-        self._model = type(self._base_model).get_tuned_model(
-            tuned_model_name=vertex_model_name
-        )
-        return self._model
+        self._tuned_model_name = vertex_model_name
+        return vertex_model_name
 
     @property
     def _status(self) -> Optional[aiplatform_types.pipeline_state.PipelineState]:
@@ -3552,6 +3565,31 @@ class _LanguageModelTuningJob:
     def _cancel(self):
         """Cancels the job."""
         self._job.cancel()
+
+
+class _LanguageModelTuningJob(_TuningJob):
+    """LanguageModelTuningJob represents a fine-tuning job."""
+
+    def __init__(
+        self,
+        base_model: _LanguageModel,
+        job: aiplatform.PipelineJob,
+    ):
+        """Internal constructor. Do not call directly."""
+        super().__init__(job=job)
+        self._base_model = base_model
+        self._model: Optional[_LanguageModel] = None
+
+    def get_tuned_model(self) -> "_LanguageModel":
+        """Blocks until the tuning is complete and returns a `LanguageModel` object."""
+        if self._model:
+            return self._model
+        vertex_model_name = self._get_tuned_model_name()
+        _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
+        self._model = type(self._base_model).get_tuned_model(
+            tuned_model_name=vertex_model_name
+        )
+        return self._model
 
 
 def _get_tuned_models_dir_uri(model_id: str) -> str:
