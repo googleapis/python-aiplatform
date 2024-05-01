@@ -312,7 +312,7 @@ class ImageGenerationModel(
         number_of_images: int = 1,
         width: Optional[int] = None,
         height: Optional[int] = None,
-        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4;3", "3:4"]] = None,
+        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4:3", "3:4"]] = None,
         guidance_scale: Optional[float] = None,
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
@@ -555,7 +555,7 @@ class ImageGenerationModel(
         *,
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
-        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4;3", "3:4"]] = None,
+        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4:3", "3:4"]] = None,
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
@@ -581,7 +581,7 @@ class ImageGenerationModel(
                 * "9:16" : 9:16 aspect ratio
                 * "16:9" : 16:9 aspect ratio
                 * "4:3" : 4:3 aspect ratio
-                * "3:4" : 3;4 aspect_ratio
+                * "3:4" : 3:4 aspect_ratio
             guidance_scale: Controls the strength of the prompt. Suggested values
                 are:
                 * 0-9 (low strength)
