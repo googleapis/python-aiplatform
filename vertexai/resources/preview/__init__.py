@@ -47,6 +47,10 @@ from vertexai.resources.preview.feature_store import (
     AlgorithmConfig,
 )
 
+from vertexai.resources.preview.ml_monitoring import (
+    ModelMonitor,
+    ModelMonitoringJob,
+)
 
 __all__ = (
     "CustomJob",
@@ -68,4 +72,6 @@ __all__ = (
     "BruteForceConfig",
     "DistanceMeasureType",
     "AlgorithmConfig",
+    "ModelMonitor",
+    "ModelMonitoringJob",
 )

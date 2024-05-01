@@ -51,6 +51,7 @@ from google.cloud.aiplatform.compat.services import (
     match_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
+    model_monitoring_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     prediction_service_async_client_v1beta1,
@@ -104,6 +105,7 @@ VertexAiServiceClient = TypeVar(
     index_service_client_v1beta1.IndexServiceClient,
     index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
+    model_monitoring_service_client_v1beta1.ModelMonitoringServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
     prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
@@ -738,6 +740,17 @@ class MetadataClientWithOverride(ClientWithOverride):
     )
 
 
+class ModelMonitoringClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            model_monitoring_service_client_v1beta1.ModelMonitoringServiceClient,
+        ),
+    )
+
+
 class TensorboardClientWithOverride(ClientWithOverride):
     _is_temporary = False
     _default_version = compat.DEFAULT_VERSION
@@ -854,6 +867,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     PersistentResourceClientWithOverride,
     ReasoningEngineClientWithOverride,
     ReasoningEngineExecutionClientWithOverride,
+    ModelMonitoringClientWithOverride,
 )
 
 

@@ -63,6 +63,9 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
+    client as model_monitoring_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     client as persistent_resource_service_client_v1beta1,
 )
@@ -200,6 +203,7 @@ __all__ = (
     job_service_client_v1beta1,
     match_service_client_v1beta1,
     model_garden_service_client_v1beta1,
+    model_monitoring_service_client_v1beta1,
     model_service_client_v1beta1,
     persistent_resource_service_client_v1beta1,
     pipeline_service_client_v1beta1,
