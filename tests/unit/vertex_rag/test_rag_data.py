@@ -17,7 +17,9 @@
 import importlib
 from google.api_core import operation as ga_operation
 from vertexai.preview import rag
-from vertexai.preview.rag.utils._gapic_utils import prepare_import_files_request
+from vertexai.preview.rag.utils._gapic_utils import (
+    prepare_import_files_request,
+)
 from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceAsyncClient,
     VertexRagDataServiceClient,
@@ -184,6 +186,11 @@ class TestRagDataManagement:
         rag_corpus = rag.get_corpus(tc.TEST_RAG_CORPUS_RESOURCE_NAME)
         rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS)
 
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_get_corpus_id_success(self):
+        rag_corpus = rag.get_corpus(tc.TEST_RAG_CORPUS_ID)
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS)
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -208,7 +215,11 @@ class TestRagDataManagement:
 
     def test_delete_corpus_success(self, rag_data_client_mock):
         rag.delete_corpus(tc.TEST_RAG_CORPUS_RESOURCE_NAME)
-        rag_data_client_mock.assert_called_once()
+        assert rag_data_client_mock.call_count == 2
+
+    def test_delete_corpus_id_success(self, rag_data_client_mock):
+        rag.delete_corpus(tc.TEST_RAG_CORPUS_ID)
+        assert rag_data_client_mock.call_count == 2
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_delete_corpus_failure(self):
@@ -311,6 +322,13 @@ class TestRagDataManagement:
         rag_file = rag.get_file(tc.TEST_RAG_FILE_RESOURCE_NAME)
         rag_file_eq(rag_file, tc.TEST_RAG_FILE)
 
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_get_file_id_success(self):
+        rag_file = rag.get_file(
+            name=tc.TEST_RAG_FILE_ID, corpus_name=tc.TEST_RAG_CORPUS_ID
+        )
+        rag_file_eq(rag_file, tc.TEST_RAG_FILE)
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_file_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -333,7 +351,12 @@ class TestRagDataManagement:
 
     def test_delete_file_success(self, rag_data_client_mock):
         rag.delete_file(tc.TEST_RAG_FILE_RESOURCE_NAME)
-        rag_data_client_mock.assert_called_once()
+        assert rag_data_client_mock.call_count == 2
+
+    def test_delete_file_id_success(self, rag_data_client_mock):
+        rag.delete_file(name=tc.TEST_RAG_FILE_ID, corpus_name=tc.TEST_RAG_CORPUS_ID)
+        # Passing corpus_name will result in 3 calls to rag_data_client
+        assert rag_data_client_mock.call_count == 3
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_delete_file_failure(self):

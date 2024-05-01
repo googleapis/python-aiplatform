@@ -37,7 +37,6 @@ from google.cloud.aiplatform_v1beta1 import (
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
     ListRagFilesPager,
-
 )
 from vertexai.preview.rag.utils import (
     _gapic_utils,
@@ -100,10 +99,12 @@ def get_corpus(name: str) -> RagCorpus:
     Args:
         name: An existing RagCorpus resource name. Format:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
     Returns:
         RagCorpus.
     """
-    request = GetRagCorpusRequest(name=name)
+    corpus_name = _gapic_utils.get_corpus_name(name)
+    request = GetRagCorpusRequest(name=corpus_name)
     client = _gapic_utils.create_rag_data_service_client()
     try:
         response = client.get_rag_corpus(request=request)
@@ -163,8 +164,10 @@ def delete_corpus(name: str) -> None:
     Args:
         name: An existing RagCorpus resource name. Format:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
     """
-    request = DeleteRagCorpusRequest(name=name)
+    corpus_name = _gapic_utils.get_corpus_name(name)
+    request = DeleteRagCorpusRequest(name=corpus_name)
 
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -200,7 +203,8 @@ def upload_file(
 
     Args:
         corpus_name: The name of the RagCorpus resource into which to upload the file.
-        Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
         path: A local file path. For example,
             "usr/home/my_file.txt".
         display_name: The display name of the data file.
@@ -212,6 +216,7 @@ def upload_file(
         ValueError: RagCorpus is not found.
         RuntimeError: Failed in indexing the RagFile.
     """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     location = initializer.global_config.location
     # GAPIC doesn't expose a path (scotty). Use requests API instead
     if display_name is None:
@@ -286,6 +291,7 @@ def import_files(
     Args:
         corpus_name: The name of the RagCorpus resource into which to import files.
             Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
         paths: A list of uris. Elligible uris will be Google Cloud Storage
             directory ("gs://my-bucket/my_dir") or a Google Drive url for file
             (https://drive.google.com/file/... or folder
@@ -296,7 +302,7 @@ def import_files(
     Returns:
         ImportRagFilesResponse.
     """
-
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
         paths=paths,
@@ -347,6 +353,7 @@ async def import_files_async(
     Args:
         corpus_name: The name of the RagCorpus resource into which to import files.
             Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
         paths: A list of uris. Elligible uris will be Google Cloud Storage
             directory ("gs://my-bucket/my_dir") or a Google Drive url for file
             (https://drive.google.com/file/... or folder
@@ -356,7 +363,7 @@ async def import_files_async(
     Returns:
         operation_async.AsyncOperation.
     """
-
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
         paths=paths,
@@ -371,16 +378,24 @@ async def import_files_async(
     return response
 
 
-def get_file(name: str) -> RagFile:
+def get_file(name: str, corpus_name: Optional[str] = None) -> RagFile:
     """
     Get an existing RagFile.
 
     Args:
-        name: A RagFile resource name. Format:
-        ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}``
+        name: Either a full RagFile resource name must be provided, or a RagCorpus
+            name and a RagFile name must be provided. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}``
+            or ``{rag_file}``.
+        corpus_name: If `name` is not a full resource name, an existing RagCorpus
+            name must be provided. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
     Returns:
         RagFile.
     """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    name = _gapic_utils.get_file_name(name, corpus_name)
     request = GetRagFileRequest(name=name)
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -423,13 +438,15 @@ def list_files(
 
     Args:
         corpus_name: An existing RagCorpus name. Format:
-        ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
         page_size: The standard list page size. Leaving out the page_size
             causes all of the results to be returned.
         page_token: The standard list page token.
     Returns:
         ListRagFilesPager.
     """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = ListRagFilesRequest(
         parent=corpus_name,
         page_size=page_size,
@@ -444,14 +461,22 @@ def list_files(
     return pager
 
 
-def delete_file(name: str) -> None:
+def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     """
     Delete RagFile from an existing RagCorpus.
 
     Args:
-        name: A RagFile resource name. Format:
+        name: Either a full RagFile resource name must be provided, or a RagCorpus
+            name and a RagFile name must be provided. Format:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}``
+            or ``{rag_file}``.
+        corpus_name: If `name` is not a full resource name, an existing RagCorpus
+            name must be provided. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            or ``{rag_corpus}``.
     """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    name = _gapic_utils.get_file_name(name, corpus_name)
     request = DeleteRagFileRequest(name=name)
 
     client = _gapic_utils.create_rag_data_service_client()
