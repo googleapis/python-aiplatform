@@ -35,7 +35,8 @@ _VERTEX_EXTENSION_HUB = {
     "code_interpreter": {
         "display_name": "Code Interpreter",
         "description": (
-            "This extension generates and executes code in the specified language"
+            "This extension generates and executes code in the specified"
+            " language"
         ),
         "manifest": {
             "name": "code_interpreter_tool",
@@ -60,6 +61,26 @@ _VERTEX_EXTENSION_HUB = {
             "api_spec": {
                 "open_api_gcs_uri": (
                     "gs://vertex-extension-public/vertex_ai_search.yaml"
+                ),
+            },
+            "auth_config": {
+                "auth_type": "GOOGLE_SERVICE_ACCOUNT_AUTH",
+                "google_service_account_config": {},
+            },
+        },
+    },
+    "bigquery_vector_search": {
+        "display_name": "BigQuery Vector Search",
+        "description": (
+            "This extension executes similarity search over the data stored in"
+            " BigQuery table."
+        ),
+        "manifest": {
+            "name": "bigquery_vector_search",
+            "description": "BigQuery Vector Search Extension",
+            "api_spec": {
+                "open_api_gcs_uri": (
+                    "gs://vertex-extension-public/bigquery_vector_search.yaml"
                 ),
             },
             "auth_config": {
