@@ -887,7 +887,7 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context.Context
+        cls, node: context.Context, include_time_series: Optional[bool] = True
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
@@ -898,6 +898,9 @@ class PipelineJob(
         Args:
             node (context._Context):
                 Required. System.PipelineRun context that represents a PipelineJob Run.
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True.
         Returns:
             Experiment run row representing this PipelineJob.
         """

@@ -441,17 +441,18 @@ class ExperimentRun(
         self,
         node: Union[context.Context, execution.Execution],
         experiment: Optional[experiment_resources.Experiment] = None,
+        lookup_tensorboard_run: bool = True,
     ):
         self._experiment = experiment
         self._run_name = node.display_name
         self._metadata_node = node
         self._largest_step = None
+        self._backing_tensorboard_run = None
+        self._metadata_metric_artifact = None
 
         if self._is_legacy_experiment_run():
             self._metadata_metric_artifact = self._v1_get_metric_artifact()
-            self._backing_tensorboard_run = None
-        else:
-            self._metadata_metric_artifact = None
+        if not self._is_legacy_experiment_run() and lookup_tensorboard_run:
             self._backing_tensorboard_run = self._lookup_tensorboard_run_artifact()
 
     @classmethod
@@ -550,18 +551,25 @@ class ExperimentRun(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: Union[context.Context, execution.Execution]
+        cls,
+        node: Union[context.Context, execution.Execution],
+        include_time_series: Optional[bool] = True,
     ) -> experiment_resources._ExperimentRow:
         """Retrieves the runs metric and parameters into an experiment run row.
 
         Args:
             node (Union[context._Context, execution.Execution]):
                 Required. Metadata node instance that represents this run.
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True.
         Returns:
             Experiment run row that represents this run.
         """
         this_experiment_run = cls.__new__(cls)
-        this_experiment_run._initialize_experiment_run(node)
+        this_experiment_run._initialize_experiment_run(
+            node, lookup_tensorboard_run=include_time_series
+        )
 
         row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title,
@@ -571,9 +579,10 @@ class ExperimentRun(
         row.params = this_experiment_run.get_params()
         row.metrics = this_experiment_run.get_metrics()
         row.state = this_experiment_run.get_state()
-        row.time_series_metrics = (
-            this_experiment_run._get_latest_time_series_metric_columns()
-        )
+        if include_time_series:
+            row.time_series_metrics = (
+                this_experiment_run._get_latest_time_series_metric_columns()
+            )
 
         return row
 

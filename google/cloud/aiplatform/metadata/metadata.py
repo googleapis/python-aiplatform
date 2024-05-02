@@ -764,7 +764,10 @@ class _ExperimentTracker:
             )
 
     def get_experiment_df(
-        self, experiment: Optional[str] = None
+        self,
+        experiment: Optional[str] = None,
+        *,
+        include_time_series: bool = True,
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
@@ -795,6 +798,13 @@ class _ExperimentTracker:
             experiment (str):
                 Name of the Experiment to filter results. If not set, return results
                 of current active experiment.
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True. Setting to False will largely improve execution
+                time and reduce quota contributing calls. Recommended when time
+                series metrics are not needed or number of runs in Experiment is
+                large. For time series metrics consider querying a specific run
+                using get_time_series_data_frame.
 
         Returns:
             Pandas Dataframe of Experiment with metrics and parameters.
@@ -809,7 +819,7 @@ class _ExperimentTracker:
         else:
             experiment = experiment_resources.Experiment(experiment)
 
-        return experiment.get_data_frame()
+        return experiment.get_data_frame(include_time_series=include_time_series)
 
     def log(
         self,

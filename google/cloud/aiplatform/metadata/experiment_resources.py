@@ -36,6 +36,7 @@ from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
+_HIGH_RUN_COUNT_THRESHOLD = 100  # Used in get_data_frame to make suggestion to user
 
 
 @dataclass
@@ -403,13 +404,23 @@ class Experiment:
                 f"Experiment {self.name} metadata node not found. Skipping deletion."
             )
 
-    def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
+    def get_data_frame(
+        self, *, include_time_series: bool = True
+    ) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
 
         ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         df = my_experiment.get_data_frame()
         ```
+        Args:
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True. Setting to False will largely improve execution
+                time and reduce quota contributing calls. Recommended when time
+                series metrics are not needed or number of runs in Experiment is
+                large. For time series metrics consider querying a specific run
+                using get_time_series_data_frame.
 
         Returns:
             pd.DataFrame: Pandas Dataframe of Experiment Runs.
@@ -448,10 +459,22 @@ class Experiment:
 
         executions = execution.Execution.list(filter_str, **service_request_args)
 
+        run_count = max([len(contexts), len(executions)])
+        if include_time_series and run_count > _HIGH_RUN_COUNT_THRESHOLD:
+            _LOGGER.warning(
+                f"Number of runs {run_count} is high. Consider setting "
+                f"include_time_series to False to improve execution performance"
+            )
+        if not include_time_series:
+            _LOGGER.warning(
+                "include_time_series is set to False. Time series metrics will"
+                " not be included in this call even if they exist."
+            )
+
         rows = []
         if contexts or executions:
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=max([len(contexts), len(executions)])
+                max_workers=run_count
             ) as executor:
                 futures = [
                     executor.submit(
@@ -459,6 +482,7 @@ class Experiment:
                             metadata_context.schema_title
                         ]._query_experiment_row,
                         metadata_context,
+                        include_time_series,
                     )
                     for metadata_context in contexts
                 ]
@@ -470,6 +494,7 @@ class Experiment:
                             metadata_execution.schema_title
                         ]._query_experiment_row,
                         metadata_execution,
+                        include_time_series,
                     )
                     for metadata_execution in executions
                 )
