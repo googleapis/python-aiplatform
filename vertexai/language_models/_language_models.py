@@ -2183,7 +2183,8 @@ class _TextEmbeddingModel(_LanguageModel):
 # task_type must be 'DEFAULT' or None if _model_id is textembedding-gecko@001.
 class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
     @classmethod
-    def get_tuned_model():
+    def get_tuned_model(cls, *args, **kwargs):
+        del args, kwargs  # Unused.
         raise NotImplementedError(
             "Use deploy_tuned_model instead to get the tuned model."
         )
