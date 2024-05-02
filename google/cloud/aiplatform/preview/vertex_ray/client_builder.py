@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import grpc
 import logging
 from typing import Dict
 from typing import Optional
 from google.cloud import aiplatform
+from google.cloud.aiplatform import initializer
 from ray import client_builder
 from .render import VertexRayTemplate
 from .util import _validation_utils
@@ -80,7 +82,8 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
     def __init__(self, address: Optional[str]) -> None:
         address = _validation_utils.maybe_reconstruct_resource_name(address)
         _validation_utils.valid_resource_name(address)
-
+        self._credentials = None
+        self._metadata = None
         self.vertex_address = address
         logging.info(
             "[Ray on Vertex AI]: Using cluster resource name to access head address with GAPIC API"
@@ -89,9 +92,17 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
         self.resource_name = address
 
         self.response = _gapic_utils.get_persistent_resource(self.resource_name)
-        address = self.response.resource_runtime.access_uris.get(
+        private_address = self.response.resource_runtime.access_uris.get(
             "RAY_HEAD_NODE_INTERNAL_IP"
         )
+        public_address = self.response.resource_runtime.access_uris.get(
+            "RAY_CLIENT_ENDPOINT"
+        )
+        if public_address is None:
+            address = private_address
+        else:
+            address = public_address
+
         if address is None:
             persistent_resource_id = self.resource_name.split("/")[5]
             raise ValueError(
@@ -143,6 +154,17 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
     def connect(self) -> _VertexRayClientContext:
         # Can send any other params to ray cluster here
         logging.info("[Ray on Vertex AI]: Connecting...")
+
+        public_address = self.response.resource_runtime.access_uris.get(
+            "RAY_CLIENT_ENDPOINT"
+        )
+        if public_address:
+            self._credentials = grpc.ssl_channel_credentials()
+            bearer_token = _validation_utils.get_bearer_token()
+            self._metadata = [
+                ("authorization", "Bearer {}".format(bearer_token)),
+                ("x-goog-user-project", "{}".format(initializer.global_config.project)),
+            ]
         ray_client_context = super().connect()
         ray_head_uris = self.response.resource_runtime.access_uris
 
