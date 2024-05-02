@@ -23,6 +23,17 @@ from tests.system.aiplatform import e2e_base
 from vertexai.preview import reasoning_engines
 
 
+class CapitalizeEngine:
+    """A sample Reasoning Engine."""
+
+    def set_up(self):
+        pass
+
+    def query(self, input: str) -> str:
+        """Capitalizes the input."""
+        return input.upper()
+
+
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
@@ -59,3 +70,64 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
             assert response.get("input") == "hello"
         except exceptions.FailedPrecondition as e:
             print(e)
+
+    def test_create_reasoning_engine_gcs_dir_name(self, shared_state):
+        # https://github.com/googleapis/python-aiplatform/issues/3650
+        super().setup_method()
+        credentials, _ = auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        vertexai.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            staging_bucket=f"gs://{shared_state['staging_bucket_name']}",
+            credentials=credentials,
+        )
+        created_app = reasoning_engines.ReasoningEngine.create(
+            reasoning_engine=CapitalizeEngine(),
+            gcs_dir_name="test-gcs-dir-name",
+        )
+        shared_state.setdefault("resources", [])
+        shared_state["resources"].append(created_app)  # Deletion at teardown.
+        assert created_app.query(input="hello") == "HELLO"
+
+    def test_create_reasoning_engine_resource_attributes(self, shared_state):
+        super().setup_method()
+        credentials, _ = auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        vertexai.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            staging_bucket=f"gs://{shared_state['staging_bucket_name']}",
+            credentials=credentials,
+        )
+        created_app = reasoning_engines.ReasoningEngine.create(
+            reasoning_engine=CapitalizeEngine(),
+            reasoning_engine_name="test-reasoning-engine-name",
+            display_name="test-display-name",
+            description="test-description",
+        )
+        shared_state.setdefault("resources", [])
+        shared_state["resources"].append(created_app)  # Deletion at teardown.
+        assert created_app.gca_resource.name == "test-reasoning-engine-name"
+        assert created_app.gca_resource.display_name == "test-display-name"
+        assert created_app.gca_resource.description == "test-description"
+
+    def test_create_reasoning_engine_operation_schemas(self, shared_state):
+        super().setup_method()
+        credentials, _ = auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        vertexai.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            staging_bucket=f"gs://{shared_state['staging_bucket_name']}",
+            credentials=credentials,
+        )
+        created_app = reasoning_engines.ReasoningEngine.create(
+            reasoning_engine=CapitalizeEngine(),
+        )
+        shared_state.setdefault("resources", [])
+        shared_state["resources"].append(created_app)  # Deletion at teardown.
+        assert created_app.operation_schemas() == []
