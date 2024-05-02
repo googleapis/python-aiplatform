@@ -220,6 +220,11 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         self,
         training_data: Union[str, "pandas.core.frame.DataFrame"],
         *,
+        corpus_data: Optional[str] = None,
+        queries_data: Optional[str] = None,
+        test_data: Optional[str] = None,
+        validation_data: Optional[str] = None,
+        batch_size: Optional[int] = None,
         train_steps: Optional[int] = None,
         learning_rate: Optional[float] = None,
         learning_rate_multiplier: Optional[float] = None,
@@ -228,6 +233,10 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
         default_context: Optional[str] = None,
+        task_type: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
         max_context_length: Optional[str] = None,
     ) -> "_LanguageModelTuningJob":
@@ -242,9 +251,12 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         ```
 
         Args:
-            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset schema is model-specific.
-                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
+            training_data: A URI to training data in TSV (for embedding models), or JSON lines format, or a Pandas DataFrame.
+            corpus_data: A URI to corpus in JSON lines format.
+            queries_data: A URI to queries in JSON lines format.
+            test_data: A URI to test data in TSV format.
+            validation_data: A URI to validation data in TSV format.
+            batch_size: Size of batch (for embedding models).
             train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Deprecated. Use learning_rate_multiplier instead.
                 Learning rate to use in tuning.
@@ -254,7 +266,11 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
             default_context: The context to use for all training samples by default.
-            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
+            task_type: Type of task. Can be "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING", "QUESTION_ANSWERING", or "FACT_VERIFICATION".
+            machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            accelerator_count: Count of accelerators.
+            accelerator_type: Type of accelerator to use. Type can be "TPU" or "GPU". Type is ignored, if accelerator is specified.
             max_context_length: The max context length used for tuning.
                 Can be either '8k' or '32k'
 
@@ -268,6 +284,8 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             RuntimeError: If the model does not support tuning
         """
         tuning_parameters = {}
+        if batch_size is not None:
+            tuning_parameters["batch_size"] = batch_size
         if train_steps is not None:
             tuning_parameters["train_steps"] = train_steps
         if learning_rate is not None:
@@ -309,7 +327,15 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         if default_context:
             tuning_parameters["default_context"] = default_context
 
-        if accelerator_type:
+        if task_type is not None:
+            tuning_parameters["task_type"] = task_type
+        if machine_type is not None:
+            tuning_parameters["machine_type"] = machine_type
+        if accelerator_count is not None:
+            tuning_parameters["accelerator_count"] = accelerator_count
+        if accelerator is not None:
+            tuning_parameters["accelerator_type"] = accelerator
+        elif accelerator_type:
             if accelerator_type not in _ACCELERATOR_TYPES:
                 raise ValueError(
                     f"Unsupported accelerator type: {accelerator_type}."
@@ -320,6 +346,14 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         if max_context_length:
             tuning_parameters["max_context_length"] = max_context_length
 
+        if corpus_data is not None:
+            tuning_parameters["corpus_path"] = corpus_data
+        if queries_data is not None:
+            tuning_parameters["queries_path"] = queries_data
+        if test_data is not None:
+            tuning_parameters["test_label_path"] = test_data
+        if validation_data is not None:
+            tuning_parameters["validation_label_path"] = validation_data
         return self._tune_model(
             training_data=training_data,
             tuning_parameters=tuning_parameters,
@@ -359,14 +393,14 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
         """
-        if tuning_job_location not in _TUNING_LOCATIONS:
+        if tuning_job_location and tuning_job_location not in _TUNING_LOCATIONS:
             raise ValueError(
                 _get_invalid_tuning_location_msg(
                     requested_location=tuning_job_location,
                     valid_locations=_TUNING_LOCATIONS,
                 )
             )
-        if tuned_model_location not in _TUNED_MODEL_LOCATIONS:
+        if tuned_model_location and tuned_model_location not in _TUNED_MODEL_LOCATIONS:
             raise ValueError(
                 "Tuned model deployment is only supported in the following locations: "
                 f"{_TUNED_MODEL_LOCATIONS}"
@@ -375,6 +409,21 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             model_id=self._model_id,
             schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
         )
+        if model_info.tuning_pipeline_uri.startswith(
+            "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model"
+        ):
+            train_steps = tuning_parameters.pop("train_steps", None)
+            if train_steps:
+                tuning_parameters["iterations"] = train_steps
+            tunable_base_model_id = self._model_id.rpartition("/")[-1]
+            tuning_parameters["base_model_version_id"] = tunable_base_model_id
+        else:
+            tuning_parameters["large_model_reference"] = model_info.tuning_model_id
+            if aiplatform_initializer.global_config.encryption_spec_key_name:
+                tuning_parameters[
+                    "encryption_spec_key_name"
+                ] = aiplatform_initializer.global_config.encryption_spec_key_name
+
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
         pipeline_job = _launch_tuning_job(
@@ -387,11 +436,13 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             tuned_model_location=tuned_model_location,
         )
 
-        job = _LanguageModelTuningJob(
+        return self._bundle_up_tuning_job(pipeline_job)
+
+    def _bundle_up_tuning_job(self, pipeline_job):
+        return _LanguageModelTuningJob(
             base_model=self,
             job=pipeline_job,
         )
-        return job
 
 
 @dataclasses.dataclass(frozen=True)
@@ -2126,6 +2177,10 @@ class _TextEmbeddingModel(_LanguageModel):
         ]
 
 
+# TODO(b/625884109): Support Union[str, "pandas.core.frame.DataFrame"]
+# for corpus, queries, test and validation data.
+# TODO(b/625884109): Validate input args, batch_size >0 and train_steps >30, and
+# task_type must be 'DEFAULT' or None if _model_id is textembedding-gecko@001.
 class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
     @classmethod
     def get_tuned_model():
@@ -2133,7 +2188,77 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
             "Use deploy_tuned_model instead to get the tuned model."
         )
 
-    # IMPORTANT: Keep this method supported even if you end up deploying the tuned model as part of the tuning pipeline template.
+    def tune_model(
+        self,
+        *,
+        training_data: Optional[str] = None,
+        corpus_data: Optional[str] = None,
+        queries_data: Optional[str] = None,
+        test_data: Optional[str] = None,
+        validation_data: Optional[str] = None,
+        batch_size: Optional[int] = None,
+        train_steps: Optional[int] = None,
+        tuned_model_location: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        task_type: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+    ) -> "_LanguageModelTuningJob":
+        """Tunes a model based on training data.
+
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+
+        Args:
+            training_data: URI pointing to training data in TSV format.
+            corpus_data: URI pointing to data in JSON lines format.
+            queries_data: URI pointing to data in JSON lines format.
+            test_data: URI pointing to data in TSV format.
+            validation_data: URI pointing to data in TSV format.
+            batch_size: Size of batch.
+            train_steps: Number of training batches to tune on.
+            tuned_model_location: GCP location where the tuned model should be deployed.
+            model_display_name: Custom display name for the tuned model.
+            task_type: Type of task. Can be "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING", "QUESTION_ANSWERING", or "FACT_VERIFICATION".
+            machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            accelerator_count: Count of accelerators.
+            accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the "tuned_model_location" value is not supported
+            RuntimeError: If the model does not support tuning
+        """
+
+        return super().tune_model(
+            training_data=training_data,
+            corpus_data=corpus_data,
+            queries_data=queries_data,
+            test_data=test_data,
+            validation_data=validation_data,
+            task_type=task_type,
+            batch_size=batch_size,
+            train_steps=train_steps,
+            tuned_model_location=tuned_model_location,
+            model_display_name=model_display_name,
+            machine_type=machine_type,
+            accelerator=accelerator,
+            accelerator_count=accelerator_count,
+        )
+
+    def _bundle_up_tuning_job(self, pipeline_job):
+        return _TextEmbeddingModelTuningJob(
+            base_model=self,
+            job=pipeline_job,
+        )
+
     @classmethod
     def deploy_tuned_model(
         cls,
@@ -2145,7 +2270,6 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
         """Loads the specified tuned language model.
 
         Args:
-            tuned_model_name: Tuned model's resource name.
             machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
             accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
             accelerator_count: Count of accelerators.
@@ -2190,7 +2314,9 @@ class TextEmbeddingModel(_TextEmbeddingModel, _TunableTextEmbeddingModelMixin):
 
 
 class _PreviewTextEmbeddingModel(
-    TextEmbeddingModel, _ModelWithBatchPredict, _CountTokensMixin
+    TextEmbeddingModel,
+    _ModelWithBatchPredict,
+    _CountTokensMixin,
 ):
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"
@@ -3591,6 +3717,7 @@ class _TuningJob:
         upload_model_task_names = [
             "upload-llm-model",  # Most tuning pipelines
             "upload-model",  # New distillation pipeline uses "upload-model"
+            "text-embedding-model-uploader",  # Embedding model tuning pipelines.
         ]
         upload_model_tasks = [
             task_info
@@ -3651,6 +3778,43 @@ class _LanguageModelTuningJob(_TuningJob):
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
         self._model = type(self._base_model).get_tuned_model(
             tuned_model_name=vertex_model_name
+        )
+        return self._model
+
+
+class _TextEmbeddingModelTuningJob(_LanguageModelTuningJob):
+    """_TextEmbeddingModelTuningJob represents a tuning job."""
+
+    def get_tuned_model(self):
+        raise NotImplementedError(
+            "Use deploy_tuned_model instead to get the tuned model."
+        )
+
+    def deploy_tuned_model(
+        self,
+        machine_type: Optional[str] = None,
+        accelerator: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+    ) -> "TextEmbeddingModel":
+        """Gets the tuned model.
+
+        Args:
+            machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            accelerator_count: Count of accelerators.
+
+        Returns:
+            Tuned `LanguageModel` object.
+        """
+        if self._model:
+            return self._model
+        vertex_model_name = self._get_tuned_model_name()
+        _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
+        self._model = TextEmbeddingModel.deploy_tuned_model(
+            tuned_model_name=vertex_model_name,
+            machine_type=machine_type,
+            accelerator=accelerator,
+            accelerator_count=accelerator_count,
         )
         return self._model
 
@@ -3730,7 +3894,7 @@ def _launch_tuning_job(
     tuned_model_location: str,
     model_display_name: Optional[str] = None,
 ) -> aiplatform.PipelineJob:
-    dataset_name_or_uri = _maybe_upload_training_data(
+    training_data_path = _maybe_upload_training_data(
         training_data=training_data, model_id=model_id
     )
 
@@ -3753,12 +3917,12 @@ def _launch_tuning_job(
         name += " on "
         # Truncating the start of the dataset URI to keep total length <= 128.
         max_display_name_length = 128
-        if len(dataset_name_or_uri + name) <= max_display_name_length:
-            name += dataset_name_or_uri
+        if len(training_data_path + name) <= max_display_name_length:
+            name += training_data_path
         else:
             name += "..."
             remaining_length = max_display_name_length - len(name)
-            name += dataset_name_or_uri[-remaining_length:]
+            name += training_data_path[-remaining_length:]
         model_display_name = name[:max_display_name_length]
 
     pipeline_arguments = {
@@ -3766,18 +3930,17 @@ def _launch_tuning_job(
         # TODO(b/275444096): Remove the explicit location once tuning can happen in all regions
         # "location": aiplatform_initializer.global_config.location,
         "location": tuned_model_location,
-        "large_model_reference": model_id,
         "model_display_name": model_display_name,
     }
 
-    if dataset_name_or_uri.startswith("projects/"):
-        pipeline_arguments["dataset_name"] = dataset_name_or_uri
-    if dataset_name_or_uri.startswith("gs://"):
-        pipeline_arguments["dataset_uri"] = dataset_name_or_uri
-    if aiplatform_initializer.global_config.encryption_spec_key_name:
-        pipeline_arguments[
-            "encryption_spec_key_name"
-        ] = aiplatform_initializer.global_config.encryption_spec_key_name
+    if tuning_pipeline_uri.startswith(
+        "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model"
+    ):
+        pipeline_arguments["train_label_path"] = training_data_path
+    elif training_data_path.startswith("gs://"):
+        pipeline_arguments["dataset_uri"] = training_data_path
+    elif training_data_path.startswith("projects/"):
+        pipeline_arguments["dataset_name"] = training_data_path
     pipeline_arguments.update(tuning_parameters)
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
