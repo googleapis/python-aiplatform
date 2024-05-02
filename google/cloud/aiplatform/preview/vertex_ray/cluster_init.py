@@ -130,7 +130,7 @@ def create_ray_cluster(
         )
     if ray_version == "2.4":
         warnings.warn(
-            _gapic_utils._V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2
+            _validation_utils._V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2
         )
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
