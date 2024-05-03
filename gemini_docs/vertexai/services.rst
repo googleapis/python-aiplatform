@@ -6,7 +6,7 @@ Vertex AI SDK
     :show-inheritance:
     :inherited-members:
 
-.. automodule:: vertexai.generative_models
+.. autoclass:: vertexai.generative_models.GenerativeModel
     :members:
     :show-inheritance:
     :inherited-members:
