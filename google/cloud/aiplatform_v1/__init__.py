@@ -101,6 +101,7 @@ from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
@@ -1400,6 +1401,7 @@ __all__ = (
     "Schema",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
+    "SearchEntryPoint",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",

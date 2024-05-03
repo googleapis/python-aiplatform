@@ -401,6 +401,8 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                     specified.
                 INVALID_ENCODING (13):
                     File is not in UTF_8 format.
+                INVALID_TOKEN_VALUE (15):
+                    Token restrict value is invalid.
             """
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
@@ -416,6 +418,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             MULTIPLE_VALUES = 11
             INVALID_NUMERIC_VALUE = 12
             INVALID_ENCODING = 13
+            INVALID_TOKEN_VALUE = 15
 
         error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
             proto.ENUM,

@@ -65,7 +65,7 @@ class NotebookRuntimeTemplate(proto.Message):
 
     Attributes:
         name (str):
-            Output only. The resource name of the
+            The resource name of the
             NotebookRuntimeTemplate.
         display_name (str):
             Required. The display name of the

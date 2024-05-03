@@ -1628,10 +1628,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                     },
                     {
@@ -2002,10 +1998,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     },
                     {
                         "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                     },
                     {
@@ -2361,10 +2353,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2742,10 +2730,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                     },
                     {
@@ -3117,10 +3101,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -7188,10 +7168,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -7619,10 +7595,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -8038,10 +8010,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -8480,10 +8448,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -8916,10 +8880,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -234,7 +235,13 @@ class PersistentResourceServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, PersistentResourceServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                PersistentResourceServiceTransport,
+                Callable[..., PersistentResourceServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -246,9 +253,11 @@ class PersistentResourceServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.PersistentResourceServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,PersistentResourceServiceTransport,Callable[..., PersistentResourceServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the PersistentResourceServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -390,8 +399,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, persistent_resource, persistent_resource_id]
         )
@@ -401,7 +410,14 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.CreatePersistentResourceRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.CreatePersistentResourceRequest
+        ):
+            request = persistent_resource_service.CreatePersistentResourceRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -414,11 +430,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_persistent_resource,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -515,8 +529,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -524,7 +538,12 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.GetPersistentResourceRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.GetPersistentResourceRequest
+        ):
+            request = persistent_resource_service.GetPersistentResourceRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -533,11 +552,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_persistent_resource,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -627,8 +644,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -636,7 +653,14 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.ListPersistentResourcesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.ListPersistentResourcesRequest
+        ):
+            request = persistent_resource_service.ListPersistentResourcesRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -645,11 +669,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_persistent_resources,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_persistent_resources
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -758,8 +780,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -767,7 +789,14 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.DeletePersistentResourceRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.DeletePersistentResourceRequest
+        ):
+            request = persistent_resource_service.DeletePersistentResourceRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -776,11 +805,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_persistent_resource,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -894,8 +921,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([persistent_resource, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -903,7 +930,14 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.UpdatePersistentResourceRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.UpdatePersistentResourceRequest
+        ):
+            request = persistent_resource_service.UpdatePersistentResourceRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -914,11 +948,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_persistent_resource,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1022,8 +1054,8 @@ class PersistentResourceServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1031,7 +1063,14 @@ class PersistentResourceServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = persistent_resource_service.RebootPersistentResourceRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, persistent_resource_service.RebootPersistentResourceRequest
+        ):
+            request = persistent_resource_service.RebootPersistentResourceRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1040,11 +1079,9 @@ class PersistentResourceServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.reboot_persistent_resource,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.reboot_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

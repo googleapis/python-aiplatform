@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_s
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -121,6 +122,12 @@ class Endpoint(proto.Message):
             [network][google.cloud.aiplatform.v1.Endpoint.network] or
             [enable_private_service_connect][google.cloud.aiplatform.v1.Endpoint.enable_private_service_connect],
             can be set.
+        private_service_connect_config (google.cloud.aiplatform_v1.types.PrivateServiceConnectConfig):
+            Optional. Configuration for private service connect.
+
+            [network][google.cloud.aiplatform.v1.Endpoint.network] and
+            [private_service_connect_config][google.cloud.aiplatform.v1.Endpoint.private_service_connect_config]
+            are mutually exclusive.
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
@@ -185,6 +192,13 @@ class Endpoint(proto.Message):
     enable_private_service_connect: bool = proto.Field(
         proto.BOOL,
         number=17,
+    )
+    private_service_connect_config: service_networking.PrivateServiceConnectConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=21,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
     )
     model_deployment_monitoring_job: str = proto.Field(
         proto.STRING,

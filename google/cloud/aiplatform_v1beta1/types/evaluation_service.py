@@ -880,7 +880,7 @@ class RougeSpec(proto.Message):
 
     Attributes:
         rouge_type (str):
-            Optional. Supported rouge types are rougen[1-9], rougeL and
+            Optional. Supported rouge types are rougen[1-9], rougeL, and
             rougeLsum.
         use_stemmer (bool):
             Optional. Whether to use stemmer to compute

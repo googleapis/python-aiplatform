@@ -1239,6 +1239,9 @@ def test_create_tensorboard_empty_call():
     with mock.patch.object(
         type(client.transport.create_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1264,12 +1267,58 @@ def test_create_tensorboard_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.create_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardRequest(
             parent="parent_value",
         )
+
+
+def test_create_tensorboard_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard
+        ] = mock_rpc
+        request = {}
+        client.create_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1293,6 +1342,56 @@ async def test_create_tensorboard_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_tensorboard
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_tensorboard
+        ] = mock_object
+
+        request = {}
+        await client.create_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.create_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1553,6 +1652,9 @@ def test_get_tensorboard_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1576,12 +1678,50 @@ def test_get_tensorboard_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRequest(
             name="name_value",
         )
+
+
+def test_get_tensorboard_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_tensorboard in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_tensorboard] = mock_rpc
+        request = {}
+        client.get_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1611,6 +1751,52 @@ async def test_get_tensorboard_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_tensorboard
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_tensorboard
+        ] = mock_object
+
+        request = {}
+        await client.get_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1855,6 +2041,9 @@ def test_update_tensorboard_empty_call():
     with mock.patch.object(
         type(client.transport.update_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1878,10 +2067,56 @@ def test_update_tensorboard_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.update_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+
+
+def test_update_tensorboard_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard
+        ] = mock_rpc
+        request = {}
+        client.update_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.update_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1905,6 +2140,56 @@ async def test_update_tensorboard_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_tensorboard
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_tensorboard
+        ] = mock_object
+
+        request = {}
+        await client.update_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.update_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2157,6 +2442,9 @@ def test_list_tensorboards_empty_call():
     with mock.patch.object(
         type(client.transport.list_tensorboards), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboards()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2185,6 +2473,9 @@ def test_list_tensorboards_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.list_tensorboards), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboards(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2194,6 +2485,43 @@ def test_list_tensorboards_non_empty_request_with_auto_populated_field():
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_list_tensorboards_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_tensorboards in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboards
+        ] = mock_rpc
+        request = {}
+        client.list_tensorboards(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboards(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2219,6 +2547,52 @@ async def test_list_tensorboards_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboards_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_tensorboards
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_tensorboards
+        ] = mock_object
+
+        request = {}
+        await client.list_tensorboards(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_tensorboards(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2659,6 +3033,9 @@ def test_delete_tensorboard_empty_call():
     with mock.patch.object(
         type(client.transport.delete_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2684,12 +3061,58 @@ def test_delete_tensorboard_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.delete_tensorboard), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRequest(
             name="name_value",
         )
+
+
+def test_delete_tensorboard_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard
+        ] = mock_rpc
+        request = {}
+        client.delete_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2713,6 +3136,56 @@ async def test_delete_tensorboard_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_tensorboard
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_tensorboard
+        ] = mock_object
+
+        request = {}
+        await client.delete_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2952,6 +3425,9 @@ def test_read_tensorboard_usage_empty_call():
     with mock.patch.object(
         type(client.transport.read_tensorboard_usage), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_usage()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2977,12 +3453,55 @@ def test_read_tensorboard_usage_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.read_tensorboard_usage), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_usage(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardUsageRequest(
             tensorboard="tensorboard_value",
         )
+
+
+def test_read_tensorboard_usage_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_usage
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_usage
+        ] = mock_rpc
+        request = {}
+        client.read_tensorboard_usage(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_usage(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3006,6 +3525,52 @@ async def test_read_tensorboard_usage_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_usage_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.read_tensorboard_usage
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.read_tensorboard_usage
+        ] = mock_object
+
+        request = {}
+        await client.read_tensorboard_usage(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.read_tensorboard_usage(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3248,6 +3813,9 @@ def test_read_tensorboard_size_empty_call():
     with mock.patch.object(
         type(client.transport.read_tensorboard_size), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_size()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3273,12 +3841,55 @@ def test_read_tensorboard_size_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.read_tensorboard_size), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_size(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardSizeRequest(
             tensorboard="tensorboard_value",
         )
+
+
+def test_read_tensorboard_size_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_size
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_size
+        ] = mock_rpc
+        request = {}
+        client.read_tensorboard_size(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_size(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3304,6 +3915,52 @@ async def test_read_tensorboard_size_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_size_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.read_tensorboard_size
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.read_tensorboard_size
+        ] = mock_object
+
+        request = {}
+        await client.read_tensorboard_size(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.read_tensorboard_size(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3557,6 +4214,9 @@ def test_create_tensorboard_experiment_empty_call():
     with mock.patch.object(
         type(client.transport.create_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3583,6 +4243,9 @@ def test_create_tensorboard_experiment_non_empty_request_with_auto_populated_fie
     with mock.patch.object(
         type(client.transport.create_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_experiment(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3590,6 +4253,46 @@ def test_create_tensorboard_experiment_non_empty_request_with_auto_populated_fie
             parent="parent_value",
             tensorboard_experiment_id="tensorboard_experiment_id_value",
         )
+
+
+def test_create_tensorboard_experiment_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_experiment
+        ] = mock_rpc
+        request = {}
+        client.create_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3619,6 +4322,52 @@ async def test_create_tensorboard_experiment_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_experiment_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_tensorboard_experiment
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_tensorboard_experiment
+        ] = mock_object
+
+        request = {}
+        await client.create_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.create_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3908,6 +4657,9 @@ def test_get_tensorboard_experiment_empty_call():
     with mock.patch.object(
         type(client.transport.get_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3933,12 +4685,55 @@ def test_get_tensorboard_experiment_non_empty_request_with_auto_populated_field(
     with mock.patch.object(
         type(client.transport.get_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_experiment(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardExperimentRequest(
             name="name_value",
         )
+
+
+def test_get_tensorboard_experiment_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_experiment
+        ] = mock_rpc
+        request = {}
+        client.get_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3968,6 +4763,52 @@ async def test_get_tensorboard_experiment_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_experiment_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_tensorboard_experiment
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_tensorboard_experiment
+        ] = mock_object
+
+        request = {}
+        await client.get_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4229,6 +5070,9 @@ def test_update_tensorboard_experiment_empty_call():
     with mock.patch.object(
         type(client.transport.update_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -4252,10 +5096,53 @@ def test_update_tensorboard_experiment_non_empty_request_with_auto_populated_fie
     with mock.patch.object(
         type(client.transport.update_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_experiment(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+
+
+def test_update_tensorboard_experiment_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_experiment
+        ] = mock_rpc
+        request = {}
+        client.update_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4285,6 +5172,52 @@ async def test_update_tensorboard_experiment_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_experiment_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_tensorboard_experiment
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_tensorboard_experiment
+        ] = mock_object
+
+        request = {}
+        await client.update_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.update_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4556,6 +5489,9 @@ def test_list_tensorboard_experiments_empty_call():
     with mock.patch.object(
         type(client.transport.list_tensorboard_experiments), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_experiments()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -4584,6 +5520,9 @@ def test_list_tensorboard_experiments_non_empty_request_with_auto_populated_fiel
     with mock.patch.object(
         type(client.transport.list_tensorboard_experiments), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_experiments(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -4593,6 +5532,46 @@ def test_list_tensorboard_experiments_non_empty_request_with_auto_populated_fiel
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_list_tensorboard_experiments_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_experiments
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_experiments
+        ] = mock_rpc
+        request = {}
+        client.list_tensorboard_experiments(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_experiments(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4618,6 +5597,52 @@ async def test_list_tensorboard_experiments_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_experiments_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_tensorboard_experiments
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_tensorboard_experiments
+        ] = mock_object
+
+        request = {}
+        await client.list_tensorboard_experiments(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_tensorboard_experiments(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5063,6 +6088,9 @@ def test_delete_tensorboard_experiment_empty_call():
     with mock.patch.object(
         type(client.transport.delete_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -5088,12 +6116,59 @@ def test_delete_tensorboard_experiment_non_empty_request_with_auto_populated_fie
     with mock.patch.object(
         type(client.transport.delete_tensorboard_experiment), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_experiment(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest(
             name="name_value",
         )
+
+
+def test_delete_tensorboard_experiment_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_experiment
+        ] = mock_rpc
+        request = {}
+        client.delete_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5117,6 +6192,56 @@ async def test_delete_tensorboard_experiment_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_experiment_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_tensorboard_experiment
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_tensorboard_experiment
+        ] = mock_object
+
+        request = {}
+        await client.delete_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5365,6 +6490,9 @@ def test_create_tensorboard_run_empty_call():
     with mock.patch.object(
         type(client.transport.create_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -5391,6 +6519,9 @@ def test_create_tensorboard_run_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.create_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_run(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -5398,6 +6529,46 @@ def test_create_tensorboard_run_non_empty_request_with_auto_populated_field():
             parent="parent_value",
             tensorboard_run_id="tensorboard_run_id_value",
         )
+
+
+def test_create_tensorboard_run_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_run
+        ] = mock_rpc
+        request = {}
+        client.create_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5426,6 +6597,52 @@ async def test_create_tensorboard_run_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_run_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_tensorboard_run
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_tensorboard_run
+        ] = mock_object
+
+        request = {}
+        await client.create_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.create_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5694,6 +6911,9 @@ def test_batch_create_tensorboard_runs_empty_call():
     with mock.patch.object(
         type(client.transport.batch_create_tensorboard_runs), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_create_tensorboard_runs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -5719,12 +6939,55 @@ def test_batch_create_tensorboard_runs_non_empty_request_with_auto_populated_fie
     with mock.patch.object(
         type(client.transport.batch_create_tensorboard_runs), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_create_tensorboard_runs(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest(
             parent="parent_value",
         )
+
+
+def test_batch_create_tensorboard_runs_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_tensorboard_runs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_tensorboard_runs
+        ] = mock_rpc
+        request = {}
+        client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_create_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5748,6 +7011,52 @@ async def test_batch_create_tensorboard_runs_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.batch_create_tensorboard_runs
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.batch_create_tensorboard_runs
+        ] = mock_object
+
+        request = {}
+        await client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.batch_create_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6018,6 +7327,9 @@ def test_get_tensorboard_run_empty_call():
     with mock.patch.object(
         type(client.transport.get_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -6043,12 +7355,54 @@ def test_get_tensorboard_run_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.get_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_run(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRunRequest(
             name="name_value",
         )
+
+
+def test_get_tensorboard_run_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_run in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_run
+        ] = mock_rpc
+        request = {}
+        client.get_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6077,6 +7431,52 @@ async def test_get_tensorboard_run_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRunRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_run_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_tensorboard_run
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_tensorboard_run
+        ] = mock_object
+
+        request = {}
+        await client.get_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6334,6 +7734,9 @@ def test_update_tensorboard_run_empty_call():
     with mock.patch.object(
         type(client.transport.update_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -6357,10 +7760,53 @@ def test_update_tensorboard_run_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.update_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_run(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+
+
+def test_update_tensorboard_run_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_run
+        ] = mock_rpc
+        request = {}
+        client.update_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6389,6 +7835,52 @@ async def test_update_tensorboard_run_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_run_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_tensorboard_run
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_tensorboard_run
+        ] = mock_object
+
+        request = {}
+        await client.update_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.update_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6650,6 +8142,9 @@ def test_list_tensorboard_runs_empty_call():
     with mock.patch.object(
         type(client.transport.list_tensorboard_runs), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_runs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -6678,6 +8173,9 @@ def test_list_tensorboard_runs_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.list_tensorboard_runs), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_runs(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -6687,6 +8185,46 @@ def test_list_tensorboard_runs_non_empty_request_with_auto_populated_field():
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_list_tensorboard_runs_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_runs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_runs
+        ] = mock_rpc
+        request = {}
+        client.list_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6712,6 +8250,52 @@ async def test_list_tensorboard_runs_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_runs_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_tensorboard_runs
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_tensorboard_runs
+        ] = mock_object
+
+        request = {}
+        await client.list_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7152,6 +8736,9 @@ def test_delete_tensorboard_run_empty_call():
     with mock.patch.object(
         type(client.transport.delete_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -7177,12 +8764,59 @@ def test_delete_tensorboard_run_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.delete_tensorboard_run), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_run(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRunRequest(
             name="name_value",
         )
+
+
+def test_delete_tensorboard_run_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_run
+        ] = mock_rpc
+        request = {}
+        client.delete_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7206,6 +8840,56 @@ async def test_delete_tensorboard_run_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_run_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_tensorboard_run
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_tensorboard_run
+        ] = mock_object
+
+        request = {}
+        await client.delete_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7449,6 +9133,9 @@ def test_batch_create_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.batch_create_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_create_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -7474,12 +9161,55 @@ def test_batch_create_tensorboard_time_series_non_empty_request_with_auto_popula
     with mock.patch.object(
         type(client.transport.batch_create_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_create_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(
             parent="parent_value",
         )
+
+
+def test_batch_create_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7503,6 +9233,52 @@ async def test_batch_create_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.batch_create_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.batch_create_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.batch_create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7802,6 +9578,9 @@ def test_create_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.create_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -7828,6 +9607,9 @@ def test_create_tensorboard_time_series_non_empty_request_with_auto_populated_fi
     with mock.patch.object(
         type(client.transport.create_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -7835,6 +9617,46 @@ def test_create_tensorboard_time_series_non_empty_request_with_auto_populated_fi
             parent="parent_value",
             tensorboard_time_series_id="tensorboard_time_series_id_value",
         )
+
+
+def test_create_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7866,6 +9688,52 @@ async def test_create_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8159,6 +10027,9 @@ def test_get_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.get_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -8184,12 +10055,55 @@ def test_get_tensorboard_time_series_non_empty_request_with_auto_populated_field
     with mock.patch.object(
         type(client.transport.get_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest(
             name="name_value",
         )
+
+
+def test_get_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.get_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8221,6 +10135,52 @@ async def test_get_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.get_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8496,6 +10456,9 @@ def test_update_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.update_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -8519,10 +10482,53 @@ def test_update_tensorboard_time_series_non_empty_request_with_auto_populated_fi
     with mock.patch.object(
         type(client.transport.update_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+
+def test_update_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.update_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8554,6 +10560,52 @@ async def test_update_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.update_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.update_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8832,6 +10884,9 @@ def test_list_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.list_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -8860,6 +10915,9 @@ def test_list_tensorboard_time_series_non_empty_request_with_auto_populated_fiel
     with mock.patch.object(
         type(client.transport.list_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -8869,6 +10927,46 @@ def test_list_tensorboard_time_series_non_empty_request_with_auto_populated_fiel
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_list_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.list_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8894,6 +10992,52 @@ async def test_list_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.list_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9340,6 +11484,9 @@ def test_delete_tensorboard_time_series_empty_call():
     with mock.patch.object(
         type(client.transport.delete_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -9365,12 +11512,59 @@ def test_delete_tensorboard_time_series_non_empty_request_with_auto_populated_fi
     with mock.patch.object(
         type(client.transport.delete_tensorboard_time_series), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_tensorboard_time_series(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest(
             name="name_value",
         )
+
+
+def test_delete_tensorboard_time_series_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_time_series
+        ] = mock_rpc
+        request = {}
+        client.delete_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9394,6 +11588,56 @@ async def test_delete_tensorboard_time_series_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_time_series_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_tensorboard_time_series
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_tensorboard_time_series
+        ] = mock_object
+
+        request = {}
+        await client.delete_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9637,6 +11881,9 @@ def test_batch_read_tensorboard_time_series_data_empty_call():
     with mock.patch.object(
         type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_read_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -9664,12 +11911,55 @@ def test_batch_read_tensorboard_time_series_data_non_empty_request_with_auto_pop
     with mock.patch.object(
         type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.batch_read_tensorboard_time_series_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
             tensorboard="tensorboard_value",
         )
+
+
+def test_batch_read_tensorboard_time_series_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_read_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_read_tensorboard_time_series_data
+        ] = mock_rpc
+        request = {}
+        client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9695,6 +11985,52 @@ async def test_batch_read_tensorboard_time_series_data_empty_call_async():
         assert (
             args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
         )
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.batch_read_tensorboard_time_series_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.batch_read_tensorboard_time_series_data
+        ] = mock_object
+
+        request = {}
+        await client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9944,6 +12280,9 @@ def test_read_tensorboard_time_series_data_empty_call():
     with mock.patch.object(
         type(client.transport.read_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -9970,6 +12309,9 @@ def test_read_tensorboard_time_series_data_non_empty_request_with_auto_populated
     with mock.patch.object(
         type(client.transport.read_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_time_series_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -9977,6 +12319,46 @@ def test_read_tensorboard_time_series_data_non_empty_request_with_auto_populated
             tensorboard_time_series="tensorboard_time_series_value",
             filter="filter_value",
         )
+
+
+def test_read_tensorboard_time_series_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_time_series_data
+        ] = mock_rpc
+        request = {}
+        client.read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10000,6 +12382,52 @@ async def test_read_tensorboard_time_series_data_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.read_tensorboard_time_series_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.read_tensorboard_time_series_data
+        ] = mock_object
+
+        request = {}
+        await client.read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10244,6 +12672,9 @@ def test_read_tensorboard_blob_data_empty_call():
     with mock.patch.object(
         type(client.transport.read_tensorboard_blob_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_blob_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -10269,12 +12700,55 @@ def test_read_tensorboard_blob_data_non_empty_request_with_auto_populated_field(
     with mock.patch.object(
         type(client.transport.read_tensorboard_blob_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.read_tensorboard_blob_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest(
             time_series="time_series_value",
         )
+
+
+def test_read_tensorboard_blob_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_blob_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_blob_data
+        ] = mock_rpc
+        request = {}
+        client.read_tensorboard_blob_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_blob_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10299,6 +12773,52 @@ async def test_read_tensorboard_blob_data_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_blob_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.read_tensorboard_blob_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.read_tensorboard_blob_data
+        ] = mock_object
+
+        request = {}
+        await client.read_tensorboard_blob_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.read_tensorboard_blob_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10547,6 +13067,9 @@ def test_write_tensorboard_experiment_data_empty_call():
     with mock.patch.object(
         type(client.transport.write_tensorboard_experiment_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.write_tensorboard_experiment_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -10572,12 +13095,55 @@ def test_write_tensorboard_experiment_data_non_empty_request_with_auto_populated
     with mock.patch.object(
         type(client.transport.write_tensorboard_experiment_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.write_tensorboard_experiment_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest(
             tensorboard_experiment="tensorboard_experiment_value",
         )
+
+
+def test_write_tensorboard_experiment_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.write_tensorboard_experiment_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.write_tensorboard_experiment_data
+        ] = mock_rpc
+        request = {}
+        client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.write_tensorboard_experiment_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10601,6 +13167,52 @@ async def test_write_tensorboard_experiment_data_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.write_tensorboard_experiment_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.write_tensorboard_experiment_data
+        ] = mock_object
+
+        request = {}
+        await client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.write_tensorboard_experiment_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10876,6 +13488,9 @@ def test_write_tensorboard_run_data_empty_call():
     with mock.patch.object(
         type(client.transport.write_tensorboard_run_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.write_tensorboard_run_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -10901,12 +13516,55 @@ def test_write_tensorboard_run_data_non_empty_request_with_auto_populated_field(
     with mock.patch.object(
         type(client.transport.write_tensorboard_run_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.write_tensorboard_run_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest(
             tensorboard_run="tensorboard_run_value",
         )
+
+
+def test_write_tensorboard_run_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.write_tensorboard_run_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.write_tensorboard_run_data
+        ] = mock_rpc
+        request = {}
+        client.write_tensorboard_run_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.write_tensorboard_run_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10930,6 +13588,52 @@ async def test_write_tensorboard_run_data_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_run_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.write_tensorboard_run_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.write_tensorboard_run_data
+        ] = mock_object
+
+        request = {}
+        await client.write_tensorboard_run_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.write_tensorboard_run_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -11206,6 +13910,9 @@ def test_export_tensorboard_time_series_data_empty_call():
     with mock.patch.object(
         type(client.transport.export_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.export_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -11234,6 +13941,9 @@ def test_export_tensorboard_time_series_data_non_empty_request_with_auto_populat
     with mock.patch.object(
         type(client.transport.export_tensorboard_time_series_data), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.export_tensorboard_time_series_data(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -11243,6 +13953,46 @@ def test_export_tensorboard_time_series_data_non_empty_request_with_auto_populat
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_export_tensorboard_time_series_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.export_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.export_tensorboard_time_series_data
+        ] = mock_rpc
+        request = {}
+        client.export_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.export_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -11268,6 +14018,52 @@ async def test_export_tensorboard_time_series_data_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_export_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = TensorboardServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.export_tensorboard_time_series_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.export_tensorboard_time_series_data
+        ] = mock_object
+
+        request = {}
+        await client.export_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.export_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -11786,6 +14582,50 @@ def test_create_tensorboard_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_create_tensorboard_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard
+        ] = mock_rpc
+
+        request = {}
+        client.create_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_create_tensorboard_rest_required_fields(
     request_type=tensorboard_service.CreateTensorboardRequest,
 ):
@@ -12071,6 +14911,42 @@ def test_get_tensorboard_rest(request_type):
     assert response.run_count == 989
     assert response.etag == "etag_value"
     assert response.is_default is True
+
+
+def test_get_tensorboard_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_tensorboard in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_tensorboard] = mock_rpc
+
+        request = {}
+        client.get_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_get_tensorboard_rest_required_fields(
@@ -12421,6 +15297,50 @@ def test_update_tensorboard_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_update_tensorboard_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard
+        ] = mock_rpc
+
+        request = {}
+        client.update_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.update_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_update_tensorboard_rest_required_fields(
     request_type=tensorboard_service.UpdateTensorboardRequest,
 ):
@@ -12699,6 +15619,44 @@ def test_list_tensorboards_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardsPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_tensorboards_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_tensorboards in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboards
+        ] = mock_rpc
+
+        request = {}
+        client.list_tensorboards(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboards(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_tensorboards_rest_required_fields(
@@ -13043,6 +16001,50 @@ def test_delete_tensorboard_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_delete_tensorboard_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard
+        ] = mock_rpc
+
+        request = {}
+        client.delete_tensorboard(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_delete_tensorboard_rest_required_fields(
     request_type=tensorboard_service.DeleteTensorboardRequest,
 ):
@@ -13306,6 +16308,47 @@ def test_read_tensorboard_usage_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
+
+
+def test_read_tensorboard_usage_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_usage
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_usage
+        ] = mock_rpc
+
+        request = {}
+        client.read_tensorboard_usage(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_usage(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_read_tensorboard_usage_rest_required_fields(
@@ -13584,6 +16627,47 @@ def test_read_tensorboard_size_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
     assert response.storage_size_byte == 1826
+
+
+def test_read_tensorboard_size_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_size
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_size
+        ] = mock_rpc
+
+        request = {}
+        client.read_tensorboard_size(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_size(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_read_tensorboard_size_rest_required_fields(
@@ -13950,6 +17034,47 @@ def test_create_tensorboard_experiment_rest(request_type):
     assert response.source == "source_value"
 
 
+def test_create_tensorboard_experiment_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_experiment
+        ] = mock_rpc
+
+        request = {}
+        client.create_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_create_tensorboard_experiment_rest_required_fields(
     request_type=tensorboard_service.CreateTensorboardExperimentRequest,
 ):
@@ -14273,6 +17398,47 @@ def test_get_tensorboard_experiment_rest(request_type):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.source == "source_value"
+
+
+def test_get_tensorboard_experiment_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_experiment
+        ] = mock_rpc
+
+        request = {}
+        client.get_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_get_tensorboard_experiment_rest_required_fields(
@@ -14642,6 +17808,47 @@ def test_update_tensorboard_experiment_rest(request_type):
     assert response.source == "source_value"
 
 
+def test_update_tensorboard_experiment_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_experiment
+        ] = mock_rpc
+
+        request = {}
+        client.update_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_update_tensorboard_experiment_rest_required_fields(
     request_type=tensorboard_service.UpdateTensorboardExperimentRequest,
 ):
@@ -14938,6 +18145,47 @@ def test_list_tensorboard_experiments_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardExperimentsPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_tensorboard_experiments_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_experiments
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_experiments
+        ] = mock_rpc
+
+        request = {}
+        client.list_tensorboard_experiments(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_experiments(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_tensorboard_experiments_rest_required_fields(
@@ -15295,6 +18543,51 @@ def test_delete_tensorboard_experiment_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
+
+
+def test_delete_tensorboard_experiment_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_experiment
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_experiment
+        ] = mock_rpc
+
+        request = {}
+        client.delete_tensorboard_experiment(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_experiment(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_delete_tensorboard_experiment_rest_required_fields(
@@ -15656,6 +18949,47 @@ def test_create_tensorboard_run_rest(request_type):
     assert response.etag == "etag_value"
 
 
+def test_create_tensorboard_run_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_run
+        ] = mock_rpc
+
+        request = {}
+        client.create_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_create_tensorboard_run_rest_required_fields(
     request_type=tensorboard_service.CreateTensorboardRunRequest,
 ):
@@ -15955,6 +19289,47 @@ def test_batch_create_tensorboard_runs_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
+
+
+def test_batch_create_tensorboard_runs_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_tensorboard_runs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_tensorboard_runs
+        ] = mock_rpc
+
+        request = {}
+        client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_create_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_batch_create_tensorboard_runs_rest_required_fields(
@@ -16260,6 +19635,46 @@ def test_get_tensorboard_run_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+
+
+def test_get_tensorboard_run_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_run in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_run
+        ] = mock_rpc
+
+        request = {}
+        client.get_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_get_tensorboard_run_rest_required_fields(
@@ -16621,6 +20036,47 @@ def test_update_tensorboard_run_rest(request_type):
     assert response.etag == "etag_value"
 
 
+def test_update_tensorboard_run_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_run
+        ] = mock_rpc
+
+        request = {}
+        client.update_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_update_tensorboard_run_rest_required_fields(
     request_type=tensorboard_service.UpdateTensorboardRunRequest,
 ):
@@ -16905,6 +20361,47 @@ def test_list_tensorboard_runs_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardRunsPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_tensorboard_runs_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_runs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_runs
+        ] = mock_rpc
+
+        request = {}
+        client.list_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_runs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_tensorboard_runs_rest_required_fields(
@@ -17259,6 +20756,51 @@ def test_delete_tensorboard_run_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_delete_tensorboard_run_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_run
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_run
+        ] = mock_rpc
+
+        request = {}
+        client.delete_tensorboard_run(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_run(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_delete_tensorboard_run_rest_required_fields(
     request_type=tensorboard_service.DeleteTensorboardRunRequest,
 ):
@@ -17529,6 +21071,47 @@ def test_batch_create_tensorboard_time_series_rest(request_type):
     assert isinstance(
         response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
     )
+
+
+def test_batch_create_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_batch_create_tensorboard_time_series_rest_required_fields(
@@ -17944,6 +21527,47 @@ def test_create_tensorboard_time_series_rest(request_type):
     assert response.plugin_data == b"plugin_data_blob"
 
 
+def test_create_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_create_tensorboard_time_series_rest_required_fields(
     request_type=tensorboard_service.CreateTensorboardTimeSeriesRequest,
 ):
@@ -18258,6 +21882,47 @@ def test_get_tensorboard_time_series_rest(request_type):
     assert response.etag == "etag_value"
     assert response.plugin_name == "plugin_name_value"
     assert response.plugin_data == b"plugin_data_blob"
+
+
+def test_get_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.get_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_get_tensorboard_time_series_rest_required_fields(
@@ -18644,6 +22309,47 @@ def test_update_tensorboard_time_series_rest(request_type):
     assert response.plugin_data == b"plugin_data_blob"
 
 
+def test_update_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.update_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_update_tensorboard_time_series_rest_required_fields(
     request_type=tensorboard_service.UpdateTensorboardTimeSeriesRequest,
 ):
@@ -18944,6 +22650,47 @@ def test_list_tensorboard_time_series_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardTimeSeriesPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.list_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_tensorboard_time_series_rest_required_fields(
@@ -19306,6 +23053,51 @@ def test_delete_tensorboard_time_series_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_delete_tensorboard_time_series_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_tensorboard_time_series
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_tensorboard_time_series
+        ] = mock_rpc
+
+        request = {}
+        client.delete_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_tensorboard_time_series(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_delete_tensorboard_time_series_rest_required_fields(
     request_type=tensorboard_service.DeleteTensorboardTimeSeriesRequest,
 ):
@@ -19582,6 +23374,47 @@ def test_batch_read_tensorboard_time_series_data_rest(request_type):
     assert isinstance(
         response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
     )
+
+
+def test_batch_read_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_read_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_read_tensorboard_time_series_data
+        ] = mock_rpc
+
+        request = {}
+        client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_batch_read_tensorboard_time_series_data_rest_required_fields(
@@ -19903,6 +23736,47 @@ def test_read_tensorboard_time_series_data_rest(request_type):
     )
 
 
+def test_read_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_time_series_data
+        ] = mock_rpc
+
+        request = {}
+        client.read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_read_tensorboard_time_series_data_rest_required_fields(
     request_type=tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
 ):
@@ -20210,6 +24084,47 @@ def test_read_tensorboard_blob_data_rest(request_type):
     assert isinstance(response, tensorboard_service.ReadTensorboardBlobDataResponse)
 
 
+def test_read_tensorboard_blob_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.read_tensorboard_blob_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.read_tensorboard_blob_data
+        ] = mock_rpc
+
+        request = {}
+        client.read_tensorboard_blob_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.read_tensorboard_blob_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_read_tensorboard_blob_data_rest_required_fields(
     request_type=tensorboard_service.ReadTensorboardBlobDataRequest,
 ):
@@ -20498,6 +24413,47 @@ def test_write_tensorboard_experiment_data_rest(request_type):
     assert isinstance(
         response, tensorboard_service.WriteTensorboardExperimentDataResponse
     )
+
+
+def test_write_tensorboard_experiment_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.write_tensorboard_experiment_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.write_tensorboard_experiment_data
+        ] = mock_rpc
+
+        request = {}
+        client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.write_tensorboard_experiment_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_write_tensorboard_experiment_data_rest_required_fields(
@@ -20806,6 +24762,47 @@ def test_write_tensorboard_run_data_rest(request_type):
     assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
 
 
+def test_write_tensorboard_run_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.write_tensorboard_run_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.write_tensorboard_run_data
+        ] = mock_rpc
+
+        request = {}
+        client.write_tensorboard_run_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.write_tensorboard_run_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_write_tensorboard_run_data_rest_required_fields(
     request_type=tensorboard_service.WriteTensorboardRunDataRequest,
 ):
@@ -21105,6 +25102,47 @@ def test_export_tensorboard_time_series_data_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_export_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.export_tensorboard_time_series_data
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.export_tensorboard_time_series_data
+        ] = mock_rpc
+
+        request = {}
+        client.export_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.export_tensorboard_time_series_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_export_tensorboard_time_series_data_rest_required_fields(

@@ -49,7 +49,7 @@ class CreateFeatureGroupRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             FeatureGroups. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         feature_group (google.cloud.aiplatform_v1beta1.types.FeatureGroup):
             Required. The FeatureGroup to create.
         feature_group_id (str):

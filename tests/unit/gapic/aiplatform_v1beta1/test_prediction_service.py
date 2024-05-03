@@ -1227,6 +1227,9 @@ def test_predict_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1250,12 +1253,50 @@ def test_predict_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.predict(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.PredictRequest(
             endpoint="endpoint_value",
         )
+
+
+def test_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.predict] = mock_rpc
+        request = {}
+        client.predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1282,6 +1323,50 @@ async def test_predict_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.PredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_predict_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.predict
+        ] = mock_object
+
+        request = {}
+        await client.predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1471,6 +1556,9 @@ def test_raw_predict_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.raw_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1494,12 +1582,50 @@ def test_raw_predict_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.raw_predict(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.RawPredictRequest(
             endpoint="endpoint_value",
         )
+
+
+def test_raw_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.raw_predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.raw_predict] = mock_rpc
+        request = {}
+        client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1524,6 +1650,52 @@ async def test_raw_predict_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.RawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.raw_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.raw_predict
+        ] = mock_object
+
+        request = {}
+        await client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1763,6 +1935,9 @@ def test_direct_predict_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.direct_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1786,12 +1961,50 @@ def test_direct_predict_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.direct_predict(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.DirectPredictRequest(
             endpoint="endpoint_value",
         )
+
+
+def test_direct_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.direct_predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.direct_predict] = mock_rpc
+        request = {}
+        client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.direct_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1813,6 +2026,52 @@ async def test_direct_predict_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.DirectPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_direct_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.direct_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.direct_predict
+        ] = mock_object
+
+        request = {}
+        await client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.direct_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1963,6 +2222,9 @@ def test_direct_raw_predict_empty_call():
     with mock.patch.object(
         type(client.transport.direct_raw_predict), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.direct_raw_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1989,6 +2251,9 @@ def test_direct_raw_predict_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.direct_raw_predict), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.direct_raw_predict(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1996,6 +2261,45 @@ def test_direct_raw_predict_non_empty_request_with_auto_populated_field():
             endpoint="endpoint_value",
             method_name="method_name_value",
         )
+
+
+def test_direct_raw_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.direct_raw_predict in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.direct_raw_predict
+        ] = mock_rpc
+        request = {}
+        client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.direct_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2021,6 +2325,52 @@ async def test_direct_raw_predict_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.DirectRawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_direct_raw_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.direct_raw_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.direct_raw_predict
+        ] = mock_object
+
+        request = {}
+        await client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.direct_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2166,6 +2516,92 @@ def test_stream_direct_predict(request_type, transport: str = "grpc"):
         assert isinstance(message, prediction_service.StreamDirectPredictResponse)
 
 
+def test_stream_direct_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.stream_direct_predict
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.stream_direct_predict
+        ] = mock_rpc
+        request = [{}]
+        client.stream_direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.stream_direct_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.stream_direct_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.stream_direct_predict
+        ] = mock_object
+
+        request = [{}]
+        await client.stream_direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.stream_direct_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
+
+
 @pytest.mark.asyncio
 async def test_stream_direct_predict_async(
     transport: str = "grpc_asyncio",
@@ -2243,6 +2679,92 @@ def test_stream_direct_raw_predict(request_type, transport: str = "grpc"):
         assert isinstance(message, prediction_service.StreamDirectRawPredictResponse)
 
 
+def test_stream_direct_raw_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.stream_direct_raw_predict
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.stream_direct_raw_predict
+        ] = mock_rpc
+        request = [{}]
+        client.stream_direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.stream_direct_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_raw_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.stream_direct_raw_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.stream_direct_raw_predict
+        ] = mock_object
+
+        request = [{}]
+        await client.stream_direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.stream_direct_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
+
+
 @pytest.mark.asyncio
 async def test_stream_direct_raw_predict_async(
     transport: str = "grpc_asyncio",
@@ -2318,6 +2840,89 @@ def test_streaming_predict(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     for message in response:
         assert isinstance(message, prediction_service.StreamingPredictResponse)
+
+
+def test_streaming_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.streaming_predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.streaming_predict
+        ] = mock_rpc
+        request = [{}]
+        client.streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.streaming_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_streaming_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.streaming_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.streaming_predict
+        ] = mock_object
+
+        request = [{}]
+        await client.streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.streaming_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2409,6 +3014,9 @@ def test_server_streaming_predict_empty_call():
     with mock.patch.object(
         type(client.transport.server_streaming_predict), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.server_streaming_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2434,12 +3042,55 @@ def test_server_streaming_predict_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.server_streaming_predict), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.server_streaming_predict(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.StreamingPredictRequest(
             endpoint="endpoint_value",
         )
+
+
+def test_server_streaming_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.server_streaming_predict
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.server_streaming_predict
+        ] = mock_rpc
+        request = {}
+        client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.server_streaming_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2464,6 +3115,52 @@ async def test_server_streaming_predict_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.StreamingPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_server_streaming_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.server_streaming_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.server_streaming_predict
+        ] = mock_object
+
+        request = {}
+        await client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.server_streaming_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2609,6 +3306,92 @@ def test_streaming_raw_predict(request_type, transport: str = "grpc"):
         assert isinstance(message, prediction_service.StreamingRawPredictResponse)
 
 
+def test_streaming_raw_predict_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.streaming_raw_predict
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.streaming_raw_predict
+        ] = mock_rpc
+        request = [{}]
+        client.streaming_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.streaming_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_streaming_raw_predict_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.streaming_raw_predict
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.streaming_raw_predict
+        ] = mock_object
+
+        request = [{}]
+        await client.streaming_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.streaming_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
+
+
 @pytest.mark.asyncio
 async def test_streaming_raw_predict_async(
     transport: str = "grpc_asyncio",
@@ -2696,6 +3479,9 @@ def test_explain_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.explain()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2720,6 +3506,9 @@ def test_explain_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.explain(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2727,6 +3516,41 @@ def test_explain_non_empty_request_with_auto_populated_field():
             endpoint="endpoint_value",
             deployed_model_id="deployed_model_id_value",
         )
+
+
+def test_explain_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.explain in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.explain] = mock_rpc
+        request = {}
+        client.explain(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.explain(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2750,6 +3574,50 @@ async def test_explain_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.ExplainRequest()
+
+
+@pytest.mark.asyncio
+async def test_explain_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.explain
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.explain
+        ] = mock_object
+
+        request = {}
+        await client.explain(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.explain(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2935,6 +3803,9 @@ def test_count_tokens_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.count_tokens()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2959,6 +3830,9 @@ def test_count_tokens_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.count_tokens(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2966,6 +3840,41 @@ def test_count_tokens_non_empty_request_with_auto_populated_field():
             endpoint="endpoint_value",
             model="model_value",
         )
+
+
+def test_count_tokens_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.count_tokens in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.count_tokens] = mock_rpc
+        request = {}
+        client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.count_tokens(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2990,6 +3899,52 @@ async def test_count_tokens_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.CountTokensRequest()
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.count_tokens
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.count_tokens
+        ] = mock_object
+
+        request = {}
+        await client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.count_tokens(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3229,6 +4184,9 @@ def test_generate_content_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.generate_content()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3252,12 +4210,52 @@ def test_generate_content_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.generate_content(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
         )
+
+
+def test_generate_content_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.generate_content in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.generate_content
+        ] = mock_rpc
+        request = {}
+        client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3279,6 +4277,52 @@ async def test_generate_content_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest()
+
+
+@pytest.mark.asyncio
+async def test_generate_content_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.generate_content
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.generate_content
+        ] = mock_object
+
+        request = {}
+        await client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3519,6 +4563,9 @@ def test_stream_generate_content_empty_call():
     with mock.patch.object(
         type(client.transport.stream_generate_content), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.stream_generate_content()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3544,12 +4591,55 @@ def test_stream_generate_content_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.stream_generate_content), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.stream_generate_content(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
         )
+
+
+def test_stream_generate_content_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.stream_generate_content
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.stream_generate_content
+        ] = mock_rpc
+        request = {}
+        client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.stream_generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3574,6 +4664,52 @@ async def test_stream_generate_content_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest()
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = PredictionServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.stream_generate_content
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.stream_generate_content
+        ] = mock_object
+
+        request = {}
+        await client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.stream_generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3780,288 +4916,6 @@ async def test_stream_generate_content_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
-        prediction_service.ChatCompletionsRequest,
-        dict,
-    ],
-)
-def test_chat_completions(request_type, transport: str = "grpc"):
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter([httpbody_pb2.HttpBody()])
-        response = client.chat_completions(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        request = prediction_service.ChatCompletionsRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    for message in response:
-        assert isinstance(message, httpbody_pb2.HttpBody)
-
-
-def test_chat_completions_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        client.chat_completions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.ChatCompletionsRequest()
-
-
-def test_chat_completions_non_empty_request_with_auto_populated_field():
-    # This test is a coverage failsafe to make sure that UUID4 fields are
-    # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Populate all string fields in the request which are not UUID4
-    # since we want to check that UUID4 are populated automatically
-    # if they meet the requirements of AIP 4235.
-    request = prediction_service.ChatCompletionsRequest(
-        endpoint="endpoint_value",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        client.chat_completions(request=request)
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.ChatCompletionsRequest(
-            endpoint="endpoint_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
-        response = await client.chat_completions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.ChatCompletionsRequest()
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_async(
-    transport: str = "grpc_asyncio",
-    request_type=prediction_service.ChatCompletionsRequest,
-):
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
-        response = await client.chat_completions(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        request = prediction_service.ChatCompletionsRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    message = await response.read()
-    assert isinstance(message, httpbody_pb2.HttpBody)
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_async_from_dict():
-    await test_chat_completions_async(request_type=dict)
-
-
-def test_chat_completions_field_headers():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = prediction_service.ChatCompletionsRequest()
-
-    request.endpoint = "endpoint_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        call.return_value = iter([httpbody_pb2.HttpBody()])
-        client.chat_completions(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_field_headers_async():
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = prediction_service.ChatCompletionsRequest()
-
-    request.endpoint = "endpoint_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
-        await client.chat_completions(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint_value",
-    ) in kw["metadata"]
-
-
-def test_chat_completions_flattened():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter([httpbody_pb2.HttpBody()])
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.chat_completions(
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].endpoint
-        mock_val = "endpoint_value"
-        assert arg == mock_val
-        arg = args[0].http_body
-        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
-        assert arg == mock_val
-
-
-def test_chat_completions_flattened_error():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.chat_completions(
-            prediction_service.ChatCompletionsRequest(),
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_flattened_async():
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.chat_completions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter([httpbody_pb2.HttpBody()])
-
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.chat_completions(
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].endpoint
-        mock_val = "endpoint_value"
-        assert arg == mock_val
-        arg = args[0].http_body
-        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_chat_completions_flattened_error_async():
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.chat_completions(
-            prediction_service.ChatCompletionsRequest(),
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
         prediction_service.PredictRequest,
         dict,
     ],
@@ -4103,6 +4957,42 @@ def test_predict_rest(request_type):
     assert response.model == "model_value"
     assert response.model_version_id == "model_version_id_value"
     assert response.model_display_name == "model_display_name_value"
+
+
+def test_predict_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.predict] = mock_rpc
+
+        request = {}
+        client.predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_predict_rest_required_fields(request_type=prediction_service.PredictRequest):
@@ -4385,6 +5275,42 @@ def test_raw_predict_rest(request_type):
     assert response.data == b"data_blob"
 
 
+def test_raw_predict_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.raw_predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.raw_predict] = mock_rpc
+
+        request = {}
+        client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_raw_predict_rest_required_fields(
     request_type=prediction_service.RawPredictRequest,
 ):
@@ -4648,6 +5574,42 @@ def test_direct_predict_rest(request_type):
     assert isinstance(response, prediction_service.DirectPredictResponse)
 
 
+def test_direct_predict_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.direct_predict in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.direct_predict] = mock_rpc
+
+        request = {}
+        client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.direct_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_direct_predict_rest_required_fields(
     request_type=prediction_service.DirectPredictRequest,
 ):
@@ -4857,6 +5819,46 @@ def test_direct_raw_predict_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.DirectRawPredictResponse)
     assert response.output == b"output_blob"
+
+
+def test_direct_raw_predict_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.direct_raw_predict in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.direct_raw_predict
+        ] = mock_rpc
+
+        request = {}
+        client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.direct_raw_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_direct_raw_predict_rest_required_fields(
@@ -5107,6 +6109,47 @@ def test_server_streaming_predict_rest(request_type):
     assert isinstance(response, prediction_service.StreamingPredictResponse)
 
 
+def test_server_streaming_predict_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.server_streaming_predict
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.server_streaming_predict
+        ] = mock_rpc
+
+        request = {}
+        client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.server_streaming_predict(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_server_streaming_predict_rest_required_fields(
     request_type=prediction_service.StreamingPredictRequest,
 ):
@@ -5331,6 +6374,42 @@ def test_explain_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.ExplainResponse)
     assert response.deployed_model_id == "deployed_model_id_value"
+
+
+def test_explain_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.explain in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.explain] = mock_rpc
+
+        request = {}
+        client.explain(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.explain(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_explain_rest_required_fields(request_type=prediction_service.ExplainRequest):
@@ -5617,6 +6696,42 @@ def test_count_tokens_rest(request_type):
     assert response.total_billable_characters == 2617
 
 
+def test_count_tokens_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.count_tokens in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.count_tokens] = mock_rpc
+
+        request = {}
+        client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.count_tokens(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_count_tokens_rest_required_fields(
     request_type=prediction_service.CountTokensRequest,
 ):
@@ -5898,6 +7013,44 @@ def test_generate_content_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+def test_generate_content_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.generate_content in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.generate_content
+        ] = mock_rpc
+
+        request = {}
+        client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_generate_content_rest_required_fields(
@@ -6184,6 +7337,47 @@ def test_stream_generate_content_rest(request_type):
     assert isinstance(response, prediction_service.GenerateContentResponse)
 
 
+def test_stream_generate_content_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.stream_generate_content
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.stream_generate_content
+        ] = mock_rpc
+
+        request = {}
+        client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.stream_generate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_stream_generate_content_rest_required_fields(
     request_type=prediction_service.GenerateContentRequest,
 ):
@@ -6431,363 +7625,6 @@ def test_stream_generate_content_rest_error():
     )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        prediction_service.ChatCompletionsRequest,
-        dict,
-    ],
-)
-def test_chat_completions_rest(request_type):
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
-    request_init["http_body"] = {
-        "content_type": "content_type_value",
-        "data": b"data_blob",
-        "extensions": [
-            {
-                "type_url": "type.googleapis.com/google.protobuf.Duration",
-                "value": b"\x08\x0c\x10\xdb\x07",
-            }
-        ],
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = prediction_service.ChatCompletionsRequest.meta.fields["http_body"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["http_body"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["http_body"][field])):
-                    del request_init["http_body"][field][i][subfield]
-            else:
-                del request_init["http_body"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = httpbody_pb2.HttpBody(
-            content_type="content_type_value",
-            data=b"data_blob",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        json_return_value = "[{}]".format(json_return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        with mock.patch.object(response_value, "iter_content") as iter_content:
-            iter_content.return_value = iter(json_return_value)
-            response = client.chat_completions(request)
-
-    assert isinstance(response, Iterable)
-    response = next(response)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, httpbody_pb2.HttpBody)
-    assert response.content_type == "content_type_value"
-    assert response.data == b"data_blob"
-
-
-def test_chat_completions_rest_required_fields(
-    request_type=prediction_service.ChatCompletionsRequest,
-):
-    transport_class = transports.PredictionServiceRestTransport
-
-    request_init = {}
-    request_init["endpoint"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).chat_completions._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["endpoint"] = "endpoint_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).chat_completions._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "endpoint" in jsonified_request
-    assert jsonified_request["endpoint"] == "endpoint_value"
-
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = httpbody_pb2.HttpBody()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            json_return_value = json_format.MessageToJson(return_value)
-            json_return_value = "[{}]".format(json_return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            with mock.patch.object(response_value, "iter_content") as iter_content:
-                iter_content.return_value = iter(json_return_value)
-                response = client.chat_completions(request)
-
-            expected_params = []
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_chat_completions_rest_unset_required_fields():
-    transport = transports.PredictionServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.chat_completions._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("endpoint",)))
-
-
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_chat_completions_rest_interceptors(null_interceptor):
-    transport = transports.PredictionServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
-    )
-    client = PredictionServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.PredictionServiceRestInterceptor, "post_chat_completions"
-    ) as post, mock.patch.object(
-        transports.PredictionServiceRestInterceptor, "pre_chat_completions"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = prediction_service.ChatCompletionsRequest.pb(
-            prediction_service.ChatCompletionsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(httpbody_pb2.HttpBody())
-        req.return_value._content = "[{}]".format(req.return_value._content)
-
-        request = prediction_service.ChatCompletionsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = httpbody_pb2.HttpBody()
-
-        client.chat_completions(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_chat_completions_rest_bad_request(
-    transport: str = "rest", request_type=prediction_service.ChatCompletionsRequest
-):
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.chat_completions(request)
-
-
-def test_chat_completions_rest_flattened():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = httpbody_pb2.HttpBody()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "endpoint": "projects/sample1/locations/sample2/endpoints/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        json_return_value = "[{}]".format(json_return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        with mock.patch.object(response_value, "iter_content") as iter_content:
-            iter_content.return_value = iter(json_return_value)
-            client.chat_completions(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{endpoint=projects/*/locations/*/endpoints/*}/chat/completions"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_chat_completions_rest_flattened_error(transport: str = "rest"):
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.chat_completions(
-            prediction_service.ChatCompletionsRequest(),
-            endpoint="endpoint_value",
-            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
-        )
-
-
-def test_chat_completions_rest_error():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
 def test_stream_direct_predict_rest_error():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
@@ -6992,7 +7829,6 @@ def test_prediction_service_base_transport():
         "count_tokens",
         "generate_content",
         "stream_generate_content",
-        "chat_completions",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -7299,9 +8135,6 @@ def test_prediction_service_client_transport_session_collision(transport_name):
     assert session1 != session2
     session1 = client1.transport.stream_generate_content._session
     session2 = client2.transport.stream_generate_content._session
-    assert session1 != session2
-    session1 = client1.transport.chat_completions._session
-    session2 = client2.transport.chat_completions._session
     assert session1 != session2
 
 

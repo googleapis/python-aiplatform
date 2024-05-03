@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -573,7 +574,13 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, FeatureRegistryServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                FeatureRegistryServiceTransport,
+                Callable[..., FeatureRegistryServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -585,9 +592,11 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, FeatureRegistryServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,FeatureRegistryServiceTransport,Callable[..., FeatureRegistryServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the FeatureRegistryServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -699,8 +708,16 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[FeatureRegistryServiceTransport],
+                Callable[..., FeatureRegistryServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., FeatureRegistryServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -770,7 +787,7 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             parent (str):
                 Required. The resource name of the Location to create
                 FeatureGroups. Format:
-                ``projects/{project}/locations/{location}'``
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -811,8 +828,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature_group, feature_group_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -820,10 +837,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a feature_registry_service.CreateFeatureGroupRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, feature_registry_service.CreateFeatureGroupRequest):
             request = feature_registry_service.CreateFeatureGroupRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -928,8 +943,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 Vertex AI Feature Group.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -937,10 +952,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a feature_registry_service.GetFeatureGroupRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, feature_registry_service.GetFeatureGroupRequest):
             request = feature_registry_service.GetFeatureGroupRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1040,8 +1053,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1049,10 +1062,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a feature_registry_service.ListFeatureGroupsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, feature_registry_service.ListFeatureGroupsRequest):
             request = feature_registry_service.ListFeatureGroupsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1185,8 +1196,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature_group, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1194,10 +1205,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a feature_registry_service.UpdateFeatureGroupRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, feature_registry_service.UpdateFeatureGroupRequest):
             request = feature_registry_service.UpdateFeatureGroupRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1329,8 +1338,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1338,10 +1347,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a feature_registry_service.DeleteFeatureGroupRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, feature_registry_service.DeleteFeatureGroupRequest):
             request = feature_registry_service.DeleteFeatureGroupRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1482,8 +1489,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature, feature_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1491,10 +1498,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.CreateFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.CreateFeatureRequest):
             request = featurestore_service.CreateFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1605,8 +1610,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1614,10 +1619,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.GetFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.GetFeatureRequest):
             request = featurestore_service.GetFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1721,8 +1724,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1730,10 +1733,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ListFeaturesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ListFeaturesRequest):
             request = featurestore_service.ListFeaturesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1868,8 +1869,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1877,10 +1878,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.UpdateFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.UpdateFeatureRequest):
             request = featurestore_service.UpdateFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2005,8 +2004,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2014,10 +2013,8 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.DeleteFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.DeleteFeatureRequest):
             request = featurestore_service.DeleteFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the

@@ -27,6 +27,7 @@ from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -183,6 +184,21 @@ class NotebookServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.get_notebook_execution_job: gapic_v1.method.wrap_method(
+                self.get_notebook_execution_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_notebook_execution_jobs: gapic_v1.method.wrap_method(
+                self.list_notebook_execution_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_notebook_execution_job: gapic_v1.method.wrap_method(
+                self.delete_notebook_execution_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -297,6 +313,39 @@ class NotebookServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [notebook_service.StartNotebookRuntimeRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.GetNotebookExecutionJobRequest],
+        Union[
+            notebook_execution_job.NotebookExecutionJob,
+            Awaitable[notebook_execution_job.NotebookExecutionJob],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_notebook_execution_jobs(
+        self,
+    ) -> Callable[
+        [notebook_service.ListNotebookExecutionJobsRequest],
+        Union[
+            notebook_service.ListNotebookExecutionJobsResponse,
+            Awaitable[notebook_service.ListNotebookExecutionJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.DeleteNotebookExecutionJobRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

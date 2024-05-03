@@ -1323,10 +1323,6 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -1754,10 +1750,6 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -2173,10 +2165,6 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2615,10 +2603,6 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -3051,10 +3035,6 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -210,7 +211,9 @@ class IndexServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, IndexServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[str, IndexServiceTransport, Callable[..., IndexServiceTransport]]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -222,9 +225,11 @@ class IndexServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.IndexServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,IndexServiceTransport,Callable[..., IndexServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the IndexServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -350,8 +355,8 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, index])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -359,7 +364,10 @@ class IndexServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = index_service.CreateIndexRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.CreateIndexRequest):
+            request = index_service.CreateIndexRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -370,11 +378,9 @@ class IndexServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_index,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_index
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -467,8 +473,8 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -476,7 +482,10 @@ class IndexServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = index_service.GetIndexRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.GetIndexRequest):
+            request = index_service.GetIndexRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -485,11 +494,9 @@ class IndexServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_index,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_index
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -577,8 +584,8 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -586,7 +593,10 @@ class IndexServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = index_service.ListIndexesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.ListIndexesRequest):
+            request = index_service.ListIndexesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -595,11 +605,9 @@ class IndexServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_indexes,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_indexes
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -710,8 +718,8 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([index, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -719,7 +727,10 @@ class IndexServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = index_service.UpdateIndexRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.UpdateIndexRequest):
+            request = index_service.UpdateIndexRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -730,11 +741,9 @@ class IndexServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_index,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_index
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -844,8 +853,8 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -853,7 +862,10 @@ class IndexServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = index_service.DeleteIndexRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.DeleteIndexRequest):
+            request = index_service.DeleteIndexRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -862,11 +874,9 @@ class IndexServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_index,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_index
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -949,15 +959,16 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        request = index_service.UpsertDatapointsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.UpsertDatapointsRequest):
+            request = index_service.UpsertDatapointsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.upsert_datapoints,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.upsert_datapoints
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1032,15 +1043,16 @@ class IndexServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        request = index_service.RemoveDatapointsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, index_service.RemoveDatapointsRequest):
+            request = index_service.RemoveDatapointsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.remove_datapoints,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.remove_datapoints
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

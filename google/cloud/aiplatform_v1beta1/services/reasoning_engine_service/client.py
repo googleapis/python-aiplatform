@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -543,7 +544,13 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, ReasoningEngineServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                ReasoningEngineServiceTransport,
+                Callable[..., ReasoningEngineServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -555,9 +562,11 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ReasoningEngineServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,ReasoningEngineServiceTransport,Callable[..., ReasoningEngineServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the ReasoningEngineServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -669,8 +678,16 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[ReasoningEngineServiceTransport],
+                Callable[..., ReasoningEngineServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., ReasoningEngineServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -764,8 +781,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, reasoning_engine])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -773,10 +790,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a reasoning_engine_service.CreateReasoningEngineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, reasoning_engine_service.CreateReasoningEngineRequest
         ):
@@ -886,8 +901,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -895,10 +910,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a reasoning_engine_service.GetReasoningEngineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, reasoning_engine_service.GetReasoningEngineRequest):
             request = reasoning_engine_service.GetReasoningEngineRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -998,8 +1011,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1007,10 +1020,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a reasoning_engine_service.ListReasoningEnginesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, reasoning_engine_service.ListReasoningEnginesRequest
         ):
@@ -1131,8 +1142,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1140,10 +1151,8 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a reasoning_engine_service.DeleteReasoningEngineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, reasoning_engine_service.DeleteReasoningEngineRequest
         ):

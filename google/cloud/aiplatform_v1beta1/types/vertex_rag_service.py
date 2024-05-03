@@ -81,18 +81,61 @@ class RetrieveContextsRequest(proto.Message):
     class VertexRagStore(proto.Message):
         r"""The data source for Vertex RagStore.
 
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             rag_corpora (MutableSequence[str]):
-                Required. RagCorpora resource name. Format:
-                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
-                Currently only one corpus is allowed. In the future we may
-                open up multiple corpora support. However, they should be
-                from the same project and location.
+                Optional. Deprecated. Please use rag_resources to specify
+                the data source.
+            rag_resources (MutableSequence[google.cloud.aiplatform_v1beta1.types.RetrieveContextsRequest.VertexRagStore.RagResource]):
+                Optional. The representation of the rag
+                source. It can be used to specify corpus only or
+                ragfiles. Currently only support one corpus or
+                multiple files from one corpus. In the future we
+                may open up multiple corpora support.
+            vector_distance_threshold (float):
+                Optional. Only return contexts with vector
+                distance smaller than the threshold.
+
+                This field is a member of `oneof`_ ``_vector_distance_threshold``.
         """
+
+        class RagResource(proto.Message):
+            r"""The definition of the Rag resource.
+
+            Attributes:
+                rag_corpus (str):
+                    Optional. RagCorpora resource name. Format:
+                    ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+                rag_file_ids (MutableSequence[str]):
+                    Optional. rag_file_id. The files should be in the same
+                    rag_corpus set in rag_corpus field.
+            """
+
+            rag_corpus: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            rag_file_ids: MutableSequence[str] = proto.RepeatedField(
+                proto.STRING,
+                number=2,
+            )
 
         rag_corpora: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=1,
+        )
+        rag_resources: MutableSequence[
+            "RetrieveContextsRequest.VertexRagStore.RagResource"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=3,
+            message="RetrieveContextsRequest.VertexRagStore.RagResource",
+        )
+        vector_distance_threshold: float = proto.Field(
+            proto.DOUBLE,
+            number=2,
+            optional=True,
         )
 
     vertex_rag_store: VertexRagStore = proto.Field(

@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -598,7 +599,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, FeaturestoreServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                FeaturestoreServiceTransport,
+                Callable[..., FeaturestoreServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -610,9 +617,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, FeaturestoreServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,FeaturestoreServiceTransport,Callable[..., FeaturestoreServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the FeaturestoreServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -724,8 +733,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[FeaturestoreServiceTransport],
+                Callable[..., FeaturestoreServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., FeaturestoreServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -833,8 +850,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, featurestore, featurestore_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -842,10 +859,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.CreateFeaturestoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.CreateFeaturestoreRequest):
             request = featurestore_service.CreateFeaturestoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -955,8 +970,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -964,10 +979,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.GetFeaturestoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.GetFeaturestoreRequest):
             request = featurestore_service.GetFeaturestoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1067,8 +1080,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1076,10 +1089,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ListFeaturestoresRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ListFeaturestoresRequest):
             request = featurestore_service.ListFeaturestoresRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1212,8 +1223,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1221,10 +1232,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.UpdateFeaturestoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.UpdateFeaturestoreRequest):
             request = featurestore_service.UpdateFeaturestoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1359,8 +1368,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1368,10 +1377,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.DeleteFeaturestoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.DeleteFeaturestoreRequest):
             request = featurestore_service.DeleteFeaturestoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1507,8 +1514,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, entity_type, entity_type_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1516,10 +1523,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.CreateEntityTypeRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.CreateEntityTypeRequest):
             request = featurestore_service.CreateEntityTypeRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1630,8 +1635,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1639,10 +1644,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.GetEntityTypeRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.GetEntityTypeRequest):
             request = featurestore_service.GetEntityTypeRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1742,8 +1745,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1751,10 +1754,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ListEntityTypesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ListEntityTypesRequest):
             request = featurestore_service.ListEntityTypesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1889,8 +1890,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1898,10 +1899,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.UpdateEntityTypeRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.UpdateEntityTypeRequest):
             request = featurestore_service.UpdateEntityTypeRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2027,8 +2026,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2036,10 +2035,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.DeleteEntityTypeRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.DeleteEntityTypeRequest):
             request = featurestore_service.DeleteEntityTypeRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2180,8 +2177,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature, feature_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2189,10 +2186,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.CreateFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.CreateFeatureRequest):
             request = featurestore_service.CreateFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2325,8 +2320,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2334,10 +2329,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.BatchCreateFeaturesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
             request = featurestore_service.BatchCreateFeaturesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2446,8 +2439,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2455,10 +2448,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.GetFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.GetFeatureRequest):
             request = featurestore_service.GetFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2562,8 +2553,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2571,10 +2562,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ListFeaturesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ListFeaturesRequest):
             request = featurestore_service.ListFeaturesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2703,8 +2692,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2712,10 +2701,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.UpdateFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.UpdateFeatureRequest):
             request = featurestore_service.UpdateFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2832,8 +2819,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2841,10 +2828,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.DeleteFeatureRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.DeleteFeatureRequest):
             request = featurestore_service.DeleteFeatureRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2988,8 +2973,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2997,10 +2982,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ImportFeatureValuesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ImportFeatureValuesRequest):
             request = featurestore_service.ImportFeatureValuesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3131,8 +3114,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3140,10 +3123,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.BatchReadFeatureValuesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.BatchReadFeatureValuesRequest):
             request = featurestore_service.BatchReadFeatureValuesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3266,8 +3247,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3275,10 +3256,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.ExportFeatureValuesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.ExportFeatureValuesRequest):
             request = featurestore_service.ExportFeatureValuesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3407,8 +3386,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3416,10 +3395,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.DeleteFeatureValuesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.DeleteFeatureValuesRequest):
             request = featurestore_service.DeleteFeatureValuesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3606,8 +3583,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([location, query])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3615,10 +3592,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a featurestore_service.SearchFeaturesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, featurestore_service.SearchFeaturesRequest):
             request = featurestore_service.SearchFeaturesRequest(request)
             # If we have keyword arguments corresponding to fields on the
