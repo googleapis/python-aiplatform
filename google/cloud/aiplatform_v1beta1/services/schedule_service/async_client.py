@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -46,6 +47,7 @@ from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
+from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import schedule
@@ -108,6 +110,18 @@ class ScheduleServiceAsyncClient:
     )
     network_path = staticmethod(ScheduleServiceClient.network_path)
     parse_network_path = staticmethod(ScheduleServiceClient.parse_network_path)
+    notebook_execution_job_path = staticmethod(
+        ScheduleServiceClient.notebook_execution_job_path
+    )
+    parse_notebook_execution_job_path = staticmethod(
+        ScheduleServiceClient.parse_notebook_execution_job_path
+    )
+    notebook_runtime_template_path = staticmethod(
+        ScheduleServiceClient.notebook_runtime_template_path
+    )
+    parse_notebook_runtime_template_path = staticmethod(
+        ScheduleServiceClient.parse_notebook_runtime_template_path
+    )
     pipeline_job_path = staticmethod(ScheduleServiceClient.pipeline_job_path)
     parse_pipeline_job_path = staticmethod(
         ScheduleServiceClient.parse_pipeline_job_path
@@ -244,7 +258,11 @@ class ScheduleServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ScheduleServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str, ScheduleServiceTransport, Callable[..., ScheduleServiceTransport]
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -256,9 +274,11 @@ class ScheduleServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.ScheduleServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,ScheduleServiceTransport,Callable[..., ScheduleServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the ScheduleServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -382,8 +402,8 @@ class ScheduleServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, schedule])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -391,7 +411,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.CreateScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.CreateScheduleRequest):
+            request = schedule_service.CreateScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -402,11 +425,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -504,8 +525,8 @@ class ScheduleServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -513,7 +534,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.DeleteScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.DeleteScheduleRequest):
+            request = schedule_service.DeleteScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -522,11 +546,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -619,8 +641,8 @@ class ScheduleServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -628,7 +650,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.GetScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.GetScheduleRequest):
+            request = schedule_service.GetScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -637,11 +662,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -729,8 +752,8 @@ class ScheduleServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -738,7 +761,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.ListSchedulesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.ListSchedulesRequest):
+            request = schedule_service.ListSchedulesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -747,11 +773,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_schedules,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_schedules
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -838,8 +862,8 @@ class ScheduleServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -847,7 +871,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.PauseScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.PauseScheduleRequest):
+            request = schedule_service.PauseScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -856,11 +883,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.pause_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.pause_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -954,8 +979,8 @@ class ScheduleServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, catch_up])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -963,7 +988,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.ResumeScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.ResumeScheduleRequest):
+            request = schedule_service.ResumeScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -974,11 +1002,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.resume_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.resume_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1084,8 +1110,8 @@ class ScheduleServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([schedule, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1093,7 +1119,10 @@ class ScheduleServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = schedule_service.UpdateScheduleRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, schedule_service.UpdateScheduleRequest):
+            request = schedule_service.UpdateScheduleRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1104,11 +1133,9 @@ class ScheduleServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_schedule,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_schedule
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

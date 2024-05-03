@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -217,7 +218,13 @@ class SpecialistPoolServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                SpecialistPoolServiceTransport,
+                Callable[..., SpecialistPoolServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -229,9 +236,11 @@ class SpecialistPoolServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.SpecialistPoolServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,SpecialistPoolServiceTransport,Callable[..., SpecialistPoolServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the SpecialistPoolServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -367,8 +376,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, specialist_pool])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -376,7 +385,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.CreateSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.CreateSpecialistPoolRequest):
+            request = specialist_pool_service.CreateSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -387,11 +399,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_specialist_pool,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -495,8 +505,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -504,7 +514,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.GetSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.GetSpecialistPoolRequest):
+            request = specialist_pool_service.GetSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -513,11 +526,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_specialist_pool,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -607,8 +618,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -616,7 +627,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.ListSpecialistPoolsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.ListSpecialistPoolsRequest):
+            request = specialist_pool_service.ListSpecialistPoolsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -625,11 +639,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_specialist_pools,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_specialist_pools
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -739,8 +751,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -748,7 +760,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.DeleteSpecialistPoolRequest):
+            request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -757,11 +772,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_specialist_pool,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -878,8 +891,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([specialist_pool, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -887,7 +900,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.UpdateSpecialistPoolRequest):
+            request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -898,11 +914,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_specialist_pool,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

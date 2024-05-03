@@ -96,7 +96,7 @@ class RagFile(proto.Message):
         gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
             Output only. Google Cloud Storage location of
             the RagFile. It does not support wildcards in
-            the GCS uri for now.
+            the Cloud Storage uri for now.
 
             This field is a member of `oneof`_ ``rag_file_source``.
         google_drive_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):

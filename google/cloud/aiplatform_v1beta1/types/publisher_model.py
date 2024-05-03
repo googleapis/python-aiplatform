@@ -451,6 +451,11 @@ class PublisherModel(proto.Message):
                     Optional. The path to the directory
                     containing the Model artifact and any of its
                     supporting files.
+                deploy_task_name (str):
+                    Optional. The name of the deploy task (e.g.,
+                    "text to image generation").
+
+                    This field is a member of `oneof`_ ``_deploy_task_name``.
                 title (str):
                     Required. The title of the regional resource
                     reference.
@@ -493,6 +498,11 @@ class PublisherModel(proto.Message):
             artifact_uri: str = proto.Field(
                 proto.STRING,
                 number=4,
+            )
+            deploy_task_name: str = proto.Field(
+                proto.STRING,
+                number=10,
+                optional=True,
             )
             title: str = proto.Field(
                 proto.STRING,

@@ -761,10 +761,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                     },
                     {
@@ -1135,10 +1131,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     },
                     {
                         "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                     },
                     {
@@ -1494,10 +1486,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1875,10 +1863,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                     },
                     {
@@ -2250,10 +2234,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3591,10 +3571,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -4022,10 +3998,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -4441,10 +4413,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4883,10 +4851,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -5319,10 +5283,6 @@ class ReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

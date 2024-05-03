@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -229,7 +230,9 @@ class DatasetServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, DatasetServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[str, DatasetServiceTransport, Callable[..., DatasetServiceTransport]]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -241,9 +244,11 @@ class DatasetServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.DatasetServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,DatasetServiceTransport,Callable[..., DatasetServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the DatasetServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -371,8 +376,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -380,7 +385,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.CreateDatasetRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.CreateDatasetRequest):
+            request = dataset_service.CreateDatasetRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -391,11 +399,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_dataset,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_dataset
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -486,8 +492,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -495,7 +501,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.GetDatasetRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.GetDatasetRequest):
+            request = dataset_service.GetDatasetRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -504,11 +513,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_dataset,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_dataset
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -610,8 +617,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([dataset, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -619,7 +626,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.UpdateDatasetRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.UpdateDatasetRequest):
+            request = dataset_service.UpdateDatasetRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -630,11 +640,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_dataset,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_dataset
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -723,8 +731,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -732,7 +740,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ListDatasetsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ListDatasetsRequest):
+            request = dataset_service.ListDatasetsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -741,11 +752,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_datasets,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_datasets
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -852,8 +861,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -861,7 +870,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.DeleteDatasetRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.DeleteDatasetRequest):
+            request = dataset_service.DeleteDatasetRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -870,11 +882,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_dataset,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_dataset
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -985,8 +995,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, import_configs])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -994,7 +1004,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ImportDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ImportDataRequest):
+            request = dataset_service.ImportDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1005,11 +1018,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.import_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.import_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1118,8 +1129,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, export_config])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1127,7 +1138,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ExportDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ExportDataRequest):
+            request = dataset_service.ExportDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1138,11 +1152,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.export_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.export_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1257,8 +1269,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset_version])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1266,7 +1278,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.CreateDatasetVersionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.CreateDatasetVersionRequest):
+            request = dataset_service.CreateDatasetVersionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1277,11 +1292,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_dataset_version,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_dataset_version
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1389,8 +1402,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1398,7 +1411,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.DeleteDatasetVersionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.DeleteDatasetVersionRequest):
+            request = dataset_service.DeleteDatasetVersionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1407,11 +1423,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_dataset_version,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_dataset_version
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1501,8 +1515,8 @@ class DatasetServiceAsyncClient:
                 Describes the dataset version.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1510,7 +1524,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.GetDatasetVersionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.GetDatasetVersionRequest):
+            request = dataset_service.GetDatasetVersionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1519,11 +1536,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_dataset_version,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_dataset_version
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1613,8 +1628,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1622,7 +1637,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ListDatasetVersionsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ListDatasetVersionsRequest):
+            request = dataset_service.ListDatasetVersionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1631,11 +1649,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_dataset_versions,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_dataset_versions
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1737,8 +1753,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1746,7 +1762,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.RestoreDatasetVersionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.RestoreDatasetVersionRequest):
+            request = dataset_service.RestoreDatasetVersionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1755,11 +1774,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.restore_dataset_version,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.restore_dataset_version
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1855,8 +1872,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1864,7 +1881,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ListDataItemsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ListDataItemsRequest):
+            request = dataset_service.ListDataItemsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1873,11 +1893,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_data_items,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_data_items
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1966,15 +1984,16 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        request = dataset_service.SearchDataItemsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.SearchDataItemsRequest):
+            request = dataset_service.SearchDataItemsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.search_data_items,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.search_data_items
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2071,8 +2090,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2080,7 +2099,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ListSavedQueriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ListSavedQueriesRequest):
+            request = dataset_service.ListSavedQueriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2089,11 +2111,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_saved_queries,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_saved_queries
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2200,8 +2220,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2209,7 +2229,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.DeleteSavedQueryRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.DeleteSavedQueryRequest):
+            request = dataset_service.DeleteSavedQueryRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2218,11 +2241,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_saved_query,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_saved_query
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2314,8 +2335,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2323,7 +2344,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.GetAnnotationSpecRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.GetAnnotationSpecRequest):
+            request = dataset_service.GetAnnotationSpecRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2332,11 +2356,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_annotation_spec,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_annotation_spec
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2424,8 +2446,8 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2433,7 +2455,10 @@ class DatasetServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = dataset_service.ListAnnotationsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.ListAnnotationsRequest):
+            request = dataset_service.ListAnnotationsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2442,11 +2467,9 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_annotations,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_annotations
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

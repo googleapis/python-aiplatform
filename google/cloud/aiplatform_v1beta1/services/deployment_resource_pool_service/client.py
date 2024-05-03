@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -595,7 +596,13 @@ class DeploymentResourcePoolServiceClient(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, DeploymentResourcePoolServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                DeploymentResourcePoolServiceTransport,
+                Callable[..., DeploymentResourcePoolServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -607,9 +614,11 @@ class DeploymentResourcePoolServiceClient(
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, DeploymentResourcePoolServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,DeploymentResourcePoolServiceTransport,Callable[..., DeploymentResourcePoolServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the DeploymentResourcePoolServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -727,8 +736,18 @@ class DeploymentResourcePoolServiceClient(
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[DeploymentResourcePoolServiceTransport],
+                Callable[..., DeploymentResourcePoolServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(
+                    Callable[..., DeploymentResourcePoolServiceTransport], transport
+                )
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -841,8 +860,8 @@ class DeploymentResourcePoolServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, deployment_resource_pool, deployment_resource_pool_id]
         )
@@ -852,10 +871,8 @@ class DeploymentResourcePoolServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request,
             deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
@@ -976,8 +993,8 @@ class DeploymentResourcePoolServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -985,10 +1002,8 @@ class DeploymentResourcePoolServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a deployment_resource_pool_service.GetDeploymentResourcePoolRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, deployment_resource_pool_service.GetDeploymentResourcePoolRequest
         ):
@@ -1097,8 +1112,8 @@ class DeploymentResourcePoolServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1106,10 +1121,8 @@ class DeploymentResourcePoolServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, deployment_resource_pool_service.ListDeploymentResourcePoolsRequest
         ):
@@ -1239,8 +1252,8 @@ class DeploymentResourcePoolServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1248,10 +1261,8 @@ class DeploymentResourcePoolServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request,
             deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
@@ -1369,8 +1380,8 @@ class DeploymentResourcePoolServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([deployment_resource_pool])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1378,10 +1389,8 @@ class DeploymentResourcePoolServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a deployment_resource_pool_service.QueryDeployedModelsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, deployment_resource_pool_service.QueryDeployedModelsRequest
         ):

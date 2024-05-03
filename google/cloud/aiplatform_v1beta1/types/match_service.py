@@ -157,7 +157,7 @@ class FindNeighborsResponse(proto.Message):
                 are populated.
             distance (float):
                 The distance between the neighbor and the
-                query vector.
+                dense embedding query.
         """
 
         datapoint: index.IndexDatapoint = proto.Field(

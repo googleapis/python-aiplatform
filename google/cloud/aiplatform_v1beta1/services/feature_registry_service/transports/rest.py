@@ -950,10 +950,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                     },
                     {
@@ -1324,10 +1320,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                     },
                     {
                         "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                     },
                     {
@@ -1683,10 +1675,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2064,10 +2052,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                     },
                     {
@@ -2439,10 +2423,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4378,10 +4358,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -4809,10 +4785,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -5228,10 +5200,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -5670,10 +5638,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -6106,10 +6070,6 @@ class FeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

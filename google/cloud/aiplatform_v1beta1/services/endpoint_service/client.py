@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -55,6 +56,7 @@ from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -626,7 +628,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, EndpointServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str, EndpointServiceTransport, Callable[..., EndpointServiceTransport]
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -638,9 +644,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, EndpointServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,EndpointServiceTransport,Callable[..., EndpointServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the EndpointServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -752,8 +760,15 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[EndpointServiceTransport], Callable[..., EndpointServiceTransport]
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., EndpointServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -867,8 +882,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, endpoint, endpoint_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -876,10 +891,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.CreateEndpointRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.CreateEndpointRequest):
             request = endpoint_service.CreateEndpointRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -985,8 +998,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -994,10 +1007,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.GetEndpointRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.GetEndpointRequest):
             request = endpoint_service.GetEndpointRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1095,8 +1106,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1104,10 +1115,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.ListEndpointsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.ListEndpointsRequest):
             request = endpoint_service.ListEndpointsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1221,8 +1230,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1230,10 +1239,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.UpdateEndpointRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.UpdateEndpointRequest):
             request = endpoint_service.UpdateEndpointRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1345,8 +1352,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1354,10 +1361,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.DeleteEndpointRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.DeleteEndpointRequest):
             request = endpoint_service.DeleteEndpointRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1504,8 +1509,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, deployed_model, traffic_split])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1513,10 +1518,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.DeployModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.DeployModelRequest):
             request = endpoint_service.DeployModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1654,8 +1657,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, deployed_model_id, traffic_split])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1663,10 +1666,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.UndeployModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.UndeployModelRequest):
             request = endpoint_service.UndeployModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1816,8 +1817,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, deployed_model, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1825,10 +1826,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a endpoint_service.MutateDeployedModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, endpoint_service.MutateDeployedModelRequest):
             request = endpoint_service.MutateDeployedModelRequest(request)
             # If we have keyword arguments corresponding to fields on the

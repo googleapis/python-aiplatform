@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -210,7 +211,13 @@ class VertexRagDataServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, VertexRagDataServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                VertexRagDataServiceTransport,
+                Callable[..., VertexRagDataServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -222,9 +229,11 @@ class VertexRagDataServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.VertexRagDataServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,VertexRagDataServiceTransport,Callable[..., VertexRagDataServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the VertexRagDataServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -351,8 +360,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, rag_corpus])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -360,7 +369,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.CreateRagCorpusRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.CreateRagCorpusRequest):
+            request = vertex_rag_data_service.CreateRagCorpusRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -371,11 +383,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_rag_corpus,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_rag_corpus
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -469,8 +479,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -478,7 +488,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.GetRagCorpusRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.GetRagCorpusRequest):
+            request = vertex_rag_data_service.GetRagCorpusRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -487,11 +500,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_rag_corpus,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_rag_corpus
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -581,8 +592,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -590,7 +601,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.ListRagCorporaRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.ListRagCorporaRequest):
+            request = vertex_rag_data_service.ListRagCorporaRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -599,11 +613,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_rag_corpora,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_rag_corpora
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -712,8 +724,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -721,7 +733,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.DeleteRagCorpusRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.DeleteRagCorpusRequest):
+            request = vertex_rag_data_service.DeleteRagCorpusRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -730,11 +745,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_rag_corpus,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_rag_corpus
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -848,8 +861,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, rag_file, upload_rag_file_config])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -857,7 +870,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.UploadRagFileRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.UploadRagFileRequest):
+            request = vertex_rag_data_service.UploadRagFileRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -870,11 +886,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.upload_rag_file,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.upload_rag_file
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -980,8 +994,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, import_rag_files_config])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -989,7 +1003,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.ImportRagFilesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.ImportRagFilesRequest):
+            request = vertex_rag_data_service.ImportRagFilesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1000,11 +1017,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.import_rag_files,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.import_rag_files
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1097,8 +1112,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1106,7 +1121,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.GetRagFileRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.GetRagFileRequest):
+            request = vertex_rag_data_service.GetRagFileRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1115,11 +1133,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_rag_file,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_rag_file
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1209,8 +1225,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1218,7 +1234,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.ListRagFilesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.ListRagFilesRequest):
+            request = vertex_rag_data_service.ListRagFilesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1227,11 +1246,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_rag_files,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_rag_files
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1340,8 +1357,8 @@ class VertexRagDataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1349,7 +1366,10 @@ class VertexRagDataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = vertex_rag_data_service.DeleteRagFileRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.DeleteRagFileRequest):
+            request = vertex_rag_data_service.DeleteRagFileRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1358,11 +1378,9 @@ class VertexRagDataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_rag_file,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_rag_file
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
