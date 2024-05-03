@@ -834,10 +834,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                     },
                     {
@@ -1208,10 +1204,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                     },
                     {
                         "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                     },
                     {
@@ -1567,10 +1559,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1948,10 +1936,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                     },
                     {
                         "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                     },
                     {
@@ -2323,10 +2307,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3891,10 +3871,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -4322,10 +4298,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -4741,10 +4713,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -5183,10 +5151,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -5619,10 +5583,6 @@ class PersistentResourceServiceRestTransport(PersistentResourceServiceTransport)
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

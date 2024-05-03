@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -729,7 +730,11 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, PipelineServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str, PipelineServiceTransport, Callable[..., PipelineServiceTransport]
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -741,9 +746,11 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, PipelineServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,PipelineServiceTransport,Callable[..., PipelineServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the PipelineServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -855,8 +862,15 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[PipelineServiceTransport], Callable[..., PipelineServiceTransport]
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., PipelineServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -951,8 +965,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, training_pipeline])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -960,10 +974,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.CreateTrainingPipelineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.CreateTrainingPipelineRequest):
             request = pipeline_service.CreateTrainingPipelineRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1065,8 +1077,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1074,10 +1086,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.GetTrainingPipelineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.GetTrainingPipelineRequest):
             request = pipeline_service.GetTrainingPipelineRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1177,8 +1187,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1186,10 +1196,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.ListTrainingPipelinesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.ListTrainingPipelinesRequest):
             request = pipeline_service.ListTrainingPipelinesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1308,8 +1316,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1317,10 +1325,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.DeleteTrainingPipelineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.DeleteTrainingPipelineRequest):
             request = pipeline_service.DeleteTrainingPipelineRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1427,8 +1433,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1436,10 +1442,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.CancelTrainingPipelineRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.CancelTrainingPipelineRequest):
             request = pipeline_service.CancelTrainingPipelineRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1551,8 +1555,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, pipeline_job, pipeline_job_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1560,10 +1564,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.CreatePipelineJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.CreatePipelineJobRequest):
             request = pipeline_service.CreatePipelineJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1660,8 +1662,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1669,10 +1671,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.GetPipelineJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.GetPipelineJobRequest):
             request = pipeline_service.GetPipelineJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1770,8 +1770,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1779,10 +1779,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.ListPipelineJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.ListPipelineJobsRequest):
             request = pipeline_service.ListPipelineJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1901,8 +1899,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1910,10 +1908,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.DeletePipelineJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.DeletePipelineJobRequest):
             request = pipeline_service.DeletePipelineJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2036,8 +2032,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, names])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2045,10 +2041,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.BatchDeletePipelineJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.BatchDeletePipelineJobsRequest):
             request = pipeline_service.BatchDeletePipelineJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2158,8 +2152,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2167,10 +2161,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.CancelPipelineJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.CancelPipelineJobRequest):
             request = pipeline_service.CancelPipelineJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2287,8 +2279,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, names])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2296,10 +2288,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a pipeline_service.BatchCancelPipelineJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, pipeline_service.BatchCancelPipelineJobsRequest):
             request = pipeline_service.BatchCancelPipelineJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the

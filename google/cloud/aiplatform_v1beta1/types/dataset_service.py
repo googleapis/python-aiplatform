@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "CreateDatasetOperationMetadata",
         "GetDatasetRequest",
         "UpdateDatasetRequest",
+        "UpdateDatasetVersionRequest",
         "ListDatasetsRequest",
         "ListDatasetsResponse",
         "DeleteDatasetRequest",
@@ -152,6 +153,35 @@ class UpdateDatasetRequest(proto.Message):
         proto.MESSAGE,
         number=1,
         message=gca_dataset.Dataset,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class UpdateDatasetVersionRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.UpdateDatasetVersion][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDatasetVersion].
+
+    Attributes:
+        dataset_version (google.cloud.aiplatform_v1beta1.types.DatasetVersion):
+            Required. The DatasetVersion which replaces
+            the resource on the server.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask applies to the resource. For the
+            ``FieldMask`` definition, see
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
+            Updatable fields:
+
+            -  ``display_name``
+    """
+
+    dataset_version: gca_dataset_version.DatasetVersion = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_dataset_version.DatasetVersion,
     )
     update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,

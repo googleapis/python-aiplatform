@@ -32,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import dataset_version
+from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -176,6 +177,11 @@ class DatasetServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_dataset_version: gapic_v1.method.wrap_method(
+                self.update_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_dataset_version: gapic_v1.method.wrap_method(
                 self.delete_dataset_version,
                 default_timeout=None,
@@ -314,6 +320,18 @@ class DatasetServiceTransport(abc.ABC):
     ) -> Callable[
         [dataset_service.CreateDatasetVersionRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.UpdateDatasetVersionRequest],
+        Union[
+            gca_dataset_version.DatasetVersion,
+            Awaitable[gca_dataset_version.DatasetVersion],
+        ],
     ]:
         raise NotImplementedError()
 

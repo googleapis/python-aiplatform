@@ -577,20 +577,20 @@ class RuntimeConfig(proto.Message):
 
         Attributes:
             file_input_gcs_bucket (str):
-                Optional. The GCS bucket for file input of
-                this Extension. If specified, support input from
-                the GCS bucket. Vertex Extension Custom Code
-                Service Agent should be granted file reader to
-                this bucket.
+                Optional. The Cloud Storage bucket for file
+                input of this Extension. If specified, support
+                input from the Cloud Storage bucket. Vertex
+                Extension Custom Code Service Agent should be
+                granted file reader to this bucket.
                 If not specified, the extension will only accept
-                file contents from request body and reject GCS
-                file inputs.
+                file contents from request body and reject Cloud
+                Storage file inputs.
             file_output_gcs_bucket (str):
-                Optional. The GCS bucket for file output of
-                this Extension. If specified, write all output
-                files to the GCS bucket. Vertex Extension Custom
-                Code Service Agent should be granted file writer
-                to this bucket.
+                Optional. The Cloud Storage bucket for file
+                output of this Extension. If specified, write
+                all output files to the Cloud Storage bucket.
+                Vertex Extension Custom Code Service Agent
+                should be granted file writer to this bucket.
                 If not specified, the file content will be
                 output in response body.
         """
@@ -609,15 +609,24 @@ class RuntimeConfig(proto.Message):
 
         Attributes:
             serving_config_name (str):
-                Required. Vertext AI Search serving config name. Format:
+                [Deprecated] Please use app_id instead. Vertex AI Search
+                serving config name. Format:
                 ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
-                or
-                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``
+            app_id (str):
+                Vertex AI Search App ID. This is used to construct the
+                search request. By setting this app_id, API will construct
+                the serving config which is required to call search API for
+                the user. The app_id and serving_config_name cannot both be
+                empty at the same time.
         """
 
         serving_config_name: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+        app_id: str = proto.Field(
+            proto.STRING,
+            number=2,
         )
 
     code_interpreter_runtime_config: CodeInterpreterRuntimeConfig = proto.Field(

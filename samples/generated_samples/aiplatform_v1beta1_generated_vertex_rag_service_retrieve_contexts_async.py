@@ -39,14 +39,10 @@ async def sample_retrieve_contexts():
     client = aiplatform_v1beta1.VertexRagServiceAsyncClient()
 
     # Initialize request argument(s)
-    vertex_rag_store = aiplatform_v1beta1.VertexRagStore()
-    vertex_rag_store.rag_corpora = ['rag_corpora_value1', 'rag_corpora_value2']
-
     query = aiplatform_v1beta1.RagQuery()
     query.text = "text_value"
 
     request = aiplatform_v1beta1.RetrieveContextsRequest(
-        vertex_rag_store=vertex_rag_store,
         parent="parent_value",
         query=query,
     )

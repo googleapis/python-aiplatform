@@ -59,6 +59,8 @@ class AcceleratorType(proto.Enum):
             TPU v3.
         TPU_V4_POD (10):
             TPU v4.
+        TPU_V5_LITEPOD (12):
+            TPU v5.
     """
     ACCELERATOR_TYPE_UNSPECIFIED = 0
     NVIDIA_TESLA_K80 = 1
@@ -73,6 +75,7 @@ class AcceleratorType(proto.Enum):
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10
+    TPU_V5_LITEPOD = 12
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

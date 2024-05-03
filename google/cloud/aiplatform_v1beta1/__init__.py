@@ -119,6 +119,7 @@ from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
@@ -170,6 +171,7 @@ from .types.dataset_service import RestoreDatasetVersionRequest
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.dataset_service import UpdateDatasetVersionRequest
 from .types.dataset_version import DatasetVersion
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -729,6 +731,7 @@ from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
 from .types.network_spec import NetworkSpec
 from .types.notebook_euc_config import NotebookEucConfig
+from .types.notebook_execution_job import NotebookExecutionJob
 from .types.notebook_idle_shutdown_config import NotebookIdleShutdownConfig
 from .types.notebook_runtime import NotebookRuntime
 from .types.notebook_runtime import NotebookRuntimeTemplate
@@ -736,12 +739,17 @@ from .types.notebook_runtime import NotebookRuntimeType
 from .types.notebook_runtime_template_ref import NotebookRuntimeTemplateRef
 from .types.notebook_service import AssignNotebookRuntimeOperationMetadata
 from .types.notebook_service import AssignNotebookRuntimeRequest
+from .types.notebook_service import CreateNotebookExecutionJobRequest
 from .types.notebook_service import CreateNotebookRuntimeTemplateOperationMetadata
 from .types.notebook_service import CreateNotebookRuntimeTemplateRequest
+from .types.notebook_service import DeleteNotebookExecutionJobRequest
 from .types.notebook_service import DeleteNotebookRuntimeRequest
 from .types.notebook_service import DeleteNotebookRuntimeTemplateRequest
+from .types.notebook_service import GetNotebookExecutionJobRequest
 from .types.notebook_service import GetNotebookRuntimeRequest
 from .types.notebook_service import GetNotebookRuntimeTemplateRequest
+from .types.notebook_service import ListNotebookExecutionJobsRequest
+from .types.notebook_service import ListNotebookExecutionJobsResponse
 from .types.notebook_service import ListNotebookRuntimesRequest
 from .types.notebook_service import ListNotebookRuntimesResponse
 from .types.notebook_service import ListNotebookRuntimeTemplatesRequest
@@ -752,6 +760,7 @@ from .types.notebook_service import StartNotebookRuntimeResponse
 from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
+from .types.notebook_service import NotebookExecutionJobView
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -797,7 +806,6 @@ from .types.pipeline_service import ListPipelineJobsResponse
 from .types.pipeline_service import ListTrainingPipelinesRequest
 from .types.pipeline_service import ListTrainingPipelinesResponse
 from .types.pipeline_state import PipelineState
-from .types.prediction_service import ChatCompletionsRequest
 from .types.prediction_service import CountTokensRequest
 from .types.prediction_service import CountTokensResponse
 from .types.prediction_service import DirectPredictRequest
@@ -1084,7 +1092,6 @@ __all__ = (
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "Candidate",
-    "ChatCompletionsRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
@@ -1146,6 +1153,7 @@ __all__ = (
     "CreateModelMonitorRequest",
     "CreateModelMonitoringJobRequest",
     "CreateNasJobRequest",
+    "CreateNotebookExecutionJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
     "CreatePersistentResourceOperationMetadata",
@@ -1209,6 +1217,7 @@ __all__ = (
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
+    "DeleteNotebookExecutionJobRequest",
     "DeleteNotebookRuntimeRequest",
     "DeleteNotebookRuntimeTemplateRequest",
     "DeleteOperationMetadata",
@@ -1377,6 +1386,7 @@ __all__ = (
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
+    "GetNotebookExecutionJobRequest",
     "GetNotebookRuntimeRequest",
     "GetNotebookRuntimeTemplateRequest",
     "GetPersistentResourceRequest",
@@ -1502,6 +1512,8 @@ __all__ = (
     "ListNasJobsResponse",
     "ListNasTrialDetailsRequest",
     "ListNasTrialDetailsResponse",
+    "ListNotebookExecutionJobsRequest",
+    "ListNotebookExecutionJobsResponse",
     "ListNotebookRuntimeTemplatesRequest",
     "ListNotebookRuntimeTemplatesResponse",
     "ListNotebookRuntimesRequest",
@@ -1606,6 +1618,8 @@ __all__ = (
     "NetworkSpec",
     "NfsMount",
     "NotebookEucConfig",
+    "NotebookExecutionJob",
+    "NotebookExecutionJobView",
     "NotebookIdleShutdownConfig",
     "NotebookRuntime",
     "NotebookRuntimeTemplate",
@@ -1748,6 +1762,7 @@ __all__ = (
     "Schema",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
+    "SearchEntryPoint",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",
@@ -1857,6 +1872,7 @@ __all__ = (
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
+    "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",

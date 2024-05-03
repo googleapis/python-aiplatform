@@ -44,6 +44,7 @@ from .content import (
     Part,
     SafetyRating,
     SafetySetting,
+    SearchEntryPoint,
     Segment,
     VideoMetadata,
     HarmCategory,
@@ -107,6 +108,7 @@ from .dataset_service import (
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
+    UpdateDatasetVersionRequest,
 )
 from .dataset_version import (
     DatasetVersion,
@@ -785,6 +787,9 @@ from .network_spec import (
 from .notebook_euc_config import (
     NotebookEucConfig,
 )
+from .notebook_execution_job import (
+    NotebookExecutionJob,
+)
 from .notebook_idle_shutdown_config import (
     NotebookIdleShutdownConfig,
 )
@@ -799,12 +804,17 @@ from .notebook_runtime_template_ref import (
 from .notebook_service import (
     AssignNotebookRuntimeOperationMetadata,
     AssignNotebookRuntimeRequest,
+    CreateNotebookExecutionJobRequest,
     CreateNotebookRuntimeTemplateOperationMetadata,
     CreateNotebookRuntimeTemplateRequest,
+    DeleteNotebookExecutionJobRequest,
     DeleteNotebookRuntimeRequest,
     DeleteNotebookRuntimeTemplateRequest,
+    GetNotebookExecutionJobRequest,
     GetNotebookRuntimeRequest,
     GetNotebookRuntimeTemplateRequest,
+    ListNotebookExecutionJobsRequest,
+    ListNotebookExecutionJobsResponse,
     ListNotebookRuntimesRequest,
     ListNotebookRuntimesResponse,
     ListNotebookRuntimeTemplatesRequest,
@@ -815,6 +825,7 @@ from .notebook_service import (
     UpgradeNotebookRuntimeOperationMetadata,
     UpgradeNotebookRuntimeRequest,
     UpgradeNotebookRuntimeResponse,
+    NotebookExecutionJobView,
 )
 from .openapi import (
     Schema,
@@ -878,7 +889,6 @@ from .pipeline_state import (
     PipelineState,
 )
 from .prediction_service import (
-    ChatCompletionsRequest,
     CountTokensRequest,
     CountTokensResponse,
     DirectPredictRequest,
@@ -1141,6 +1151,7 @@ __all__ = (
     "Part",
     "SafetyRating",
     "SafetySetting",
+    "SearchEntryPoint",
     "Segment",
     "VideoMetadata",
     "HarmCategory",
@@ -1192,6 +1203,7 @@ __all__ = (
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
+    "UpdateDatasetVersionRequest",
     "DatasetVersion",
     "DeployedIndexRef",
     "DeployedModelRef",
@@ -1735,6 +1747,7 @@ __all__ = (
     "NasTrialDetail",
     "NetworkSpec",
     "NotebookEucConfig",
+    "NotebookExecutionJob",
     "NotebookIdleShutdownConfig",
     "NotebookRuntime",
     "NotebookRuntimeTemplate",
@@ -1742,12 +1755,17 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "CreateNotebookExecutionJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
+    "DeleteNotebookExecutionJobRequest",
     "DeleteNotebookRuntimeRequest",
     "DeleteNotebookRuntimeTemplateRequest",
+    "GetNotebookExecutionJobRequest",
     "GetNotebookRuntimeRequest",
     "GetNotebookRuntimeTemplateRequest",
+    "ListNotebookExecutionJobsRequest",
+    "ListNotebookExecutionJobsResponse",
     "ListNotebookRuntimesRequest",
     "ListNotebookRuntimesResponse",
     "ListNotebookRuntimeTemplatesRequest",
@@ -1758,6 +1776,7 @@ __all__ = (
     "UpgradeNotebookRuntimeOperationMetadata",
     "UpgradeNotebookRuntimeRequest",
     "UpgradeNotebookRuntimeResponse",
+    "NotebookExecutionJobView",
     "Schema",
     "Type",
     "DeleteOperationMetadata",
@@ -1803,7 +1822,6 @@ __all__ = (
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "PipelineState",
-    "ChatCompletionsRequest",
     "CountTokensRequest",
     "CountTokensResponse",
     "DirectPredictRequest",
