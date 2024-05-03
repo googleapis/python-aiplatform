@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.50.0](https://github.com/googleapis/python-aiplatform/compare/v1.49.0...v1.50.0) (2024-05-02)
+
+
+### Features
+
+* Add `Candidate.grounding_metadata` property ([b22a8b8](https://github.com/googleapis/python-aiplatform/commit/b22a8b847e3b299b828e37405e3678093486de28))
+* Add option to not include time_series_metrics in get_experiment_df call. This will improve execution time for Experiments with large number of runs. ([78a95c5](https://github.com/googleapis/python-aiplatform/commit/78a95c52d0e7bd9ec5b656ce67044b2f01677156))
+* Add tune_model and deploy_tuned_model for TextEmbeddingModel. ([42f5d6f](https://github.com/googleapis/python-aiplatform/commit/42f5d6f7cd13d51c4a73113c59e8b3c728cfc08b))
+* Automatically populate parents for full resource name in Vertex RAG SDK ([26657ff](https://github.com/googleapis/python-aiplatform/commit/26657ffd25ecb91882ca764e513c2e952833257f))
+* Deploy a tuned text embedding model -- it doesn't matter, if it's tuned using Node.js, or curl. ([8ca9cdf](https://github.com/googleapis/python-aiplatform/commit/8ca9cdf3576e3ce3b373ace4cd6ab0e9c54aa9f2))
+* Make get_embeddings work both for foundational & tuned models. ([b8b589c](https://github.com/googleapis/python-aiplatform/commit/b8b589ce9fff29d1721450d32b4a84a7f69413c3))
+* Python SDK for Vertex Model Monitoring V2. ([021d59f](https://github.com/googleapis/python-aiplatform/commit/021d59f1487e4e16c847d4135899d6845c0210aa))
+* Support public endpoint for Ray Client ([57a5f78](https://github.com/googleapis/python-aiplatform/commit/57a5f7815ffb8523e91d900da4ff7cfd0c344fe4))
+
+
+### Bug Fixes
+
+* Add deprecation warnings when using Ray v2.4 ([3a36784](https://github.com/googleapis/python-aiplatform/commit/3a367843840513e3257610c8ab38e9f79d3bcea0))
+* Append allowed_plugins in tb-gcp-uploader to default allowed plugins ([aab9c3e](https://github.com/googleapis/python-aiplatform/commit/aab9c3e41b92a1d60090e3d1d594390a5e9f3ff6))
+* LLM - Added missing parameters to the no-op `_TunableTextEmbeddingModelMixin.get_tuned_model` method ([eb05ac4](https://github.com/googleapis/python-aiplatform/commit/eb05ac421f186441a92c6e3b6a010d74caf14782))
+* LVM - Fixed the typo in the VisionModel aspect ratio type annotation ([2d19137](https://github.com/googleapis/python-aiplatform/commit/2d1913773cf9f4a4f8a2c8c8f45680c3ea97f68e))
+* Move torch import ([e6d34df](https://github.com/googleapis/python-aiplatform/commit/e6d34df7da7508c655eb17ee694e1ab2160fc8aa))
+* Ray - Fixed exception when using Ray 2.4 ([2661f52](https://github.com/googleapis/python-aiplatform/commit/2661f52fd08169e5d29b58f2afce9702b30101ae))
+
 ## [1.49.0](https://github.com/googleapis/python-aiplatform/compare/v1.48.0...v1.49.0) (2024-04-27)
 
 
