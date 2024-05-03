@@ -31,13 +31,16 @@ if TYPE_CHECKING:
     try:
         from langchain_core import runnables
         from langchain_core import tools as lc_tools
+        from langchain_core.language_models import base as lc_language_models
 
         BaseTool = lc_tools.BaseTool
+        BaseLanguageModel = lc_language_models.BaseLanguageModel
         GetSessionHistoryCallable = runnables.history.GetSessionHistoryCallable
         RunnableConfig = runnables.RunnableConfig
         RunnableSerializable = runnables.RunnableSerializable
     except ImportError:
         BaseTool = Any
+        BaseLanguageModel = Any
         GetSessionHistoryCallable = Any
         RunnableConfig = Any
         RunnableSerializable = Any
@@ -62,126 +65,84 @@ def _default_runnable_kwargs(has_history: bool) -> Mapping[str, Any]:
 
 
 def _default_output_parser():
-    from langchain_core import agents
-    from langchain_core import output_parsers
-    from langchain_core import outputs
+    from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
+    return ToolsAgentOutputParser()
 
-    class DefaultOutputParser(output_parsers.BaseOutputParser):
 
-        def parse_result(
-            self,
-            result: List[outputs.Generation],
-        ) -> Union[agents.AgentAction, agents.AgentFinish]:
-            if not isinstance(result[0], outputs.ChatGeneration):
-                raise ValueError(
-                    "This output parser only works on ChatGeneration output"
-                )
-            msg = result[0].message
-            content = msg.content
-            function_call = msg.additional_kwargs.get("function_call", {})
-            if function_call:
-                function_name = function_call["name"]
-                tool_input = json.loads(function_call.get("arguments", {}))
-                content_msg = f"responded: {content}\n" if content else "\n"
-                log_msg = (
-                    f"\nInvoking: `{function_name}` with `{tool_input}`\n"
-                    f"{content_msg}\n"
-                )
-                return agents.AgentActionMessageLog(
-                    tool=function_name,
-                    tool_input=tool_input,
-                    log=log_msg,
-                    message_log=[msg],
-                )
-            return agents.AgentFinish(
-                return_values={"output": content},
-                log=str(content),
-            )
+def _default_model_builder(
+    model_name: str,
+    *,
+    project: str,
+    location: str,
+    model_kwargs: Optional[Mapping[str, Any]] = None,
+) -> "BaseLanguageModel":
+    import vertexai
+    from google.cloud.aiplatform import initializer
+    from langchain_google_vertexai import ChatVertexAI
 
-        def parse(
-            self,
-            text: str,
-        ) -> Union[agents.AgentAction, agents.AgentFinish]:
-            raise ValueError("Can only parse messages")
+    model_kwargs = model_kwargs or {}
+    current_project = initializer.global_config.project
+    current_location = initializer.global_config.location
+    vertexai.init(project=project, location=location)
+    model = ChatVertexAI(model_name=model_name, **model_kwargs)
+    vertexai.init(project=current_project, location=current_location)
+    return model
 
-    return DefaultOutputParser()
+
+def _default_runnable_builder(
+    model: "BaseLanguageModel",
+    *,
+    tools: Optional[Sequence[Union[Callable, "BaseTool"]]] = None,
+    prompt: Optional["RunnableSerializable"] = None,
+    output_parser: Optional["RunnableSerializable"] = None,
+    chat_history: Optional["GetSessionHistoryCallable"] = None,
+    agent_executor_kwargs: Optional[Mapping[str, Any]] = None,
+    runnable_kwargs: Optional[Mapping[str, Any]] = None,
+) -> "RunnableSerializable":
+    from langchain_core import tools as lc_tools
+    from langchain.agents import AgentExecutor
+    from langchain.tools.base import StructuredTool
+    # The prompt template and runnable_kwargs needs to be customized depending
+    # on whether the user intends for the agent to have history. The way the
+    # user would reflect that is by setting chat_history (which defaults to
+    # None).
+    has_history: bool = chat_history is not None
+    prompt = prompt or _default_prompt(has_history)
+    output_parser = output_parser or _default_output_parser()
+    agent_executor_kwargs = agent_executor_kwargs or {}
+    runnable_kwargs = runnable_kwargs or _default_runnable_kwargs(has_history)
+    if tools:
+        model = model.bind_tools(tools=tools)
+    else:
+        tools = []
+    agent_executor = AgentExecutor(
+        agent=prompt | model | output_parser,
+        tools=[
+            tool if isinstance(tool, lc_tools.BaseTool)
+            else StructuredTool.from_function(tool)
+            for tool in tools
+        ],
+        **agent_executor_kwargs,
+    )
+    if has_history:
+        from langchain_core.runnables.history import RunnableWithMessageHistory
+        return RunnableWithMessageHistory(
+            runnable=agent_executor,
+            get_session_history=chat_history,
+            **runnable_kwargs,
+        )
+    return agent_executor
 
 
 def _default_prompt(has_history: bool) -> "RunnableSerializable":
-    from langchain_core import agents
-    from langchain_core import messages
     from langchain_core import prompts
-
-    def _convert_agent_action_to_messages(
-        agent_action: agents.AgentAction, observation: str
-    ) -> List[messages.BaseMessage]:
-        """Convert an agent action to a message.
-
-        This is used to reconstruct the original message from the agent action.
-
-        Args:
-            agent_action (AgentAction): The action to convert into messages.
-            observation (str): The observation to convert into messages.
-
-        Returns:
-            List[messages.BaseMessage]: A list of messages that corresponds to
-            the original tool invocation.
-        """
-        if isinstance(agent_action, agents.AgentActionMessageLog):
-            return list(agent_action.message_log) + [
-                _create_function_message(agent_action, observation)
-            ]
-        else:
-            return [messages.AIMessage(content=agent_action.log)]
-
-    def _create_function_message(
-        agent_action: agents.AgentAction, observation: str
-    ) -> messages.FunctionMessage:
-        """Convert agent action and observation into a function message.
-
-        Args:
-            agent_action (AgentAction): tool invocation request from the agent.
-            observation (str): the result of the tool invocation.
-
-        Returns:
-            FunctionMessage: A message corresponding to the tool invocation.
-        """
-        if not isinstance(observation, str):
-            try:
-                content = json.dumps(observation, ensure_ascii=False)
-            except Exception:
-                content = str(observation)
-        else:
-            content = observation
-        return messages.FunctionMessage(name=agent_action.tool, content=content)
-
-    def _format_to_messages(
-        intermediate_steps: Sequence[Tuple[agents.AgentAction, str]],
-    ) -> List[messages.BaseMessage]:
-        """Convert (AgentAction, tool output) tuples into messages.
-
-        Args:
-            intermediate_steps (Sequence[Tuple[AgentAction, str]]):
-                Required. Steps the model has taken, along with observations.
-
-        Returns:
-            List[langchain_core.messages.BaseMessage]: list of messages to send
-            to the model for the next generation.
-
-        """
-        scratchpad_messages = []
-        for agent_action, observation in intermediate_steps:
-            scratchpad_messages.extend(
-                _convert_agent_action_to_messages(agent_action, observation)
-            )
-        return scratchpad_messages
-
+    from langchain.agents.format_scratchpad.tools import format_to_tool_messages
     if has_history:
         return {
             "history": lambda x: x["history"],
             "input": lambda x: x["input"],
             "agent_scratchpad": (
-                lambda x: _format_to_messages(x["intermediate_steps"])
+                lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
         } | prompts.ChatPromptTemplate.from_messages([
             prompts.MessagesPlaceholder(variable_name="history"),
@@ -192,7 +153,7 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
         return {
             "input": lambda x: x["input"],
             "agent_scratchpad": (
-                lambda x: _format_to_messages(x["intermediate_steps"])
+                lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
         } | prompts.ChatPromptTemplate.from_messages([
             ("user", "{input}"),
@@ -216,22 +177,12 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
             )
 
 
-def _convert_tools_or_raise(
-    tools: Sequence[Union[Callable, "BaseTool"]]
-) -> Sequence["BaseTool"]:
-    """Converts the tools into Langchain tools (if needed).
-
-    See https://blog.langchain.dev/structured-tools/ for details.
-    """
+def _validate_tools(tools: Sequence[Union[Callable, "BaseTool"]]):
+    """Validates that the tools are usable for tool calling."""
     from langchain_core import tools as lc_tools
-    from langchain.tools.base import StructuredTool
-    result = []
     for tool in tools:
         if not isinstance(tool, lc_tools.BaseTool):
             _validate_callable_parameters_are_annotated(tool)
-            tool = StructuredTool.from_function(tool)
-        result.append(tool)
-    return result
 
 
 class LangchainAgent:
@@ -253,19 +204,37 @@ class LangchainAgent:
         model_kwargs: Optional[Mapping[str, Any]] = None,
         agent_executor_kwargs: Optional[Mapping[str, Any]] = None,
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
+        model_builder: Optional[Callable] = None,
+        runnable_builder: Optional[Callable] = None,
     ):
         """Initializes the LangchainAgent.
 
         Under-the-hood, assuming .set_up() is called, this will correspond to
 
         ```
+        model = model_builder(model_name=model, model_kwargs=model_kwargs)
+        runnable = runnable_builder(
+            prompt=prompt,
+            model=model,
+            tools=tools,
+            output_parser=output_parser,
+            chat_history=chat_history,
+            agent_executor_kwargs=agent_executor_kwargs,
+            runnable_kwargs=runnable_kwargs,
+        )
+        ```
+
+        When everything is based on their default values, this corresponds to
+        ```
+        # model_builder
+        from langchain_google_vertexai import ChatVertexAI
+        llm = ChatVertexAI(model_name=model, **model_kwargs)
+
+        # runnable_builder
         from langchain import agents
         from langchain_core.runnables.history import RunnableWithMessageHistory
-        from langchain_google_vertexai import ChatVertexAI
-
-        llm = ChatVertexAI(model_name=model, **model_kwargs)
         agent_executor = agents.AgentExecutor(
-            agent=prompt | llm.bind(functions=tools) | output_parser,
+            agent=prompt | llm.bind_tools(tools=tools) | output_parser,
             tools=tools,
             **agent_executor_kwargs,
         )
@@ -337,6 +306,15 @@ class LangchainAgent:
                 langchain.runnables.history.RunnableWithMessageHistory if
                 chat_history is specified. If chat_history is None, this will be
                 ignored.
+            model_builder (Callable):
+                Optional. Callable that returns a new language model. Defaults
+                to a a callable that returns ChatVertexAI based on `model`,
+                `model_kwargs` and the parameters in `vertexai.init`.
+            runnable_builder (Callable):
+                Optional. Callable that returns a new runnable. This can be used
+                for customizing the orchestration logic of the Agent based on
+                the model returned by `model_builder` and the rest of the input
+                arguments.
 
         Raises:
             TypeError: If there is an invalid tool (e.g. function with an input
@@ -347,9 +325,10 @@ class LangchainAgent:
         self._location = initializer.global_config.location
         self._tools = []
         if tools:
-            # Unlike the other fields, we convert tools at initialization to
-            # validate the functions/tools before they are deployed.
-            self._tools = _convert_tools_or_raise(tools)
+            # We validate tools at initialization for actionable feedback before
+            # they are deployed.
+            _validate_tools(tools)
+            self._tools = tools
         self._model_name = model
         self._prompt = prompt
         self._output_parser = output_parser
@@ -357,8 +336,10 @@ class LangchainAgent:
         self._model_kwargs = model_kwargs
         self._agent_executor_kwargs = agent_executor_kwargs
         self._runnable_kwargs = runnable_kwargs
+        self._model = None
+        self._model_builder = model_builder
         self._runnable = None
-        self._chat_history_store = None
+        self._runnable_builder = runnable_builder
 
     def set_up(self):
         """Sets up the agent for execution of queries at runtime.
@@ -370,46 +351,23 @@ class LangchainAgent:
         the ReasoningEngine service for deployment, as it initializes clients
         that can not be serialized.
         """
-        from langchain.agents import AgentExecutor
-        from langchain_core.runnables.history import RunnableWithMessageHistory
-        from langchain_google_vertexai import ChatVertexAI
-        import vertexai
-        from google.cloud.aiplatform import initializer
-
-        has_history = self._chat_history is not None
-        self._prompt = self._prompt or _default_prompt(has_history)
-        self._output_parser = self._output_parser or _default_output_parser()
-        self._model_kwargs = self._model_kwargs or {}
-        self._agent_executor_kwargs = self._agent_executor_kwargs or {}
-        self._runnable_kwargs = (
-            self._runnable_kwargs or _default_runnable_kwargs(has_history)
-        )
-
-        current_project = initializer.global_config.project
-        current_location = initializer.global_config.location
-        vertexai.init(project=self._project, location=self._location)
-        self._llm = ChatVertexAI(
+        model_builder = self._model_builder or _default_model_builder
+        self._model = model_builder(
             model_name=self._model_name,
-            **self._model_kwargs,
+            model_kwargs=self._model_kwargs,
+            project=self._project,
+            location=self._location,
         )
-        vertexai.init(project=current_project, location=current_location)
-
-        if self._tools:
-            self._llm = self._llm.bind(functions=self._tools)
-        self._agent = self._prompt | self._llm | self._output_parser
-        self._agent_executor = AgentExecutor(
-            agent=self._agent,
+        runnable_builder = self._runnable_builder or _default_runnable_builder
+        self._runnable = runnable_builder(
+            prompt=self._prompt,
+            model=self._model,
             tools=self._tools,
-            **self._agent_executor_kwargs,
+            output_parser=self._output_parser,
+            chat_history=self._chat_history,
+            agent_executor_kwargs=self._agent_executor_kwargs,
+            runnable_kwargs=self._runnable_kwargs,
         )
-        runnable = self._agent_executor
-        if has_history:
-            runnable = RunnableWithMessageHistory(
-                runnable=self._agent_executor,
-                get_session_history=self._chat_history,
-                **self._runnable_kwargs,
-            )
-        self._runnable = runnable
 
     def query(
         self,

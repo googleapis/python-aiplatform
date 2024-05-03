@@ -149,9 +149,9 @@ rapid_evaluation_extra_require = [
 ]
 
 langchain_extra_require = [
-    "langchain >= 0.1.13, < 0.2",
+    "langchain >= 0.1.16, < 0.2",
     "langchain-core < 0.2",
-    "langchain-google-vertexai < 0.2",
+    "langchain-google-vertexai < 2",
 ]
 
 langchain_testing_extra_require = list(
