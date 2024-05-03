@@ -1,0 +1,243 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vertexai.preview.initializer &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for vertexai.preview.initializer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">aiplatform</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">vertexai.preview._workflow.executor</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">persistent_resource_util</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">vertexai.preview._workflow.shared</span> <span class="kn">import</span> <span class="n">configs</span>
+
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_Config</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Store common configurations and current workflow for remote execution.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">remote</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">autolog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cluster</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">configs</span><span class="o">.</span><span class="n">PersistentResourceConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates preview global parameters for Vertex remote execution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            remote (bool):</span>
+<span class="sd">                Optional. A global flag to indicate whether or not a method will</span>
+<span class="sd">                be executed remotely. Default is Flase. The method level remote</span>
+<span class="sd">                flag has higher priority than this global flag.</span>
+<span class="sd">            autolog (bool):</span>
+<span class="sd">                Optional. Whether or not to turn on autologging feature for remote</span>
+<span class="sd">                execution. To learn more about the autologging feature, see</span>
+<span class="sd">                https://cloud.google.com/vertex-ai/docs/experiments/autolog-data.</span>
+<span class="sd">            cluster (PersistentResourceConfig):</span>
+<span class="sd">                Optional. If passed, check if the cluster exists. If not, create</span>
+<span class="sd">                a default one (single node, &quot;n1-standard-4&quot;, no GPU) with the</span>
+<span class="sd">                given name. Then use the cluster to run CustomJobs. Default is</span>
+<span class="sd">                None. Example usage:</span>
+<span class="sd">                from vertexai.preview.shared.configs import PersistentResourceConfig</span>
+<span class="sd">                cluster = PersistentResourceConfig(</span>
+<span class="sd">                        name=&quot;my-cluster-1&quot;,</span>
+<span class="sd">                        resource_pools=[</span>
+<span class="sd">                                ResourcePool(replica_count=1,),</span>
+<span class="sd">                                ResourcePool(</span>
+<span class="sd">                                        machine_type=&quot;n1-standard-8&quot;,</span>
+<span class="sd">                                        replica_count=2,</span>
+<span class="sd">                                        accelerator_type=&quot;NVIDIA_TESLA_P100&quot;,</span>
+<span class="sd">                                        accelerator_count=1,</span>
+<span class="sd">                                        ),</span>
+<span class="sd">                        ]</span>
+<span class="sd">                )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">remote</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span> <span class="o">=</span> <span class="n">remote</span>
+
+        <span class="k">if</span> <span class="n">autolog</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">aiplatform</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">autolog</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">aiplatform</span><span class="o">.</span><span class="n">autolog</span><span class="p">(</span><span class="n">disable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cluster</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cluster</span><span class="o">.</span><span class="n">disable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span> <span class="o">=</span> <span class="n">cluster</span>
+                <span class="n">cluster_resource_name</span> <span class="o">=</span> <span class="n">persistent_resource_util</span><span class="o">.</span><span class="n">cluster_resource_name</span><span class="p">(</span>
+                    <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+                    <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">cluster_exists</span> <span class="o">=</span> <span class="n">persistent_resource_util</span><span class="o">.</span><span class="n">check_persistent_resource</span><span class="p">(</span>
+                    <span class="n">cluster_resource_name</span><span class="o">=</span><span class="n">cluster_resource_name</span><span class="p">,</span>
+                    <span class="n">service_account</span><span class="o">=</span><span class="n">cluster</span><span class="o">.</span><span class="n">service_account</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">cluster_exists</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using existing cluster: </span><span class="si">{</span><span class="n">cluster_resource_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="c1"># create a cluster</span>
+                <span class="n">persistent_resource_util</span><span class="o">.</span><span class="n">create_persistent_resource</span><span class="p">(</span>
+                    <span class="n">cluster_resource_name</span><span class="o">=</span><span class="n">cluster_resource_name</span><span class="p">,</span>
+                    <span class="n">resource_pools</span><span class="o">=</span><span class="n">cluster</span><span class="o">.</span><span class="n">resource_pools</span><span class="p">,</span>
+                    <span class="n">service_account</span><span class="o">=</span><span class="n">cluster</span><span class="o">.</span><span class="n">service_account</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">autolog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">aiplatform</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">autologging_utils</span><span class="o">.</span><span class="n">_is_autologging_enabled</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">aiplatform</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">global_config</span> <span class="o">=</span> <span class="n">_Config</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vertexai._model_garden._model_garden_models &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for vertexai._model_garden._model_garden_models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;Base class for working with Model Garden models.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">google.auth</span> <span class="kn">import</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">auth_exceptions</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">aiplatform</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">initializer</span> <span class="k">as</span> <span class="n">aiplatform_initializer</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">aiplatform_models</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">_publisher_models</span>
+
+<span class="c1"># this is needed for class registration to _SUBCLASSES</span>
+<span class="kn">import</span> <span class="nn">vertexai</span>  <span class="c1"># pylint:disable=unused-import</span>
+
+<span class="n">_SUPPORTED_PUBLISHERS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;google&quot;</span><span class="p">]</span>
+
+<span class="n">_SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;text-bison&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text-bison-32k&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;code-bison&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;code-bison-32k&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chat-bison&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chat-bison-32k&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;codechat-bison&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;codechat-bison-32k&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;textembedding-gecko&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;textembedding-gecko-multilingual&quot;</span><span class="p">:</span> <span class="s2">&quot;https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;_ModelGardenModel&quot;</span><span class="p">)</span>
+
+<span class="c1"># When this module is initialized, _SUBCLASSES contains a mapping of SDK class to the Model Garden instance for that class.</span>
+<span class="c1"># The key is the SDK class since multiple classes can share a schema URI (i.e. _PreviewTextGenerationModel and TextGenerationModel)</span>
+<span class="c1"># For example: {&quot;&lt;class &#39;google.cloud.aiplatform.vertexai.language_models._language_models._TextGenerationModel&#39;&gt;: gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml&quot;}</span>
+<span class="n">_SUBCLASSES</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span> <span class="nf">_get_model_class_from_schema_uri</span><span class="p">(</span>
+    <span class="n">schema_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_ModelGardenModel&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the _ModelGardenModel class for the provided PublisherModel schema uri.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        schema_uri (str): The schema_uri for the provided PublisherModel, for example:</span>
+<span class="sd">        &quot;gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml&quot;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The _ModelGardenModel class associated with the provided schema uri.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the provided PublisherModel schema_uri isn&#39;t supported by the SDK in Preview.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">sdk_class</span> <span class="ow">in</span> <span class="n">_SUBCLASSES</span><span class="p">:</span>
+        <span class="n">class_schema_uri</span> <span class="o">=</span> <span class="n">_SUBCLASSES</span><span class="p">[</span><span class="n">sdk_class</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">class_schema_uri</span> <span class="o">==</span> <span class="n">schema_uri</span> <span class="ow">and</span> <span class="s2">&quot;preview&quot;</span> <span class="ow">in</span> <span class="n">sdk_class</span><span class="o">.</span><span class="vm">__module__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sdk_class</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This model is not supported in Preview by the Vertex SDK.&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">_ModelInfo</span><span class="p">:</span>
+    <span class="n">endpoint_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">interface_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;_ModelGardenModel&quot;</span><span class="p">]</span>
+    <span class="n">publisher_model_resource</span><span class="p">:</span> <span class="n">_publisher_models</span><span class="o">.</span><span class="n">_PublisherModel</span>
+    <span class="n">tuning_pipeline_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tuning_model_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_get_model_info</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">schema_to_class_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;_ModelGardenModel&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">interface_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="s2">&quot;_ModelGardenModel&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">publisher_model_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_publisher_models</span><span class="o">.</span><span class="n">_PublisherModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tuned_vertex_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">aiplatform</span><span class="o">.</span><span class="n">Model</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ModelInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the model information by model ID.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_id (str):</span>
+<span class="sd">            Identifier of a Model Garden Model. Example: &quot;text-bison@001&quot;</span>
+<span class="sd">        schema_to_class_map (Dict[str, &quot;_ModelGardenModel&quot;]):</span>
+<span class="sd">            Mapping of schema URI to model class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        _ModelInfo:</span>
+<span class="sd">            Instance of _ModelInfo with details on the provided model_id.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            If a publisher other than Google is provided in the publisher resource name</span>
+<span class="sd">            If the provided model doesn&#39;t have an associated Publisher Model</span>
+<span class="sd">            If the model&#39;s schema uri is not in the provided schema_to_class_map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># The default publisher is Google</span>
+    <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_id</span><span class="p">:</span>
+        <span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;publishers/google/models/&quot;</span> <span class="o">+</span> <span class="n">model_id</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">publisher_model_res</span><span class="p">:</span>
+        <span class="n">publisher_model_res</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_publisher_models</span><span class="o">.</span><span class="n">_PublisherModel</span><span class="p">(</span>  <span class="c1"># pylint: disable=protected-access</span>
+                <span class="n">resource_name</span><span class="o">=</span><span class="n">model_id</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">_gca_resource</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">publisher_model_res</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;publishers/google/models/&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Only Google models are currently supported. </span><span class="si">{</span><span class="n">publisher_model_res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">short_model_id</span> <span class="o">=</span> <span class="n">publisher_model_res</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># == &quot;projects/{project}/locations/{location}/publishers/google/models/text-bison@001&quot;</span>
+    <span class="n">publisher_model_template</span> <span class="o">=</span> <span class="n">publisher_model_res</span><span class="o">.</span><span class="n">publisher_model_template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot;{user-project}&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{project}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">publisher_model_template</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The model does not have an associated Publisher Model. </span><span class="si">{</span><span class="n">publisher_model_res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tuned_vertex_model</span><span class="p">:</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">publisher_model_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">aiplatform_initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">aiplatform_initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tuned_model_deployments</span> <span class="o">=</span> <span class="n">tuned_vertex_model</span><span class="o">.</span><span class="n">gca_resource</span><span class="o">.</span><span class="n">deployed_models</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tuned_model_deployments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Deploying the model</span>
+            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">tuned_vertex_model</span><span class="o">.</span><span class="n">deploy</span><span class="p">()</span><span class="o">.</span><span class="n">resource_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">tuned_model_deployments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span>
+
+    <span class="k">if</span> <span class="n">short_model_id</span> <span class="ow">in</span> <span class="n">_SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP</span><span class="p">:</span>
+        <span class="n">tuning_pipeline_uri</span> <span class="o">=</span> <span class="n">_SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP</span><span class="p">[</span><span class="n">short_model_id</span><span class="p">]</span>
+        <span class="n">tuning_model_id</span> <span class="o">=</span> <span class="n">publisher_model_template</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tuning_pipeline_uri</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">tuning_model_id</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">schema_to_class_map</span><span class="p">:</span>
+        <span class="n">interface_class</span> <span class="o">=</span> <span class="n">schema_to_class_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">publisher_model_res</span><span class="o">.</span><span class="n">predict_schemata</span><span class="o">.</span><span class="n">instance_schema_uri</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">interface_class</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown model </span><span class="si">{</span><span class="n">publisher_model_res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; </span><span class="si">{</span><span class="n">schema_to_class_map</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_ModelInfo</span><span class="p">(</span>
+        <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+        <span class="n">interface_class</span><span class="o">=</span><span class="n">interface_class</span><span class="p">,</span>
+        <span class="n">publisher_model_resource</span><span class="o">=</span><span class="n">publisher_model_res</span><span class="p">,</span>
+        <span class="n">tuning_pipeline_uri</span><span class="o">=</span><span class="n">tuning_pipeline_uri</span><span class="p">,</span>
+        <span class="n">tuning_model_id</span><span class="o">=</span><span class="n">tuning_model_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_from_pretrained</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">interface_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">publisher_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_publisher_models</span><span class="o">.</span><span class="n">_PublisherModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tuned_vertex_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">aiplatform</span><span class="o">.</span><span class="n">Model</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads a _ModelGardenModel.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_name: Name of the model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An instance of a class derieved from `_ModelGardenModel`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If model_name is unknown.</span>
+<span class="sd">        ValueError: If model does not support this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interface_class</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">interface_class</span><span class="o">.</span><span class="n">_INSTANCE_SCHEMA_URI</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Class </span><span class="si">{</span><span class="n">interface_class</span><span class="si">}</span><span class="s2"> is not a correct model interface class since it does not have an instance schema URI.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">model_info</span> <span class="o">=</span> <span class="n">_get_model_info</span><span class="p">(</span>
+            <span class="n">model_id</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="n">schema_to_class_map</span><span class="o">=</span><span class="p">{</span><span class="n">interface_class</span><span class="o">.</span><span class="n">_INSTANCE_SCHEMA_URI</span><span class="p">:</span> <span class="n">interface_class</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">schema_uri</span> <span class="o">=</span> <span class="n">publisher_model</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">predict_schemata</span><span class="o">.</span><span class="n">instance_schema_uri</span>
+        <span class="n">interface_class</span> <span class="o">=</span> <span class="n">_get_model_class_from_schema_uri</span><span class="p">(</span><span class="n">schema_uri</span><span class="p">)</span>
+
+        <span class="n">model_info</span> <span class="o">=</span> <span class="n">_get_model_info</span><span class="p">(</span>
+            <span class="n">model_id</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="n">interface_class</span><span class="o">=</span><span class="n">interface_class</span><span class="p">,</span>
+            <span class="n">publisher_model_res</span><span class="o">=</span><span class="n">publisher_model</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span>
+            <span class="n">tuned_vertex_model</span><span class="o">=</span><span class="n">tuned_vertex_model</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">interface_class</span><span class="p">,</span> <span class="n">interface_class</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> is of type </span><span class="si">{</span><span class="n">model_info</span><span class="o">.</span><span class="n">interface_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> not of type </span><span class="si">{</span><span class="n">interface_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model_info</span><span class="o">.</span><span class="n">interface_class</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">endpoint_name</span><span class="o">=</span><span class="n">model_info</span><span class="o">.</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_ModelGardenModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for shared methods and properties across Model Garden models.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Subclasses override this attribute to specify their instance schema</span>
+    <span class="n">_INSTANCE_SCHEMA_URI</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">_SUBCLASSES</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_INSTANCE_SCHEMA_URI</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">endpoint_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a _ModelGardenModel.</span>
+
+<span class="sd">        This constructor should not be called directly.</span>
+<span class="sd">        Use `{model_class}.from_pretrained(model_name=...)` instead.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_id: Identifier of a Model Garden Model. Example: &quot;text-bison@001&quot;</span>
+<span class="sd">            endpoint_name: Vertex Endpoint resource name for the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_name</span>
+        <span class="c1"># TODO(b/280879204)</span>
+        <span class="c1"># A workaround for not being able to directly instantiate the</span>
+        <span class="c1"># high-level Endpoint with the PublisherModel resource name.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">aiplatform</span><span class="o">.</span><span class="n">Endpoint</span><span class="o">.</span><span class="n">_construct_sdk_resource_from_gapic</span><span class="p">(</span>
+            <span class="n">aiplatform_models</span><span class="o">.</span><span class="n">gca_endpoint_compat</span><span class="o">.</span><span class="n">Endpoint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pretrained</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a _ModelGardenModel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_name: Name of the model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An instance of a class derieved from `_ModelGardenModel`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If model_name is unknown.</span>
+<span class="sd">            ValueError: If model does not support this class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">credential_exception_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Unable to authenticate your request.&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Depending on your runtime environment, you can complete authentication by:&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- if in local JupyterLab instance: `!gcloud auth login` &quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- if in Colab:&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    -`from google.colab import auth`&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    -`auth.authenticate_user()`&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- if in service account or other: please follow guidance in https://cloud.google.com/docs/authentication&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_from_pretrained</span><span class="p">(</span><span class="n">interface_class</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">auth_exceptions</span><span class="o">.</span><span class="n">GoogleAuthError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">auth_exceptions</span><span class="o">.</span><span class="n">GoogleAuthError</span><span class="p">(</span><span class="n">credential_exception_str</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

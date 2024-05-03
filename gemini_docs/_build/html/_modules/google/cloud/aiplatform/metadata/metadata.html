@@ -1,0 +1,1152 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>google.cloud.aiplatform.metadata.metadata &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for google.cloud.aiplatform.metadata.metadata</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">exceptions</span>
+<span class="kn">import</span> <span class="nn">google.auth</span>
+<span class="kn">from</span> <span class="nn">google.auth</span> <span class="kn">import</span> <span class="n">credentials</span> <span class="k">as</span> <span class="n">auth_credentials</span>
+<span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">timestamp_pb2</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">pipeline_jobs</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.compat.types</span> <span class="kn">import</span> <span class="n">execution</span> <span class="k">as</span> <span class="n">gca_execution</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">execution</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">experiment_resources</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">experiment_run_resource</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata.schema.google</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">artifact_schema</span> <span class="k">as</span> <span class="n">google_artifact_schema</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.tensorboard</span> <span class="kn">import</span> <span class="n">tensorboard_resource</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.utils</span> <span class="kn">import</span> <span class="n">autologging_utils</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.utils</span> <span class="kn">import</span> <span class="n">_ipython_utils</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform_v1.types</span> <span class="kn">import</span> <span class="n">execution</span> <span class="k">as</span> <span class="n">execution_v1</span>
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_MLFlowLogFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log filter to only show MLFlow logs for unsupported framework versions.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;You are using an unsupported version&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_get_experiment_schema_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper method to get experiment schema version</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: schema version of the currently set experiment tracking version</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">constants</span><span class="o">.</span><span class="n">SCHEMA_VERSIONS</span><span class="p">[</span><span class="n">constants</span><span class="o">.</span><span class="n">SYSTEM_EXPERIMENT</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_get_or_create_default_tensorboard</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper method to get the default TensorBoard instance if already exists, or create a default TensorBoard instance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         tensorboard_resource.Tensorboard: the default TensorBoard instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tensorboards</span> <span class="o">=</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;is_default=true&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tensorboards</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tensorboards</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">default_tensorboard</span> <span class="o">=</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="s2">&quot;Default Tensorboard &quot;</span>
+            <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
+            <span class="n">is_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">default_tensorboard</span>
+
+
+<span class="c1"># Legacy Experiment tracking</span>
+<span class="c1"># Maintaining creation APIs for backwards compatibility testing</span>
+<span class="k">class</span> <span class="nc">_LegacyExperimentService</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains the exposed APIs to interact with the Managed Metadata Service.&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_pipeline_df</span><span class="p">(</span><span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">:</span>  <span class="c1"># noqa: F821</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline: Name of the Pipeline to filter results.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Pandas Dataframe of Pipeline with metrics and parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;pipeline&quot;</span>
+        <span class="n">pipeline_resource_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_LegacyExperimentService</span><span class="o">.</span><span class="n">_get_experiment_or_pipeline_resource_name</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">expected_schema</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SYSTEM_PIPELINE</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_LegacyExperimentService</span><span class="o">.</span><span class="n">_query_runs_to_data_frame</span><span class="p">(</span>
+            <span class="n">context_id</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
+            <span class="n">context_resource_name</span><span class="o">=</span><span class="n">pipeline_resource_name</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_experiment_or_pipeline_resource_name</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expected_schema</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full resource name of the Context representing an Experiment or Pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str):</span>
+<span class="sd">                Name of the Experiment or Pipeline.</span>
+<span class="sd">            source (str):</span>
+<span class="sd">                Identify whether the this is an Experiment or a Pipeline.</span>
+<span class="sd">            expected_schema (str):</span>
+<span class="sd">                expected_schema identifies the expected schema used for Experiment or Pipeline.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The full resource name of the Experiment or Pipeline Context.</span>
+
+<span class="sd">        Raise:</span>
+<span class="sd">            NotFound exception if experiment or pipeline does not exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">this_context</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">resource_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">this_context</span><span class="o">.</span><span class="n">schema_title</span> <span class="o">!=</span> <span class="n">expected_schema</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Please provide a valid </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> name. </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">this_context</span><span class="o">.</span><span class="n">resource_name</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_query_runs_to_data_frame</span><span class="p">(</span>
+        <span class="n">context_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context_resource_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">:</span>  <span class="c1"># noqa: F821</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get metrics and parameters associated with a given Context into a Dataframe.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            context_id (str):</span>
+<span class="sd">                Name of the Experiment or Pipeline.</span>
+<span class="sd">            context_resource_name (str):</span>
+<span class="sd">                Full resource name of the Context associated with an Experiment or Pipeline.</span>
+<span class="sd">            source (str):</span>
+<span class="sd">                Identify whether the this is an Experiment or a Pipeline.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The full resource name of the Experiment or Pipeline Context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="s2">&quot;Pandas is not installed and is required to get dataframe as the return format. &quot;</span>
+                <span class="s1">&#39;Please install the SDK using &quot;pip install google-cloud-aiplatform[metadata]&quot;&#39;</span>
+            <span class="p">)</span>
+
+        <span class="nb">filter</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;schema_title=&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">SYSTEM_RUN</span><span class="si">}</span><span class="s1">&quot; AND in_context(&quot;</span><span class="si">{</span><span class="n">context_resource_name</span><span class="si">}</span><span class="s1">&quot;)&#39;</span>
+        <span class="n">run_executions</span> <span class="o">=</span> <span class="n">execution</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">)</span>
+
+        <span class="n">context_summary</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">run_execution</span> <span class="ow">in</span> <span class="n">run_executions</span><span class="p">:</span>
+            <span class="n">run_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_name&quot;</span><span class="p">:</span> <span class="n">context_id</span><span class="p">,</span>
+                <span class="s2">&quot;run_name&quot;</span><span class="p">:</span> <span class="n">run_execution</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">run_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">_LegacyExperimentService</span><span class="o">.</span><span class="n">_execution_to_column_named_metadata</span><span class="p">(</span>
+                    <span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="n">run_execution</span><span class="o">.</span><span class="n">metadata</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">metric_artifact</span> <span class="ow">in</span> <span class="n">run_execution</span><span class="o">.</span><span class="n">get_output_artifacts</span><span class="p">():</span>
+                <span class="n">run_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">_LegacyExperimentService</span><span class="o">.</span><span class="n">_execution_to_column_named_metadata</span><span class="p">(</span>
+                        <span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="n">metric_artifact</span><span class="o">.</span><span class="n">metadata</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">context_summary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">context_summary</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_execution_to_column_named_metadata</span><span class="p">(</span>
+        <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">filter_prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a dict of the Execution/Artifact metadata with column names.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          metadata_type: The type of this execution properties (param, metric).</span>
+<span class="sd">          metadata: Either an Execution or Artifact metadata field.</span>
+<span class="sd">          filter_prefix:</span>
+<span class="sd">            Remove this prefix from the key of metadata field. Mainly used for removing</span>
+<span class="sd">            &quot;input:&quot; from PipelineJob parameter keys</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          Dict of custom properties with keys mapped to column names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">column_key_to_value</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">filter_prefix</span> <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">filter_prefix</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">filter_prefix</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="n">column_key_to_value</span><span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">metadata_type</span><span class="p">,</span> <span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">column_key_to_value</span>
+
+
+<span class="k">class</span> <span class="nc">_ExperimentTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tracks Experiments and Experiment Runs with high level APIs.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">experiment_resources</span><span class="o">.</span><span class="n">Experiment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_existing_tracking_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets this experiment tracker, clearing the current experiment and run.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_global_tensorboard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to get the global TensorBoard instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensorboard_resource.Tensorboard: the global TensorBoard instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span><span class="p">:</span>
+            <span class="n">credentials</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">_metadata_context</span><span class="o">.</span><span class="n">credentials</span><span class="p">:</span>
+                <span class="n">credentials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">_metadata_context</span><span class="o">.</span><span class="n">credentials</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span><span class="o">.</span><span class="n">resource_name</span><span class="p">,</span>
+                    <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+                    <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+                    <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">NotFound</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the currently set experiment name, if experiment is not set, return None&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">experiment_resources</span><span class="o">.</span><span class="n">Experiment</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the currently set Experiment or Experiment set via env variable AIP_EXPERIMENT_NAME.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">ENV_EXPERIMENT_KEY</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span> <span class="o">=</span> <span class="n">experiment_resources</span><span class="o">.</span><span class="n">Experiment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">ENV_EXPERIMENT_KEY</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the currently set experiment run or experiment run set via env variable AIP_EXPERIMENT_RUN_NAME.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">ENV_EXPERIMENT_RUN_KEY</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span> <span class="o">=</span> <span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">ENV_EXPERIMENT_RUN_KEY</span><span class="p">),</span>
+                <span class="n">experiment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">set_experiment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">backing_tensorboard</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment (str):</span>
+<span class="sd">                Required. Name of the experiment to set.</span>
+<span class="sd">            description (str):</span>
+<span class="sd">                Optional. Description of an experiment.</span>
+<span class="sd">            backing_tensorboard Union[str, aiplatform.Tensorboard, bool]:</span>
+<span class="sd">                Optional. If provided, assigns tensorboard as backing tensorboard to support time series metrics</span>
+<span class="sd">                logging.</span>
+
+<span class="sd">                If ommitted, or set to `True` or `None`, the global tensorboard is used.</span>
+<span class="sd">                If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.</span>
+
+<span class="sd">                To disable using a backing tensorboard, set `backing_tensorboard` to `False`.</span>
+<span class="sd">                To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment_resources</span><span class="o">.</span><span class="n">Experiment</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">experiment_name</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">backing_tensorboard</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backing_tensorboard</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">backing_tb</span> <span class="o">=</span> <span class="n">backing_tensorboard</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backing_tensorboard</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">backing_tensorboard</span><span class="p">:</span>
+            <span class="n">backing_tb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">backing_tb</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_global_tensorboard</span><span class="p">()</span> <span class="ow">or</span> <span class="n">_get_or_create_default_tensorboard</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="n">current_backing_tb</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">backing_tensorboard_resource_name</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">current_backing_tb</span> <span class="ow">and</span> <span class="n">backing_tb</span><span class="p">:</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">assign_backing_tensorboard</span><span class="p">(</span><span class="n">tensorboard</span><span class="o">=</span><span class="n">backing_tb</span><span class="p">)</span>
+
+        <span class="n">_ipython_utils</span><span class="o">.</span><span class="n">display_experiment_button</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+
+    <span class="k">def</span> <span class="nf">set_tensorboard</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tensorboard</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the global Tensorboard resource for this session.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tensorboard (Union[str, aiplatform.Tensorboard]):</span>
+<span class="sd">                Required. The Tensorboard resource to set as the global Tensorboard.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project associated with this Tensorboard resource.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location associated with this Tensorboard resource.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials used to set this Tensorboard resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tensorboard</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensorboard</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">tensorboard</span> <span class="o">=</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">(</span>
+                <span class="n">tensorboard</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global_tensorboard</span> <span class="o">=</span> <span class="n">tensorboard</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_mlflow_plugin</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Invokes the Vertex MLFlow plugin.</span>
+
+<span class="sd">        Adding our log filter to MLFlow before calling mlflow.autolog() with</span>
+<span class="sd">        silent=False will only surface warning logs when the installed ML</span>
+<span class="sd">        framework version used for autologging is not supported by MLFlow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">mlflow</span>
+        <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">mlflow_tracking_utils</span>
+        <span class="kn">from</span> <span class="nn">google.cloud.aiplatform._mlflow_plugin._vertex_mlflow_tracking</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">_VertexMlflowTracking</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Only show MLFlow warning logs for ML framework version mismatches</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow.tracking.fluent&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow.utils.autologging_utils&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span>
+            <span class="n">_MLFlowLogFilter</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">mlflow_tracking_utils</span><span class="o">.</span><span class="n">_tracking_store_registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+            <span class="s2">&quot;vertex-mlflow-plugin&quot;</span><span class="p">,</span> <span class="n">_VertexMlflowTracking</span>
+        <span class="p">)</span>
+
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;vertex-mlflow-plugin://&quot;</span><span class="p">)</span>
+
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">autolog</span><span class="p">(</span>
+            <span class="n">log_input_examples</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">log_model_signatures</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">log_models</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># using False to show unsupported framework version warnings with _MLFlowLogFilter</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start_run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">run</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">tensorboard</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start a run to current session.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.init(experiment=&#39;my-experiment&#39;)</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;)</span>
+<span class="sd">        aiplatform.log_params({&#39;learning_rate&#39;:0.1})</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Use as context manager. Run will be ended on context exit:</span>
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.init(experiment=&#39;my-experiment&#39;)</span>
+<span class="sd">        with aiplatform.start_run(&#39;my-run&#39;) as my_run:</span>
+<span class="sd">            my_run.log_params({&#39;learning_rate&#39;:0.1})</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Resume a previously started run:</span>
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.init(experiment=&#39;my-experiment&#39;)</span>
+<span class="sd">        with aiplatform.start_run(&#39;my-run&#39;, resume=True) as my_run:</span>
+<span class="sd">            my_run.log_params({&#39;learning_rate&#39;:0.1})</span>
+<span class="sd">        ```</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            run(str):</span>
+<span class="sd">                Required. Name of the run to assign current session with.</span>
+<span class="sd">            tensorboard Union[str, tensorboard_resource.Tensorboard]:</span>
+<span class="sd">                Optional. Backing Tensorboard Resource to enable and store time series metrics</span>
+<span class="sd">                logged to this Experiment Run using `log_time_series_metrics`.</span>
+
+<span class="sd">                If not provided will the the default backing tensorboard of the currently</span>
+<span class="sd">                set experiment.</span>
+<span class="sd">            resume (bool):</span>
+<span class="sd">                Whether to resume this run. If False a new run will be created.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError:</span>
+<span class="sd">                if experiment is not set. Or if run execution or metrics artifact is already created</span>
+<span class="sd">                but with a different schema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No experiment set for this run. Make sure to call aiplatform.init(experiment=&#39;my-experiment&#39;) &quot;</span>
+                <span class="s2">&quot;before invoking start_run. &quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span> <span class="o">=</span> <span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="p">(</span>
+                <span class="n">run_name</span><span class="o">=</span><span class="n">run</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tensorboard</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span><span class="o">.</span><span class="n">assign_backing_tensorboard</span><span class="p">(</span><span class="n">tensorboard</span><span class="o">=</span><span class="n">tensorboard</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+                <span class="n">state</span><span class="o">=</span><span class="n">execution_v1</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="n">RUNNING</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span> <span class="o">=</span> <span class="n">experiment_run_resource</span><span class="o">.</span><span class="n">ExperimentRun</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">run_name</span><span class="o">=</span><span class="n">run</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">,</span> <span class="n">tensorboard</span><span class="o">=</span><span class="n">tensorboard</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span>
+
+    <span class="k">def</span> <span class="nf">end_run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">execution_v1</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">State</span> <span class="o">=</span> <span class="n">execution_v1</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="n">COMPLETE</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ends the the current experiment run.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;)</span>
+<span class="sd">        ...</span>
+<span class="sd">        aiplatform.end_run()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;end_run&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">end_run</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">NotFound</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Experiment run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> was not found.&quot;</span>
+                <span class="s2">&quot;It may have been deleted&quot;</span>
+            <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_run</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">autolog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enables autologging of parameters and metrics to Vertex Experiments.</span>
+
+<span class="sd">        After calling `aiplatform.autolog()`, any metrics and parameters from</span>
+<span class="sd">        model training calls with supported ML frameworks will be automatically</span>
+<span class="sd">        logged to Vertex Experiments.</span>
+
+<span class="sd">        Using autologging requires setting an experiment and experiment_tensorboard.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            disable (bool):</span>
+<span class="sd">                Optional. Whether to disable autologging. Defaults to False.</span>
+<span class="sd">                If set to True, this resets the MLFlow tracking URI to its</span>
+<span class="sd">                previous state before autologging was called and remove logging</span>
+<span class="sd">                filters.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ImportError:</span>
+<span class="sd">                If MLFlow is not installed. MLFlow is required to use</span>
+<span class="sd">                autologging in Vertex.</span>
+<span class="sd">            ValueError:</span>
+<span class="sd">                If experiment or experiment_tensorboard is not set.</span>
+<span class="sd">                If `disable` is passed and autologging hasn&#39;t been enbaled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">mlflow</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="s2">&quot;MLFlow is not installed. Please install MLFlow using pip install google-cloud-aiplatform[autologging] to use autologging in the Vertex SDK.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">disable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">autologging_utils</span><span class="o">.</span><span class="n">_is_autologging_enabled</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Autologging is not enabled. Enable autologging by calling aiplatform.autolog().&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_existing_tracking_uri</span><span class="p">:</span>
+                <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_existing_tracking_uri</span><span class="p">)</span>
+            <span class="n">mlflow</span><span class="o">.</span><span class="n">autolog</span><span class="p">(</span><span class="n">disable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Remove the log filters we applied in the plugin</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow.tracking.fluent&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow.utils.autologging_utils&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">removeFilter</span><span class="p">(</span>
+                <span class="n">_MLFlowLogFilter</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No experiment set. Make sure to call aiplatform.init(experiment=&#39;my-experiment&#39;) &quot;</span>
+                <span class="s2">&quot;before calling aiplatform.autolog().&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">_metadata_context</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">constants</span><span class="o">.</span><span class="n">_BACKING_TENSORBOARD_RESOURCE_KEY</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Setting an experiment tensorboard is required to use autologging. &quot;</span>
+                <span class="s2">&quot;Please set a backing tensorboard resource by calling &quot;</span>
+                <span class="s2">&quot;aiplatform.init(experiment_tensorboard=aiplatform.Tensorboard(...)).&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_existing_tracking_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">()</span>
+
+            <span class="n">_ExperimentTracker</span><span class="o">.</span><span class="n">_initialize_mlflow_plugin</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">log_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log single or multiple parameters with specified key and value pairs.</span>
+
+<span class="sd">        Parameters with the same key will be overwritten.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;)</span>
+<span class="sd">        aiplatform.log_params({&#39;learning_rate&#39;: 0.1, &#39;dropout_rate&#39;: 0.2})</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (Dict[str, Union[float, int, str]]):</span>
+<span class="sd">                Required. Parameter key/value pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log_params&quot;</span><span class="p">)</span>
+        <span class="c1"># query the latest run execution resource before logging.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log single or multiple Metrics with specified key and value pairs.</span>
+
+<span class="sd">        Metrics with the same key will be overwritten.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;, experiment=&#39;my-experiment&#39;)</span>
+<span class="sd">        aiplatform.log_metrics({&#39;accuracy&#39;: 0.9, &#39;recall&#39;: 0.8})</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metrics (Dict[str, Union[float, int, str]]):</span>
+<span class="sd">                Required. Metrics key/value pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log_metrics&quot;</span><span class="p">)</span>
+        <span class="c1"># query the latest metrics artifact resource before logging.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_classification_metrics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">matrix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fpr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tpr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">google_artifact_schema</span><span class="o">.</span><span class="n">ClassificationMetrics</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        my_run = aiplatform.ExperimentRun(&#39;my-run&#39;, experiment=&#39;my-experiment&#39;)</span>
+<span class="sd">        classification_metrics = my_run.log_classification_metrics(</span>
+<span class="sd">            display_name=&#39;my-classification-metrics&#39;,</span>
+<span class="sd">            labels=[&#39;cat&#39;, &#39;dog&#39;],</span>
+<span class="sd">            matrix=[[9, 1], [1, 9]],</span>
+<span class="sd">            fpr=[0.1, 0.5, 0.9],</span>
+<span class="sd">            tpr=[0.1, 0.7, 0.9],</span>
+<span class="sd">            threshold=[0.9, 0.5, 0.1],</span>
+<span class="sd">        )</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            labels (List[str]):</span>
+<span class="sd">                Optional. List of label names for the confusion matrix. Must be set if &#39;matrix&#39; is set.</span>
+<span class="sd">            matrix (List[List[int]):</span>
+<span class="sd">                Optional. Values for the confusion matrix. Must be set if &#39;labels&#39; is set.</span>
+<span class="sd">            fpr (List[float]):</span>
+<span class="sd">                Optional. List of false positive rates for the ROC curve. Must be set if &#39;tpr&#39; or &#39;thresholds&#39; is set.</span>
+<span class="sd">            tpr (List[float]):</span>
+<span class="sd">                Optional. List of true positive rates for the ROC curve. Must be set if &#39;fpr&#39; or &#39;thresholds&#39; is set.</span>
+<span class="sd">            threshold (List[float]):</span>
+<span class="sd">                Optional. List of thresholds for the ROC curve. Must be set if &#39;fpr&#39; or &#39;tpr&#39; is set.</span>
+<span class="sd">            display_name (str):</span>
+<span class="sd">                Optional. The user-defined name for the classification metric artifact.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if &#39;labels&#39; and &#39;matrix&#39; are not set together</span>
+<span class="sd">                        or if &#39;labels&#39; and &#39;matrix&#39; are not in the same length</span>
+<span class="sd">                        or if &#39;fpr&#39; and &#39;tpr&#39; and &#39;threshold&#39; are not set together</span>
+<span class="sd">                        or if &#39;fpr&#39; and &#39;tpr&#39; and &#39;threshold&#39; are not in the same length</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log_classification_metrics&quot;</span><span class="p">)</span>
+        <span class="c1"># query the latest metrics artifact resource before logging.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log_classification_metrics</span><span class="p">(</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="n">display_name</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">matrix</span><span class="o">=</span><span class="n">matrix</span><span class="p">,</span>
+            <span class="n">fpr</span><span class="o">=</span><span class="n">fpr</span><span class="p">,</span>
+            <span class="n">tpr</span><span class="o">=</span><span class="n">tpr</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="s2">&quot;sklearn.base.BaseEstimator&quot;</span><span class="p">,</span> <span class="s2">&quot;xgb.Booster&quot;</span><span class="p">,</span> <span class="s2">&quot;tf.Module&quot;</span>  <span class="c1"># noqa: F821</span>
+        <span class="p">],</span>
+        <span class="n">artifact_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_example</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="s2">&quot;np.ndarray&quot;</span>  <span class="c1"># noqa: F821</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_store_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">google_artifact_schema</span><span class="o">.</span><span class="n">ExperimentModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a ML model into a MLMD artifact and log it to this ExperimentRun.</span>
+
+<span class="sd">        Supported model frameworks: sklearn, xgboost, tensorflow.</span>
+
+<span class="sd">        Example usage:</span>
+<span class="sd">        ```py</span>
+<span class="sd">            model = LinearRegression()</span>
+<span class="sd">            model.fit(X, y)</span>
+<span class="sd">            aiplatform.init(</span>
+<span class="sd">                project=&quot;my-project&quot;,</span>
+<span class="sd">                location=&quot;my-location&quot;,</span>
+<span class="sd">                staging_bucket=&quot;gs://my-bucket&quot;,</span>
+<span class="sd">                experiment=&quot;my-exp&quot;</span>
+<span class="sd">            )</span>
+<span class="sd">            with aiplatform.start_run(&quot;my-run&quot;):</span>
+<span class="sd">                aiplatform.log_model(model, &quot;my-sklearn-model&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (Union[&quot;sklearn.base.BaseEstimator&quot;, &quot;xgb.Booster&quot;, &quot;tf.Module&quot;]):</span>
+<span class="sd">                Required. A machine learning model.</span>
+<span class="sd">            artifact_id (str):</span>
+<span class="sd">                Optional. The resource id of the artifact. This id must be globally unique</span>
+<span class="sd">                in a metadataStore. It may be up to 63 characters, and valid characters</span>
+<span class="sd">                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.</span>
+<span class="sd">            uri (str):</span>
+<span class="sd">                Optional. A gcs directory to save the model file. If not provided,</span>
+<span class="sd">                `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.</span>
+<span class="sd">                If default staging bucket is not set, a new bucket will be created.</span>
+<span class="sd">            input_example (Union[list, dict, pd.DataFrame, np.ndarray]):</span>
+<span class="sd">                Optional. An example of a valid model input. Will be stored as a yaml file</span>
+<span class="sd">                in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray</span>
+<span class="sd">                The value inside a list must be a scalar or list. The value inside</span>
+<span class="sd">                a dict must be a scalar, list, or np.ndarray.</span>
+<span class="sd">            display_name (str):</span>
+<span class="sd">                Optional. The display name of the artifact.</span>
+<span class="sd">            metadata_store_id (str):</span>
+<span class="sd">                Optional. The &lt;metadata_store_id&gt; portion of the resource name with</span>
+<span class="sd">                the format:</span>
+<span class="sd">                projects/123/locations/us-central1/metadataStores/&lt;metadata_store_id&gt;/artifacts/&lt;resource_id&gt;</span>
+<span class="sd">                If not provided, the MetadataStore&#39;s ID will be set to &quot;default&quot;.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project used to create this Artifact. Overrides project set in</span>
+<span class="sd">                aiplatform.init.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location used to create this Artifact. Overrides location set in</span>
+<span class="sd">                aiplatform.init.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials used to create this Artifact. Overrides</span>
+<span class="sd">                credentials set in aiplatform.init.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An ExperimentModel instance.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if model type is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log_model&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">artifact_id</span><span class="o">=</span><span class="n">artifact_id</span><span class="p">,</span>
+            <span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span>
+            <span class="n">input_example</span><span class="o">=</span><span class="n">input_example</span><span class="p">,</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="n">display_name</span><span class="p">,</span>
+            <span class="n">metadata_store_id</span><span class="o">=</span><span class="n">metadata_store_id</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_experiment_and_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates Experiment and Run are set and raises informative error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method_name: The name of th method to raise from.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If Experiment or Run are not set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No experiment set. Make sure to call aiplatform.init(experiment=&#39;my-experiment&#39;) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;before trying to </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No run set. Make sure to call aiplatform.start_run(&#39;my-run&#39;) before trying to </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_experiment_df</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_time_series</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">:</span>  <span class="c1"># noqa: F821</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.init(experiment=&#39;exp-1&#39;)</span>
+<span class="sd">        aiplatform.start_run(run=&#39;run-1&#39;)</span>
+<span class="sd">        aiplatform.log_params({&#39;learning_rate&#39;: 0.1})</span>
+<span class="sd">        aiplatform.log_metrics({&#39;accuracy&#39;: 0.9})</span>
+
+<span class="sd">        aiplatform.start_run(run=&#39;run-2&#39;)</span>
+<span class="sd">        aiplatform.log_params({&#39;learning_rate&#39;: 0.2})</span>
+<span class="sd">        aiplatform.log_metrics({&#39;accuracy&#39;: 0.95})</span>
+
+<span class="sd">        aiplatform.get_experiment_df()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Will result in the following DataFrame:</span>
+
+<span class="sd">        ```</span>
+<span class="sd">        experiment_name | run_name      | param.learning_rate | metric.accuracy</span>
+<span class="sd">        exp-1           | run-1         | 0.1                 | 0.9</span>
+<span class="sd">        exp-1           | run-2         | 0.2                 | 0.95</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment (str):</span>
+<span class="sd">                Name of the Experiment to filter results. If not set, return results</span>
+<span class="sd">                of current active experiment.</span>
+<span class="sd">            include_time_series (bool):</span>
+<span class="sd">                Optional. Whether or not to include time series metrics in df.</span>
+<span class="sd">                Default is True. Setting to False will largely improve execution</span>
+<span class="sd">                time and reduce quota contributing calls. Recommended when time</span>
+<span class="sd">                series metrics are not needed or number of runs in Experiment is</span>
+<span class="sd">                large. For time series metrics consider querying a specific run</span>
+<span class="sd">                using get_time_series_data_frame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Pandas Dataframe of Experiment with metrics and parameters.</span>
+
+<span class="sd">        Raise:</span>
+<span class="sd">            NotFound exception if experiment does not exist.</span>
+<span class="sd">            ValueError if given experiment is not associated with a wrong schema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">experiment</span><span class="p">:</span>
+            <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment_resources</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">experiment</span><span class="o">.</span><span class="n">get_data_frame</span><span class="p">(</span><span class="n">include_time_series</span><span class="o">=</span><span class="n">include_time_series</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">pipeline_job</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pipeline_jobs</span><span class="o">.</span><span class="n">PipelineJob</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log Vertex AI Resources to the current experiment run.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;)</span>
+<span class="sd">        my_job = aiplatform.PipelineJob(...)</span>
+<span class="sd">        my_job.submit()</span>
+<span class="sd">        aiplatform.log(my_job)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline_job (pipeline_jobs.PipelineJob):</span>
+<span class="sd">                Optional. Vertex PipelineJob to associate to this Experiment Run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pipeline_job</span><span class="o">=</span><span class="n">pipeline_job</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_time_series_metrics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="n">step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">wall_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timestamp_pb2</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs time series metrics to to this Experiment Run.</span>
+
+<span class="sd">        Requires the experiment or experiment run has a backing Vertex Tensorboard resource.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        my_tensorboard = aiplatform.Tensorboard(...)</span>
+<span class="sd">        aiplatform.init(experiment=&#39;my-experiment&#39;, experiment_tensorboard=my_tensorboard)</span>
+<span class="sd">        aiplatform.start_run(&#39;my-run&#39;)</span>
+
+<span class="sd">        # increments steps as logged</span>
+<span class="sd">        for i in range(10):</span>
+<span class="sd">            aiplatform.log_time_series_metrics({&#39;loss&#39;: loss})</span>
+
+<span class="sd">        # explicitly log steps</span>
+<span class="sd">        for i in range(10):</span>
+<span class="sd">            aiplatform.log_time_series_metrics({&#39;loss&#39;: loss}, step=i)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metrics (Dict[str, Union[str, float]]):</span>
+<span class="sd">                Required. Dictionary of where keys are metric names and values are metric values.</span>
+<span class="sd">            step (int):</span>
+<span class="sd">                Optional. Step index of this data point within the run.</span>
+
+<span class="sd">                If not provided, the latest</span>
+<span class="sd">                step amongst all time series metrics already logged will be used.</span>
+<span class="sd">            wall_time (timestamp_pb2.Timestamp):</span>
+<span class="sd">                Optional. Wall clock timestamp when this data point is</span>
+<span class="sd">                generated by the end user.</span>
+
+<span class="sd">                If not provided, this will be generated based on the value from time.time()</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If current experiment run doesn&#39;t have a backing Tensorboard resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_experiment_and_run</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="s2">&quot;log_time_series_metrics&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">log_time_series_metrics</span><span class="p">(</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">wall_time</span><span class="o">=</span><span class="n">wall_time</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start_execution</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">schema_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resource_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">schema_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resume</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">execution</span><span class="o">.</span><span class="n">Execution</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and starts a new Metadata Execution or resumes a previously created Execution.</span>
+
+<span class="sd">        To start a new execution:</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        with aiplatform.start_execution(schema_title=&#39;system.ContainerExecution&#39;, display_name=&#39;trainer) as exc:</span>
+<span class="sd">          exc.assign_input_artifacts([my_artifact])</span>
+<span class="sd">          model = aiplatform.Artifact.create(uri=&#39;gs://my-uri&#39;, schema_title=&#39;system.Model&#39;)</span>
+<span class="sd">          exc.assign_output_artifacts([model])</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        To continue a previously created execution:</span>
+<span class="sd">        ```py</span>
+<span class="sd">        with aiplatform.start_execution(resource_id=&#39;my-exc&#39;, resume=True) as exc:</span>
+<span class="sd">            ...</span>
+<span class="sd">        ```</span>
+<span class="sd">        Args:</span>
+<span class="sd">            schema_title (str):</span>
+<span class="sd">                Optional. schema_title identifies the schema title used by the Execution. Required if starting</span>
+<span class="sd">                a new Execution.</span>
+<span class="sd">            resource_id (str):</span>
+<span class="sd">                Optional. The &lt;resource_id&gt; portion of the Execution name with</span>
+<span class="sd">                the format. This is globally unique in a metadataStore:</span>
+<span class="sd">                projects/123/locations/us-central1/metadataStores/&lt;metadata_store_id&gt;/executions/&lt;resource_id&gt;.</span>
+<span class="sd">            display_name (str):</span>
+<span class="sd">                Optional. The user-defined name of the Execution.</span>
+<span class="sd">            schema_version (str):</span>
+<span class="sd">                Optional. schema_version specifies the version used by the Execution.</span>
+<span class="sd">                If not set, defaults to use the latest version.</span>
+<span class="sd">            metadata (Dict):</span>
+<span class="sd">                Optional. Contains the metadata information that will be stored in the Execution.</span>
+<span class="sd">            description (str):</span>
+<span class="sd">                Optional. Describes the purpose of the Execution to be created.</span>
+<span class="sd">            metadata_store_id (str):</span>
+<span class="sd">                Optional. The &lt;metadata_store_id&gt; portion of the resource name with</span>
+<span class="sd">                the format:</span>
+<span class="sd">                projects/123/locations/us-central1/metadataStores/&lt;metadata_store_id&gt;/artifacts/&lt;resource_id&gt;</span>
+<span class="sd">                If not provided, the MetadataStore&#39;s ID will be set to &quot;default&quot;.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project used to create this Execution. Overrides project set in</span>
+<span class="sd">                aiplatform.init.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location used to create this Execution. Overrides location set in</span>
+<span class="sd">                aiplatform.init.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials used to create this Execution. Overrides</span>
+<span class="sd">                credentials set in aiplatform.init.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Execution: Instantiated representation of the managed Metadata Execution.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If experiment run is set and project or location do not match experiment run.</span>
+<span class="sd">            ValueError: If resume set to `True` and resource_id is not provided.</span>
+<span class="sd">            ValueError: If creating a new executin and schema_title is not provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">_is_legacy_experiment_run</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">project</span> <span class="ow">and</span> <span class="n">project</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">project</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Currently set Experiment run project </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">project</span><span class="si">}</span><span class="s2"> must&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;match provided project </span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">location</span> <span class="ow">and</span> <span class="n">location</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">location</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Currently set Experiment run location </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">location</span><span class="si">}</span><span class="s2"> must&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;match provided location </span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">resource_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;resource_id is required when resume=True&quot;</span><span class="p">)</span>
+
+            <span class="n">run_execution</span> <span class="o">=</span> <span class="n">execution</span><span class="o">.</span><span class="n">Execution</span><span class="p">(</span>
+                <span class="n">execution_name</span><span class="o">=</span><span class="n">resource_id</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># TODO(handle updates if resuming)</span>
+
+            <span class="n">run_execution</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">gca_execution</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">schema_title</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;schema_title must be provided when starting a new Execution&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">run_execution</span> <span class="o">=</span> <span class="n">execution</span><span class="o">.</span><span class="n">Execution</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">display_name</span><span class="o">=</span><span class="n">display_name</span><span class="p">,</span>
+                <span class="n">schema_title</span><span class="o">=</span><span class="n">schema_title</span><span class="p">,</span>
+                <span class="n">schema_version</span><span class="o">=</span><span class="n">schema_version</span><span class="p">,</span>
+                <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+                <span class="n">resource_id</span><span class="o">=</span><span class="n">resource_id</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">_is_legacy_experiment_run</span><span class="p">():</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">_run_name</span><span class="si">}</span><span class="s2"> is an Experiment run created in Vertex Experiment Preview&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot; and does not support tracking Executions.&quot;</span>
+                    <span class="s2">&quot; Please create a new Experiment run to track executions against an Experiment run.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">associate_execution</span><span class="p">(</span><span class="n">run_execution</span><span class="p">)</span>
+                <span class="n">run_execution</span><span class="o">.</span><span class="n">assign_input_artifacts</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">_association_wrapper</span><span class="p">(</span>
+                        <span class="n">run_execution</span><span class="o">.</span><span class="n">assign_input_artifacts</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">run_execution</span><span class="o">.</span><span class="n">assign_output_artifacts</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">experiment_run</span><span class="o">.</span><span class="n">_association_wrapper</span><span class="p">(</span>
+                        <span class="n">run_execution</span><span class="o">.</span><span class="n">assign_output_artifacts</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">run_execution</span>
+
+
+<span class="n">_experiment_tracker</span> <span class="o">=</span> <span class="n">_ExperimentTracker</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1013 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>google.cloud.aiplatform_v1beta1.types.content &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for google.cloud.aiplatform_v1beta1.types.content</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright 2024 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">MutableSequence</span>
+
+<span class="kn">import</span> <span class="nn">proto</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform_v1beta1.types</span> <span class="kn">import</span> <span class="n">tool</span>
+<span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">duration_pb2</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">google.type</span> <span class="kn">import</span> <span class="n">date_pb2</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="n">__protobuf__</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">module</span><span class="p">(</span>
+    <span class="n">package</span><span class="o">=</span><span class="s2">&quot;google.cloud.aiplatform.v1beta1&quot;</span><span class="p">,</span>
+    <span class="n">manifest</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;HarmCategory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Content&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Part&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Blob&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FileData&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VideoMetadata&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GenerationConfig&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SafetySetting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SafetyRating&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CitationMetadata&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Citation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Candidate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Segment&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GroundingAttribution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GroundingMetadata&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SearchEntryPoint&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="HarmCategory"><a class="viewcode-back" href="../../../../../vertexai/services.html#vertexai.generative_models.HarmCategory">[docs]</a><span class="k">class</span> <span class="nc">HarmCategory</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Harm categories that will block the content.</span>
+
+<span class="sd">    Values:</span>
+<span class="sd">        HARM_CATEGORY_UNSPECIFIED (0):</span>
+<span class="sd">            The harm category is unspecified.</span>
+<span class="sd">        HARM_CATEGORY_HATE_SPEECH (1):</span>
+<span class="sd">            The harm category is hate speech.</span>
+<span class="sd">        HARM_CATEGORY_DANGEROUS_CONTENT (2):</span>
+<span class="sd">            The harm category is dangerous content.</span>
+<span class="sd">        HARM_CATEGORY_HARASSMENT (3):</span>
+<span class="sd">            The harm category is harassment.</span>
+<span class="sd">        HARM_CATEGORY_SEXUALLY_EXPLICIT (4):</span>
+<span class="sd">            The harm category is sexually explicit</span>
+<span class="sd">            content.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">HARM_CATEGORY_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">HARM_CATEGORY_HATE_SPEECH</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">HARM_CATEGORY_DANGEROUS_CONTENT</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">HARM_CATEGORY_HARASSMENT</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">HARM_CATEGORY_SEXUALLY_EXPLICIT</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+<span class="k">class</span> <span class="nc">Content</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The base structured datatype containing multi-part content of a</span>
+<span class="sd">    message.</span>
+
+<span class="sd">    A ``Content`` includes a ``role`` field designating the producer of</span>
+<span class="sd">    the ``Content`` and a ``parts`` field containing multi-part data</span>
+<span class="sd">    that contains the content of the message turn.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        role (str):</span>
+<span class="sd">            Optional. The producer of the content. Must</span>
+<span class="sd">            be either &#39;user&#39; or &#39;model&#39;.</span>
+<span class="sd">            Useful to set for multi-turn conversations,</span>
+<span class="sd">            otherwise can be left blank or unset.</span>
+<span class="sd">        parts (MutableSequence[google.cloud.aiplatform_v1beta1.types.Part]):</span>
+<span class="sd">            Required. Ordered ``Parts`` that constitute a single</span>
+<span class="sd">            message. Parts may have different IANA MIME types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parts</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="s2">&quot;Part&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Part&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Part</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A datatype containing media that is part of a multi-part ``Content``</span>
+<span class="sd">    message.</span>
+
+<span class="sd">    A ``Part`` consists of data which has an associated datatype. A</span>
+<span class="sd">    ``Part`` can only contain one of the accepted types in</span>
+<span class="sd">    ``Part.data``.</span>
+
+<span class="sd">    A ``Part`` must have a fixed IANA MIME type identifying the type and</span>
+<span class="sd">    subtype of the media if ``inline_data`` or ``file_data`` field is</span>
+<span class="sd">    filled with raw bytes.</span>
+
+<span class="sd">    This message has `oneof`_ fields (mutually exclusive fields).</span>
+<span class="sd">    For each oneof, at most one member field can be set at the same time.</span>
+<span class="sd">    Setting any member of the oneof automatically clears all other</span>
+<span class="sd">    members.</span>
+
+<span class="sd">    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        text (str):</span>
+<span class="sd">            Optional. Text part (can be code).</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``data``.</span>
+<span class="sd">        inline_data (google.cloud.aiplatform_v1beta1.types.Blob):</span>
+<span class="sd">            Optional. Inlined bytes data.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``data``.</span>
+<span class="sd">        file_data (google.cloud.aiplatform_v1beta1.types.FileData):</span>
+<span class="sd">            Optional. URI based data.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``data``.</span>
+<span class="sd">        function_call (google.cloud.aiplatform_v1beta1.types.FunctionCall):</span>
+<span class="sd">            Optional. A predicted [FunctionCall] returned from the model</span>
+<span class="sd">            that contains a string representing the</span>
+<span class="sd">            [FunctionDeclaration.name] with the parameters and their</span>
+<span class="sd">            values.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``data``.</span>
+<span class="sd">        function_response (google.cloud.aiplatform_v1beta1.types.FunctionResponse):</span>
+<span class="sd">            Optional. The result output of a [FunctionCall] that</span>
+<span class="sd">            contains a string representing the</span>
+<span class="sd">            [FunctionDeclaration.name] and a structured JSON object</span>
+<span class="sd">            containing any output from the function call. It is used as</span>
+<span class="sd">            context to the model.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``data``.</span>
+<span class="sd">        video_metadata (google.cloud.aiplatform_v1beta1.types.VideoMetadata):</span>
+<span class="sd">            Optional. Video metadata. The metadata should only be</span>
+<span class="sd">            specified while the video data is presented in inline_data</span>
+<span class="sd">            or file_data.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``metadata``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">inline_data</span><span class="p">:</span> <span class="s2">&quot;Blob&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Blob&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">file_data</span><span class="p">:</span> <span class="s2">&quot;FileData&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;FileData&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">function_call</span><span class="p">:</span> <span class="n">tool</span><span class="o">.</span><span class="n">FunctionCall</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">tool</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">function_response</span><span class="p">:</span> <span class="n">tool</span><span class="o">.</span><span class="n">FunctionResponse</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">tool</span><span class="o">.</span><span class="n">FunctionResponse</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">video_metadata</span><span class="p">:</span> <span class="s2">&quot;VideoMetadata&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;VideoMetadata&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Blob</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Content blob.</span>
+
+<span class="sd">    It&#39;s preferred to send as</span>
+<span class="sd">    [text][google.cloud.aiplatform.v1beta1.Part.text] directly rather</span>
+<span class="sd">    than raw bytes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        mime_type (str):</span>
+<span class="sd">            Required. The IANA standard MIME type of the</span>
+<span class="sd">            source data.</span>
+<span class="sd">        data (bytes):</span>
+<span class="sd">            Required. Raw bytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mime_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">BYTES</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FileData</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;URI based data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        mime_type (str):</span>
+<span class="sd">            Required. The IANA standard MIME type of the</span>
+<span class="sd">            source data.</span>
+<span class="sd">        file_uri (str):</span>
+<span class="sd">            Required. URI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mime_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">file_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">VideoMetadata</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Metadata describes the input video content.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        start_offset (google.protobuf.duration_pb2.Duration):</span>
+<span class="sd">            Optional. The start offset of the video.</span>
+<span class="sd">        end_offset (google.protobuf.duration_pb2.Duration):</span>
+<span class="sd">            Optional. The end offset of the video.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start_offset</span><span class="p">:</span> <span class="n">duration_pb2</span><span class="o">.</span><span class="n">Duration</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">duration_pb2</span><span class="o">.</span><span class="n">Duration</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">end_offset</span><span class="p">:</span> <span class="n">duration_pb2</span><span class="o">.</span><span class="n">Duration</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">duration_pb2</span><span class="o">.</span><span class="n">Duration</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GenerationConfig</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Generation config.</span>
+
+<span class="sd">    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        temperature (float):</span>
+<span class="sd">            Optional. Controls the randomness of</span>
+<span class="sd">            predictions.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_temperature``.</span>
+<span class="sd">        top_p (float):</span>
+<span class="sd">            Optional. If specified, nucleus sampling will</span>
+<span class="sd">            be used.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_top_p``.</span>
+<span class="sd">        top_k (float):</span>
+<span class="sd">            Optional. If specified, top-k sampling will</span>
+<span class="sd">            be used.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_top_k``.</span>
+<span class="sd">        candidate_count (int):</span>
+<span class="sd">            Optional. Number of candidates to generate.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_candidate_count``.</span>
+<span class="sd">        max_output_tokens (int):</span>
+<span class="sd">            Optional. The maximum number of output tokens</span>
+<span class="sd">            to generate per message.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_max_output_tokens``.</span>
+<span class="sd">        stop_sequences (MutableSequence[str]):</span>
+<span class="sd">            Optional. Stop sequences.</span>
+<span class="sd">        presence_penalty (float):</span>
+<span class="sd">            Optional. Positive penalties.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_presence_penalty``.</span>
+<span class="sd">        frequency_penalty (float):</span>
+<span class="sd">            Optional. Frequency penalties.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_frequency_penalty``.</span>
+<span class="sd">        response_mime_type (str):</span>
+<span class="sd">            Optional. Output response mimetype of the generated</span>
+<span class="sd">            candidate text. Supported mimetype:</span>
+
+<span class="sd">            -  ``text/plain``: (default) Text output.</span>
+<span class="sd">            -  ``application/json``: JSON response in the candidates.</span>
+<span class="sd">               The model needs to be prompted to output the appropriate</span>
+<span class="sd">               response type, otherwise the behavior is undefined. This</span>
+<span class="sd">               is a preview feature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">top_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">top_k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">candidate_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">max_output_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stop_sequences</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">presence_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">frequency_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">response_mime_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SafetySetting</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Safety settings.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        category (google.cloud.aiplatform_v1beta1.types.HarmCategory):</span>
+<span class="sd">            Required. Harm category.</span>
+<span class="sd">        threshold (google.cloud.aiplatform_v1beta1.types.SafetySetting.HarmBlockThreshold):</span>
+<span class="sd">            Required. The harm block threshold.</span>
+<span class="sd">        method (google.cloud.aiplatform_v1beta1.types.SafetySetting.HarmBlockMethod):</span>
+<span class="sd">            Optional. Specify if the threshold is used</span>
+<span class="sd">            for probability or severity score. If not</span>
+<span class="sd">            specified, the threshold is used for probability</span>
+<span class="sd">            score.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SafetySetting.HarmBlockThreshold"><a class="viewcode-back" href="../../../../../vertexai/services.html#vertexai.generative_models.SafetySetting.HarmBlockThreshold">[docs]</a>    <span class="k">class</span> <span class="nc">HarmBlockThreshold</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Probability based thresholds levels for blocking.</span>
+
+<span class="sd">        Values:</span>
+<span class="sd">            HARM_BLOCK_THRESHOLD_UNSPECIFIED (0):</span>
+<span class="sd">                Unspecified harm block threshold.</span>
+<span class="sd">            BLOCK_LOW_AND_ABOVE (1):</span>
+<span class="sd">                Block low threshold and above (i.e. block</span>
+<span class="sd">                more).</span>
+<span class="sd">            BLOCK_MEDIUM_AND_ABOVE (2):</span>
+<span class="sd">                Block medium threshold and above.</span>
+<span class="sd">            BLOCK_ONLY_HIGH (3):</span>
+<span class="sd">                Block only high threshold (i.e. block less).</span>
+<span class="sd">            BLOCK_NONE (4):</span>
+<span class="sd">                Block none.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HARM_BLOCK_THRESHOLD_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">BLOCK_LOW_AND_ABOVE</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">BLOCK_MEDIUM_AND_ABOVE</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">BLOCK_ONLY_HIGH</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">BLOCK_NONE</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+<div class="viewcode-block" id="SafetySetting.HarmBlockMethod"><a class="viewcode-back" href="../../../../../vertexai/services.html#vertexai.generative_models.SafetySetting.HarmBlockMethod">[docs]</a>    <span class="k">class</span> <span class="nc">HarmBlockMethod</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Probability vs severity.</span>
+
+<span class="sd">        Values:</span>
+<span class="sd">            HARM_BLOCK_METHOD_UNSPECIFIED (0):</span>
+<span class="sd">                The harm block method is unspecified.</span>
+<span class="sd">            SEVERITY (1):</span>
+<span class="sd">                The harm block method uses both probability</span>
+<span class="sd">                and severity scores.</span>
+<span class="sd">            PROBABILITY (2):</span>
+<span class="sd">                The harm block method uses the probability</span>
+<span class="sd">                score.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HARM_BLOCK_METHOD_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">SEVERITY</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">PROBABILITY</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+    <span class="n">category</span><span class="p">:</span> <span class="s2">&quot;HarmCategory&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="s2">&quot;HarmCategory&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="n">HarmBlockThreshold</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="n">HarmBlockThreshold</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">HarmBlockMethod</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="n">HarmBlockMethod</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SafetyRating</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Safety rating corresponding to the generated content.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        category (google.cloud.aiplatform_v1beta1.types.HarmCategory):</span>
+<span class="sd">            Output only. Harm category.</span>
+<span class="sd">        probability (google.cloud.aiplatform_v1beta1.types.SafetyRating.HarmProbability):</span>
+<span class="sd">            Output only. Harm probability levels in the</span>
+<span class="sd">            content.</span>
+<span class="sd">        probability_score (float):</span>
+<span class="sd">            Output only. Harm probability score.</span>
+<span class="sd">        severity (google.cloud.aiplatform_v1beta1.types.SafetyRating.HarmSeverity):</span>
+<span class="sd">            Output only. Harm severity levels in the</span>
+<span class="sd">            content.</span>
+<span class="sd">        severity_score (float):</span>
+<span class="sd">            Output only. Harm severity score.</span>
+<span class="sd">        blocked (bool):</span>
+<span class="sd">            Output only. Indicates whether the content</span>
+<span class="sd">            was filtered out because of this rating.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">HarmProbability</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Harm probability levels in the content.</span>
+
+<span class="sd">        Values:</span>
+<span class="sd">            HARM_PROBABILITY_UNSPECIFIED (0):</span>
+<span class="sd">                Harm probability unspecified.</span>
+<span class="sd">            NEGLIGIBLE (1):</span>
+<span class="sd">                Negligible level of harm.</span>
+<span class="sd">            LOW (2):</span>
+<span class="sd">                Low level of harm.</span>
+<span class="sd">            MEDIUM (3):</span>
+<span class="sd">                Medium level of harm.</span>
+<span class="sd">            HIGH (4):</span>
+<span class="sd">                High level of harm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HARM_PROBABILITY_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">NEGLIGIBLE</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">LOW</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">MEDIUM</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">HIGH</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="k">class</span> <span class="nc">HarmSeverity</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Harm severity levels.</span>
+
+<span class="sd">        Values:</span>
+<span class="sd">            HARM_SEVERITY_UNSPECIFIED (0):</span>
+<span class="sd">                Harm severity unspecified.</span>
+<span class="sd">            HARM_SEVERITY_NEGLIGIBLE (1):</span>
+<span class="sd">                Negligible level of harm severity.</span>
+<span class="sd">            HARM_SEVERITY_LOW (2):</span>
+<span class="sd">                Low level of harm severity.</span>
+<span class="sd">            HARM_SEVERITY_MEDIUM (3):</span>
+<span class="sd">                Medium level of harm severity.</span>
+<span class="sd">            HARM_SEVERITY_HIGH (4):</span>
+<span class="sd">                High level of harm severity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HARM_SEVERITY_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">HARM_SEVERITY_NEGLIGIBLE</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">HARM_SEVERITY_LOW</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">HARM_SEVERITY_MEDIUM</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">HARM_SEVERITY_HIGH</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="n">category</span><span class="p">:</span> <span class="s2">&quot;HarmCategory&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="s2">&quot;HarmCategory&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">probability</span><span class="p">:</span> <span class="n">HarmProbability</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="n">HarmProbability</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">probability_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">HarmSeverity</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="n">HarmSeverity</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">severity_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">blocked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">BOOL</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CitationMetadata</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A collection of source attributions for a piece of content.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        citations (MutableSequence[google.cloud.aiplatform_v1beta1.types.Citation]):</span>
+<span class="sd">            Output only. List of citations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">citations</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="s2">&quot;Citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Citation&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Citation</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Source attributions for content.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        start_index (int):</span>
+<span class="sd">            Output only. Start index into the content.</span>
+<span class="sd">        end_index (int):</span>
+<span class="sd">            Output only. End index into the content.</span>
+<span class="sd">        uri (str):</span>
+<span class="sd">            Output only. Url reference of the</span>
+<span class="sd">            attribution.</span>
+<span class="sd">        title (str):</span>
+<span class="sd">            Output only. Title of the attribution.</span>
+<span class="sd">        license_ (str):</span>
+<span class="sd">            Output only. License of the attribution.</span>
+<span class="sd">        publication_date (google.type.date_pb2.Date):</span>
+<span class="sd">            Output only. Publication date of the</span>
+<span class="sd">            attribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">end_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">license_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">publication_date</span><span class="p">:</span> <span class="n">date_pb2</span><span class="o">.</span><span class="n">Date</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">date_pb2</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Candidate</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A response candidate generated from the model.</span>
+
+<span class="sd">    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        index (int):</span>
+<span class="sd">            Output only. Index of the candidate.</span>
+<span class="sd">        content (google.cloud.aiplatform_v1beta1.types.Content):</span>
+<span class="sd">            Output only. Content parts of the candidate.</span>
+<span class="sd">        finish_reason (google.cloud.aiplatform_v1beta1.types.Candidate.FinishReason):</span>
+<span class="sd">            Output only. The reason why the model stopped</span>
+<span class="sd">            generating tokens. If empty, the model has not</span>
+<span class="sd">            stopped generating the tokens.</span>
+<span class="sd">        safety_ratings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetyRating]):</span>
+<span class="sd">            Output only. List of ratings for the safety</span>
+<span class="sd">            of a response candidate.</span>
+<span class="sd">            There is at most one rating per category.</span>
+<span class="sd">        finish_message (str):</span>
+<span class="sd">            Output only. Describes the reason the mode stopped</span>
+<span class="sd">            generating tokens in more detail. This is only filled when</span>
+<span class="sd">            ``finish_reason`` is set.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_finish_message``.</span>
+<span class="sd">        citation_metadata (google.cloud.aiplatform_v1beta1.types.CitationMetadata):</span>
+<span class="sd">            Output only. Source attribution of the</span>
+<span class="sd">            generated content.</span>
+<span class="sd">        grounding_metadata (google.cloud.aiplatform_v1beta1.types.GroundingMetadata):</span>
+<span class="sd">            Output only. Metadata specifies sources used</span>
+<span class="sd">            to ground generated content.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">FinishReason</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The reason why the model stopped generating tokens.</span>
+<span class="sd">        If empty, the model has not stopped generating the tokens.</span>
+
+<span class="sd">        Values:</span>
+<span class="sd">            FINISH_REASON_UNSPECIFIED (0):</span>
+<span class="sd">                The finish reason is unspecified.</span>
+<span class="sd">            STOP (1):</span>
+<span class="sd">                Natural stop point of the model or provided</span>
+<span class="sd">                stop sequence.</span>
+<span class="sd">            MAX_TOKENS (2):</span>
+<span class="sd">                The maximum number of tokens as specified in</span>
+<span class="sd">                the request was reached.</span>
+<span class="sd">            SAFETY (3):</span>
+<span class="sd">                The token generation was stopped as the</span>
+<span class="sd">                response was flagged for safety reasons. NOTE:</span>
+<span class="sd">                When streaming the Candidate.content will be</span>
+<span class="sd">                empty if content filters blocked the output.</span>
+<span class="sd">            RECITATION (4):</span>
+<span class="sd">                The token generation was stopped as the</span>
+<span class="sd">                response was flagged for unauthorized citations.</span>
+<span class="sd">            OTHER (5):</span>
+<span class="sd">                All other reasons that stopped the token</span>
+<span class="sd">                generation</span>
+<span class="sd">            BLOCKLIST (6):</span>
+<span class="sd">                The token generation was stopped as the</span>
+<span class="sd">                response was flagged for the terms which are</span>
+<span class="sd">                included from the terminology blocklist.</span>
+<span class="sd">            PROHIBITED_CONTENT (7):</span>
+<span class="sd">                The token generation was stopped as the</span>
+<span class="sd">                response was flagged for the prohibited</span>
+<span class="sd">                contents.</span>
+<span class="sd">            SPII (8):</span>
+<span class="sd">                The token generation was stopped as the</span>
+<span class="sd">                response was flagged for Sensitive Personally</span>
+<span class="sd">                Identifiable Information (SPII) contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">FINISH_REASON_UNSPECIFIED</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">STOP</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">MAX_TOKENS</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">SAFETY</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">RECITATION</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">OTHER</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">BLOCKLIST</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="n">PROHIBITED_CONTENT</span> <span class="o">=</span> <span class="mi">7</span>
+        <span class="n">SPII</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">content</span><span class="p">:</span> <span class="s2">&quot;Content&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Content&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">finish_reason</span><span class="p">:</span> <span class="n">FinishReason</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">ENUM</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">enum</span><span class="o">=</span><span class="n">FinishReason</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">safety_ratings</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="s2">&quot;SafetyRating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;SafetyRating&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">finish_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">citation_metadata</span><span class="p">:</span> <span class="s2">&quot;CitationMetadata&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;CitationMetadata&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">grounding_metadata</span><span class="p">:</span> <span class="s2">&quot;GroundingMetadata&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;GroundingMetadata&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Segment</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Segment of the content.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        part_index (int):</span>
+<span class="sd">            Output only. The index of a Part object</span>
+<span class="sd">            within its parent Content object.</span>
+<span class="sd">        start_index (int):</span>
+<span class="sd">            Output only. Start index in the given Part,</span>
+<span class="sd">            measured in bytes. Offset from the start of the</span>
+<span class="sd">            Part, inclusive, starting at zero.</span>
+<span class="sd">        end_index (int):</span>
+<span class="sd">            Output only. End index in the given Part,</span>
+<span class="sd">            measured in bytes. Offset from the start of the</span>
+<span class="sd">            Part, exclusive, starting at zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">part_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">end_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GroundingAttribution</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Grounding attribution.</span>
+
+<span class="sd">    This message has `oneof`_ fields (mutually exclusive fields).</span>
+<span class="sd">    For each oneof, at most one member field can be set at the same time.</span>
+<span class="sd">    Setting any member of the oneof automatically clears all other</span>
+<span class="sd">    members.</span>
+
+<span class="sd">    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        web (google.cloud.aiplatform_v1beta1.types.GroundingAttribution.Web):</span>
+<span class="sd">            Optional. Attribution from the web.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``reference``.</span>
+<span class="sd">        retrieved_context (google.cloud.aiplatform_v1beta1.types.GroundingAttribution.RetrievedContext):</span>
+<span class="sd">            Optional. Attribution from context retrieved</span>
+<span class="sd">            by the retrieval tools.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``reference``.</span>
+<span class="sd">        segment (google.cloud.aiplatform_v1beta1.types.Segment):</span>
+<span class="sd">            Output only. Segment of the content this</span>
+<span class="sd">            attribution belongs to.</span>
+<span class="sd">        confidence_score (float):</span>
+<span class="sd">            Optional. Output only. Confidence score of</span>
+<span class="sd">            the attribution. Ranges from 0 to 1. 1 is the</span>
+<span class="sd">            most confident.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_confidence_score``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">Web</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Attribution from the web.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            uri (str):</span>
+<span class="sd">                Output only. URI reference of the</span>
+<span class="sd">                attribution.</span>
+<span class="sd">            title (str):</span>
+<span class="sd">                Output only. Title of the attribution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+            <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+            <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+            <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+            <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">RetrievedContext</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Attribution from context retrieved by the retrieval tools.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            uri (str):</span>
+<span class="sd">                Output only. URI reference of the</span>
+<span class="sd">                attribution.</span>
+<span class="sd">            title (str):</span>
+<span class="sd">                Output only. Title of the attribution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+            <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+            <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+            <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+            <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">web</span><span class="p">:</span> <span class="n">Web</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;reference&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">Web</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">retrieved_context</span><span class="p">:</span> <span class="n">RetrievedContext</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">oneof</span><span class="o">=</span><span class="s2">&quot;reference&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">RetrievedContext</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">segment</span><span class="p">:</span> <span class="s2">&quot;Segment&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Segment&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">confidence_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GroundingMetadata</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Metadata returned to client when grounding is enabled.</span>
+
+<span class="sd">    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        web_search_queries (MutableSequence[str]):</span>
+<span class="sd">            Optional. Web search queries for the</span>
+<span class="sd">            following-up web search.</span>
+<span class="sd">        search_entry_point (google.cloud.aiplatform_v1beta1.types.SearchEntryPoint):</span>
+<span class="sd">            Optional. Google search entry for the</span>
+<span class="sd">            following-up web searches.</span>
+
+<span class="sd">            This field is a member of `oneof`_ ``_search_entry_point``.</span>
+<span class="sd">        retrieval_queries (MutableSequence[str]):</span>
+<span class="sd">            Optional. Queries executed by the retrieval</span>
+<span class="sd">            tools.</span>
+<span class="sd">        grounding_attributions (MutableSequence[google.cloud.aiplatform_v1beta1.types.GroundingAttribution]):</span>
+<span class="sd">            Optional. List of grounding attributions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">web_search_queries</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">search_entry_point</span><span class="p">:</span> <span class="s2">&quot;SearchEntryPoint&quot;</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;SearchEntryPoint&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">retrieval_queries</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">grounding_attributions</span><span class="p">:</span> <span class="n">MutableSequence</span><span class="p">[</span>
+        <span class="s2">&quot;GroundingAttribution&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">RepeatedField</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;GroundingAttribution&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SearchEntryPoint</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Google search entry point.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        rendered_content (str):</span>
+<span class="sd">            Optional. Web content snippet that can be</span>
+<span class="sd">            embedded in a web page or an app webview.</span>
+<span class="sd">        sdk_blob (bytes):</span>
+<span class="sd">            Optional. Base64 encoded JSON representing</span>
+<span class="sd">            array of &lt;search term, search url&gt; tuple.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rendered_content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sdk_blob</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="n">proto</span><span class="o">.</span><span class="n">BYTES</span><span class="p">,</span>
+        <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">__protobuf__</span><span class="o">.</span><span class="n">manifest</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

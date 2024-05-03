@@ -30,7 +30,7 @@ BLACK_VERSION = "black==22.3.0"
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
-DEFAULT_PYTHON_VERSION = "3.8"
+DEFAULT_PYTHON_VERSION = "3.11"
 
 UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
@@ -333,7 +333,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9")
+@nox.session(python="3.11")
 def docs(session):
     """Build the docs for this library."""
 
@@ -359,7 +359,7 @@ def docs(session):
     )
 
 
-@nox.session(python="3.10")
+@nox.session(python="3.11")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
@@ -400,6 +400,75 @@ def docfx(session):
         os.path.join("docs", ""),
         os.path.join("docs", "_build", "html", ""),
     )
+
+
+@nox.session(python="3.11")
+def gemini_docs(session):
+    """Build the docs for this library."""
+
+    session.install("-e", ".")
+    session.install(
+        "sphinx==5.0.2",
+        "alabaster",
+        "google-cloud-aiplatform[prediction]",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
+    )
+
+@nox.session(python="3.11")
+def gemini_docfx(session):
+    """Build the docfx yaml files for this library."""
+
+    session.install("-e", ".")
+    session.install(
+        "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
+        "alabaster",
+        "google-cloud-aiplatform",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-D",
+        (
+            "extensions=sphinx.ext.autodoc,"
+            "sphinx.ext.autosummary,"
+            "docfx_yaml.extension,"
+            "sphinx.ext.intersphinx,"
+            "sphinx.ext.coverage,"
+            "sphinx.ext.napoleon,"
+            "sphinx.ext.todo,"
+            "sphinx.ext.viewcode,"
+            "recommonmark"
+        ),
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
+    )
+
 
 
 @nox.session(python=SYSTEM_TEST_PYTHON_VERSIONS)

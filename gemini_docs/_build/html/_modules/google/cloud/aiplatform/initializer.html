@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>google.cloud.aiplatform.initializer &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for google.cloud.aiplatform.initializer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+
+<span class="kn">from</span> <span class="nn">concurrent</span> <span class="kn">import</span> <span class="n">futures</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">client_options</span>
+<span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">gapic_v1</span>
+<span class="kn">import</span> <span class="nn">google.auth</span>
+<span class="kn">from</span> <span class="nn">google.auth</span> <span class="kn">import</span> <span class="n">credentials</span> <span class="k">as</span> <span class="n">auth_credentials</span>
+<span class="kn">from</span> <span class="nn">google.auth.exceptions</span> <span class="kn">import</span> <span class="n">GoogleAuthError</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.constants</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.metadata</span> <span class="kn">import</span> <span class="n">metadata</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.utils</span> <span class="kn">import</span> <span class="n">resource_manager_utils</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.tensorboard</span> <span class="kn">import</span> <span class="n">tensorboard_resource</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">telemetry</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.compat.types</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">encryption_spec</span> <span class="k">as</span> <span class="n">gca_encryption_spec_compat</span><span class="p">,</span>
+    <span class="n">encryption_spec_v1</span> <span class="k">as</span> <span class="n">gca_encryption_spec_v1</span><span class="p">,</span>
+    <span class="n">encryption_spec_v1beta1</span> <span class="k">as</span> <span class="n">gca_encryption_spec_v1beta1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_TVertexAiServiceClientWithOverride</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span>
+    <span class="s2">&quot;_TVertexAiServiceClientWithOverride&quot;</span><span class="p">,</span>
+    <span class="n">bound</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">VertexAiServiceClientWithOverride</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG</span> <span class="o">=</span> <span class="s2">&quot;top_google_constructor_method&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">_Config</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores common parameters and options for API calls.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_set_project_as_env_var_or_google_auth_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tries to set the project from the environment variable or calls google.auth.default().</span>
+
+<span class="sd">        Stores the returned project and credentials as instance attributes.</span>
+
+<span class="sd">        This prevents google.auth.default() from being called multiple times when</span>
+<span class="sd">        the project and credentials have already been set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="p">:</span>
+            <span class="c1"># Project is not set. Trying to get it from the environment.</span>
+            <span class="c1"># See https://github.com/googleapis/python-aiplatform/issues/852</span>
+            <span class="c1"># See https://github.com/googleapis/google-auth-library-python/issues/924</span>
+            <span class="c1"># TODO: Remove when google.auth.default() learns the</span>
+            <span class="c1"># CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.</span>
+            <span class="n">project_number</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOOGLE_CLOUD_PROJECT&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;CLOUD_ML_PROJECT_ID&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">project_number</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span><span class="p">:</span>
+                    <span class="n">credentials</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="n">credentials</span>
+                <span class="c1"># Try to convert project number to project ID which is more readable.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">project_id</span> <span class="o">=</span> <span class="n">resource_manager_utils</span><span class="o">.</span><span class="n">get_project_id</span><span class="p">(</span>
+                        <span class="n">project_number</span><span class="o">=</span><span class="n">project_number</span><span class="p">,</span>
+                        <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">project_id</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Failed to convert project number to project ID.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">project_number</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">credentials</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="ow">or</span> <span class="n">credentials</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">project</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span><span class="p">:</span>
+            <span class="n">credentials</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="n">credentials</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_staging_bucket</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_encryption_spec_key_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_account</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_endpoint</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_transport</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment_tensorboard</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tensorboard_resource</span><span class="o">.</span><span class="n">Tensorboard</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">staging_bucket</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">encryption_spec_key_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">network</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">api_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">api_transport</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates common initialization parameters with provided options.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project (str): The default project to use when making API calls.</span>
+<span class="sd">            location (str): The default location to use when making API calls. If not</span>
+<span class="sd">                set defaults to us-central-1.</span>
+<span class="sd">            experiment (str): Optional. The experiment name.</span>
+<span class="sd">            experiment_description (str): Optional. The description of the experiment.</span>
+<span class="sd">            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard, bool]):</span>
+<span class="sd">                Optional. The Vertex AI TensorBoard instance, Tensorboard resource name,</span>
+<span class="sd">                or Tensorboard resource ID to use as a backing Tensorboard for the provided</span>
+<span class="sd">                experiment.</span>
+
+<span class="sd">                Example tensorboard resource name format:</span>
+<span class="sd">                &quot;projects/123/locations/us-central1/tensorboards/456&quot;</span>
+
+<span class="sd">                If `experiment_tensorboard` is provided and `experiment` is not,</span>
+<span class="sd">                the provided `experiment_tensorboard` will be set as the global Tensorboard.</span>
+<span class="sd">                Any subsequent calls to aiplatform.init() with `experiment` and without</span>
+<span class="sd">                `experiment_tensorboard` will automatically assign the global Tensorboard</span>
+<span class="sd">                to the `experiment`.</span>
+
+<span class="sd">                If `experiment_tensorboard` is ommitted or set to `True` or `None` the global</span>
+<span class="sd">                Tensorboard will be assigned to the `experiment`. If a global Tensorboard is</span>
+<span class="sd">                not set, the default Tensorboard instance will be used, and created if it does not exist.</span>
+
+<span class="sd">                To disable creating and using Tensorboard with `experiment`, set `experiment_tensorboard` to `False`.</span>
+<span class="sd">                Any subsequent calls to aiplatform.init() should include this setting as well.</span>
+<span class="sd">            staging_bucket (str): The default staging bucket to use to stage artifacts</span>
+<span class="sd">                when making API calls. In the form gs://...</span>
+<span class="sd">            credentials (google.auth.credentials.Credentials): The default custom</span>
+<span class="sd">                credentials to use when making API calls. If not provided credentials</span>
+<span class="sd">                will be ascertained from the environment.</span>
+<span class="sd">            encryption_spec_key_name (Optional[str]):</span>
+<span class="sd">                Optional. The Cloud KMS resource identifier of the customer</span>
+<span class="sd">                managed encryption key used to protect a resource. Has the</span>
+<span class="sd">                form:</span>
+<span class="sd">                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.</span>
+<span class="sd">                The key needs to be in the same region as where the compute</span>
+<span class="sd">                resource is created.</span>
+
+<span class="sd">                If set, this resource and all sub-resources will be secured by this key.</span>
+<span class="sd">            network (str):</span>
+<span class="sd">                Optional. The full name of the Compute Engine network to which jobs</span>
+<span class="sd">                and resources should be peered. E.g. &quot;projects/12345/global/networks/myVPC&quot;.</span>
+<span class="sd">                Private services access must already be configured for the network.</span>
+<span class="sd">                If specified, all eligible jobs and resources created will be peered</span>
+<span class="sd">                with this VPC.</span>
+<span class="sd">            service_account (str):</span>
+<span class="sd">                Optional. The service account used to launch jobs and deploy models.</span>
+<span class="sd">                Jobs that use service_account: BatchPredictionJob, CustomJob,</span>
+<span class="sd">                PipelineJob, HyperparameterTuningJob, CustomTrainingJob,</span>
+<span class="sd">                CustomPythonPackageTrainingJob, CustomContainerTrainingJob,</span>
+<span class="sd">                ModelEvaluationJob.</span>
+<span class="sd">            api_endpoint (str):</span>
+<span class="sd">                Optional. The desired API endpoint,</span>
+<span class="sd">                e.g., us-central1-aiplatform.googleapis.com</span>
+<span class="sd">            api_transport (str):</span>
+<span class="sd">                Optional. The transport method which is either &#39;grpc&#39; or &#39;rest&#39;.</span>
+<span class="sd">                NOTE: &quot;rest&quot; transport functionality is currently in a</span>
+<span class="sd">                beta state (preview).</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError:</span>
+<span class="sd">                If experiment_description is provided but experiment is not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This method mutates state, so we need to be careful with the validation</span>
+        <span class="c1"># First, we need to validate all passed values</span>
+        <span class="k">if</span> <span class="n">api_transport</span><span class="p">:</span>
+            <span class="n">VALID_TRANSPORT_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;grpc&quot;</span><span class="p">,</span> <span class="s2">&quot;rest&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">api_transport</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_TRANSPORT_TYPES</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">api_transport</span><span class="si">}</span><span class="s2"> is not a valid transport type. &quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Valid transport types: </span><span class="si">{</span><span class="n">VALID_TRANSPORT_TYPES</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">validate_region</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">experiment_description</span> <span class="ow">and</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Experiment needs to be set in `init` in order to add experiment descriptions.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># reset metadata_service config if project or location is updated.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">project</span> <span class="ow">and</span> <span class="n">project</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">location</span> <span class="ow">and</span> <span class="n">location</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">metadata</span><span class="o">.</span><span class="n">_experiment_tracker</span><span class="o">.</span><span class="n">experiment_name</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;project/location updated, reset Experiment config.&quot;</span><span class="p">)</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">_experiment_tracker</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="c1"># Then we change the main state</span>
+        <span class="k">if</span> <span class="n">api_endpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_endpoint</span> <span class="o">=</span> <span class="n">api_endpoint</span>
+        <span class="k">if</span> <span class="n">api_transport</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_transport</span> <span class="o">=</span> <span class="n">api_transport</span>
+        <span class="k">if</span> <span class="n">project</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="k">if</span> <span class="n">staging_bucket</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_staging_bucket</span> <span class="o">=</span> <span class="n">staging_bucket</span>
+        <span class="k">if</span> <span class="n">credentials</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="n">credentials</span>
+        <span class="k">if</span> <span class="n">encryption_spec_key_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_encryption_spec_key_name</span> <span class="o">=</span> <span class="n">encryption_spec_key_name</span>
+        <span class="k">if</span> <span class="n">network</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="n">network</span>
+        <span class="k">if</span> <span class="n">service_account</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service_account</span> <span class="o">=</span> <span class="n">service_account</span>
+
+        <span class="c1"># Finally, perform secondary state updates</span>
+        <span class="k">if</span> <span class="n">experiment_tensorboard</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">experiment_tensorboard</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">_experiment_tracker</span><span class="o">.</span><span class="n">set_tensorboard</span><span class="p">(</span>
+                <span class="n">tensorboard</span><span class="o">=</span><span class="n">experiment_tensorboard</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">experiment</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">_experiment_tracker</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span>
+                <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">experiment_description</span><span class="p">,</span>
+                <span class="n">backing_tensorboard</span><span class="o">=</span><span class="n">experiment_tensorboard</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_encryption_spec</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">encryption_spec_key_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">select_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">DEFAULT_VERSION</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span>
+        <span class="n">Union</span><span class="p">[</span>
+            <span class="n">gca_encryption_spec_v1</span><span class="o">.</span><span class="n">EncryptionSpec</span><span class="p">,</span>
+            <span class="n">gca_encryption_spec_v1beta1</span><span class="o">.</span><span class="n">EncryptionSpec</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a gca_encryption_spec.EncryptionSpec instance from the given</span>
+<span class="sd">        key name. If the provided key name is None, it uses the default key</span>
+<span class="sd">        name if provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.</span>
+<span class="sd">            select_version: The default version is set to compat.DEFAULT_VERSION</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kms_key_name</span> <span class="o">=</span> <span class="n">encryption_spec_key_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">encryption_spec_key_name</span>
+        <span class="n">encryption_spec</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">kms_key_name</span><span class="p">:</span>
+            <span class="n">gca_encryption_spec</span> <span class="o">=</span> <span class="n">gca_encryption_spec_compat</span>
+            <span class="k">if</span> <span class="n">select_version</span> <span class="o">==</span> <span class="n">compat</span><span class="o">.</span><span class="n">V1BETA1</span><span class="p">:</span>
+                <span class="n">gca_encryption_spec</span> <span class="o">=</span> <span class="n">gca_encryption_spec_v1beta1</span>
+            <span class="n">encryption_spec</span> <span class="o">=</span> <span class="n">gca_encryption_spec</span><span class="o">.</span><span class="n">EncryptionSpec</span><span class="p">(</span>
+                <span class="n">kms_key_name</span><span class="o">=</span><span class="n">kms_key_name</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">encryption_spec</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">api_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default API endpoint, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_endpoint</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default project.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span>
+
+        <span class="n">project_not_found_exception_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Unable to find your project. Please provide a project ID by:&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- Passing a constructor argument&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- Using vertexai.init()&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- Setting project using &#39;gcloud config set project my-project&#39;&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- Setting a GCP environment variable&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- To create a Google Cloud project, please follow guidance at https://developers.google.com/workspace/guides/create-project&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_project_as_env_var_or_google_auth_default</span><span class="p">()</span>
+            <span class="n">project_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span>
+        <span class="k">except</span> <span class="n">GoogleAuthError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GoogleAuthError</span><span class="p">(</span><span class="n">project_not_found_exception_str</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">project_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">project_not_found_exception_str</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">project_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default location.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span>
+
+        <span class="n">location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;GOOGLE_CLOUD_REGION&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLOUD_ML_REGION&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">validate_region</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">location</span>
+
+        <span class="k">return</span> <span class="n">constants</span><span class="o">.</span><span class="n">DEFAULT_REGION</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">staging_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default staging bucket, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staging_bucket</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default credentials.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;google.auth._default&quot;</span><span class="p">)</span>
+        <span class="n">logging_warning_filter</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">LoggingFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">logging_warning_filter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_project_as_env_var_or_google_auth_default</span><span class="p">()</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credentials</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">removeFilter</span><span class="p">(</span><span class="n">logging_warning_filter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">credentials</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">encryption_spec_key_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default encryption spec key name, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encryption_spec_key_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">network</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default Compute Engine network to peer to, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service_account</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default service account, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_account</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment name, if provided.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">_experiment_tracker</span><span class="o">.</span><span class="n">experiment_name</span>
+
+    <span class="k">def</span> <span class="nf">get_client_options</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prediction_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">api_base_path_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">api_path_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">client_options</span><span class="o">.</span><span class="n">ClientOptions</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates GAPIC client_options using location and type.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            location_override (str):</span>
+<span class="sd">                Optional. Set this parameter to get client options for a location different</span>
+<span class="sd">                from location set by initializer. Must be a GCP region supported by</span>
+<span class="sd">                Vertex AI.</span>
+<span class="sd">            prediction_client (str): Optional. flag to use a prediction endpoint.</span>
+<span class="sd">            api_base_path_override (str): Optional. Override default API base path.</span>
+<span class="sd">            api_path_override (str): Optional. Override default api path.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            clients_options (google.api_core.client_options.ClientOptions):</span>
+<span class="sd">                A ClientOptions object set with regionalized API endpoint, i.e.</span>
+<span class="sd">                { &quot;api_endpoint&quot;: &quot;us-central1-aiplatform.googleapis.com&quot; } or</span>
+<span class="sd">                { &quot;api_endpoint&quot;: &quot;asia-east1-aiplatform.googleapis.com&quot; }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_endpoint</span>
+
+        <span class="k">if</span> <span class="n">api_endpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="ow">or</span> <span class="n">location_override</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;No location found. Provide or initialize SDK with a location.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">region</span> <span class="o">=</span> <span class="n">location_override</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="n">utils</span><span class="o">.</span><span class="n">validate_region</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+
+            <span class="n">service_base_path</span> <span class="o">=</span> <span class="n">api_base_path_override</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">constants</span><span class="o">.</span><span class="n">PREDICTION_API_BASE_PATH</span>
+                <span class="k">if</span> <span class="n">prediction_client</span>
+                <span class="k">else</span> <span class="n">constants</span><span class="o">.</span><span class="n">API_BASE_PATH</span>
+            <span class="p">)</span>
+
+            <span class="n">api_endpoint</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">service_base_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">api_path_override</span>
+                <span class="k">else</span> <span class="n">api_path_override</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">client_options</span><span class="o">.</span><span class="n">ClientOptions</span><span class="p">(</span><span class="n">api_endpoint</span><span class="o">=</span><span class="n">api_endpoint</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">common_location_path</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get parent resource with optional project and location override.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project (str): GCP project. If not provided will use the current project.</span>
+<span class="sd">            location (str): Location. If not provided will use the current location.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            resource_parent: Formatted parent resource string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">validate_region</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;projects&quot;</span><span class="p">,</span>
+                <span class="n">project</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+                <span class="s2">&quot;locations&quot;</span><span class="p">,</span>
+                <span class="n">location</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">create_client</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">client_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">_TVertexAiServiceClientWithOverride</span><span class="p">],</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prediction_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">api_base_path_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">api_path_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">appended_user_agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">appended_gapic_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_TVertexAiServiceClientWithOverride</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiates a given VertexAiServiceClient with optional</span>
+<span class="sd">        overrides.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            client_class (utils.VertexAiServiceClientWithOverride):</span>
+<span class="sd">                Required. A Vertex AI Service Client with optional overrides.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom auth credentials. If not provided will use the current config.</span>
+<span class="sd">            location_override (str): Optional. location override.</span>
+<span class="sd">            prediction_client (str): Optional. flag to use a prediction endpoint.</span>
+<span class="sd">            api_base_path_override (str): Optional. Override default api base path.</span>
+<span class="sd">            api_path_override (str): Optional. Override default api path.</span>
+<span class="sd">            appended_user_agent (List[str]):</span>
+<span class="sd">                Optional. User agent appended in the client info. If more than one, it will be</span>
+<span class="sd">                separated by spaces.</span>
+<span class="sd">            appended_gapic_version (str):</span>
+<span class="sd">                Optional. GAPIC version suffix appended in the client info.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            client: Instantiated Vertex AI Service client with optional overrides</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gapic_version</span> <span class="o">=</span> <span class="n">__version__</span>
+
+        <span class="k">if</span> <span class="n">appended_gapic_version</span><span class="p">:</span>
+            <span class="n">gapic_version</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gapic_version</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">appended_gapic_version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">caller_method</span> <span class="o">=</span> <span class="n">_get_top_level_google_caller_method_name</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">caller_method</span><span class="p">:</span>
+                <span class="n">gapic_version</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">_TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">caller_method</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">telemetry</span><span class="o">.</span><span class="n">_tool_names_to_append</span><span class="p">:</span>
+            <span class="c1"># Must append to gapic_version due to b/259738581.</span>
+            <span class="n">gapic_version</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gapic_version</span><span class="si">}</span><span class="s2">+tools+</span><span class="si">{</span><span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">telemetry</span><span class="o">.</span><span class="n">_tool_names_to_append</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">user_agent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">USER_AGENT_PRODUCT</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">gapic_version</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">appended_user_agent</span><span class="p">:</span>
+            <span class="n">user_agent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user_agent</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">appended_user_agent</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">client_info</span> <span class="o">=</span> <span class="n">gapic_v1</span><span class="o">.</span><span class="n">client_info</span><span class="o">.</span><span class="n">ClientInfo</span><span class="p">(</span>
+            <span class="n">gapic_version</span><span class="o">=</span><span class="n">gapic_version</span><span class="p">,</span>
+            <span class="n">user_agent</span><span class="o">=</span><span class="n">user_agent</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;credentials&quot;</span><span class="p">:</span> <span class="n">credentials</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="s2">&quot;client_options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_options</span><span class="p">(</span>
+                <span class="n">location_override</span><span class="o">=</span><span class="n">location_override</span><span class="p">,</span>
+                <span class="n">prediction_client</span><span class="o">=</span><span class="n">prediction_client</span><span class="p">,</span>
+                <span class="n">api_base_path_override</span><span class="o">=</span><span class="n">api_base_path_override</span><span class="p">,</span>
+                <span class="n">api_path_override</span><span class="o">=</span><span class="n">api_path_override</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;client_info&quot;</span><span class="p">:</span> <span class="n">client_info</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Do not pass &quot;grpc&quot;, rely on gapic defaults unless &quot;rest&quot; is specified</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_transport</span> <span class="o">==</span> <span class="s2">&quot;rest&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Async&quot;</span> <span class="ow">in</span> <span class="n">client_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+                <span class="c1"># Warn user that &quot;rest&quot; is not supported and use grpc instead</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;REST is not supported for async clients, &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;falling back to grpc.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;transport&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_transport</span>
+
+        <span class="k">return</span> <span class="n">client_class</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="c1"># global config to store init parameters: ie, aiplatform.init(project=..., location=...)</span>
+<span class="n">global_config</span> <span class="o">=</span> <span class="n">_Config</span><span class="p">()</span>
+
+<span class="n">global_pool</span> <span class="o">=</span> <span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span>
+    <span class="n">max_workers</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span><span class="p">))</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_function_name_from_stack_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gates fully qualified function or method name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        frame: A stack frame</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Fully qualified function or method name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">module_name</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]</span>
+    <span class="n">function_name</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+
+    <span class="c1"># Getting the class from instance and class methods</span>
+    <span class="c1"># We need to differentiate between function parameters and other local variables.</span>
+    <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">first_arg_name</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">first_arg_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Inferring the class based on the name of the function&#39;s first parameter.</span>
+    <span class="k">if</span> <span class="n">first_arg_name</span> <span class="o">==</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
+        <span class="n">f_cls</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="s2">&quot;self&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span>
+    <span class="k">elif</span> <span class="n">first_arg_name</span> <span class="o">==</span> <span class="s2">&quot;cls&quot;</span><span class="p">:</span>
+        <span class="n">f_cls</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">[</span><span class="s2">&quot;cls&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f_cls</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">f_cls</span><span class="p">:</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="n">f_cls</span><span class="o">.</span><span class="vm">__module__</span> <span class="ow">or</span> <span class="n">module_name</span>
+        <span class="c1"># Not using __qualname__ since it&#39;s not affected by the __name__ changes</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="n">f_cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_get_stack_frames</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A faster version of inspect.stack().</span>
+
+<span class="sd">    This function avoids the expensive inspect.getframeinfo() calls which locate</span>
+<span class="sd">    the source code and extract the traceback context code lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">frame</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">frame</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span>
+
+
+<span class="k">def</span> <span class="nf">_get_top_level_google_caller_method_name</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">top_level_method</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">_get_stack_frames</span><span class="p">():</span>
+        <span class="n">function_name</span> <span class="o">=</span> <span class="n">_get_function_name_from_stack_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">function_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;vertexai.&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">function_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;google.cloud.aiplatform.&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">function_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;google.cloud.aiplatform.tests&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">top_level_method</span> <span class="o">=</span> <span class="n">function_name</span>
+    <span class="k">return</span> <span class="n">top_level_method</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

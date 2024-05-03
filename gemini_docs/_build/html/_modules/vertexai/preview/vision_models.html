@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vertexai.preview.vision_models &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for vertexai.preview.vision_models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Classes for working with vision models.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">vertexai.vision_models._vision_models</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GeneratedImage</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageCaptioningModel</span><span class="p">,</span>
+    <span class="n">ImageGenerationModel</span><span class="p">,</span>
+    <span class="n">ImageGenerationResponse</span><span class="p">,</span>
+    <span class="n">ImageQnAModel</span><span class="p">,</span>
+    <span class="n">ImageTextModel</span><span class="p">,</span>
+    <span class="n">MultiModalEmbeddingModel</span><span class="p">,</span>
+    <span class="n">MultiModalEmbeddingResponse</span><span class="p">,</span>
+    <span class="n">Video</span><span class="p">,</span>
+    <span class="n">VideoEmbedding</span><span class="p">,</span>
+    <span class="n">VideoSegmentConfig</span><span class="p">,</span>
+    <span class="n">WatermarkVerificationModel</span><span class="p">,</span>
+    <span class="n">WatermarkVerificationResponse</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Image&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageGenerationModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageGenerationResponse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageCaptioningModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageQnAModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageTextModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WatermarkVerificationModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GeneratedImage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MultiModalEmbeddingModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MultiModalEmbeddingResponse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Video&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VideoEmbedding&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VideoSegmentConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WatermarkVerificationResponse&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

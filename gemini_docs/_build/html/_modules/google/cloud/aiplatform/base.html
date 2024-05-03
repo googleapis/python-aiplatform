@@ -1,0 +1,1644 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>google.cloud.aiplatform.base &#8212; google-cloud-aiplatform  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+          	<div class="admonition" id="python2-eol"> 
+          	 As of January 1, 2020 this library no longer supports Python 2 on the latest released version. 
+          	 Library versions released prior to that date will continue to be available. For more information please
+          	 visit <a href="https://cloud.google.com/python/docs/python2-sunset/">Python 2 support on Google Cloud</a>.
+          	</div>
+            
+  <h1>Source code for google.cloud.aiplatform.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright 2023 Google LLC</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">concurrent</span> <span class="kn">import</span> <span class="n">futures</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">operation</span>
+<span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">retry</span>
+<span class="kn">from</span> <span class="nn">google.auth</span> <span class="kn">import</span> <span class="n">credentials</span> <span class="k">as</span> <span class="n">auth_credentials</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">initializer</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.compat.types</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">encryption_spec</span> <span class="k">as</span> <span class="n">gca_encryption_spec</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">google.cloud.aiplatform.constants</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">base_constants</span>
+<span class="kn">import</span> <span class="nn">proto</span>
+
+<span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">field_mask_pb2</span> <span class="k">as</span> <span class="n">field_mask</span>
+<span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">json_format</span>
+
+<span class="c1"># This is the default retry callback to be used with get methods.</span>
+<span class="n">_DEFAULT_RETRY</span> <span class="o">=</span> <span class="n">retry</span><span class="o">.</span><span class="n">Retry</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">VertexLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLoggerClass</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logging wrapper class with high level helper methods.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes logger with optional name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): Name to associate with logger.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_create_with_lro</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+        <span class="n">lro</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">operation</span><span class="o">.</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs create event with LRO.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls (VertexAiResourceNoun):</span>
+<span class="sd">                Vertex AI Resource Noun class that is being created.</span>
+<span class="sd">            lro (operation.Operation):</span>
+<span class="sd">                Optional. Backing LRO for creation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lro</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Create </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> backing LRO: </span><span class="si">{</span><span class="n">lro</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_create_complete</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
+        <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aiplatform&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs create event is complete.</span>
+
+<span class="sd">        Will also include code snippet to instantiate resource in SDK.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls (VertexAiResourceNoun):</span>
+<span class="sd">                Vertex AI Resource Noun class that is being created.</span>
+<span class="sd">            resource (proto.Message):</span>
+<span class="sd">                Vertex AI Resource proto.Message</span>
+<span class="sd">            variable_name (str):</span>
+<span class="sd">                Name of variable to use for code snippet.</span>
+<span class="sd">            module_name (str):</span>
+<span class="sd">                The module namespace under which the Vertex AI Resource Noun</span>
+<span class="sd">                is available. Defaults to `aiplatform`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> created. Resource name: </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;To use this </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> in another session:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(&#39;</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_create_complete_with_getter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
+        <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aiplatform&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs create event is complete.</span>
+
+<span class="sd">        Will also include code snippet to instantiate resource in SDK.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls (VertexAiResourceNoun):</span>
+<span class="sd">                Vertex AI Resource Noun class that is being created.</span>
+<span class="sd">            resource (proto.Message):</span>
+<span class="sd">                Vertex AI Resource proto.Message</span>
+<span class="sd">            variable_name (str):</span>
+<span class="sd">                Name of variable to use for code snippet.</span>
+<span class="sd">            module_name (str):</span>
+<span class="sd">                The module namespace under which the Vertex AI Resource Noun</span>
+<span class="sd">                is available. Defaults to `aiplatform`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> created. Resource name: </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;To use this </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> in another session:&quot;</span><span class="p">)</span>
+        <span class="n">usage_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.get(&#39;</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">usage_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_delete_with_lro</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+        <span class="n">lro</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">operation</span><span class="o">.</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs delete event with LRO.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource: Vertex AI resource that will be deleted.</span>
+<span class="sd">            lro: Backing LRO for creation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Deleting </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> resource: </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">resource_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lro</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Delete </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> backing LRO: </span><span class="si">{</span><span class="n">lro</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_delete_complete</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs delete event is complete.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource: Vertex AI resource that was deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> resource </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">resource_name</span><span class="si">}</span><span class="s2"> deleted.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_action_start_against_resource</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">noun</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_noun_obj</span><span class="p">:</span> <span class="s2">&quot;VertexAiResourceNoun&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs intention to start an action against a resource.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            action (str): Action to complete against the resource ie: &quot;Deploying&quot;. Can be empty string.</span>
+<span class="sd">            noun (str): Noun the action acts on against the resource. Can be empty string.</span>
+<span class="sd">            resource_noun_obj (VertexAiResourceNoun):</span>
+<span class="sd">                Resource noun object the action is acting against.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">resource_noun_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">noun</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">resource_noun_obj</span><span class="o">.</span><span class="n">resource_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_action_started_against_resource_with_lro</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">noun</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;VertexAiResourceNoun&quot;</span><span class="p">],</span>
+        <span class="n">lro</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="n">Operation</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs an action started against a resource with lro.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            action (str): Action started against resource. ie: &quot;Deploy&quot;. Can be empty string.</span>
+<span class="sd">            noun (str): Noun the action acts on against the resource. Can be empty string.</span>
+<span class="sd">            cls (VertexAiResourceNoun):</span>
+<span class="sd">                Resource noun object the action is acting against.</span>
+<span class="sd">            lro (operation.Operation): Backing LRO for action.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">noun</span><span class="si">}</span><span class="s2"> backing LRO: </span><span class="si">{</span><span class="n">lro</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_action_completed_against_resource</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">noun</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_noun_obj</span><span class="p">:</span> <span class="s2">&quot;VertexAiResourceNoun&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs action completed against resource.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            noun (str): Noun the action acts on against the resource. Can be empty string.</span>
+<span class="sd">            action (str): Action started against resource. ie: &quot;Deployed&quot;. Can be empty string.</span>
+<span class="sd">            resource_noun_obj (VertexAiResourceNoun):</span>
+<span class="sd">                Resource noun object the action is acting against</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource_noun_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">noun</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">. Resource name: </span><span class="si">{</span><span class="n">resource_noun_obj</span><span class="o">.</span><span class="n">resource_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">Logger</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VertexLogger</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
+    <span class="n">old_class</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLoggerClass</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">setLoggerClass</span><span class="p">(</span><span class="n">VertexLogger</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># To avoid writing duplicate logs, skip adding the new handler if</span>
+        <span class="c1"># StreamHandler already exists in logger hierarchy.</span>
+        <span class="n">parent_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="k">while</span> <span class="n">parent_logger</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">parent_logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">logger</span>
+            <span class="n">parent_logger</span> <span class="o">=</span> <span class="n">parent_logger</span><span class="o">.</span><span class="n">parent</span>
+
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">logger</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">setLoggerClass</span><span class="p">(</span><span class="n">old_class</span><span class="p">)</span>
+
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FutureManager</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tracks concurrent futures against this object.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+        <span class="c1"># Always points to the latest future. All submitted futures will always</span>
+        <span class="c1"># form a dependency on the latest future.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Caches Exception of any executed future. Once one exception occurs</span>
+        <span class="c1"># all additional futures should fail and any additional invocations will block.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_raise_future_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises exception if one of the object&#39;s futures has raised.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span>
+
+    <span class="k">def</span> <span class="nf">_complete_future</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks for exception of future and removes the pointer if it&#39;s still</span>
+<span class="sd">        latest.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            future (futures.Future): Required. A future to complete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># raises</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span> <span class="o">=</span> <span class="n">e</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="ow">is</span> <span class="n">future</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_are_futures_done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to check to all futures are complete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if no latest future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method that blocks until all futures are complete.&quot;&quot;&quot;</span>
+        <span class="n">future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span>
+        <span class="k">if</span> <span class="n">future</span><span class="p">:</span>
+            <span class="n">futures</span><span class="o">.</span><span class="n">wait</span><span class="p">([</span><span class="n">future</span><span class="p">],</span> <span class="n">return_when</span><span class="o">=</span><span class="n">futures</span><span class="o">.</span><span class="n">FIRST_EXCEPTION</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raise_future_exception</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_latest_future</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the latest future if it exists.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span>
+
+    <span class="nd">@_latest_future</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_latest_future</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optionally set the latest future and add a complete_future</span>
+<span class="sd">        callback.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="o">=</span> <span class="n">future</span>
+        <span class="k">if</span> <span class="n">future</span><span class="p">:</span>
+            <span class="n">future</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_complete_future</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_submit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+        <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">additional_dependencies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">internal_callbacks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Submit a method as a future against this object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (Callable): Required. The method to submit.</span>
+<span class="sd">            args (Sequence): Required. The arguments to call the method with.</span>
+<span class="sd">            kwargs (dict): Required. The keyword arguments to call the method with.</span>
+<span class="sd">            additional_dependencies (Optional[Sequence[futures.Future]]):</span>
+<span class="sd">                Optional. Additional dependent futures to wait on before executing</span>
+<span class="sd">                method. Note: No validation is done on the dependencies.</span>
+<span class="sd">            callbacks (Optional[Sequence[Callable[[futures.Future], Any]]]):</span>
+<span class="sd">                Optional. Additional Future callbacks to execute once this created</span>
+<span class="sd">                Future is complete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            future (Future): Future of the submitted method call.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">wait_for_dependencies_and_invoke</span><span class="p">(</span>
+            <span class="n">deps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">],</span>
+            <span class="n">method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+            <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+            <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+            <span class="n">internal_callbacks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper method to wait on any dependencies before submitting</span>
+<span class="sd">            method.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                deps (Sequence[futures.Future]):</span>
+<span class="sd">                    Required. Dependent futures to wait on before executing method.</span>
+<span class="sd">                    Note: No validation is done on the dependencies.</span>
+<span class="sd">                method (Callable): Required. The method to submit.</span>
+<span class="sd">                args (Sequence[Any]): Required. The arguments to call the method with.</span>
+<span class="sd">                kwargs (Dict[str, Any]):</span>
+<span class="sd">                    Required. The keyword arguments to call the method with.</span>
+<span class="sd">                internal_callbacks: (Callable[[Any], Any]):</span>
+<span class="sd">                    Callbacks that take the result of method.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># call callbacks from within future</span>
+            <span class="k">if</span> <span class="n">internal_callbacks</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">internal_callbacks</span><span class="p">:</span>
+                    <span class="n">callback</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="c1"># Retrieves any dependencies from arguments.</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">_latest_future</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">FutureManager</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Retrieves exceptions and raises</span>
+        <span class="c1"># if any upstream dependency has an exception</span>
+        <span class="n">exceptions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">_exception</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">FutureManager</span><span class="p">)</span> <span class="ow">and</span> <span class="n">arg</span><span class="o">.</span><span class="n">_exception</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">exceptions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># filter out objects that do not have pending tasks</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">deps</span> <span class="k">if</span> <span class="n">dep</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">additional_dependencies</span><span class="p">:</span>
+            <span class="n">deps</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">additional_dependencies</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future_lock</span><span class="p">:</span>
+
+            <span class="c1"># form a dependency on the latest future of this object</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span><span class="p">:</span>
+                <span class="n">deps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span> <span class="o">=</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                <span class="n">wait_for_dependencies_and_invoke</span><span class="p">,</span>
+                <span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="n">internal_callbacks</span><span class="o">=</span><span class="n">internal_callbacks</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span>
+
+        <span class="c1"># Clean up callback captures exception as well as removes future.</span>
+        <span class="c1"># May execute immediately and take lock.</span>
+
+        <span class="n">future</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_complete_future</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">callbacks</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">future</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_empty_constructor</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FutureManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Should construct object with all non FutureManager attributes as</span>
+<span class="sd">        None.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_sync_object_with_future_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="s2">&quot;FutureManager&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Should sync the object from _empty_constructor with result of</span>
+<span class="sd">        future.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">object</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> failed with </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__latest_future</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">object</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> is waiting for upstream dependencies to complete.&quot;</span>
+
+        <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">VertexAiResourceNoun</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class the Vertex AI resource nouns.</span>
+
+<span class="sd">    Subclasses require two class attributes:</span>
+
+<span class="sd">    client_class: The client to instantiate to interact with this resource noun.</span>
+
+<span class="sd">    Subclass is required to populate private attribute _gca_resource which is the</span>
+<span class="sd">    service representation of the resource noun.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">client_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">VertexAiServiceClientWithOverride</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Client class required to interact with resource with optional</span>
+<span class="sd">        overrides.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_getter_method</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of getter method of client class for retrieving the</span>
+<span class="sd">        resource.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_delete_method</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of delete method of client class for deleting the resource.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_resource_noun</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resource noun.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_resource_name_method</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method name on GAPIC client to parse a resource name.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_format_resource_name_method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method name on GAPIC client to format a resource name.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Override this value with staticmethod</span>
+    <span class="c1"># to use custom resource id validators per resource</span>
+    <span class="n">_resource_id_validator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_revisioned_resource_id_validator</span><span class="p">(</span>
+        <span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Some revisioned resource names can have &#39;@&#39; in them</span>
+<span class="sd">        to separate the resource ID from the revision ID.</span>
+<span class="sd">        Thus, they need their own resource id validator.</span>
+<span class="sd">        See https://google.aip.dev/162</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource_id(str): A resource ID for a resource type that accepts revision syntax.</span>
+<span class="sd">                See https://google.aip.dev/162.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If a `resource_id` doesn&#39;t conform to appropriate revision syntax.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[\w-]+@?[\w-]+$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">resource_id</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s2"> is not a valid resource ID.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes class with project, location, and api_client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project(str): Project of the resource noun.</span>
+<span class="sd">            location(str): The location of the resource noun.</span>
+<span class="sd">            credentials(google.auth.credentials.Credentials): Optional custom</span>
+<span class="sd">                credentials to use when accessing interacting with resource noun.</span>
+<span class="sd">            resource_name(str): A fully-qualified resource name or ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">resource_name</span><span class="p">:</span>
+            <span class="n">project</span><span class="p">,</span> <span class="n">location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_and_validate_project_location</span><span class="p">(</span>
+                <span class="n">resource_name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span> <span class="ow">or</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">project</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span> <span class="ow">or</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span> <span class="ow">or</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">credentials</span>
+
+        <span class="n">appended_user_agent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">base_constants</span><span class="o">.</span><span class="n">USER_AGENT_SDK_COMMAND</span><span class="p">:</span>
+            <span class="n">appended_user_agent</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;sdk_command/</span><span class="si">{</span><span class="n">base_constants</span><span class="o">.</span><span class="n">USER_AGENT_SDK_COMMAND</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span>
+            <span class="c1"># Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.</span>
+            <span class="n">base_constants</span><span class="o">.</span><span class="n">USER_AGENT_SDK_COMMAND</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_client</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">appended_user_agent</span><span class="o">=</span><span class="n">appended_user_agent</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_instantiate_client</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">appended_user_agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">utils</span><span class="o">.</span><span class="n">VertexAiServiceClientWithOverride</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to instantiate service client for resource noun.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            location (str): The location of the resource noun.</span>
+<span class="sd">            credentials (google.auth.credentials.Credentials):</span>
+<span class="sd">                Optional custom credentials to use when accessing interacting with</span>
+<span class="sd">                resource noun.</span>
+<span class="sd">            appended_user_agent (List[str]):</span>
+<span class="sd">                Optional. User agent appended in the client info. If more than one,</span>
+<span class="sd">                it will be separated by spaces.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            client (utils.VertexAiServiceClientWithOverride):</span>
+<span class="sd">                Initialized service client for this service noun with optional overrides.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span>
+            <span class="n">client_class</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">client_class</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">location_override</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">appended_user_agent</span><span class="o">=</span><span class="n">appended_user_agent</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_resource_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses resource name into its component segments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource_name: Resource name of this resource.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary of component segments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># gets the underlying wrapped gapic client class</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">client_class</span><span class="o">.</span><span class="n">get_gapic_client_class</span><span class="p">(),</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_resource_name_method</span>
+        <span class="p">)(</span><span class="n">resource_name</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_format_resource_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats a resource name using its component segments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Resource name parts. Singular and snake case. ie:</span>
+<span class="sd">            format_resource_name(</span>
+<span class="sd">                project=&#39;my-project&#39;,</span>
+<span class="sd">                location=&#39;us-central1&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Resource name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># gets the underlying wrapped gapic client class</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">client_class</span><span class="o">.</span><span class="n">get_gapic_client_class</span><span class="p">(),</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_format_resource_name_method</span>
+        <span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_and_validate_project_location</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the project and location for the resource.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource_name(str): Required. A fully-qualified resource name or ID.</span>
+<span class="sd">            project(str): Project of the resource noun.</span>
+<span class="sd">            location(str): The location of the resource noun.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If location is different from resource location</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_resource_name</span><span class="p">(</span><span class="n">resource_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">project</span><span class="p">,</span> <span class="n">location</span>
+
+        <span class="k">if</span> <span class="n">location</span> <span class="ow">and</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">location</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;location </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2"> is provided, but different from &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;the resource location </span><span class="si">{</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">],</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_gca_resource</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parent_resource_name_fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns GAPIC service representation of client class resource.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resource_name (str): Required. A fully-qualified resource name or ID.</span>
+<span class="sd">            parent_resource_name_fields (Dict[str,str]):</span>
+<span class="sd">                Optional. Mapping of parent resource name key to values. These</span>
+<span class="sd">                will be used to compose the resource name if only resource ID is given.</span>
+<span class="sd">                Should not include project and location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resource_name</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_resource_name</span><span class="p">(</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span>
+            <span class="n">resource_noun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_resource_noun</span><span class="p">,</span>
+            <span class="n">parse_resource_name_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_resource_name</span><span class="p">,</span>
+            <span class="n">format_resource_name_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_resource_name</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">parent_resource_name_fields</span><span class="o">=</span><span class="n">parent_resource_name_fields</span><span class="p">,</span>
+            <span class="n">resource_id_validator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_resource_id_validator</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getter_method</span><span class="p">)(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">retry</span><span class="o">=</span><span class="n">_DEFAULT_RETRY</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sync_gca_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sync GAPIC service representation of client class resource.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_gca_resource</span><span class="p">(</span><span class="n">resource_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this resource.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_project_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the tuple of project id and project inferred from the local instance.</span>
+
+<span class="sd">        Another option is to use resource_manager_utils but requires the caller have resource manager</span>
+<span class="sd">        get role.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># we may not have the project if project inferred from the resource name</span>
+        <span class="n">maybe_project_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">project_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_resource_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="s2">&quot;project&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">project_no</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">maybe_project_id</span> <span class="o">==</span> <span class="n">project_no</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_no</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">maybe_project_id</span><span class="p">,</span> <span class="n">project_no</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">resource_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Full qualified resource name.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">display_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display name of this resource.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">display_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">create_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time this resource was created.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">create_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">update_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time this resource was last updated.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_gca_resource</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">update_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">encryption_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gca_encryption_spec</span><span class="o">.</span><span class="n">EncryptionSpec</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Customer-managed encryption key options for this Vertex AI resource.</span>
+
+<span class="sd">        If this is set, then all resources created by this Vertex AI resource will</span>
+<span class="sd">        be encrypted with the provided encryption key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span> <span class="s2">&quot;encryption_spec&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;User-defined labels containing metadata about this resource.</span>
+
+<span class="sd">        Read more about labels at https://goo.gl/xmQnxf</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gca_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The underlying resource proto representation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_resource_is_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if GCA resource has been created and is available, otherwise False&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_gca_resource_is_available</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_assert_gca_resource_is_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to raise when property is not accessible.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If _gca_resource is has not been created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> resource has not been created&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">object</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">resource name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the resource proto as a dictionary.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">json_format</span><span class="o">.</span><span class="n">MessageToDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">_pb</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_generate_display_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a display name containing class name and time string.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">optional_sync</span><span class="p">(</span>
+    <span class="n">construct_object_on_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_input_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bind_future_to_self</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for VertexAiResourceNounWithFutureManager with optional sync</span>
+<span class="sd">    support.</span>
+
+<span class="sd">    Methods with this decorator should include a &quot;sync&quot; argument that defaults to</span>
+<span class="sd">    True. If called with sync=False this decorator will launch the method as a</span>
+<span class="sd">    concurrent Future in a separate Thread.</span>
+
+<span class="sd">    Note that this is only robust enough to support our current end to end patterns</span>
+<span class="sd">    and may not be suitable for new patterns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        construct_object_on_arg (str):</span>
+<span class="sd">            Optional. If provided, will only construct output object if arg is present.</span>
+<span class="sd">            Example: If custom training does not produce a model.</span>
+<span class="sd">        return_input_arg (str):</span>
+<span class="sd">            Optional. If provided will return passed in argument instead of</span>
+<span class="sd">            constructing.</span>
+<span class="sd">            Example: Model.deploy(Endpoint) returns the passed in Endpoint</span>
+<span class="sd">        bind_future_to_self (bool):</span>
+<span class="sd">            Whether to add this future to the calling object.</span>
+<span class="sd">            Example: Model.deploy(Endpoint) would be set to False because we only</span>
+<span class="sd">            want the deployment Future to be associated with Endpoint.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">optional_run_in_thread</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optionally run this method concurrently in separate Thread.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (Callable[..., Any]): Method to optionally run in separate Thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Wraps method.&quot;&quot;&quot;</span>
+            <span class="n">sync</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sync&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">bound_args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="n">bound_args</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self&quot;</span><span class="p">)</span>
+            <span class="n">calling_object_latest_future</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># check to see if this object has any exceptions</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">calling_object_latest_future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latest_future</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_raise_future_exception</span><span class="p">()</span>
+
+            <span class="c1"># if sync then wait for any Futures to complete and execute</span>
+            <span class="k">if</span> <span class="n">sync</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="n">VertexAiResourceNounWithFutureManager</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># callbacks to call within the Future (in same Thread)</span>
+            <span class="n">internal_callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># callbacks to add to the Future (may or may not be in same Thread)</span>
+            <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># additional Future dependencies to capture</span>
+            <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># all methods should have type signatures</span>
+            <span class="n">return_type</span> <span class="o">=</span> <span class="n">get_annotation_class</span><span class="p">(</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="s2">&quot;return&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># object produced by the method</span>
+            <span class="n">returned_object</span> <span class="o">=</span> <span class="n">bound_args</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">return_input_arg</span><span class="p">)</span>
+
+            <span class="c1"># is a classmethod that creates the object and returns it</span>
+            <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+
+                <span class="c1"># assumes class in classmethod is the resource noun</span>
+                <span class="n">returned_object</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_empty_constructor</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">returned_object</span>
+                    <span class="k">else</span> <span class="n">returned_object</span>
+                <span class="p">)</span>
+                <span class="bp">self</span> <span class="o">=</span> <span class="n">returned_object</span>
+
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># instance method</span>
+                <span class="c1"># if we&#39;re returning an input object</span>
+                <span class="k">if</span> <span class="n">returned_object</span> <span class="ow">and</span> <span class="n">returned_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+
+                    <span class="c1"># make sure the input object doesn&#39;t have any exceptions</span>
+                    <span class="c1"># from previous futures</span>
+                    <span class="n">returned_object</span><span class="o">.</span><span class="n">_raise_future_exception</span><span class="p">()</span>
+
+                    <span class="c1"># if the future will be associated with both the returned object</span>
+                    <span class="c1"># and calling object then we need to add additional callback</span>
+                    <span class="c1"># to remove the future from the returned object</span>
+
+                <span class="c1"># if we need to construct a new empty returned object</span>
+                <span class="n">should_construct</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">returned_object</span> <span class="ow">and</span> <span class="n">bound_args</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">construct_object_on_arg</span><span class="p">,</span> <span class="ow">not</span> <span class="n">construct_object_on_arg</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">should_construct</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">return_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">returned_object</span> <span class="o">=</span> <span class="n">return_type</span><span class="o">.</span><span class="n">_empty_constructor</span><span class="p">()</span>
+
+                <span class="c1"># if the future will be associated with both the returned object</span>
+                <span class="c1"># and calling object then we need to add additional callback</span>
+                <span class="c1"># to remove the future from the returned object</span>
+                <span class="k">if</span> <span class="n">returned_object</span> <span class="ow">and</span> <span class="n">bind_future_to_self</span><span class="p">:</span>
+                    <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">returned_object</span><span class="o">.</span><span class="n">_complete_future</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">returned_object</span><span class="p">:</span>
+                <span class="c1"># sync objects after future completes</span>
+                <span class="n">internal_callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">returned_object</span><span class="o">.</span><span class="n">_sync_object_with_future_result</span>
+                <span class="p">)</span>
+
+            <span class="c1"># If the future is not associated with the calling object</span>
+            <span class="c1"># then the return object future needs to form a dependency on the</span>
+            <span class="c1"># the latest future in the calling object.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">bind_future_to_self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">calling_object_latest_future</span><span class="p">:</span>
+                    <span class="n">dependencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calling_object_latest_future</span><span class="p">)</span>
+                <span class="bp">self</span> <span class="o">=</span> <span class="n">returned_object</span>
+
+            <span class="n">future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submit</span><span class="p">(</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+                <span class="n">internal_callbacks</span><span class="o">=</span><span class="n">internal_callbacks</span><span class="p">,</span>
+                <span class="n">additional_dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[],</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">bound_args</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># if the calling object is the one that submitted then add it&#39;s future</span>
+            <span class="c1"># to the returned object</span>
+            <span class="k">if</span> <span class="n">returned_object</span> <span class="ow">and</span> <span class="n">returned_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">returned_object</span><span class="o">.</span><span class="n">_latest_future</span> <span class="o">=</span> <span class="n">future</span>
+
+            <span class="k">return</span> <span class="n">returned_object</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">optional_run_in_thread</span>
+
+
+<span class="k">class</span> <span class="nc">_VertexAiResourceNounPlus</span><span class="p">(</span><span class="n">VertexAiResourceNoun</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_empty_constructor</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_VertexAiResourceNounPlus&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes with all attributes set to None.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project (str): Optional. Project of the resource noun.</span>
+<span class="sd">            location (str): Optional. The location of the resource noun.</span>
+<span class="sd">            credentials(google.auth.credentials.Credentials):</span>
+<span class="sd">                Optional. custom credentials to use when accessing interacting with</span>
+<span class="sd">                resource noun.</span>
+<span class="sd">            resource_name(str): A fully-qualified resource name or ID.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            An instance of this class with attributes set to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">VertexAiResourceNoun</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_construct_sdk_resource_from_gapic</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">gapic_resource</span><span class="p">:</span> <span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VertexAiResourceNoun</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a GAPIC resource object, return the SDK representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gapic_resource (proto.Message):</span>
+<span class="sd">                A GAPIC representation of a Vertex AI resource, usually</span>
+<span class="sd">                retrieved by a get_* or in a list_* API call.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project to construct SDK object from. If not set,</span>
+<span class="sd">                project set in aiplatform.init will be used.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location to construct SDK object from. If not set,</span>
+<span class="sd">                location set in aiplatform.init will be used.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials to use to construct SDK object.</span>
+<span class="sd">                Overrides credentials set in aiplatform.init.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            VertexAiResourceNoun:</span>
+<span class="sd">                An initialized SDK object that represents GAPIC type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resource_name_parts</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">extract_project_and_location_from_parent</span><span class="p">(</span>
+            <span class="n">gapic_resource</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="n">sdk_resource</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_empty_constructor</span><span class="p">(</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">resource_name_parts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">resource_name_parts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sdk_resource</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="o">=</span> <span class="n">gapic_resource</span>
+        <span class="k">return</span> <span class="n">sdk_resource</span>
+
+    <span class="c1"># TODO(b/144545165): Improve documentation for list filtering once available</span>
+    <span class="c1"># TODO(b/184910159): Expose `page_size` field in list method</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_list</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">cls_filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="nb">filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">order_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">read_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">field_mask</span><span class="o">.</span><span class="n">FieldMask</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VertexAiResourceNoun</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Private method to list all instances of this Vertex AI Resource,</span>
+<span class="sd">        takes a `cls_filter` arg to filter to a particular SDK resource</span>
+<span class="sd">        subclass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls_filter (Callable[[proto.Message], bool]):</span>
+<span class="sd">                A function that takes one argument, a GAPIC resource, and returns</span>
+<span class="sd">                a bool. If the function returns False, that resource will be</span>
+<span class="sd">                excluded from the returned list. Example usage:</span>
+<span class="sd">                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas</span>
+<span class="sd">            filter (str):</span>
+<span class="sd">                Optional. An expression for filtering the results of the request.</span>
+<span class="sd">                For field names both snake_case and camelCase are supported.</span>
+<span class="sd">            order_by (str):</span>
+<span class="sd">                Optional. A comma-separated list of fields to order by, sorted in</span>
+<span class="sd">                ascending order. Use &quot;desc&quot; after a field name for descending.</span>
+<span class="sd">                Supported fields: `display_name`, `create_time`, `update_time`</span>
+<span class="sd">            read_mask (field_mask.FieldMask):</span>
+<span class="sd">                Optional. A FieldMask with a list of strings passed via `paths`</span>
+<span class="sd">                indicating which fields to return for each resource in the response.</span>
+<span class="sd">                For example, passing</span>
+<span class="sd">                field_mask.FieldMask(paths=[&quot;create_time&quot;, &quot;update_time&quot;])</span>
+<span class="sd">                as `read_mask` would result in each returned VertexAiResourceNoun</span>
+<span class="sd">                in the result list only having the &quot;create_time&quot; and</span>
+<span class="sd">                &quot;update_time&quot; attributes.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project to retrieve list from. If not set, project</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location to retrieve list from. If not set, location</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials to use to retrieve list. Overrides</span>
+<span class="sd">                credentials set in aiplatform.init.</span>
+<span class="sd">            parent (str):</span>
+<span class="sd">                Optional. The parent resource name if any to retrieve resource list from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[VertexAiResourceNoun] - A list of SDK resource objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="n">parent_resources</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">extract_project_and_location_from_parent</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parent_resources</span><span class="p">:</span>
+                <span class="n">project</span><span class="p">,</span> <span class="n">location</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">parent_resources</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">],</span>
+                    <span class="n">parent_resources</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_empty_constructor</span><span class="p">(</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fetch credentials once and re-use for all `_empty_constructor()` calls</span>
+        <span class="n">creds</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">credentials</span>
+
+        <span class="n">resource_list_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">api_client</span><span class="p">,</span> <span class="n">resource</span><span class="o">.</span><span class="n">_list_method</span><span class="p">)</span>
+
+        <span class="n">list_request</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="n">parent</span>
+            <span class="ow">or</span> <span class="n">initializer</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">common_location_path</span><span class="p">(</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># `read_mask` is only passed from PipelineJob.list() for now</span>
+        <span class="k">if</span> <span class="n">read_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">list_request</span><span class="p">[</span><span class="s2">&quot;read_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_mask</span>
+
+        <span class="k">if</span> <span class="nb">filter</span><span class="p">:</span>
+            <span class="n">list_request</span><span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">filter</span>
+
+        <span class="k">if</span> <span class="n">order_by</span><span class="p">:</span>
+            <span class="n">list_request</span><span class="p">[</span><span class="s2">&quot;order_by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">order_by</span>
+
+        <span class="n">resource_list</span> <span class="o">=</span> <span class="n">resource_list_method</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">list_request</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_construct_sdk_resource_from_gapic</span><span class="p">(</span>
+                <span class="n">gapic_resource</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">gapic_resource</span> <span class="ow">in</span> <span class="n">resource_list</span>
+            <span class="k">if</span> <span class="n">cls_filter</span><span class="p">(</span><span class="n">gapic_resource</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_list_with_local_order</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">cls_filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">proto</span><span class="o">.</span><span class="n">Message</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="nb">filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">order_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">read_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">field_mask</span><span class="o">.</span><span class="n">FieldMask</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VertexAiResourceNoun</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Private method to list all instances of this Vertex AI Resource,</span>
+<span class="sd">        takes a `cls_filter` arg to filter to a particular SDK resource</span>
+<span class="sd">        subclass. Provides client-side sorting when a list API doesn&#39;t support</span>
+<span class="sd">        `order_by`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls_filter (Callable[[proto.Message], bool]):</span>
+<span class="sd">                A function that takes one argument, a GAPIC resource, and returns</span>
+<span class="sd">                a bool. If the function returns False, that resource will be</span>
+<span class="sd">                excluded from the returned list. Example usage:</span>
+<span class="sd">                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas</span>
+<span class="sd">            filter (str):</span>
+<span class="sd">                Optional. An expression for filtering the results of the request.</span>
+<span class="sd">                For field names both snake_case and camelCase are supported.</span>
+<span class="sd">            order_by (str):</span>
+<span class="sd">                Optional. A comma-separated list of fields to order by, sorted in</span>
+<span class="sd">                ascending order. Use &quot;desc&quot; after a field name for descending.</span>
+<span class="sd">                Supported fields: `display_name`, `create_time`, `update_time`</span>
+<span class="sd">            read_mask (field_mask.FieldMask):</span>
+<span class="sd">                Optional. A FieldMask with a list of strings passed via `paths`</span>
+<span class="sd">                indicating which fields to return for each resource in the response.</span>
+<span class="sd">                For example, passing</span>
+<span class="sd">                field_mask.FieldMask(paths=[&quot;create_time&quot;, &quot;update_time&quot;])</span>
+<span class="sd">                as `read_mask` would result in each returned VertexAiResourceNoun</span>
+<span class="sd">                in the result list only having the &quot;create_time&quot; and</span>
+<span class="sd">                &quot;update_time&quot; attributes.</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project to retrieve list from. If not set, project</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location to retrieve list from. If not set, location</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials to use to retrieve list. Overrides</span>
+<span class="sd">                credentials set in aiplatform.init.</span>
+<span class="sd">            parent (str):</span>
+<span class="sd">                Optional. The parent resource name if any to retrieve resource list from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[VertexAiResourceNoun] - A list of SDK resource objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">li</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_list</span><span class="p">(</span>
+            <span class="n">cls_filter</span><span class="o">=</span><span class="n">cls_filter</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
+            <span class="n">order_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># This method will handle the ordering locally</span>
+            <span class="n">read_mask</span><span class="o">=</span><span class="n">read_mask</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">order_by</span><span class="p">:</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;desc&quot;</span> <span class="ow">in</span> <span class="n">order_by</span>
+            <span class="n">order_by</span> <span class="o">=</span> <span class="n">order_by</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;desc&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">order_by</span> <span class="o">=</span> <span class="n">order_by</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+
+            <span class="n">li</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">order_by</span><span class="p">),</span>
+                <span class="n">reverse</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">li</span>
+
+    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes this Vertex AI resource. WARNING: This deletion is permanent.&quot;&quot;&quot;</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">log_action_start_against_resource</span><span class="p">(</span><span class="s2">&quot;Deleting&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">lro</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_method</span><span class="p">)(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name</span><span class="p">)</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">log_action_started_against_resource_with_lro</span><span class="p">(</span>
+            <span class="s2">&quot;Delete&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">lro</span>
+        <span class="p">)</span>
+        <span class="n">lro</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">log_action_completed_against_resource</span><span class="p">(</span><span class="s2">&quot;deleted.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">VertexAiResourceNounWithFutureManager</span><span class="p">(</span><span class="n">_VertexAiResourceNounPlus</span><span class="p">,</span> <span class="n">FutureManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allows optional asynchronous calls to this Vertex AI Resource</span>
+<span class="sd">    Nouns.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes class with project, location, and api_client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project (str): Optional. Project of the resource noun.</span>
+<span class="sd">            location (str): Optional. The location of the resource noun.</span>
+<span class="sd">            credentials(google.auth.credentials.Credentials):</span>
+<span class="sd">                Optional. custom credentials to use when accessing interacting with</span>
+<span class="sd">                resource noun.</span>
+<span class="sd">            resource_name(str): A fully-qualified resource name or ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_VertexAiResourceNounPlus</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">FutureManager</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_empty_constructor</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resource_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VertexAiResourceNounWithFutureManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes with all attributes set to None.</span>
+
+<span class="sd">        The attributes should be populated after a future is complete. This allows</span>
+<span class="sd">        scheduling of additional API calls before the resource is created.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            project (str): Optional. Project of the resource noun.</span>
+<span class="sd">            location (str): Optional. The location of the resource noun.</span>
+<span class="sd">            credentials(google.auth.credentials.Credentials):</span>
+<span class="sd">                Optional. custom credentials to use when accessing interacting with</span>
+<span class="sd">                resource noun.</span>
+<span class="sd">            resource_name(str): A fully-qualified resource name or ID.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            An instance of this class with attributes set to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">VertexAiResourceNoun</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">resource_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">FutureManager</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_sync_object_with_future_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="s2">&quot;VertexAiResourceNounWithFutureManager&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates attributes from a Future result to this object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            result: VertexAiResourceNounWithFutureManager</span>
+<span class="sd">                Required. Result of future with same type as this object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sync_attributes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;api_client&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_gca_resource&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;credentials&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">optional_sync_attributes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;_authorized_session&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_raw_predict_request_url&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">sync_attributes</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">attribute</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">optional_sync_attributes</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="nb">filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">order_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">auth_credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VertexAiResourceNoun</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List all instances of this Vertex AI Resource.</span>
+
+<span class="sd">        Example Usage:</span>
+
+<span class="sd">        aiplatform.BatchPredictionJobs.list(</span>
+<span class="sd">            filter=&#39;state=&quot;JOB_STATE_SUCCEEDED&quot; AND display_name=&quot;my_job&quot;&#39;,</span>
+<span class="sd">        )</span>
+
+<span class="sd">        aiplatform.Model.list(order_by=&quot;create_time desc, display_name&quot;)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filter (str):</span>
+<span class="sd">                Optional. An expression for filtering the results of the request.</span>
+<span class="sd">                For field names both snake_case and camelCase are supported.</span>
+<span class="sd">            order_by (str):</span>
+<span class="sd">                Optional. A comma-separated list of fields to order by, sorted in</span>
+<span class="sd">                ascending order. Use &quot;desc&quot; after a field name for descending.</span>
+<span class="sd">                Supported fields: `display_name`, `create_time`, `update_time`</span>
+<span class="sd">            project (str):</span>
+<span class="sd">                Optional. Project to retrieve list from. If not set, project</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            location (str):</span>
+<span class="sd">                Optional. Location to retrieve list from. If not set, location</span>
+<span class="sd">                set in aiplatform.init will be used.</span>
+<span class="sd">            credentials (auth_credentials.Credentials):</span>
+<span class="sd">                Optional. Custom credentials to use to retrieve list. Overrides</span>
+<span class="sd">                credentials set in aiplatform.init.</span>
+<span class="sd">            parent (str):</span>
+<span class="sd">                Optional. The parent resource name if any to retrieve list from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[VertexAiResourceNoun] - A list of SDK resource objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_list</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
+            <span class="n">order_by</span><span class="o">=</span><span class="n">order_by</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@optional_sync</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes this Vertex AI resource. WARNING: This deletion is</span>
+<span class="sd">        permanent.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sync (bool):</span>
+<span class="sd">                Whether to execute this deletion synchronously. If False, this method</span>
+<span class="sd">                will be executed in concurrent Future and any downstream object will</span>
+<span class="sd">                be immediately returned and synced when the Future has completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_is_available</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">VertexAiResourceNoun</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FutureManager</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_wait_for_resource_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait until underlying resource is created.</span>
+
+<span class="sd">        Currently this should only be used on subclasses that implement the construct then</span>
+<span class="sd">        `run` pattern because the underlying sync=False implementation will not update</span>
+<span class="sd">        downstream resource noun object&#39;s _gca_resource until the entire invoked method is complete.</span>
+
+<span class="sd">        Ex:</span>
+<span class="sd">        job = CustomTrainingJob()</span>
+<span class="sd">        job.run(sync=False, ...)</span>
+<span class="sd">        job._wait_for_resource_creation()</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the resource has not been scheduled to be created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If the user calls this but didn&#39;t actually invoke an API to create</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_are_futures_done</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raise_future_exception</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> resource is not scheduled to be created.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="c1"># breaks out of loop if creation has failed async</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_are_futures_done</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_raise_future_exception</span><span class="p">()</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_assert_gca_resource_is_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to raise when accessing properties that do not exist.</span>
+
+<span class="sd">        Overrides VertexAiResourceNoun to provide a more informative exception if</span>
+<span class="sd">        resource creation has failed asynchronously.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: When resource has not been created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> resource has not been created.&quot;</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot; Resource failed with: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span>
+                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_annotation_class</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper method to retrieve type annotation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        annotation (type): Type hint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># typing.Optional</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="s2">&quot;__origin__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Union</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">annotation</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">annotation</span>
+
+
+<span class="k">class</span> <span class="nc">DoneMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract class for implementing a done method, indicating</span>
+<span class="sd">    whether a job has completed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method indicating whether a job has completed.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">StatefulResource</span><span class="p">(</span><span class="n">DoneMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extends DoneMixin to check whether a job returning a stateful resource has compted.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The current state of the job.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_valid_done_states</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A set() containing all job states associated with a completed job.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method indicating whether a job has completed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the job has completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_done_states</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">class</span> <span class="nc">VertexAiStatefulResource</span><span class="p">(</span><span class="n">VertexAiResourceNounWithFutureManager</span><span class="p">,</span> <span class="n">StatefulResource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extends StatefulResource to include a check for self._gca_resource.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method indicating whether a job has completed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the job has completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gca_resource</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="c1"># PreviewClass type variable</span>
+<span class="n">PreviewClass</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;PreviewClass&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">VertexAiResourceNoun</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PreviewMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract class for adding preview functionality to certain classes.</span>
+<span class="sd">    A child class that inherits from both this Mixin and another parent</span>
+<span class="sd">    class allows the child class to introduce preview features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_preview_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PreviewClass</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">PreviewClass</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Class that is currently in preview or has a preview feature.</span>
+<span class="sd">        Class must have `resource_name` and `credentials` attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PreviewClass</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exposes features available in preview for this class.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_preview_instance&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preview_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preview_class</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">credentials</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preview_instance</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">google-cloud-aiplatform</a></h1>
+
+
+
+<p class="blurb">Google Cloud Client Libraries for google-cloud-aiplatform</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=googleapis&repo=python-aiplatform&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vertexai/services.html">Vertex AI SDK</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2019, Google.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/googleapis/python-aiplatform" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
