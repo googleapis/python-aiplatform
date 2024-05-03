@@ -14,13 +14,16 @@
 #
 
 from typing import Optional
-
+import warnings
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from vertexai.preview._workflow.executor import (
     persistent_resource_util,
 )
-from vertexai.preview._workflow.shared import configs
+from vertexai.preview._workflow.shared import (
+    configs,
+    constants,
+)
 
 
 _LOGGER = base.Logger(__name__)
@@ -30,6 +33,7 @@ class _Config:
     """Store common configurations and current workflow for remote execution."""
 
     def __init__(self):
+        warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
         self._remote = False
         self._cluster = None
 
