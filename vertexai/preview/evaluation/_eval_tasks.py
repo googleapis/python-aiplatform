@@ -76,7 +76,7 @@ class EvalTask:
     Metrics Details:
         The supported metrics, metric bundle descriptions, grading rubrics, and
         the required input fields can be found on the Vertex AI public
-        documentation.
+        documentation page [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
     Usage:
         1. To perform bring your own prediction evaluation, provide the model
@@ -205,6 +205,7 @@ class EvalTask:
                     "tool_call_quality",
                 ],
                 metrics_base.CustomMetric,
+                metrics_base.PairwiseMetric,
             ]
         ],
         experiment: Optional[str] = None,
@@ -225,8 +226,9 @@ class EvalTask:
                         (e.g., 'gs://bucket/data.csv').
                     * BigQuery table URI: Loaded from Google Cloud BigQuery
                         (e.g., 'bq://project-id.dataset.table_name').
-            metrics: The list of metrics names to be evaluated, or a metrics
-                bundle for an evaluation task, or custom metric instances.
+            metrics: The list of metric names, or metric bundle names, or
+                CustomMetric instances, or PairwiseMetric instances to evaluate.
+                Prompt template is required for PairwiseMetric.
             experiment: The name of the experiment to log the evaluations to.
             content_column_name: The column name of content in the dataset to send to
                 the model. If not set, default to `content`.
