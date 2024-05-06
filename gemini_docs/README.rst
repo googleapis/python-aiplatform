@@ -93,7 +93,7 @@ Vertex AI SDK preview functionality can be used by importing the following names
 Usage
 ^^^^^
 
-For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal) and [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
+For detailed instructions, see `quickstart <http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal>`_ and `Introduction to multimodal classes in the Vertex AI SDK <http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference>`_.
 
 Imports
 ^^^^^^^
@@ -133,11 +133,11 @@ Using images and videos
   video_part = Part.from_uri("gs://cloud-samples-data/video/animals.mp4", mime_type="video/mp4")
   print(vision_model.generate_content(["What is in the video? ", video_part]))
 
-
 Chat
 ^^^^
 
 .. code-block:: Python
+
   from vertexai.generative_models import GenerativeModel, Image
   vision_model = GenerativeModel("gemini-ultra-vision")
   vision_chat = vision_model.start_chat()
@@ -150,6 +150,7 @@ System instructions
 ^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: Python
+
   from vertexai.generative_models import GenerativeModel
   model = GenerativeModel(
       "gemini-1.0-pro",
@@ -165,6 +166,7 @@ Function calling
 ^^^^^^^^^^^^^^^^
 
 .. code-block:: Python
+
   # First, create tools that the model is can use to answer your questions.
   # Describe a function by specifying it's schema (JsonSchema format)
   get_current_weather_func = generative_models.FunctionDeclaration(
@@ -220,6 +222,7 @@ Automatic Function calling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: Python
+
   from vertexai..preview generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
 
   # First, create functions that the model is can use to answer your questions.
