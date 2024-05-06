@@ -82,6 +82,7 @@ _METRICS_BUNDLE_TO_METRIC_NAMES = {
 }
 _SUCCESSFUL_FINISH_REASONS = [
     gapic_content_types.Candidate.FinishReason.STOP,
+    gapic_content_types.Candidate.FinishReason.MAX_TOKENS,
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
 ]
