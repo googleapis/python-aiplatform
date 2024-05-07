@@ -43,6 +43,7 @@ from google.cloud.aiplatform.compat.services import (
     extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
     feature_online_store_service_client_v1beta1,
+    feature_registry_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -71,6 +72,7 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client_v1,
     feature_online_store_admin_service_client_v1,
     feature_online_store_service_client_v1,
+    feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -100,6 +102,7 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1beta1.EndpointServiceClient,
     feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
     feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
+    feature_registry_service_client_v1beta1.FeatureRegistryServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
     index_service_client_v1beta1.IndexServiceClient,
@@ -120,6 +123,7 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1.EndpointServiceClient,
     feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
     feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
+    feature_registry_service_client_v1.FeatureRegistryServiceClient,
     featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1.FeaturestoreServiceClient,
     metadata_service_client_v1.MetadataServiceClient,
@@ -631,6 +635,21 @@ class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
+        ),
+    )
+
+
+class FeatureRegistryClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_registry_service_client_v1.FeatureRegistryServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_registry_service_client_v1beta1.FeatureRegistryServiceClient,
         ),
     )
 

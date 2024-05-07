@@ -35,6 +35,7 @@ from google.cloud.aiplatform.preview.pipelinejobschedule.pipeline_job_schedules 
 )
 
 from vertexai.resources.preview.feature_store import (
+    FeatureGroup,
     FeatureOnlineStore,
     FeatureOnlineStoreType,
     FeatureView,
@@ -62,6 +63,7 @@ __all__ = (
     "PersistentResource",
     "EntityType",
     "PipelineJobSchedule",
+    "FeatureGroup",
     "FeatureOnlineStoreType",
     "FeatureOnlineStore",
     "FeatureView",

@@ -262,3 +262,19 @@ _TEST_FV_SEARCH1 = types.feature_online_store_service_v1.SearchNearestEntitiesRe
         ]
     )
 )
+
+_TEST_FG1_ID = "my_fg1"
+_TEST_FG1_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}"
+_TEST_FG1_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg1"
+_TEST_FG1_ENTITY_ID_COLUMNS = ["entity_id"]
+_TEST_FG1_LABELS = {"my_key": "my_fg1"}
+_TEST_FG1 = types.feature_group.FeatureGroup(
+    name=_TEST_FG1_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG1_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG1_LABELS,
+)

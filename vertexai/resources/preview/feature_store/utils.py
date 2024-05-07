@@ -164,3 +164,11 @@ class IndexConfig:
         else:
             config["brute_force_config"] = self.algorithm_config.as_dict()
         return config
+
+
+@dataclass
+class FeatureGroupBigQuerySource:
+    """BigQuery source for the Feature Group."""
+
+    uri: str
+    entity_id_columns: List[str]

@@ -16,6 +16,10 @@
 #
 """The vertexai resources preview module."""
 
+from vertexai.resources.preview.feature_store.feature_group import (
+    FeatureGroup,
+)
+
 from vertexai.resources.preview.feature_store.feature_online_store import (
     FeatureOnlineStore,
     FeatureOnlineStoreType,
@@ -36,6 +40,7 @@ from vertexai.resources.preview.feature_store.utils import (
 )
 
 __all__ = (
+    FeatureGroup,
     FeatureOnlineStoreType,
     FeatureOnlineStore,
     FeatureView,
