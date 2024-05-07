@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""RAG data management SDK."""
 
 from typing import Optional, Union, Sequence
 from google import auth

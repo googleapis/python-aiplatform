@@ -18,6 +18,7 @@
 from vertexai.preview.rag.utils.resources import (
     RagCorpus,
     RagFile,
+    RagResource,
 )
 from google.cloud import aiplatform
 from google.cloud.aiplatform_v1beta1 import (
@@ -146,3 +147,11 @@ TEST_CONTEXTS = RagContexts(
     ]
 )
 TEST_RETRIEVAL_RESPONSE = RetrieveContextsResponse(contexts=TEST_CONTEXTS)
+TEST_RAG_RESOURCE = RagResource(
+    rag_corpus=TEST_RAG_CORPUS_RESOURCE_NAME,
+    rag_file_ids=[TEST_RAG_FILE_ID],
+)
+TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
+    rag_corpus="213lkj-1/23jkl/",
+    rag_file_ids=[TEST_RAG_FILE_ID],
+)
