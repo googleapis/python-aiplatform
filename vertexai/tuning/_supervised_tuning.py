@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job_types
 
@@ -29,6 +29,7 @@ def train(
     tuned_model_display_name: Optional[str] = None,
     epochs: Optional[int] = None,
     learning_rate_multiplier: Optional[float] = None,
+    adapter_size: Optional[Literal[1, 4, 8, 16]] = None,
 ) -> "SupervisedTuningJob":
     """Tunes a model using supervised training.
 
@@ -44,6 +45,7 @@ def train(
             be up to 128 characters long and can consist of any UTF-8 characters.
         epochs: Number of training epoches for this tuning job.
         learning_rate_multiplier: Learning rate multiplier for tuning.
+        adapter_size: Adapter size for tuning.
 
     Returns:
         A `TuningJob` object.
@@ -54,6 +56,7 @@ def train(
         hyper_parameters=gca_tuning_job_types.SupervisedHyperParameters(
             epoch_count=epochs,
             learning_rate_multiplier=learning_rate_multiplier,
+            adapter_size=adapter_size,
         ),
     )
 

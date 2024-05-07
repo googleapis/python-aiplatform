@@ -3272,10 +3272,11 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if local_model:
             container_spec = local_model.get_serving_container_spec()
             appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
+        elif not serving_container_image_uri and not artifact_uri:
+            # It's a referenced/place holder model.
+            container_spec = None
         else:
-            # Referenced models do not have container_image and artifact_uri
-            # Skip the container_image if this is a referenced model
-            if not serving_container_image_uri and artifact_uri:
+            if not serving_container_image_uri:
                 raise ValueError(
                     "The parameter `serving_container_image_uri` is required "
                     "if no `local_model` is provided."
@@ -5256,10 +5257,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 the class "cat" corresponds with 0.97 in the example above.
             prediction_label_column (str):
                 Optional. The column name of the field containing classes the model is scoring. Formatted to be able to find nested
-                columns, delimeted by `.`. If not set, defaulted to `prediction.classes` for classification.
+                columns, delimited by `.`. If not set, defaulted to `prediction.classes` for classification.
             prediction_score_column (str):
                 Optional. The column name of the field containing batch prediction scores. Formatted to be able to find nested columns,
-                delimeted by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
+                delimited by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
                 for a `regression` problem_type.
             staging_bucket (str):
                 Optional. The GCS directory to use for staging files from this evaluation job. Defaults to the value set in

@@ -1181,6 +1181,7 @@ class ResponseValidationError(ResponseBlockedError):
 
 class GenerationConfig:
     """Parameters for the generation."""
+    ResponseStyle = gapic_content_types.GenerationConfig.ResponseStyle
 
     def __init__(
         self,
@@ -1194,6 +1195,7 @@ class GenerationConfig:
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         response_mime_type: Optional[str] = None,
+        response_style: Optional["GenerationConfig.ResponseStyle"] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1216,6 +1218,7 @@ class GenerationConfig:
 
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
+            response_style: Control three levels of creativity in the model output.
 
         Usage:
             ```
@@ -1228,6 +1231,7 @@ class GenerationConfig:
                     candidate_count=1,
                     max_output_tokens=100,
                     stop_sequences=["\n\n\n"],
+                    response_style=ResponseStyle.RESPONSE_STYLE_PRECISE,
                 )
             )
             ```
@@ -1242,6 +1246,7 @@ class GenerationConfig:
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             response_mime_type=response_mime_type,
+            response_style=response_style,
         )
 
     @classmethod

@@ -15,7 +15,57 @@
 # limitations under the License.
 #
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Literal, Optional, Union
+from vertexai import generative_models
+
+
+class PairwiseMetric:
+    """The Side-by-side(SxS) Pairwise Metric."""
+
+    def __init__(
+        self,
+        *,
+        metric: Literal["summarization_quality", "question_answering_quality"],
+        baseline_model: Union[
+            generative_models.GenerativeModel, Callable[[str], str]
+        ] = None,
+        use_reference: bool = False,
+        version: Optional[int] = None,
+    ):
+        """Initializes the Side-by-side(SxS) Pairwise evaluation metric.
+
+        Args:
+          metric: The Side-by-side(SxS) pairwise evaluation metric name.
+          baseline_model: The baseline model for the Side-by-side(SxS) comparison.
+          use_reference: Whether to use reference to compute the metric. If specified,
+            the reference column is required in the dataset.
+          version: The metric version to use for evaluation.
+        """
+        self._metric = metric
+        self._baseline_model = baseline_model
+        self._use_reference = use_reference
+        self._version = version
+
+    def __str__(self):
+        return self.pairwise_metric_name
+
+    @property
+    def pairwise_metric_name(self) -> str:
+        return f"pairwise_{self._metric}"
+
+    @property
+    def baseline_model(
+        self,
+    ) -> Union[generative_models.GenerativeModel, Callable[[str], str]]:
+        return self._baseline_model
+
+    @property
+    def use_reference(self) -> bool:
+        return self._use_reference
+
+    @property
+    def version(self) -> int:
+        return self._version
 
 
 class CustomMetric:

@@ -19,3 +19,21 @@ PICKLE_PROTOCOL = 4
 
 _START_EXECUTION_MSG = "Start remote execution on Vertex..."
 _END_EXECUTION_MSG = "Remote execution is completed."
+
+_V2_0_WARNING_MSG = """
+After May 30, 2024, importing any code below will result in an error.
+Please verify that you are explicitly pinning to a version of `google-cloud-aiplatform`
+(e.g., google-cloud-aiplatform==[1.32.0, 1.49.0]) if you need to continue using this
+library.
+
+from vertexai.preview import (
+    init,
+    remote,
+    VertexModel,
+    register,
+    from_pretrained,
+    developer,
+    hyperparameter_tuning,
+    tabular_models,
+)
+"""

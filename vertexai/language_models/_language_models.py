@@ -283,6 +283,11 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
         """
+        if tuning_job_location is None:
+            tuning_job_location = aiplatform_initializer.global_config.location
+        if tuned_model_location is None:
+            tuned_model_location = aiplatform_initializer.global_config.location
+
         tuning_parameters = {}
         if batch_size is not None:
             tuning_parameters["batch_size"] = batch_size
@@ -623,7 +628,6 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
 
         Args:
             tuning_parameters: Tuning pipeline parameter values.
-            tuning_job_location: GCP location where the tuning job should be run.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.

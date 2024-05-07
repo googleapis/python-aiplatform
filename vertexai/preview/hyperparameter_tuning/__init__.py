@@ -15,11 +15,14 @@
 # limitations under the License.
 #
 
-
+import warnings
 from vertexai.preview.hyperparameter_tuning import (
     vizier_hyperparameter_tuner,
 )
+from vertexai.preview._workflow.shared import constants
 
+
+warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
 
 VizierHyperparameterTuner = vizier_hyperparameter_tuner.VizierHyperparameterTuner
 

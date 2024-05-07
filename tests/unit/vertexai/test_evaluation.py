@@ -26,6 +26,7 @@ from google.cloud.aiplatform_v1beta1.services import (
 from google.cloud.aiplatform_v1beta1.types import (
     evaluation_service as gapic_evaluation_service_types,
 )
+from vertexai import generative_models
 from vertexai.preview import evaluation
 from vertexai.preview.evaluation import utils
 import pandas as pd
@@ -34,7 +35,7 @@ import pytest
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
-_TEST_METRICS = [
+_TEST_METRICS = (
     "exact_match",
     "bleu",
     "rouge_1",
@@ -53,7 +54,7 @@ _TEST_METRICS = [
     "question_answering_relevance",
     "question_answering_helpfulness",
     "question_answering_correctness",
-]
+)
 _TEST_EVAL_DATASET = pd.DataFrame(
     {
         "response": ["test", "text"],
@@ -78,7 +79,7 @@ text,text,text\n
 """
 
 
-_MOCK_EXACT_MATCH_RESULT = [
+_MOCK_EXACT_MATCH_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         exact_match_results=gapic_evaluation_service_types.ExactMatchResults(
             exact_match_metric_values=[
@@ -93,9 +94,9 @@ _MOCK_EXACT_MATCH_RESULT = [
             ]
         )
     ),
-]
+)
 
-_MOCK_FLUENCY_RESULT = [
+_MOCK_FLUENCY_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         fluency_result=gapic_evaluation_service_types.FluencyResult(
             score=5, explanation="explanation", confidence=1.0
@@ -106,7 +107,34 @@ _MOCK_FLUENCY_RESULT = [
             score=4, explanation="explanation", confidence=0.5
         )
     ),
-]
+)
+
+_MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT = (
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        pairwise_summarization_quality_result=gapic_evaluation_service_types.PairwiseSummarizationQualityResult(
+            pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.BASELINE,
+            explanation="explanation",
+            confidence=1.0,
+        )
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        pairwise_summarization_quality_result=gapic_evaluation_service_types.PairwiseSummarizationQualityResult(
+            pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.CANDIDATE,
+            explanation="explanation",
+            confidence=0.5,
+        )
+    ),
+)
+
+_MOCK_MODEL_INFERENCE_RESPONSE = generative_models.GenerationResponse.from_dict(
+    {
+        "candidates": [
+            {
+                "content": {"parts": [{"text": "test_response"}]},
+            }
+        ]
+    }
+)
 
 
 @pytest.fixture
@@ -260,6 +288,188 @@ class TestEvaluation:
             0.5,
         ]
 
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pairwise_metrics_with_model_inference(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        eval_dataset = pd.DataFrame(
+            {
+                "context": ["test", "context"],
+                "instruction": ["test", "instruction"],
+            }
+        )
+        mock_baseline_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_baseline_model.generate_content.return_value = (
+            _MOCK_MODEL_INFERENCE_RESPONSE
+        )
+        mock_baseline_model._model_name = "publishers/google/model/gemini-pro"
+        mock_candidate_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_candidate_model.generate_content.return_value = (
+            _MOCK_MODEL_INFERENCE_RESPONSE
+        )
+        mock_candidate_model._model_name = "publishers/google/model/gemini-pro"
+        test_metrics = [
+            evaluation.PairwiseMetric(
+                metric="summarization_quality",
+                baseline_model=mock_baseline_model,
+                use_reference=False,
+            )
+        ]
+        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
+        mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate(
+                model=mock_candidate_model,
+                prompt_template="{instruction} test prompt template {context}",
+            )
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "context",
+                "instruction",
+                "completed_prompt",
+                "response",
+                "baseline_model_response",
+                "pairwise_summarization_quality/pairwise_choice",
+                "pairwise_summarization_quality/explanation",
+                "pairwise_summarization_quality/confidence",
+            ]
+        )
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/pairwise_choice"
+            ].values
+        ) == ["BASELINE", "CANDIDATE"]
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/explanation"
+            ].values
+        ) == [
+            "explanation",
+            "explanation",
+        ]
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/confidence"
+            ].values
+        ) == [
+            1.0,
+            0.5,
+        ]
+        assert set(test_result.summary_metrics.keys()) == set(
+            [
+                "row_count",
+                "pairwise_summarization_quality/candidate_model_win_rate",
+                "pairwise_summarization_quality/baseline_model_win_rate",
+            ]
+        )
+        assert (
+            test_result.summary_metrics[
+                "pairwise_summarization_quality/candidate_model_win_rate"
+            ]
+            == 0.5
+        )
+        assert (
+            test_result.summary_metrics[
+                "pairwise_summarization_quality/baseline_model_win_rate"
+            ]
+            == 0.5
+        )
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pairwise_metrics_without_inference(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        eval_dataset = pd.DataFrame(
+            {
+                "response": ["test", "text"],
+                "baseline_model_response": ["baseline", "response"],
+                "reference": ["test", "reference"],
+            }
+        )
+        test_metrics = [
+            evaluation.PairwiseMetric(
+                metric="summarization_quality",
+                baseline_model=None,
+                use_reference=True,
+            )
+        ]
+        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
+        mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "response",
+                "baseline_model_response",
+                "reference",
+                "pairwise_summarization_quality/pairwise_choice",
+                "pairwise_summarization_quality/explanation",
+                "pairwise_summarization_quality/confidence",
+            ]
+        )
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/pairwise_choice"
+            ].values
+        ) == ["BASELINE", "CANDIDATE"]
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/explanation"
+            ].values
+        ) == [
+            "explanation",
+            "explanation",
+        ]
+        assert list(
+            test_result.metrics_table[
+                "pairwise_summarization_quality/confidence"
+            ].values
+        ) == [
+            1.0,
+            0.5,
+        ]
+        assert set(test_result.summary_metrics.keys()) == set(
+            [
+                "row_count",
+                "pairwise_summarization_quality/candidate_model_win_rate",
+                "pairwise_summarization_quality/baseline_model_win_rate",
+            ]
+        )
+        assert (
+            test_result.summary_metrics[
+                "pairwise_summarization_quality/candidate_model_win_rate"
+            ]
+            == 0.5
+        )
+        assert (
+            test_result.summary_metrics[
+                "pairwise_summarization_quality/baseline_model_win_rate"
+            ]
+            == 0.5
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEvaluationErrors:
@@ -324,6 +534,42 @@ class TestEvaluationErrors:
             test_eval_task.evaluate(
                 prompt_template="test_prompt_template {invalid_placeholder}",
             )
+
+    def test_evaluate_pairwise_metrics_with_multiple_baseline_models(self):
+        eval_dataset = pd.DataFrame(
+            {
+                "context": ["test", "context"],
+                "instruction": ["test", "instruction"],
+            }
+        )
+        mock_baseline_model_1 = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_baseline_model_1._model_name = "publishers/google/model/gemini-1.0-pro"
+        mock_baseline_model_2 = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_baseline_model_2._model_name = "publishers/google/model/gemini-1.5-pro"
+        mock_candidate_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_candidate_model._model_name = "publishers/google/model/gemini-1.0-ultra"
+        test_metrics = [
+            evaluation.PairwiseMetric(
+                metric="summarization_quality",
+                baseline_model=mock_baseline_model_1,
+            ),
+            evaluation.PairwiseMetric(
+                metric="summarization_quality",
+                baseline_model=mock_baseline_model_2,
+            ),
+        ]
+        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
+        with pytest.raises(
+            ValueError,
+            match="Not all PairwiseMetric instances have the same baseline_model",
+        ):
+            test_eval_task.evaluate(model=mock_candidate_model)
 
 
 @pytest.mark.usefixtures("google_auth_mock")

@@ -15,16 +15,22 @@
 # limitations under the License.
 #
 
+import warnings
 from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
 )
 from vertexai.preview._workflow.serialization_engine import (
     serializers_base,
 )
-from vertexai.preview._workflow.shared import configs
+from vertexai.preview._workflow.shared import (
+    configs,
+    constants,
+)
 from vertexai.preview.developer import mark
 from vertexai.preview.developer import remote_specs
 
+
+warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
 
 PersistentResourceConfig = configs.PersistentResourceConfig
 Serializer = serializers_base.Serializer

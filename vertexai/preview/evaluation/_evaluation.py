@@ -82,25 +82,26 @@ _METRICS_BUNDLE_TO_METRIC_NAMES = {
 }
 _SUCCESSFUL_FINISH_REASONS = [
     gapic_content_types.Candidate.FinishReason.STOP,
+    gapic_content_types.Candidate.FinishReason.MAX_TOKENS,
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
 ]
 
 
 def _replace_metric_bundle_with_metrics(
-    metrics_list: List[Union[str, metrics_base.CustomMetric]],
-) -> List[str]:
+    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
+) -> List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]]:
     """Replaces metric bundles with corresponding metrics.
 
     Args:
-      metrics_list: The original list containing metrics bundle names.
+      metrics: The original metrics list containing metric bundle names.
 
     Returns:
-      The modified metrics list containing only metric names.
+      The modified metrics list with metric bundle names replaced.
     """
     modified_list = []
 
-    for item in metrics_list:
+    for item in metrics:
         if item in _METRICS_BUNDLE_TO_METRIC_NAMES.keys():
             modified_list.extend(_METRICS_BUNDLE_TO_METRIC_NAMES[item])
         else:
@@ -144,8 +145,10 @@ def _compute_custom_metrics(
 
 
 def _separate_custom_metrics(
-    metrics: List[str],
-) -> Tuple[List[str], List[metrics_base.CustomMetric],]:
+    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
+) -> Tuple[
+    List[Union[str, metrics_base.PairwiseMetric]], List[metrics_base.CustomMetric]
+]:
     """Separates the metrics list into API and custom metrics."""
     custom_metrics = []
     api_metrics = []
@@ -174,17 +177,32 @@ def _compute_summary_metrics(
     summary_metrics[constants.MetricResult.ROW_COUNT_KEY] = metrics_table.shape[0]
     for metric in evaluation_run_config.metrics:
         try:
-            # TODO(b/325078638): implement additional aggregate methods.
-            summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
-                :, str(metric)
-            ].mean()
-            summary_metrics[f"{str(metric)}/std"] = metrics_table.loc[
-                :, str(metric)
-            ].std()
-        except (ValueError, KeyError):
+            if isinstance(metric, metrics_base.PairwiseMetric):
+                summary_metrics[
+                    f"{metric.pairwise_metric_name}/candidate_model_win_rate"
+                ] = (
+                    metrics_table[f"{metric.pairwise_metric_name}/pairwise_choice"]
+                    == "CANDIDATE"
+                ).mean()
+                summary_metrics[
+                    f"{metric.pairwise_metric_name}/baseline_model_win_rate"
+                ] = (
+                    metrics_table[f"{metric.pairwise_metric_name}/pairwise_choice"]
+                    == "BASELINE"
+                ).mean()
+            else:
+                # TODO(b/325078638): implement additional aggregate methods.
+                summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
+                    :, str(metric)
+                ].mean()
+                summary_metrics[f"{str(metric)}/std"] = metrics_table.loc[
+                    :, str(metric)
+                ].std()
+        except (ValueError, KeyError) as e:
             _LOGGER.warning(
                 f"Failed to compute metric statistics for {metric}. This metric"
-                " output contains error from the Autorater."
+                " output contains error from the Autorater.\n"
+                f"{type(e).__name__}: {e}"
             )
             continue
     return summary_metrics
@@ -193,7 +211,7 @@ def _compute_summary_metrics(
 def _generate_response_from_gemini(
     model: generative_models.GenerativeModel, prompt: str
 ) -> str:
-    """Generates response from Gemini model.
+    """Generates a text response from Gemini model from a text prompt.
 
     Args:
         model: The Gemini model instance.
@@ -211,7 +229,7 @@ def _generate_response_from_gemini(
         if not response.candidates:
             raise RuntimeError(
                 f"The model response was blocked due to {response._raw_response.prompt_feedback.block_reason.name}.\n"
-                f"Blocke reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
+                f"Blocked reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
                 "The input prompt may be blocked for safety reasons.",
                 f"Prompt: {prompt}.",
             )
@@ -228,7 +246,7 @@ def _generate_response_from_gemini(
             return response.candidates[0].content.parts[0].text
     except Exception:
         raise RuntimeError(
-            "Failed to generate response candidates from Gemini model.\n"
+            f"Failed to generate response candidates from Gemini model {model._model_name}.\n"
             f"Response: {response}.\n"
             f"Prompt: {prompt}."
         )
@@ -237,19 +255,30 @@ def _generate_response_from_gemini(
 def _generate_response_from_gemini_model(
     model: generative_models.GenerativeModel,
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    is_baseline_model: bool = False,
 ) -> None:
     """Generates responses from Gemini model.
 
     Args:
         model: The Gemini model instance.
         evaluation_run_config: Evaluation Run Configurations.
+        is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
     """
+    response_column_name = (
+        constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
+        if is_baseline_model
+        else constants.Dataset.MODEL_RESPONSE_COLUMN
+    )
+    _LOGGER.info(
+        f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
+        f"responses from Gemini model {model._model_name.split('/')[-1]}."
+    )
     if (
         constants.Dataset.COMPLETED_PROMPT_COLUMN
         in evaluation_run_config.dataset.columns
     ):
         evaluation_run_config.dataset[
-            constants.Dataset.MODEL_RESPONSE_COLUMN
+            response_column_name
         ] = evaluation_run_config.dataset[
             constants.Dataset.COMPLETED_PROMPT_COLUMN
         ].apply(
@@ -257,31 +286,47 @@ def _generate_response_from_gemini_model(
         )
     else:
         evaluation_run_config.dataset[
-            constants.Dataset.MODEL_RESPONSE_COLUMN
+            response_column_name
         ] = evaluation_run_config.dataset[
             evaluation_run_config.column_map[constants.Dataset.CONTENT_COLUMN]
         ].apply(
             lambda x: _generate_response_from_gemini(model, x)
         )
+    _LOGGER.info(
+        f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
+        f" generated from Gemini model {model._model_name.split('/')[-1]}."
+    )
 
 
 def _generate_response_from_custom_model_fn(
     model_fn: Callable[[str], str],
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    is_baseline_model: bool = False,
 ) -> None:
     """Generates responses from a custom model function.
 
     Args:
         model_fn: The custom model function.
         evaluation_run_config: Evaluation Run Configurations.
+        is_baseline_model: Whether the model is a baseline model for
+          PairwiseMetric.
     """
+    response_column_name = (
+        constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
+        if is_baseline_model
+        else constants.Dataset.MODEL_RESPONSE_COLUMN
+    )
+    _LOGGER.info(
+        f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
+        "responses from the custom model function."
+    )
     try:
         if (
             constants.Dataset.COMPLETED_PROMPT_COLUMN
             in evaluation_run_config.dataset.columns
         ):
             evaluation_run_config.dataset[
-                constants.Dataset.MODEL_RESPONSE_COLUMN
+                response_column_name
             ] = evaluation_run_config.dataset[
                 constants.Dataset.COMPLETED_PROMPT_COLUMN
             ].apply(
@@ -289,7 +334,7 @@ def _generate_response_from_custom_model_fn(
             )
         else:
             evaluation_run_config.dataset[
-                constants.Dataset.MODEL_RESPONSE_COLUMN
+                response_column_name
             ] = evaluation_run_config.dataset[
                 evaluation_run_config.column_map[constants.Dataset.CONTENT_COLUMN]
             ].apply(
@@ -297,6 +342,11 @@ def _generate_response_from_custom_model_fn(
             )
     except (ValueError, IndexError) as e:
         _LOGGER.warning(f"Failed to generate response from model function: {e}")
+
+    _LOGGER.info(
+        f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
+        " generated from the custom model function."
+    )
 
 
 def _check_placeholder_columns_exist(
@@ -322,14 +372,18 @@ def _check_placeholder_columns_exist(
 
 
 def _complete_prompt_for_dataset(
-    evaluation_run_config: evaluation_base.EvaluationRunConfig, prompt_template: str
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    prompt_template: Union[prompt_template_base.PromptTemplate, str],
 ) -> None:
     """Adds a column in dataset for completed prompts from placeholder columns.
 
     Args:
         evaluation_run_config: Evaluation Run Configurations.
-        prompt_template: A prompt template string with placeholders that can be
-          formatted with dataset columns.
+        prompt_template:  A `PromptTemplate` object or a prompt template string
+          with placeholders that can be assembled from the evaluation dataset. The
+          placeholders can be represented in curly braces `{placeholder}`, and
+          must be included in the dataset columns if specified. The placeholder
+          names cannot contain spaces.
 
     Returns:
         The completed prompt template string to send to the model.
@@ -338,7 +392,16 @@ def _complete_prompt_for_dataset(
         ValueError: If any placeholder names do not exist in the dataset columns
         or the prompt template is invalid.
     """
-    prompt_template = prompt_template_base.PromptTemplate(prompt_template)
+    if not prompt_template:
+        raise ValueError("Prompt template cannot be an empty string.")
+
+    _LOGGER.info(
+        'Completing prompts from the prompt_template. The "completed_prompt" '
+        "column in the EvalResult.metrics_table has the completed prompts "
+        "used for model content generation."
+    )
+    if isinstance(prompt_template, str):
+        prompt_template = prompt_template_base.PromptTemplate(prompt_template)
     _check_placeholder_columns_exist(
         evaluation_run_config.dataset, prompt_template.placeholders
     )
@@ -381,9 +444,6 @@ def _parse_metric_results_to_dataframe(
     metrics_table = pd.DataFrame(dict(zip(instance_df.columns, instance_df.values.T)))
 
     for metric_name, metric_results in results.items():
-        scores = [
-            result.get(constants.MetricResult.SCORE_KEY) for result in metric_results
-        ]
         if (
             metric_name
             in constants.Metric.MODEL_BASED_METRIC_LIST
@@ -403,8 +463,24 @@ def _parse_metric_results_to_dataframe(
             metrics_table[
                 f"{metric_name}/{constants.MetricResult.CONFIDENCE_KEY}"
             ] = confidences
-
-        metrics_table[metric_name] = scores
+        if metric_name in constants.Metric.PAIRWISE_METRIC_LIST:
+            pairwise_choices = [
+                result.get(constants.MetricResult.PAIRWISE_CHOICE_KEY)
+                for result in metric_results
+            ]
+            metrics_table[
+                f"{metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+            ] = pairwise_choices
+        if (
+            metric_name
+            in constants.Metric.AUTOMATIC_METRIC_LIST
+            + constants.Metric.MODEL_BASED_METRIC_LIST
+        ):
+            scores = [
+                result.get(constants.MetricResult.SCORE_KEY)
+                for result in metric_results
+            ]
+            metrics_table[metric_name] = scores
 
     return metrics_table
 
@@ -441,19 +517,28 @@ async def _compute_metrics(
 
         instance_list.append(row_dict)
 
-        for metric_name in api_metrics:
+        for metric in api_metrics:
             task = asyncio.create_task(
                 _instance_evaluation.evaluate_instances_async(
                     client=evaluation_run_config.client,
                     request=_instance_evaluation.build_request(
-                        metric_name=metric_name,
+                        metric=metric,
                         row_dict=row_dict,
                         evaluation_run_config=evaluation_run_config,
                     ),
                 )
             )
+            if isinstance(metric, metrics_base.PairwiseMetric):
+                metric_name = metric.pairwise_metric_name
+            else:
+                metric_name = metric
             tasks_by_metric[metric_name].append(task)
 
+    api_request_count = len(tasks_by_metric) * len(next(iter(tasks_by_metric.values())))
+    _LOGGER.info(
+        f"Computing metrics with a total of {api_request_count} Vertex online"
+        " evaluation service requests."
+    )
     results_dict = {
         metric_name: await asyncio.gather(*tasks)
         for metric_name, tasks in tasks_by_metric.items()
@@ -462,18 +547,48 @@ async def _compute_metrics(
     instance_df = pd.DataFrame.from_dict(instance_list)
     metrics_table = _parse_metric_results_to_dataframe(instance_df, results_dict)
 
+    _LOGGER.info(f"All {api_request_count} metrics are successfully computed.")
     summary_metrics = _compute_summary_metrics(evaluation_run_config, metrics_table)
     return summary_metrics, metrics_table
 
 
+def _run_model_inference(
+    model: Union[generative_models.GenerativeModel, Callable[[str], str]],
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    is_baseline_model: bool = False,
+) -> None:
+    """Runs model inference on dataset for evaluation.
+
+    Args:
+      model: The GenerativeModel instance or a custom model function to generate
+        responses to evaluate. If not provided, the evaluation is computed with
+        the `response` column in the `dataset`.
+      evaluation_run_config: Evaluation Run Configurations.
+      is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
+
+    Raises:
+        ValueError: If the model or baseline model is not supported.
+    """
+    if isinstance(model, generative_models.GenerativeModel):
+        _generate_response_from_gemini_model(
+            model, evaluation_run_config, is_baseline_model
+        )
+    elif callable(model):
+        _generate_response_from_custom_model_fn(
+            model, evaluation_run_config, is_baseline_model
+        )
+    else:
+        raise ValueError(f"Unsupported model or baseline model type: {type(model)}")
+
+
 def evaluate(
     dataset: "pd.DataFrame",
-    metrics: List[Union[str, metrics_base.CustomMetric]],
+    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
     *,
     model: Optional[
         Union[generative_models.GenerativeModel, Callable[[str], str]]
     ] = None,
-    prompt_template: Optional[str] = None,
+    prompt_template: Optional[Union[str, prompt_template_base.PromptTemplate]] = None,
     content_column_name: str = "content",
     reference_column_name: str = "reference",
     response_column_name: str = "response",
@@ -484,16 +599,17 @@ def evaluate(
 
     Args:
       dataset: The dataset to evaluate.
-      metrics: The list of metrics names to evaluate, or a metrics bundle for an
-        evaluation task, or custom metric instances.
+      metrics: The list of metric names, or metric bundle names, or CustomMetric
+        instances, or PairwiseMetric instances to evaluate. Prompt template is
+        required for PairwiseMetric.
       model: The GenerativeModel instance or a custom model function to generate
         responses to evaluate. If not provided, the evaluation is computed with
         the `response` column in the `dataset`.
-      prompt_template: A prompt template string compatible with `PromptTemplate`
-        class with placeholders that can be formatted with dataset columns to
-        create completed prompts. The placeholders can be represented in curly
-        braces `{placeholder}`, and must be included in the dataset columns if
-        specified. The placeholder names cannot contain spaces.
+      prompt_template: A `PromptTemplate` or a prompt template string compatible
+        with `PromptTemplate` class with placeholders that can be formatted with
+        dataset columns to create completed prompts. The placeholders can be
+        represented in curly braces `{placeholder}`, and must be included in the
+        dataset columns if specified. The placeholder names cannot contain spaces.
       content_column_name: The column name of content in the dataset to send to
         the model. If not set, default to `content`.
       reference_column_name: The column name of ground truth in the dataset. If
@@ -508,6 +624,11 @@ def evaluate(
     Returns:
       EvalResult with summary metrics and a metrics table for per-instance
       metrics.
+
+    Raises:
+      ValueError: If the metrics list is empty, or the prompt template is not
+      provided for PairwiseMetric, or multiple baseline models are specified for
+      PairwiseMetric instances.
     """
 
     if not metrics:
@@ -526,33 +647,61 @@ def evaluate(
         client=utils.create_evaluation_service_async_client(),
     )
 
+    if set(evaluation_run_config.metrics).intersection(
+        set(constants.Metric.AUTOMATIC_METRIC_LIST)
+    ):
+        evaluation_run_config.validate_dataset_column(
+            constants.Dataset.REFERENCE_COLUMN
+        )
+
+    baseline_model = None
+    pairwise_metric_exists = any(
+        isinstance(metric, metrics_base.PairwiseMetric)
+        for metric in evaluation_run_config.metrics
+    )
+    if pairwise_metric_exists:
+        pairwise_metric_instances = [
+            metric
+            for metric in evaluation_run_config.metrics
+            if isinstance(metric, metrics_base.PairwiseMetric)
+        ]
+        if (
+            len(set(instance.baseline_model for instance in pairwise_metric_instances))
+            > 1
+        ):
+            # TODO(b/330598854): support multiple baseline models to compare
+            # with the candidate model.
+            raise ValueError(
+                "Not all PairwiseMetric instances have the same baseline_model"
+            )
+        baseline_model = pairwise_metric_instances[0].baseline_model
+
     if prompt_template:
         _complete_prompt_for_dataset(evaluation_run_config, prompt_template)
+        evaluation_run_config.validate_dataset_column(
+            constants.Dataset.COMPLETED_PROMPT_COLUMN
+        )
+    elif baseline_model:
+        raise ValueError("Prompt template is required for computing PairwiseMetric.")
+    elif model:
+        evaluation_run_config.validate_dataset_column(constants.Dataset.CONTENT_COLUMN)
 
     if model:
-        if prompt_template:
-            evaluation_run_config.validate_dataset_column(
-                constants.Dataset.COMPLETED_PROMPT_COLUMN
-            )
-        else:
-            evaluation_run_config.validate_dataset_column(
-                constants.Dataset.CONTENT_COLUMN
-            )
+        _run_model_inference(model, evaluation_run_config)
+    evaluation_run_config.validate_dataset_column(
+        constants.Dataset.MODEL_RESPONSE_COLUMN
+    )
 
-        if isinstance(model, generative_models.GenerativeModel):
-            _generate_response_from_gemini_model(model, evaluation_run_config)
-        elif callable(model):
-            _generate_response_from_custom_model_fn(model, evaluation_run_config)
-    else:
-        evaluation_run_config.validate_dataset_column(
-            constants.Dataset.MODEL_RESPONSE_COLUMN
+    if baseline_model:
+        _run_model_inference(
+            model=baseline_model,
+            evaluation_run_config=evaluation_run_config,
+            is_baseline_model=True,
         )
-        if set(evaluation_run_config.metrics).intersection(
-            set(constants.Metric.AUTOMATIC_METRIC_LIST)
-        ):
-            evaluation_run_config.validate_dataset_column(
-                constants.Dataset.REFERENCE_COLUMN
-            )
+    if pairwise_metric_exists:
+        evaluation_run_config.validate_dataset_column(
+            constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
+        )
 
     if asyncio.get_event_loop().is_running():
         asyncio.set_event_loop(asyncio.new_event_loop())
