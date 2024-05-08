@@ -278,3 +278,39 @@ _TEST_FG1 = types.feature_group.FeatureGroup(
     ),
     labels=_TEST_FG1_LABELS,
 )
+
+
+_TEST_FG2_ID = "my_fg2"
+_TEST_FG2_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG2_ID}"
+_TEST_FG2_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg2"
+_TEST_FG2_ENTITY_ID_COLUMNS = ["entity_id1", "entity_id2"]
+_TEST_FG2_LABELS = {"my_key2": "my_fg2"}
+_TEST_FG2 = types.feature_group.FeatureGroup(
+    name=_TEST_FG2_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG2_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG2_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG2_LABELS,
+)
+
+
+_TEST_FG3_ID = "my_fg3"
+_TEST_FG3_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG3_ID}"
+_TEST_FG3_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg3"
+_TEST_FG3_ENTITY_ID_COLUMNS = ["entity_id1", "entity_id2", "entity_id3"]
+_TEST_FG3_LABELS = {"my_key3": "my_fg3"}
+_TEST_FG3 = types.feature_group.FeatureGroup(
+    name=_TEST_FG3_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG3_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG3_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG3_LABELS,
+)
+
+_TEST_FG_LIST = [_TEST_FG1, _TEST_FG2, _TEST_FG3]

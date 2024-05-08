@@ -49,6 +49,17 @@ from feature_store_constants import (
     _TEST_FG1_BQ_URI,
     _TEST_FG1_ENTITY_ID_COLUMNS,
     _TEST_FG1_LABELS,
+    _TEST_FG2_ID,
+    _TEST_FG2_PATH,
+    _TEST_FG2_BQ_URI,
+    _TEST_FG2_ENTITY_ID_COLUMNS,
+    _TEST_FG2_LABELS,
+    _TEST_FG3_ID,
+    _TEST_FG3_PATH,
+    _TEST_FG3_BQ_URI,
+    _TEST_FG3_ENTITY_ID_COLUMNS,
+    _TEST_FG3_LABELS,
+    _TEST_FG_LIST,
 )
 
 
@@ -85,6 +96,16 @@ def create_fg_mock():
         create_fg_lro_mock.result.return_value = _TEST_FG1
         create_fg_mock.return_value = create_fg_lro_mock
         yield create_fg_mock
+
+
+@pytest.fixture
+def list_fg_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "list_feature_groups",
+    ) as list_fg_mock:
+        list_fg_mock.return_value = _TEST_FG_LIST
+        yield list_fg_mock
 
 
 def fg_eq(
@@ -232,4 +253,43 @@ def test_create_fg(
         project=_TEST_PROJECT,
         location=_TEST_LOCATION,
         labels=_TEST_FG1_LABELS,
+    )
+
+
+def test_list(list_fg_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature_groups = FeatureGroup.list()
+
+    list_fg_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
+    assert len(feature_groups) == len(_TEST_FG_LIST)
+    fg_eq(
+        feature_groups[0],
+        name=_TEST_FG1_ID,
+        resource_name=_TEST_FG1_PATH,
+        source_uri=_TEST_FG1_BQ_URI,
+        entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FG1_LABELS,
+    )
+    fg_eq(
+        feature_groups[1],
+        name=_TEST_FG2_ID,
+        resource_name=_TEST_FG2_PATH,
+        source_uri=_TEST_FG2_BQ_URI,
+        entity_id_columns=_TEST_FG2_ENTITY_ID_COLUMNS,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FG2_LABELS,
+    )
+    fg_eq(
+        feature_groups[2],
+        name=_TEST_FG3_ID,
+        resource_name=_TEST_FG3_PATH,
+        source_uri=_TEST_FG3_BQ_URI,
+        entity_id_columns=_TEST_FG3_ENTITY_ID_COLUMNS,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FG3_LABELS,
     )
