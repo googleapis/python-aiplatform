@@ -414,20 +414,24 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             model_id=self._model_id,
             schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
         )
-        if model_info.tuning_pipeline_uri.startswith(
-            "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model"
-        ):
-            train_steps = tuning_parameters.pop("train_steps", None)
-            if train_steps:
-                tuning_parameters["iterations"] = train_steps
+        if _is_text_embedding_tuning_pipeline(model_info.tuning_pipeline_uri):
             tunable_base_model_id = self._model_id.rpartition("/")[-1]
             tuning_parameters["base_model_version_id"] = tunable_base_model_id
         else:
             tuning_parameters["large_model_reference"] = model_info.tuning_model_id
-            if aiplatform_initializer.global_config.encryption_spec_key_name:
-                tuning_parameters[
-                    "encryption_spec_key_name"
-                ] = aiplatform_initializer.global_config.encryption_spec_key_name
+            tuning_parameters.update(
+                {
+                    "project": aiplatform_initializer.global_config.project,
+                    # TODO(b/275444096): Remove the explicit location once tuning
+                    # can happen in all regions.
+                    # "location": aiplatform_initializer.global_config.location,
+                    "location": tuned_model_location,
+                }
+            )
+        if aiplatform_initializer.global_config.encryption_spec_key_name:
+            tuning_parameters[
+                "encryption_spec_key_name"
+            ] = aiplatform_initializer.global_config.encryption_spec_key_name
 
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
@@ -3890,6 +3894,12 @@ def _maybe_upload_training_data(
         )
 
 
+def _is_text_embedding_tuning_pipeline(pipeline_uri: str) -> bool:
+    return pipeline_uri.startswith(
+        "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model"
+    )
+
+
 def _launch_tuning_job(
     training_data: Union[str, "pandas.core.frame.DataFrame"],
     model_id: str,
@@ -3931,16 +3941,9 @@ def _launch_tuning_job(
         model_display_name = name[:max_display_name_length]
 
     pipeline_arguments = {
-        "project": aiplatform_initializer.global_config.project,
-        # TODO(b/275444096): Remove the explicit location once tuning can happen in all regions
-        # "location": aiplatform_initializer.global_config.location,
-        "location": tuned_model_location,
         "model_display_name": model_display_name,
     }
-
-    if tuning_pipeline_uri.startswith(
-        "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model"
-    ):
+    if _is_text_embedding_tuning_pipeline(tuning_pipeline_uri):
         pipeline_arguments["train_label_path"] = training_data_path
     elif training_data_path.startswith("gs://"):
         pipeline_arguments["dataset_uri"] = training_data_path
