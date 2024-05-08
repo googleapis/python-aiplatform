@@ -15,14 +15,26 @@
 # limitations under the License.
 #
 
-from typing import Optional
+from typing import (
+    Sequence,
+    Tuple,
+    Dict,
+    List,
+    Optional,
+)
 from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import base
+from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     feature_group as gca_feature_group,
+    io as gca_io,
 )
-import vertexai.resources.preview.feature_store.utils as fs_utils
+from vertexai.resources.preview.feature_store.utils import (
+    FeatureGroupBigQuerySource,
+)
+
+
+_LOGGER = base.Logger(__name__)
 
 
 class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
@@ -71,9 +83,134 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         self._gca_resource = self._get_gca_resource(resource_name=name)
 
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        source: FeatureGroupBigQuerySource = None,
+        entity_id_columns: Optional[List[str]] = None,
+        labels: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        create_request_timeout: Optional[float] = None,
+        sync: bool = True,
+    ) -> "FeatureGroup":
+        """Creates a new feature group.
+
+        Args:
+            name: The name of the feature group.
+            source: The BigQuery source of the feature group.
+            entity_id_columns:
+                The entity ID columns. If not specified, defaults to
+                ['entity_id'].
+            labels:
+                The labels with user-defined metadata to organize your
+                FeatureGroup.
+
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one
+                FeatureGroup(System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            description: Description of the FeatureGroup.
+            project:
+                Project to create feature group in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to create feature group in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to create this feature group.
+                Overrides credentials set in aiplatform.init.
+            request_metadata:
+                Strings which should be sent along with the request as metadata.
+            create_request_timeout:
+                The timeout for the create request in seconds.
+            sync:
+                Whether to execute this creation synchronously. If False, this
+                method will be executed in concurrent Future and any downstream
+                object will be immediately returned and synced when the Future
+                has completed.
+
+        Returns:
+            FeatureGroup - the FeatureGroup resource object.
+        """
+
+        if not source:
+            raise ValueError("Please specify a valid source.")
+
+        # Only BigQuery source is supported right now.
+        if not isinstance(source, FeatureGroupBigQuerySource):
+            raise ValueError("Only FeatureGroupBigQuerySource is a supported source.")
+
+        # BigQuery source validation.
+        if not source.uri:
+            raise ValueError("Please specify URI in BigQuery source.")
+
+        if not source.entity_id_columns:
+            _LOGGER.info(
+                "No entity ID columns specified in BigQuery source. Defaulting to ['entity_id']."
+            )
+            entity_id_columns = ["entity_id"]
+        else:
+            entity_id_columns = source.entity_id_columns
+
+        gapic_feature_group = gca_feature_group.FeatureGroup(
+            big_query=gca_feature_group.FeatureGroup.BigQuery(
+                big_query_source=gca_io.BigQuerySource(input_uri=source.uri),
+                entity_id_columns=entity_id_columns,
+            ),
+            name=name,
+            description=description,
+        )
+
+        if labels:
+            utils.validate_labels(labels)
+            gapic_feature_group.labels = labels
+
+        if request_metadata is None:
+            request_metadata = ()
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        create_feature_group_lro = api_client.create_feature_group(
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            feature_group=gapic_feature_group,
+            feature_group_id=name,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_with_lro(cls, create_feature_group_lro)
+
+        created_feature_group = create_feature_group_lro.result()
+
+        _LOGGER.log_create_complete(cls, created_feature_group, "feature_group")
+
+        feature_group_obj = cls(
+            name=created_feature_group.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return feature_group_obj
+
     @property
-    def source(self) -> fs_utils.FeatureGroupBigQuerySource:
-        return fs_utils.FeatureGroupBigQuerySource(
+    def source(self) -> FeatureGroupBigQuerySource:
+        return FeatureGroupBigQuerySource(
             uri=self._gca_resource.big_query.big_query_source.input_uri,
             entity_id_columns=self._gca_resource.big_query.entity_id_columns,
         )

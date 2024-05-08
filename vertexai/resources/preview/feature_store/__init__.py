@@ -30,6 +30,7 @@ from vertexai.resources.preview.feature_store.feature_view import (
 )
 
 from vertexai.resources.preview.feature_store.utils import (
+    FeatureGroupBigQuerySource,
     FeatureViewBigQuerySource,
     FeatureViewReadResponse,
     IndexConfig,
@@ -41,6 +42,7 @@ from vertexai.resources.preview.feature_store.utils import (
 
 __all__ = (
     FeatureGroup,
+    FeatureGroupBigQuerySource,
     FeatureOnlineStoreType,
     FeatureOnlineStore,
     FeatureView,

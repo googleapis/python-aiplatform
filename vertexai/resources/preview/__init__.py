@@ -64,6 +64,7 @@ __all__ = (
     "EntityType",
     "PipelineJobSchedule",
     "FeatureGroup",
+    "FeatureGroupBigQuerySource",
     "FeatureOnlineStoreType",
     "FeatureOnlineStore",
     "FeatureView",

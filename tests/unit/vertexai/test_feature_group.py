@@ -15,22 +15,32 @@
 # limitations under the License.
 #
 
+import re
 from typing import Dict, List
-from unittest.mock import patch
+from unittest import mock
+from unittest.mock import call, patch
 
+from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from vertexai.resources.preview.feature_store import (
+    feature_group,
+)
 from vertexai.resources.preview import (
     FeatureGroup,
 )
-import vertexai.resources.preview.feature_store.utils as fs_utils
+from vertexai.resources.preview.feature_store import (
+    FeatureGroupBigQuerySource,
+)
 import pytest
 from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client,
 )
+from google.cloud.aiplatform.compat import types
 
 
 from feature_store_constants import (
+    _TEST_PARENT,
     _TEST_PROJECT,
     _TEST_LOCATION,
     _TEST_FG1,
@@ -46,6 +56,16 @@ pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
 
 @pytest.fixture
+def fg_logger_mock():
+    with patch.object(
+        feature_group._LOGGER,
+        "info",
+        wraps=feature_group._LOGGER.info,
+    ) as logger_mock:
+        yield logger_mock
+
+
+@pytest.fixture
 def get_fg_mock():
     with patch.object(
         feature_registry_service_client.FeatureRegistryServiceClient,
@@ -53,6 +73,18 @@ def get_fg_mock():
     ) as get_fg_mock:
         get_fg_mock.return_value = _TEST_FG1
         yield get_fg_mock
+
+
+@pytest.fixture
+def create_fg_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "create_feature_group",
+    ) as create_fg_mock:
+        create_fg_lro_mock = mock.Mock(ga_operation.Operation)
+        create_fg_lro_mock.result.return_value = _TEST_FG1
+        create_fg_mock.return_value = create_fg_lro_mock
+        yield create_fg_mock
 
 
 def fg_eq(
@@ -68,7 +100,7 @@ def fg_eq(
     """Check if a FeatureGroup has the appropriate values set."""
     assert fg_to_check.name == name
     assert fg_to_check.resource_name == resource_name
-    assert fg_to_check.source == fs_utils.FeatureGroupBigQuerySource(
+    assert fg_to_check.source == FeatureGroupBigQuerySource(
         uri=source_uri,
         entity_id_columns=entity_id_columns,
     )
@@ -89,6 +121,106 @@ def test_init(feature_group_name, get_fg_mock):
     get_fg_mock.assert_called_once_with(
         name=_TEST_FG1_PATH,
         retry=base._DEFAULT_RETRY,
+    )
+
+    fg_eq(
+        fg,
+        name=_TEST_FG1_ID,
+        resource_name=_TEST_FG1_PATH,
+        source_uri=_TEST_FG1_BQ_URI,
+        entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FG1_LABELS,
+    )
+
+
+def test_create_fg_no_source_raises_error():
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Please specify a valid source."),
+    ):
+        FeatureGroup.create("fg")
+
+
+def test_create_fg_bad_source_raises_error():
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Only FeatureGroupBigQuerySource is a supported source."),
+    ):
+        FeatureGroup.create("fg", source=int(1))
+
+
+def test_create_fg_no_source_bq_uri_raises_error():
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Please specify URI in BigQuery source."),
+    ):
+        FeatureGroup.create(
+            "fg", source=FeatureGroupBigQuerySource(uri=None, entity_id_columns=None)
+        )
+
+
+@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
+@pytest.mark.parametrize("sync", [True, False])
+def test_create_fg(
+    create_fg_mock, get_fg_mock, fg_logger_mock, create_request_timeout, sync
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup.create(
+        _TEST_FG1_ID,
+        source=FeatureGroupBigQuerySource(
+            uri=_TEST_FG1_BQ_URI,
+            entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+        ),
+        labels=_TEST_FG1_LABELS,
+        create_request_timeout=create_request_timeout,
+        sync=sync,
+    )
+
+    if not sync:
+        fg.wait()
+
+    # When creating, the FeatureOnlineStore object doesn't have the path set.
+    expected_fg = types.feature_group.FeatureGroup(
+        name=_TEST_FG1_ID,
+        big_query=types.feature_group.FeatureGroup.BigQuery(
+            big_query_source=types.io.BigQuerySource(
+                input_uri=_TEST_FG1_BQ_URI,
+            ),
+            entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+        ),
+        labels=_TEST_FG1_LABELS,
+    )
+    create_fg_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        feature_group=expected_fg,
+        feature_group_id=_TEST_FG1_ID,
+        metadata=(),
+        timeout=create_request_timeout,
+    )
+
+    fg_logger_mock.assert_has_calls(
+        [
+            call("Creating FeatureGroup"),
+            call(
+                f"Create FeatureGroup backing LRO: {create_fg_mock.return_value.operation.name}"
+            ),
+            call(
+                "FeatureGroup created. Resource name: projects/test-project/locations/us-central1/featureGroups/my_fg1"
+            ),
+            call("To use this FeatureGroup in another session:"),
+            call(
+                "feature_group = aiplatform.FeatureGroup('projects/test-project/locations/us-central1/featureGroups/my_fg1')"
+            ),
+        ]
     )
 
     fg_eq(
