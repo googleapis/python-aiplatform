@@ -19,6 +19,7 @@ from typing import Dict, List, Optional
 
 from google.cloud.aiplatform.compat.types import (
     explanation_v1beta1 as explanation,
+    machine_resources_v1beta1 as machine_resources,
     model_monitoring_alert_v1beta1 as model_monitoring_alert,
     model_monitoring_spec_v1beta1 as model_monitoring_spec,
 )
@@ -156,6 +157,11 @@ class FeatureAttributionSpec:
                 features=["feature1"]
                 default_alert_threshold=0.01,
                 feature_alert_thresholds={"feature1":0.02, "feature2":0.01},
+                batch_dedicated_resources=BatchDedicatedResources(
+                    starting_replica_count=1,
+                    max_replica_count=2,
+                    machine_spec=my_machine_spec,
+                ),
         )
 
     Attributes:
@@ -170,6 +176,10 @@ class FeatureAttributionSpec:
         feature_alert_thresholds (Dict[str, float]):
             Optional. Per feature alert threshold will override default alert
             threshold.
+        batch_dedicated_resources (machine_resources.BatchDedicatedResources):
+            Optional. The config of resources used by the Model Monitoring during
+            the batch explanation for non-AutoML models. If not set, `n1-standard-2`
+            machine type will be used by default.
     """
 
     def __init__(
@@ -177,10 +187,12 @@ class FeatureAttributionSpec:
         features: Optional[List[str]] = None,
         default_alert_threshold: Optional[float] = None,
         feature_alert_thresholds: Optional[Dict[str, float]] = None,
+        batch_dedicated_resources: Optional[machine_resources.BatchDedicatedResources] = None,
     ):
         self.features = features
         self.default_alert_threshold = default_alert_threshold
         self.feature_alert_thresholds = feature_alert_thresholds
+        self.batch_dedicated_resources = batch_dedicated_resources
 
     def _as_proto(
         self,
@@ -216,6 +228,7 @@ class FeatureAttributionSpec:
                 default_alert_condition=user_default_alert_threshold,
                 feature_alert_conditions=user_alert_thresholds,
                 features=user_features,
+                batch_explanation_dedicated_resources=self.batch_dedicated_resources,
             )
         )
 
