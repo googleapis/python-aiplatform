@@ -309,29 +309,7 @@ class GenerationConfig(proto.Message):
                The model needs to be prompted to output the appropriate
                response type, otherwise the behavior is undefined. This
                is a preview feature.
-
-        response_style (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ResponseStyle):
-            Control Three levels of creativity in the model output.
-            Default: RESPONSE_STYLE_BALANCED
     """
-
-    class ResponseStyle(proto.Enum):
-        r"""Choices of the response style.
-
-        Values:
-            RESPONSE_STYLE_UNSPECIFIED (0):
-                response style unspecified.
-            RESPONSE_STYLE_PRECISE (1):
-                Precise response.
-            RESPONSE_STYLE_BALANCED (2):
-                Default response style.
-            RESPONSE_STYLE_CREATIVE (3):
-                Creative response style.
-        """
-        RESPONSE_STYLE_UNSPECIFIED = 0
-        RESPONSE_STYLE_PRECISE = 1
-        RESPONSE_STYLE_BALANCED = 2
-        RESPONSE_STYLE_CREATIVE = 3
 
     temperature: float = proto.Field(
         proto.FLOAT,
@@ -375,11 +353,6 @@ class GenerationConfig(proto.Message):
     response_mime_type: str = proto.Field(
         proto.STRING,
         number=13,
-    )
-    response_style: ResponseStyle = proto.Field(
-        proto.ENUM,
-        number=14,
-        enum=ResponseStyle,
     )
 
 
