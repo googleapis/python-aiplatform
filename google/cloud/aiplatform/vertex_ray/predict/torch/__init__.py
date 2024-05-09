@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.vertex_ray.predict.xgboost import (
-    register_xgboost,
-)
+from .register import get_pytorch_model_from
 
-__all__ = ("register_xgboost",)
+__all__ = ("get_pytorch_model_from",)

@@ -20,7 +20,7 @@ import os
 import ray
 from ray.air._internal.torch_utils import load_torch_model
 import tempfile
-from google.cloud.aiplatform.preview.vertex_ray.util._validation_utils import (
+from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
 )
 from google.cloud.aiplatform.utils import gcs_utils

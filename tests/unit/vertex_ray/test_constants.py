@@ -18,8 +18,8 @@
 import dataclasses
 import sys
 
-from google.cloud.aiplatform.preview.vertex_ray.util.resources import Cluster
-from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
+from google.cloud.aiplatform.vertex_ray.util.resources import Cluster
+from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
 )
 from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec

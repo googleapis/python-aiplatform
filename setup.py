@@ -41,9 +41,9 @@ packages = [
 
 # Add vertex_ray relative packages
 packages += [
-    package.replace("google.cloud.aiplatform.preview.vertex_ray", "vertex_ray")
+    package.replace("google.cloud.aiplatform.vertex_ray", "vertex_ray")
     for package in setuptools.PEP420PackageFinder.find()
-    if package.startswith("google.cloud.aiplatform.preview.vertex_ray")
+    if package.startswith("google.cloud.aiplatform.vertex_ray")
 ]
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
@@ -215,7 +215,7 @@ setuptools.setup(
     description=description,
     long_description=readme,
     packages=packages,
-    package_dir={"vertex_ray": "google/cloud/aiplatform/preview/vertex_ray"},
+    package_dir={"vertex_ray": "google/cloud/aiplatform/vertex_ray"},
     package_data={"": ["*.html.j2"]},
     entry_points={
         "console_scripts": [

@@ -25,11 +25,11 @@ import warnings
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.preview.vertex_ray.predict.util import constants
-from google.cloud.aiplatform.preview.vertex_ray.predict.util import (
+from google.cloud.aiplatform.vertex_ray.predict.util import constants
+from google.cloud.aiplatform.vertex_ray.predict.util import (
     predict_utils,
 )
-from google.cloud.aiplatform.preview.vertex_ray.util._validation_utils import (
+from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
 )
 

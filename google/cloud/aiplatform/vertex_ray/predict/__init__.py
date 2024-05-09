@@ -1,4 +1,4 @@
-"""Ray on Vertex AI Prediction Tensorflow."""
+"""Ray on Vertex AI Prediction."""
 
 # -*- coding: utf-8 -*-
 
@@ -16,9 +16,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from google.cloud.aiplatform.vertex_ray.predict.xgboost import (
-    register_xgboost,
-)
-
-__all__ = ("register_xgboost",)

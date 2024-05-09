@@ -25,8 +25,8 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
     PersistentResourceClientWithOverride,
 )
-from google.cloud.aiplatform.preview.vertex_ray.util import _validation_utils
-from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
+from google.cloud.aiplatform.vertex_ray.util import _validation_utils
+from google.cloud.aiplatform.vertex_ray.util.resources import (
     Cluster,
     Resources,
 )

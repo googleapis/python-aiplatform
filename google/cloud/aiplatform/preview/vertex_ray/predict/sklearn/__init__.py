@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
-from .register import register_sklearn
+from google.cloud.aiplatform.vertex_ray.predict.sklearn import (
+    register_sklearn,
+)
 
 __all__ = ("register_sklearn",)

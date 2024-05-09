@@ -22,8 +22,8 @@ from google.api_core import operation
 from google.cloud import bigquery
 from google.cloud import bigquery_storage
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview.vertex_ray import bigquery_datasource
-from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasink import (
+from google.cloud.aiplatform.vertex_ray import bigquery_datasource
+from google.cloud.aiplatform.vertex_ray.bigquery_datasink import (
     _BigQueryDatasink,
 )
 import test_constants as tc

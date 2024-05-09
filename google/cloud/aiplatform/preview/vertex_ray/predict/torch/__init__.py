@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
-from .register import get_pytorch_model_from
+from google.cloud.aiplatform.vertex_ray.predict.torch import (
+    get_pytorch_model_from,
+)
 
 __all__ = ("get_pytorch_model_from",)

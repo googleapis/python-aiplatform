@@ -17,8 +17,8 @@ import importlib
 
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview import vertex_ray
-from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
+from google.cloud.aiplatform import vertex_ray
+from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
     NodeImages,
 )

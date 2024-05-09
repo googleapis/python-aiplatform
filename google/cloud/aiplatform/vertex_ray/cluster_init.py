@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ServiceAccountSpec,
 )
 
-from google.cloud.aiplatform.preview.vertex_ray.util import (
+from google.cloud.aiplatform.vertex_ray.util import (
     _gapic_utils,
     _validation_utils,
     resources,
