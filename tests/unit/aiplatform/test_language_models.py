@@ -1661,7 +1661,7 @@ def get_endpoint_mock():
 @pytest.fixture
 def mock_deploy_tuned_embedding_model(get_endpoint_mock):
     with mock.patch.object(
-        _language_models._TunableTextEmbeddingModelMixin, "deploy_tuned_model"
+        _language_models._PreviewTunableTextEmbeddingModelMixin, "deploy_tuned_model"
     ) as mock_text_generation_model:
         mock_text_generation_model.return_value._model_id = (
             test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
@@ -2289,10 +2289,11 @@ class TestLanguageModels:
         indirect=True,
     )
     @pytest.mark.parametrize(
-        "base_model_version_id,tune_args,expected_pipeline_args",
+        "base_model_version_id,use_preview_module,tune_args,expected_pipeline_args",
         [  # Do not pass any optional parameters.
             (
                 "textembedding-gecko@003",
+                False,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2309,6 +2310,7 @@ class TestLanguageModels:
             # Pass all optional parameters.
             (
                 "text-multilingual-embedding-002",
+                True,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2323,6 +2325,8 @@ class TestLanguageModels:
                     accelerator_count=1,
                     machine_type="n1-highmem-16",
                     task_type="DEFAULT",
+                    output_dimensionality=128,
+                    learning_rate_multiplier=0.1,
                 ),
                 dict(
                     train_steps=30,
@@ -2339,6 +2343,8 @@ class TestLanguageModels:
                     validation_label_path="gs://bucket/validation.tsv",
                     encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
                     task_type="DEFAULT",
+                    output_dimensionality=128,
+                    learning_rate_multiplier=0.1,
                 ),
             ),
         ],
@@ -2357,6 +2363,7 @@ class TestLanguageModels:
         tune_args,
         expected_pipeline_args,
         base_model_version_id,
+        use_preview_module,
     ):
         """Tests tuning the text embedding model."""
         aiplatform.init(
@@ -2371,7 +2378,10 @@ class TestLanguageModels:
                 _TEXT_GECKO_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = language_models.TextEmbeddingModel.from_pretrained(
+            language_models_module = (
+                preview_language_models if use_preview_module else language_models
+            )
+            model = language_models_module.TextEmbeddingModel.from_pretrained(
                 base_model_version_id
             )
             tuning_job = model.tune_model(**tune_args)

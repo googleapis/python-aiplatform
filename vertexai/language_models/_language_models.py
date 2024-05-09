@@ -239,6 +239,7 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         accelerator_count: Optional[int] = None,
         accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
         max_context_length: Optional[str] = None,
+        output_dimensionality: Optional[int] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -273,6 +274,8 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             accelerator_type: Type of accelerator to use. Type can be "TPU" or "GPU". Type is ignored, if accelerator is specified.
             max_context_length: The max context length used for tuning.
                 Can be either '8k' or '32k'
+            output_dimensionality: The output dimensionality of the tuned model,
+                for text embedding tuning.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -293,6 +296,8 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             tuning_parameters["batch_size"] = batch_size
         if train_steps is not None:
             tuning_parameters["train_steps"] = train_steps
+        if output_dimensionality is not None:
+            tuning_parameters["output_dimensionality"] = output_dimensionality
         if learning_rate is not None:
             _LOGGER.warning(
                 "The learning_rate parameter is deprecated."
@@ -2189,7 +2194,7 @@ class _TextEmbeddingModel(_LanguageModel):
 # for corpus, queries, test and validation data.
 # TODO(b/625884109): Validate input args, batch_size >0 and train_steps >30, and
 # task_type must be 'DEFAULT' or None if _model_id is textembedding-gecko@001.
-class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
+class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
     @classmethod
     def get_tuned_model(cls, *args, **kwargs):
         del args, kwargs  # Unused.
@@ -2213,7 +2218,9 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
         machine_type: Optional[str] = None,
         accelerator: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-    ) -> "_LanguageModelTuningJob":
+        output_dimensionality: Optional[int] = None,
+        learning_rate_multiplier: Optional[float] = None,
+    ) -> "_TextEmbeddingModelTuningJob":
         """Tunes a model based on training data.
 
         This method launches and returns an asynchronous model tuning job.
@@ -2229,14 +2236,30 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
             queries_data: URI pointing to data in JSON lines format.
             test_data: URI pointing to data in TSV format.
             validation_data: URI pointing to data in TSV format.
-            batch_size: Size of batch.
-            train_steps: Number of training batches to tune on.
+            batch_size: The training batch size.
+            train_steps: The number of steps to perform model tuning. Must
+                be greater than 30.
             tuned_model_location: GCP location where the tuned model should be deployed.
             model_display_name: Custom display name for the tuned model.
-            task_type: Type of task. Can be "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING", "QUESTION_ANSWERING", or "FACT_VERIFICATION".
-            machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
-            accelerator_count: Count of accelerators.
-            accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
+            task_type: The task type expected to be used during inference.
+                Valid values are `DEFAULT`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`,
+                `SEMANTIC_SIMILARITY`, `CLASSIFICATION`, `CLUSTERING`,
+                `FACT_VERIFICATION`, and `QUESTION_ANSWERING`.
+            machine_type: The machine type to use for training. For information
+                about selecting the machine type that matches the accelerator
+                type and count you have selected, see
+                https://cloud.google.com/compute/docs/gpus.
+            accelerator: The accelerator type to use for tuning, for example
+                `NVIDIA_TESLA_V100`. For possible values, see
+                https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-embeddings#using-accelerators.
+            accelerator_count: The number of accelerators to use when training.
+                Using a greater number of accelerators may make training faster,
+                but has no effect on quality.
+            output_dimensionality: The desired embedding dimension of your
+                tuned model, up to 768. This is only supported for models
+                `text-embedding-004` and `text-multilingual-embedding-002`.
+            learning_rate_multiplier: A multiplier to apply to the
+                recommended learning rate during tuning.
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
             Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
@@ -2260,6 +2283,8 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
             machine_type=machine_type,
             accelerator=accelerator,
             accelerator_count=accelerator_count,
+            output_dimensionality=output_dimensionality,
+            learning_rate_multiplier=learning_rate_multiplier,
         )
 
     def _bundle_up_tuning_job(self, pipeline_job):
@@ -2318,14 +2343,95 @@ class _TunableTextEmbeddingModelMixin(_TunableModelMixin):
         return model
 
 
+class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
+    def tune_model(
+        self,
+        *,
+        training_data: Optional[str] = None,
+        corpus_data: Optional[str] = None,
+        queries_data: Optional[str] = None,
+        test_data: Optional[str] = None,
+        validation_data: Optional[str] = None,
+        batch_size: Optional[int] = None,
+        train_steps: Optional[int] = None,
+        tuned_model_location: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        task_type: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+    ) -> "_TextEmbeddingModelTuningJob":
+        """Tunes a model based on training data.
+
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+
+        Args:
+            training_data: URI pointing to training data in TSV format.
+            corpus_data: URI pointing to data in JSON lines format.
+            queries_data: URI pointing to data in JSON lines format.
+            test_data: URI pointing to data in TSV format.
+            validation_data: URI pointing to data in TSV format.
+            batch_size: The training batch size.
+            train_steps: The number of steps to perform model tuning. Must
+                be greater than 30.
+            tuned_model_location: GCP location where the tuned model should be deployed.
+            model_display_name: Custom display name for the tuned model.
+            task_type: The task type expected to be used during inference.
+                Valid values are `DEFAULT`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`,
+                `SEMANTIC_SIMILARITY`, `CLASSIFICATION`, `CLUSTERING`,
+                `FACT_VERIFICATION`, and `QUESTION_ANSWERING`.
+            machine_type: The machine type to use for training. For information
+                about selecting the machine type that matches the accelerator
+                type and count you have selected, see
+                https://cloud.google.com/compute/docs/gpus.
+            accelerator: The accelerator type to use for tuning, for example
+                `NVIDIA_TESLA_V100`. For possible values, see
+                https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-embeddings#using-accelerators.
+            accelerator_count: The number of accelerators to use when training.
+                Using a greater number of accelerators may make training faster,
+                but has no effect on quality.
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and
+            returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the provided parameter combinations or values are not
+                supported.
+            RuntimeError: If the model does not support tuning
+        """
+
+        return super().tune_model(
+            training_data=training_data,
+            corpus_data=corpus_data,
+            queries_data=queries_data,
+            test_data=test_data,
+            validation_data=validation_data,
+            task_type=task_type,
+            batch_size=batch_size,
+            train_steps=train_steps,
+            tuned_model_location=tuned_model_location,
+            model_display_name=model_display_name,
+            machine_type=machine_type,
+            accelerator=accelerator,
+            accelerator_count=accelerator_count,
+        )
+
+
 class TextEmbeddingModel(_TextEmbeddingModel, _TunableTextEmbeddingModelMixin):
     __module__ = "vertexai.language_models"
 
 
 class _PreviewTextEmbeddingModel(
-    TextEmbeddingModel,
+    _TextEmbeddingModel,
     _ModelWithBatchPredict,
     _CountTokensMixin,
+    _PreviewTunableTextEmbeddingModelMixin,
 ):
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"
