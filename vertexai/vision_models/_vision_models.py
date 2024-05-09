@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# pylint: disable=bad-continuation, line-too-long, protected-access
 """Classes for working with vision models."""
 
 import base64
@@ -100,14 +101,21 @@ class Image:
         return image
 
     @property
+    def _blob(self) -> storage.Blob:
+        if self._gcs_uri is None:
+            raise AttributeError("_blob is only supported when gcs_uri is set.")
+        storage_client = storage.Client(
+            credentials=aiplatform_initializer.global_config.credentials
+        )
+        blob = storage.Blob.from_string(uri=self._gcs_uri, client=storage_client)
+        # Needed to populate `blob.content_type`
+        blob.reload()
+        return blob
+
+    @property
     def _image_bytes(self) -> bytes:
         if self._loaded_bytes is None:
-            storage_client = storage.Client(
-                credentials=aiplatform_initializer.global_config.credentials
-            )
-            self._loaded_bytes = storage.Blob.from_string(
-                uri=self._gcs_uri, client=storage_client
-            ).download_as_bytes()
+            self._loaded_bytes = self._blob.download_as_bytes()
         return self._loaded_bytes
 
     @_image_bytes.setter
@@ -117,12 +125,26 @@ class Image:
     @property
     def _pil_image(self) -> "PIL_Image.Image":
         if self._loaded_image is None:
+            if not PIL_Image:
+                raise RuntimeError(
+                    "The PIL module is not available. Please install the Pillow package."
+                )
             self._loaded_image = PIL_Image.open(io.BytesIO(self._image_bytes))
         return self._loaded_image
 
     @property
     def _size(self):
         return self._pil_image.size
+
+    @property
+    def _mime_type(self) -> str:
+        """Returns the MIME type of the image."""
+        if self._gcs_uri:
+            return self._blob.content_type
+        if PIL_Image:
+            return PIL_Image.MIME.get(self._pil_image.format, "image/jpeg")
+        # Fall back to jpeg
+        return "image/jpeg"
 
     def show(self):
         """Shows the image.
@@ -146,7 +168,7 @@ class Image:
         Returns:
             Base64 encoding of the image as a string.
         """
-        # ! b64encode returns `bytes` object, not ``str.
+        # ! b64encode returns `bytes` object, not `str`.
         # We need to convert `bytes` to `str`, otherwise we get service error:
         # "received initial metadata size exceeds limit"
         return base64.b64encode(self._image_bytes).decode("ascii")
@@ -197,19 +219,34 @@ class Video:
         return video
 
     @property
+    def _blob(self) -> storage.Blob:
+        if self._gcs_uri is None:
+            raise AttributeError("_blob is only supported when gcs_uri is set.")
+        storage_client = storage.Client(
+            credentials=aiplatform_initializer.global_config.credentials
+        )
+        blob = storage.Blob.from_string(uri=self._gcs_uri, client=storage_client)
+        # Needed to populate `blob.content_type`
+        blob.reload()
+        return blob
+
+    @property
     def _video_bytes(self) -> bytes:
         if self._loaded_bytes is None:
-            storage_client = storage.Client(
-                credentials=aiplatform_initializer.global_config.credentials
-            )
-            self._loaded_bytes = storage.Blob.from_string(
-                uri=self._gcs_uri, client=storage_client
-            ).download_as_bytes()
+            self._loaded_bytes = self._blob.download_as_bytes()
         return self._loaded_bytes
 
     @_video_bytes.setter
     def _video_bytes(self, value: bytes):
         self._loaded_bytes = value
+
+    @property
+    def _mime_type(self) -> str:
+        """Returns the MIME type of the video."""
+        if self._gcs_uri:
+            return self._blob.content_type
+        # Fall back to mp4
+        return "video/mp4"
 
     def save(self, location: str):
         """Saves video to a file.
@@ -225,7 +262,7 @@ class Video:
         Returns:
             Base64 encoding of the video as a string.
         """
-        # ! b64encode returns `bytes` object, not ``str.
+        # ! b64encode returns `bytes` object, not `str`.
         # We need to convert `bytes` to `str`, otherwise we get service error:
         # "received initial metadata size exceeds limit"
         return base64.b64encode(self._video_bytes).decode("ascii")
@@ -582,8 +619,7 @@ class ImageGenerationModel(
                 * "16:9" : 16:9 aspect ratio
                 * "4:3" : 4:3 aspect ratio
                 * "3:4" : 3:4 aspect_ratio
-            guidance_scale: Controls the strength of the prompt. Suggested values
-                are:
+            guidance_scale: Controls the strength of the prompt. Suggested values are:
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
@@ -667,8 +703,7 @@ class ImageGenerationModel(
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
-            edit_mode: Describes the editing mode for the request. Supported values
-                are:
+            edit_mode: Describes the editing mode for the request. Supported values are:
                 * inpainting-insert: fills the mask area based on the text prompt
                 (requires mask and text)
                 * inpainting-remove: removes the object(s) in the mask area.
@@ -677,7 +712,6 @@ class ImageGenerationModel(
                 (Requires mask)
                 * product-image: Changes the background for the predominant product
                 or subject in the image
-            segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
             mask_mode: Solicits generation of the mask (v/s providing mask as an
                 input). Supported values are:
                 * background: Automatically generates a mask for all regions except
@@ -686,6 +720,7 @@ class ImageGenerationModel(
                 subjects(s) of the image.
                 * semantic: Segment one or more of the segmentation classes using
                 class ID
+            segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
             mask_dilation: Defines the dilation percentage of the mask provided.
                 Float between 0 and 1. Defaults to 0.03
             product_position: Defines whether the product should stay fixed or be
@@ -1241,7 +1276,7 @@ class WatermarkVerificationResponse:
 
 
 class WatermarkVerificationModel(_model_garden_models._ModelGardenModel):
-    """Verifies if an image has a watermark"""
+    """Verifies if an image has a watermark."""
 
     __module__ = "vertexai.preview.vision_models"
 
