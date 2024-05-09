@@ -534,7 +534,8 @@ async def _compute_metrics(
                 metric_name = metric
             tasks_by_metric[metric_name].append(task)
 
-    api_request_count = len(tasks_by_metric) * len(next(iter(tasks_by_metric.values())))
+    api_request_count = (len(api_metrics) + len(custom_metrics)) * len(
+        evaluation_run_config.dataset)
     _LOGGER.info(
         f"Computing metrics with a total of {api_request_count} Vertex online"
         " evaluation service requests."
