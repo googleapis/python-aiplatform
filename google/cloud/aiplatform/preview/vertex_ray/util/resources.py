@@ -41,7 +41,7 @@ class Resources:
             us-docker.pkg.dev/my-project/ray-gpu.2-9.py310-tf:latest).
     """
 
-    machine_type: Optional[str] = "n1-standard-8"
+    machine_type: Optional[str] = "n1-standard-16"
     node_count: Optional[int] = 1
     accelerator_type: Optional[str] = None
     accelerator_count: Optional[int] = 0
@@ -81,6 +81,8 @@ class Cluster:
             managed in the Vertex API service. For Ray Job API, VPC network is
             not required because cluster connection can be accessed through
             dashboard address.
+        service_account: Service account to be used for running Ray programs on
+            the cluster.
         state: Describes the cluster state (defined in PersistentResource.State).
         python_version: Python version for the ray cluster (e.g. "3.10").
         ray_version: Ray version for the ray cluster (e.g. "2.4").
@@ -102,6 +104,7 @@ class Cluster:
 
     cluster_resource_name: str = None
     network: str = None
+    service_account: str = None
     state: PersistentResource.State = None
     python_version: str = None
     ray_version: str = None

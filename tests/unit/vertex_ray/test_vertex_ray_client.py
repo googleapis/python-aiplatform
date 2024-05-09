@@ -43,6 +43,17 @@ _TEST_VERTEX_RAY_CLIENT_CONTEXT = vertex_ray.client_builder._VertexRayClientCont
     ray_client_context=_TEST_CLIENT_CONTEXT,
 )
 
+_TEST_VERTEX_RAY_CLIENT_CONTEXT_PUBLIC = (
+    vertex_ray.client_builder._VertexRayClientContext(
+        persistent_resource_id="MOCK_PERSISTENT_RESOURCE_ID",
+        ray_head_uris={
+            "RAY_DASHBOARD_URI": tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            "RAY_CLIENT_ENDPOINT": tc.ClusterConstants.TEST_VERTEX_RAY_CLIENT_ENDPOINT,
+        },
+        ray_client_context=_TEST_CLIENT_CONTEXT,
+    )
+)
+
 
 @pytest.fixture
 def ray_client_init_mock():
@@ -73,6 +84,26 @@ def get_persistent_resource_status_running_no_ray_mock():
         vertex_ray.util._gapic_utils, "get_persistent_resource"
     ) as resolve_head_ip:
         resolve_head_ip.return_value = tc.ClusterConstants.TEST_RESPONSE_NO_RAY_RUNNING
+        yield resolve_head_ip
+
+
+@pytest.fixture
+def get_persistent_resource_status_running_byosa_public_mock():
+    with mock.patch.object(
+        vertex_ray.util._gapic_utils, "get_persistent_resource"
+    ) as resolve_head_ip:
+        resolve_head_ip.return_value = tc.ClusterConstants.TEST_RESPONSE_1_POOL_BYOSA
+        yield resolve_head_ip
+
+
+@pytest.fixture
+def get_persistent_resource_status_running_byosa_private_mock():
+    with mock.patch.object(
+        vertex_ray.util._gapic_utils, "get_persistent_resource"
+    ) as resolve_head_ip:
+        resolve_head_ip.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_1_POOL_BYOSA_PRIVATE
+        )
         yield resolve_head_ip
 
 
@@ -134,6 +165,38 @@ class TestClientBuilder:
             "Ray Cluster ",
             tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             " failed to start Head node properly.",
+        )
+        with pytest.raises(ValueError) as exception:
+            vertex_ray.ClientBuilder(
+                tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
+            ).connect()
+
+            ray_client_connect_mock.assert_called_once_with()
+            assert str(exception.value) == expected_message
+
+    @tc.rovminversion
+    @pytest.mark.usefixtures("get_persistent_resource_status_running_byosa_public_mock")
+    def test_connect_running_byosa_public(self, ray_client_connect_mock):
+        connect_result = vertex_ray.ClientBuilder(
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
+        ).connect()
+        ray_client_connect_mock.assert_called_once_with()
+        assert connect_result == _TEST_VERTEX_RAY_CLIENT_CONTEXT_PUBLIC
+        assert (
+            connect_result.persistent_resource_id
+            == tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID
+        )
+
+    @tc.rovminversion
+    @pytest.mark.usefixtures(
+        "get_persistent_resource_status_running_byosa_private_mock"
+    )
+    def test_connect_running_byosa_private(self, ray_client_connect_mock):
+        expected_message = (
+            "Ray Cluster ",
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+            " failed to start Head node properly because custom service"
+            " account isn't supported in peered VPC network. ",
         )
         with pytest.raises(ValueError) as exception:
             vertex_ray.ClientBuilder(

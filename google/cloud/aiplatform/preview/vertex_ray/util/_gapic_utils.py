@@ -166,7 +166,10 @@ def persistent_resource_to_cluster(
     head_image_uri = (
         persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[head_id]
     )
-
+    if persistent_resource.resource_runtime_spec.service_account_spec.service_account:
+        cluster.service_account = (
+            persistent_resource.resource_runtime_spec.service_account_spec.service_account
+        )
     if not head_image_uri:
         head_image_uri = persistent_resource.resource_runtime_spec.ray_spec.image_uri
 

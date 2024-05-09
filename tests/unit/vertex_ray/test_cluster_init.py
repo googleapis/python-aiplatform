@@ -93,6 +93,34 @@ def get_persistent_resource_1_pool_custom_image_mock():
 
 
 @pytest.fixture
+def create_persistent_resource_1_pool_byosa_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "create_persistent_resource",
+    ) as create_persistent_resource_1_pool_byosa_mock:
+        create_persistent_resource_lro_mock = mock.Mock(ga_operation.Operation)
+        create_persistent_resource_lro_mock.result.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL_BYOSA
+        )
+        create_persistent_resource_1_pool_byosa_mock.return_value = (
+            create_persistent_resource_lro_mock
+        )
+        yield create_persistent_resource_1_pool_byosa_mock
+
+
+@pytest.fixture
+def get_persistent_resource_1_pool_byosa_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "get_persistent_resource",
+    ) as get_persistent_resource_1_pool_byosa_mock:
+        get_persistent_resource_1_pool_byosa_mock.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL_BYOSA
+        )
+        yield get_persistent_resource_1_pool_byosa_mock
+
+
+@pytest.fixture
 def create_persistent_resource_2_pools_mock():
     with mock.patch.object(
         PersistentResourceServiceClient,
@@ -426,6 +454,30 @@ class TestClusterManagement:
             ]
         )
 
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_byosa_mock")
+    def test_create_ray_cluster_byosa_success(
+        self, create_persistent_resource_1_pool_byosa_mock
+    ):
+        """If head and worker nodes are duplicate, merge to head pool."""
+        cluster_name = vertex_ray.create_ray_cluster(
+            head_node_type=tc.ClusterConstants.TEST_HEAD_NODE_TYPE_1_POOL,
+            worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_1_POOL,
+            service_account=tc.ProjectConstants.TEST_SERVICE_ACCOUNT,
+            cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+        )
+
+        assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
+
+        request = persistent_resource_service.CreatePersistentResourceRequest(
+            parent=tc.ProjectConstants.TEST_PARENT,
+            persistent_resource=tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_BYOSA,
+            persistent_resource_id=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+        )
+
+        create_persistent_resource_1_pool_byosa_mock.assert_called_with(
+            request,
+        )
+
     def test_create_ray_cluster_head_multinode_error(self):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
@@ -507,6 +559,16 @@ class TestClusterManagement:
 
         get_persistent_resource_2_pools_custom_image_mock.assert_called_once()
         cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE)
+
+    def test_get_ray_cluster_byosa_success(
+        self, get_persistent_resource_1_pool_byosa_mock
+    ):
+        cluster = vertex_ray.get_ray_cluster(
+            cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
+        )
+
+        get_persistent_resource_1_pool_byosa_mock.assert_called_once()
+        cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER_BYOSA)
 
     @pytest.mark.usefixtures("get_persistent_resource_exception_mock")
     def test_get_ray_cluster_error(self):

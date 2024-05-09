@@ -98,8 +98,21 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
         public_address = self.response.resource_runtime.access_uris.get(
             "RAY_CLIENT_ENDPOINT"
         )
+        service_account = (
+            self.response.resource_runtime_spec.service_account_spec.service_account
+        )
+
         if public_address is None:
             address = private_address
+            if service_account:
+                raise ValueError(
+                    "[Ray on Vertex AI]: Ray Cluster ",
+                    address,
+                    " failed to start Head node properly because custom service"
+                    " account isn't supported in peered VPC network. Use public"
+                    " endpoint instead (createa a cluster withought specifying"
+                    " VPC network).",
+                )
         else:
             address = public_address
 
@@ -110,17 +123,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                 persistent_resource_id,
                 " Head node is not reachable. Please ensure that a valid VPC network has been specified.",
             )
-        # Handling service_account
-        service_account = (
-            self.response.resource_runtime_spec.service_account_spec.service_account
-        )
 
-        if service_account:
-            raise ValueError(
-                "[Ray on Vertex AI]: Ray Cluster ",
-                address,
-                " failed to start Head node properly because custom service account isn't supported.",
-            )
         logging.debug("[Ray on Vertex AI]: Resolved head node ip: %s", address)
         cluster = _gapic_utils.persistent_resource_to_cluster(
             persistent_resource=self.response

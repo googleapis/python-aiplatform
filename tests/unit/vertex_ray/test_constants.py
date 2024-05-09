@@ -16,6 +16,7 @@
 #
 
 import dataclasses
+import sys
 
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
@@ -28,10 +29,10 @@ from google.cloud.aiplatform_v1beta1.types.machine_resources import (
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import RaySpec
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     RayMetricSpec,
 )
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import RaySpec
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
 )
@@ -41,9 +42,11 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
 )
-
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+    ServiceAccountSpec,
+)
 import pytest
-import sys
+
 
 rovminversion = pytest.mark.skipif(
     sys.version_info > (3, 10), reason="Requires python3.10 or lower"
@@ -67,6 +70,7 @@ class ProjectConstants:
     TEST_MODEL_ID = (
         f"projects/{TEST_GCP_PROJECT_NUMBER}/locations/{TEST_GCP_REGION}/models/456"
     )
+    TEST_SERVICE_ACCOUNT = "service-account@project.iam.gserviceaccount.com"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -78,6 +82,9 @@ class ClusterConstants:
     TEST_VERTEX_RAY_JOB_CLIENT_IP = "1.2.3.4:8888"
     TEST_VERTEX_RAY_DASHBOARD_ADDRESS = (
         "48b400ad90b8dd3c-dot-us-central1.aiplatform-training.googleusercontent.com"
+    )
+    TEST_VERTEX_RAY_CLIENT_ENDPOINT = (
+        "88888.us-central1-1234567.staging-ray.vertexai.goog:443"
     )
     TEST_VERTEX_RAY_PR_ID = "user-persistent-resource-1234567890"
     TEST_VERTEX_RAY_PR_ADDRESS = (
@@ -106,7 +113,7 @@ class ClusterConstants:
     TEST_RESOURCE_POOL_0 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-8",
+            machine_type="n1-standard-16",
             accelerator_type="NVIDIA_TESLA_P100",
             accelerator_count=1,
         ),
@@ -147,6 +154,20 @@ class ClusterConstants:
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
+    TEST_REQUEST_RUNNING_1_POOL_BYOSA = PersistentResource(
+        resource_pools=[TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
+            service_account_spec=ServiceAccountSpec(
+                enable_custom_service_account=True,
+                service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
+            ),
+        ),
+        network=None,
+    )
     # Get response has generated name, and URIs
     TEST_RESPONSE_RUNNING_1_POOL = PersistentResource(
         name=TEST_VERTEX_RAY_PR_ADDRESS,
@@ -185,6 +206,50 @@ class ClusterConstants:
         ),
         state="RUNNING",
     )
+    TEST_RESPONSE_RUNNING_1_POOL_BYOSA = PersistentResource(
+        name=TEST_VERTEX_RAY_PR_ADDRESS,
+        resource_pools=[TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
+            service_account_spec=ServiceAccountSpec(
+                enable_custom_service_account=True,
+                service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
+            ),
+        ),
+        network=None,
+        resource_runtime=ResourceRuntime(
+            access_uris={
+                "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+                "RAY_CLIENT_ENDPOINT": TEST_VERTEX_RAY_CLIENT_ENDPOINT,
+            }
+        ),
+        state="RUNNING",
+    )
+    TEST_RESPONSE_1_POOL_BYOSA_PRIVATE = PersistentResource(
+        name=TEST_VERTEX_RAY_PR_ADDRESS,
+        resource_pools=[TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
+            service_account_spec=ServiceAccountSpec(
+                enable_custom_service_account=True,
+                service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
+            ),
+        ),
+        network=ProjectConstants.TEST_VPC_NETWORK,
+        resource_runtime=ResourceRuntime(
+            access_uris={
+                "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+                "RAY_CLIENT_ENDPOINT": TEST_VERTEX_RAY_CLIENT_ENDPOINT,
+            }
+        ),
+        state="RUNNING",
+    )
     # 2_POOL: worker_node_types and head_node_type have different MachineSpecs
     TEST_HEAD_NODE_TYPE_2_POOLS = Resources()
     TEST_WORKER_NODE_TYPES_2_POOLS = [
@@ -208,7 +273,7 @@ class ClusterConstants:
     TEST_RESOURCE_POOL_1 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-8",
+            machine_type="n1-standard-16",
         ),
         disk_spec=DiskSpec(
             boot_disk_type="pd-ssd",
@@ -302,6 +367,7 @@ class ClusterConstants:
         python_version="3.10",
         ray_version="2.9",
         network=ProjectConstants.TEST_VPC_NETWORK,
+        service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,
         worker_node_types=TEST_WORKER_NODE_TYPES_1_POOL,
@@ -312,6 +378,7 @@ class ClusterConstants:
         python_version="3.10",
         ray_version="2.9",
         network=ProjectConstants.TEST_VPC_NETWORK,
+        service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS,
         worker_node_types=TEST_WORKER_NODE_TYPES_2_POOLS,
@@ -320,9 +387,21 @@ class ClusterConstants:
     TEST_CLUSTER_CUSTOM_IMAGE = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
         network=ProjectConstants.TEST_VPC_NETWORK,
+        service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS_CUSTOM_IMAGE,
         worker_node_types=TEST_WORKER_NODE_TYPES_2_POOLS_CUSTOM_IMAGE,
+        dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+    )
+    TEST_CLUSTER_BYOSA = Cluster(
+        cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
+        python_version="3.10",
+        ray_version="2.9",
+        network="",
+        service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
+        state="RUNNING",
+        head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,
+        worker_node_types=TEST_WORKER_NODE_TYPES_1_POOL,
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
     )
     TEST_BEARER_TOKEN = "test-bearer-token"

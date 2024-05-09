@@ -32,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     RayMetricSpec,
     ResourcePool,
     ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 
 from google.cloud.aiplatform.preview.vertex_ray.util import (
@@ -48,6 +49,7 @@ def create_ray_cluster(
     python_version: Optional[str] = "3.10",
     ray_version: Optional[str] = "2.9",
     network: Optional[str] = None,
+    service_account: Optional[str] = None,
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
     custom_images: Optional[resources.NodeImages] = None,
@@ -78,7 +80,9 @@ def create_ray_cluster(
 
     cluster_resource_name = vertex_ray.create_ray_cluster(
         head_node_type=head_node_type,
-        network="projects/my-project-number/global/networks/my-vpc-name",
+        network="projects/my-project-number/global/networks/my-vpc-name",  # Optional
+        service_account="my-service-account@my-project-number.iam.gserviceaccount.com",  # Optional
+        cluster_name="my-cluster-name",  # Optional
         worker_node_types=worker_node_types,
         ray_version="2.9",
     )
@@ -100,6 +104,8 @@ def create_ray_cluster(
             Vertex API service. For Ray Job API, VPC network is not required
             because Ray Cluster connection can be accessed through dashboard
             address.
+        service_account: Service account to be used for running Ray programs on
+            the cluster.
         cluster_name: This value may be up to 63 characters, and valid
             characters are `[a-z0-9_-]`. The first character cannot be a number
             or hyphen.
@@ -254,7 +260,17 @@ def create_ray_cluster(
     ray_spec = RaySpec(
         resource_pool_images=resource_pool_images, ray_metric_spec=ray_metric_spec
     )
-    resource_runtime_spec = ResourceRuntimeSpec(ray_spec=ray_spec)
+    if service_account:
+        service_account_spec = ServiceAccountSpec(
+            enable_custom_service_account=True,
+            service_account=service_account,
+        )
+        resource_runtime_spec = ResourceRuntimeSpec(
+            ray_spec=ray_spec,
+            service_account_spec=service_account_spec,
+        )
+    else:
+        resource_runtime_spec = ResourceRuntimeSpec(ray_spec=ray_spec)
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,
         network=network,
