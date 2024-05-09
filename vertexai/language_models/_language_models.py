@@ -2192,8 +2192,6 @@ class _TextEmbeddingModel(_LanguageModel):
 
 # TODO(b/625884109): Support Union[str, "pandas.core.frame.DataFrame"]
 # for corpus, queries, test and validation data.
-# TODO(b/625884109): Validate input args, batch_size >0 and train_steps >30, and
-# task_type must be 'DEFAULT' or None if _model_id is textembedding-gecko@001.
 class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
     @classmethod
     def get_tuned_model(cls, *args, **kwargs):
@@ -2265,9 +2263,39 @@ class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
             Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
 
         Raises:
-            ValueError: If the "tuned_model_location" value is not supported
+            ValueError: If the provided parameter combinations or values are not
+                supported.
             RuntimeError: If the model does not support tuning
         """
+        if batch_size is not None and batch_size not in range(1, 1024):
+            raise ValueError(
+                f"batch_size must be between 1 and 1024. Given {batch_size}."
+            )
+        if train_steps is not None and train_steps < 30:
+            raise ValueError(
+                f"train_steps must be greater than or equal to 30. Given {train_steps}."
+            )
+        if learning_rate_multiplier is not None and learning_rate_multiplier <= 0:
+            raise ValueError(
+                f"learning_rate_multiplier must be greater than 0. Given {learning_rate_multiplier}."
+            )
+        if output_dimensionality is not None and output_dimensionality not in range(
+            1, 769
+        ):
+            raise ValueError(
+                f"output_dimensionality must be an integer between 1 and 768. Given {output_dimensionality}."
+            )
+        for dataset in [
+            training_data,
+            corpus_data,
+            queries_data,
+            test_data,
+            validation_data,
+        ]:
+            if dataset is not None and not dataset.startswith("gs://"):
+                raise ValueError(
+                    f"Each tuning dataset file must be a Google Cloud Storage URI starting with 'gs://'. Given {dataset}."
+                )
 
         return super().tune_model(
             training_data=training_data,

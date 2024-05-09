@@ -2408,6 +2408,58 @@ class TestLanguageModels:
             )
 
     @pytest.mark.parametrize(
+        "optional_tune_args,error_regex",
+        [
+            (
+                dict(test_data="/tmp/bucket/test.tsv"),
+                "Each tuning dataset file must be a Google Cloud Storage URI starting with 'gs://'.",
+            ),
+            (
+                dict(output_dimensionality=-1),
+                "output_dimensionality must be an integer between 1 and 768",
+            ),
+            (
+                dict(learning_rate_multiplier=0),
+                "learning_rate_multiplier must be greater than 0",
+            ),
+            (
+                dict(train_steps=29),
+                "train_steps must be greater than or equal to 30",
+            ),
+            (
+                dict(batch_size=2048),
+                "batch_size must be between 1 and 1024",
+            ),
+        ],
+    )
+    def test_tune_text_embedding_model_invalid_values(
+        self, optional_tune_args, error_regex
+    ):
+        """Tests that certain embedding tuning values fail validation."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextEmbeddingModel.from_pretrained(
+                "text-multilingual-embedding-002"
+            )
+            with pytest.raises(ValueError, match=error_regex):
+                model.tune_model(
+                    training_data="gs://bucket/training.tsv",
+                    corpus_data="gs://bucket/corpus.jsonl",
+                    queries_data="gs://bucket/queries.jsonl",
+                    **optional_tune_args,
+                )
+
+    @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_JOB],
     )
