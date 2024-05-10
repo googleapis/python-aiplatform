@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.51.0](https://github.com/googleapis/python-aiplatform/compare/v1.50.0...v1.51.0) (2024-05-10)
+
+
+### Features
+
+* Add FeatureGroup create function ([3938107](https://github.com/googleapis/python-aiplatform/commit/393810728b6b940e4cc8e1ac7f55875e3b750beb))
+* Add FeatureGroup init/get ([e47d436](https://github.com/googleapis/python-aiplatform/commit/e47d436f24cc718e378a28c4a80293778e8c183a))
+* Add support for BaseModels in LangChain templates ([5eb885e](https://github.com/googleapis/python-aiplatform/commit/5eb885ee7e01eece15679ce400f222930da1ac16))
+* Added the `vision_models.Image._mime_type` property to make `vision_models.Image` compatible with `generative_models.Image` ([6557d88](https://github.com/googleapis/python-aiplatform/commit/6557d88eb73624c8dbc7da33db129f7cbdae8a06))
+* AutoSxS Pairwise Metric in Rapid Evaluation SDK ([b0c5eda](https://github.com/googleapis/python-aiplatform/commit/b0c5eda79489d4b32972b2acea647e3c8cdc3ce9))
+* GenAI - Grounding - Released Google Web Search retriever to GA ([32b030a](https://github.com/googleapis/python-aiplatform/commit/32b030a629a20d0557dba011df2658f46c199820))
+* GenAI - Tuning - Supervised - Added support for the `adapter_size` parameter ([88188d2](https://github.com/googleapis/python-aiplatform/commit/88188d294fc2ec55ec0b05640dc791a1a3a88255))
+* LLM - Made the tuning location parameters truly optional ([bae8429](https://github.com/googleapis/python-aiplatform/commit/bae8429ae078c69574d86280ae6c784aaa9b13b5))
+* LLM - Support tuning of new text embedding models by migrating to the new v1.1.3 pipeline. ([7fea754](https://github.com/googleapis/python-aiplatform/commit/7fea7547084277dc974cbacc517ca1e95629a034))
+* LLM - Text embedding - Added the `output_dimensionality` and `learning_rate_multiplier` parameters to text embedding tuning (Preview only) ([cc8bc96](https://github.com/googleapis/python-aiplatform/commit/cc8bc965932efb68a30db9decb5a24cf597b0d8b))
+* LLM - Text Embedding - Added validation for text embedding tuning parameters. ([5a300c1](https://github.com/googleapis/python-aiplatform/commit/5a300c1071fa1492502cfde95700e1b171cdfbfc))
+* Release Ray on Vertex SDK to GA ([f7c5132](https://github.com/googleapis/python-aiplatform/commit/f7c51327c49d000cc79d56bb5333ed7fea28fa01))
+* Support custom service account for Ray cluster creation and Ray Client connection ([e0c6227](https://github.com/googleapis/python-aiplatform/commit/e0c6227d0dd92d83c98cc3c7e7607fd252e74a32))
+* Support vector_distance_threshold filtering and file-based retrieval for RAG ([cd85d8f](https://github.com/googleapis/python-aiplatform/commit/cd85d8f74d3922de3f871415bacf77c594f0c547))
+
+
+### Bug Fixes
+
+* A bug in the evaluation library where the job crashes if only custom metrics are specified. ([c528b6f](https://github.com/googleapis/python-aiplatform/commit/c528b6ff44e2347797336db800ca01240e670d32))
+* Add DeprecationWarning to vertexai.preview predictive models SDK ([3c3727b](https://github.com/googleapis/python-aiplatform/commit/3c3727b48ce4ba12bdaf36806cda4907a788d38e))
+* Add MAX_TOKENS to the list of successful finish reasons for Rapid Evaluation SDK ([195c77e](https://github.com/googleapis/python-aiplatform/commit/195c77ed7320aea3ab5899427a922d606ed78997))
+* AttributeError for TorchModelSerializer.deserialize in torch &gt;=2.3.0 ([20b1866](https://github.com/googleapis/python-aiplatform/commit/20b18668f15c448813aad4f58f2a4d470d6da2ec))
+* GenAI - Fixed handling of multiple tools in `AutomaticFunctionCallingResponder` ([58e6ac9](https://github.com/googleapis/python-aiplatform/commit/58e6ac9b14daa42dc64d787156070c22bd7a1655))
+* Remove InternalServerError and Unknown evaluation service error from retriable exceptions ([12c147b](https://github.com/googleapis/python-aiplatform/commit/12c147b1f3e127c925b6c42b7dbbd4e949ff8e98))
+* Upload the reference model in model registry ([510c833](https://github.com/googleapis/python-aiplatform/commit/510c8334961cdb6f801863ecbd8fe49bf69b6c68))
+
 ## [1.50.0](https://github.com/googleapis/python-aiplatform/compare/v1.49.0...v1.50.0) (2024-05-02)
 
 
