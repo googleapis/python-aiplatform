@@ -2378,7 +2378,13 @@ class AutomaticFunctionCallingResponder:
                     )
                 callable_function = None
                 for tool in tools:
-                    callable_function = tool._callable_functions.get(function_call.name)
+                    new_callable_function = tool._callable_functions.get(function_call.name)
+                    if new_callable_function and callable_function:
+                        raise ValueError(
+                            "Multiple functions with the same name are not supported."
+                            f" Found {callable_function} and {new_callable_function}."
+                        )
+                    callable_function = new_callable_function
                 if not callable_function:
                     raise RuntimeError(
                         f"""Model has asked to call function "{function_call.name}" which was not found."""
