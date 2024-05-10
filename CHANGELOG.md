@@ -10,8 +10,6 @@
 * Add support for BaseModels in LangChain templates ([5eb885e](https://github.com/googleapis/python-aiplatform/commit/5eb885ee7e01eece15679ce400f222930da1ac16))
 * Added the `vision_models.Image._mime_type` property to make `vision_models.Image` compatible with `generative_models.Image` ([6557d88](https://github.com/googleapis/python-aiplatform/commit/6557d88eb73624c8dbc7da33db129f7cbdae8a06))
 * AutoSxS Pairwise Metric in Rapid Evaluation SDK ([b0c5eda](https://github.com/googleapis/python-aiplatform/commit/b0c5eda79489d4b32972b2acea647e3c8cdc3ce9))
-* GenAI - Added `response_style` to `GenerationConfig` ([cb8b10f](https://github.com/googleapis/python-aiplatform/commit/cb8b10fdfc301cb37976b707ce0636b3316393ea))
-* GenAI - Added `response_style` to `GenerationConfig` ([7279dab](https://github.com/googleapis/python-aiplatform/commit/7279dab402cc10fedf3c5ecab5c6a0609e4b7e5b))
 * GenAI - Grounding - Released Google Web Search retriever to GA ([32b030a](https://github.com/googleapis/python-aiplatform/commit/32b030a629a20d0557dba011df2658f46c199820))
 * GenAI - Tuning - Supervised - Added support for the `adapter_size` parameter ([88188d2](https://github.com/googleapis/python-aiplatform/commit/88188d294fc2ec55ec0b05640dc791a1a3a88255))
 * LLM - Made the tuning location parameters truly optional ([bae8429](https://github.com/googleapis/python-aiplatform/commit/bae8429ae078c69574d86280ae6c784aaa9b13b5))
