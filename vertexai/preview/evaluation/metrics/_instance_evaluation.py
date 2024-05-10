@@ -630,10 +630,8 @@ async def evaluate_instances_async(
             predicate=api_core.retry.if_exception_type(
                 api_core.exceptions.Aborted,
                 api_core.exceptions.DeadlineExceeded,
-                api_core.exceptions.InternalServerError,
                 api_core.exceptions.ResourceExhausted,
                 api_core.exceptions.ServiceUnavailable,
-                api_core.exceptions.Unknown,
                 api_core.exceptions.Cancelled,
             ),
         ),
