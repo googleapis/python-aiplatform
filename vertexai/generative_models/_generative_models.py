@@ -2012,6 +2012,28 @@ class SafetySetting:
 class grounding:  # pylint: disable=invalid-name
     """Grounding namespace."""
 
+    __module__ = "vertexai.generative_models"
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
+
+    class GoogleSearchRetrieval:
+        r"""Tool to retrieve public web data for grounding, powered by
+        Google Search.
+        """
+
+        def __init__(self):
+            """Initializes a Google Search Retrieval tool.
+            """
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+
+
+class preview_grounding:  # pylint: disable=invalid-name
+    """Grounding namespace (preview)."""
+
+    __name__ = "grounding"
+    __module__ = "vertexai.preview.generative_models"
+
     def __init__(self):
         raise RuntimeError("This class must not be instantiated.")
 
