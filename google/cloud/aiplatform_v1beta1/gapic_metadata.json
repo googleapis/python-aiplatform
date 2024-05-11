@@ -1564,6 +1564,85 @@
         }
       }
     },
+    "GenAiTuningService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "GenAiTuningServiceAsyncClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        }
+      }
+    },
     "IndexEndpointService": {
       "clients": {
         "grpc": {

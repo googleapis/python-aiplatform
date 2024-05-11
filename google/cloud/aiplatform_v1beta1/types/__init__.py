@@ -450,6 +450,13 @@ from .featurestore_service import (
     UpdateFeaturestoreOperationMetadata,
     UpdateFeaturestoreRequest,
 )
+from .genai_tuning_service import (
+    CancelTuningJobRequest,
+    CreateTuningJobRequest,
+    GetTuningJobRequest,
+    ListTuningJobsRequest,
+    ListTuningJobsResponse,
+)
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
 )
@@ -1061,6 +1068,15 @@ from .training_pipeline import (
     TimestampSplit,
     TrainingPipeline,
 )
+from .tuning_job import (
+    SupervisedHyperParameters,
+    SupervisedTuningDatasetDistribution,
+    SupervisedTuningDataStats,
+    SupervisedTuningSpec,
+    TunedModel,
+    TuningDataStats,
+    TuningJob,
+)
 from .types import (
     BoolArray,
     DoubleArray,
@@ -1478,6 +1494,11 @@ __all__ = (
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",
+    "CancelTuningJobRequest",
+    "CreateTuningJobRequest",
+    "GetTuningJobRequest",
+    "ListTuningJobsRequest",
+    "ListTuningJobsResponse",
     "HyperparameterTuningJob",
     "Index",
     "IndexDatapoint",
@@ -1955,6 +1976,13 @@ __all__ = (
     "StratifiedSplit",
     "TimestampSplit",
     "TrainingPipeline",
+    "SupervisedHyperParameters",
+    "SupervisedTuningDatasetDistribution",
+    "SupervisedTuningDataStats",
+    "SupervisedTuningSpec",
+    "TunedModel",
+    "TuningDataStats",
+    "TuningJob",
     "BoolArray",
     "DoubleArray",
     "Int64Array",
