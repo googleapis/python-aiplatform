@@ -294,6 +294,7 @@ class EndpointConstants:
     _TEST_ID_2 = "4366591682456584192"
     _TEST_ID_3 = "5820582938582924817"
     _TEST_ENDPOINT_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/endpoints/{_TEST_ID}"
+    _TEST_ENDPOINT_NAME_2 = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/endpoints/{_TEST_ID_2}"
     _TEST_DISPLAY_NAME = "test-display-name"
     _TEST_DEPLOYED_MODELS = [
         endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
