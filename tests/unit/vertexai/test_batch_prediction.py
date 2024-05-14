@@ -89,11 +89,36 @@ def complete_bq_uri_mock():
 
 
 @pytest.fixture
-def get_batch_prediction_job_mock():
+def get_batch_prediction_job_with_bq_output_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "get_batch_prediction_job"
     ) as get_job_mock:
-        get_job_mock.return_value = _TEST_GAPIC_BATCH_PREDICTION_JOB
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_GEMINI_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                bigquery_output_table=_TEST_BQ_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_gcs_output_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_GEMINI_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
         yield get_job_mock
 
 
@@ -120,6 +145,39 @@ def create_batch_prediction_job_mock():
         yield create_job_mock
 
 
+@pytest.fixture
+def cancel_batch_prediction_job_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "cancel_batch_prediction_job"
+    ) as cancel_job_mock:
+        yield cancel_job_mock
+
+
+@pytest.fixture
+def delete_batch_prediction_job_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "delete_batch_prediction_job"
+    ) as delete_job_mock:
+        yield delete_job_mock
+
+
+@pytest.fixture
+def list_batch_prediction_jobs_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "list_batch_prediction_jobs"
+    ) as list_jobs_mock:
+        list_jobs_mock.return_value = [
+            _TEST_GAPIC_BATCH_PREDICTION_JOB,
+            gca_batch_prediction_job_compat.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                model=_TEST_PALM_MODEL_RESOURCE_NAME,
+                state=_TEST_JOB_STATE_SUCCESS,
+            ),
+        ]
+        yield list_jobs_mock
+
+
 @pytest.mark.usefixtures(
     "google_auth_mock", "generate_display_name_mock", "complete_bq_uri_mock"
 )
@@ -138,10 +196,12 @@ class TestBatchPredictionJob:
     def teardown_method(self):
         aiplatform_initializer.global_pool.shutdown(wait=True)
 
-    def test_init_batch_prediction_job(self, get_batch_prediction_job_mock):
+    def test_init_batch_prediction_job(
+        self, get_batch_prediction_job_with_gcs_output_mock
+    ):
         batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
 
-        get_batch_prediction_job_mock.assert_called_once_with(
+        get_batch_prediction_job_with_gcs_output_mock.assert_called_once_with(
             name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
         )
 
@@ -157,6 +217,7 @@ class TestBatchPredictionJob:
         ):
             batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
 
+    @pytest.mark.usefixtures("get_batch_prediction_job_with_gcs_output_mock")
     def test_submit_batch_prediction_job_with_gcs_input(
         self, create_batch_prediction_job_mock
     ):
@@ -167,6 +228,15 @@ class TestBatchPredictionJob:
         )
 
         assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+        assert job.state == _TEST_JOB_STATE_RUNNING
+        assert not job.has_ended
+        assert not job.has_succeeded
+
+        job.refresh()
+        assert job.state == _TEST_JOB_STATE_SUCCESS
+        assert job.has_ended
+        assert job.has_succeeded
+        assert job.output_location == _TEST_GCS_OUTPUT_PREFIX
 
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -188,6 +258,7 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_batch_prediction_job_with_bq_output_mock")
     def test_submit_batch_prediction_job_with_bq_input(
         self, create_batch_prediction_job_mock
     ):
@@ -198,6 +269,15 @@ class TestBatchPredictionJob:
         )
 
         assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+        assert job.state == _TEST_JOB_STATE_RUNNING
+        assert not job.has_ended
+        assert not job.has_succeeded
+
+        job.refresh()
+        assert job.state == _TEST_JOB_STATE_SUCCESS
+        assert job.has_ended
+        assert job.has_succeeded
+        assert job.output_location == _TEST_BQ_OUTPUT_PREFIX
 
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -349,3 +429,35 @@ class TestBatchPredictionJob:
                 source_model=_TEST_GEMINI_MODEL_NAME,
                 input_dataset=_TEST_GCS_INPUT_URI,
             )
+
+    @pytest.mark.usefixtures("create_batch_prediction_job_mock")
+    def test_cancel_batch_prediction_job(self, cancel_batch_prediction_job_mock):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_GEMINI_MODEL_NAME,
+            input_dataset=_TEST_GCS_INPUT_URI,
+            output_uri_prefix=_TEST_GCS_OUTPUT_PREFIX,
+        )
+        job.cancel()
+
+        cancel_batch_prediction_job_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+        )
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_with_gcs_output_mock")
+    def test_delete_batch_prediction_job(self, delete_batch_prediction_job_mock):
+        job = batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+        job.delete()
+
+        delete_batch_prediction_job_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+        )
+
+    def tes_list_batch_prediction_jobs(self, list_batch_prediction_jobs_mock):
+        jobs = batch_prediction.BatchPredictionJob.list()
+
+        assert len(jobs) == 1
+        assert jobs[0].gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        list_batch_prediction_jobs_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT}
+        )

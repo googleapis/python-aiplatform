@@ -23,7 +23,10 @@ from google.cloud.aiplatform import base as aiplatform_base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform_v1 import types as gca_types
 from vertexai import generative_models
+
+from google.rpc import status_pb2
 
 
 _LOGGER = aiplatform_base.Logger(__name__)
@@ -37,7 +40,6 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
     _list_method = "list_batch_prediction_jobs"
-    _cancel_method = "cancel_batch_prediction_job"
     _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
     _parse_resource_name_method = "parse_batch_prediction_job_path"
@@ -63,12 +65,45 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             resource_name=batch_prediction_job_name
         )
         # TODO(b/338452508) Support tuned GenAI models.
-        if not re.search(_GEMINI_MODEL_PATTERN, self._gca_resource.model):
+        if not re.search(_GEMINI_MODEL_PATTERN, self.model_name):
             raise ValueError(
                 f"BatchPredictionJob '{batch_prediction_job_name}' "
-                f"runs with the model '{self._gca_resource.model}', "
+                f"runs with the model '{self.model_name}', "
                 "which is not a GenAI model."
             )
+
+    @property
+    def model_name(self) -> str:
+        """Returns the model name used for this batch prediction job."""
+        return self._gca_resource.model
+
+    @property
+    def state(self) -> gca_types.JobState:
+        """Returns the state of this batch prediction job."""
+        return self._gca_resource.state
+
+    @property
+    def has_ended(self) -> bool:
+        """Returns true if this batch prediction job has ended."""
+        return self.state in jobs._JOB_COMPLETE_STATES
+
+    @property
+    def has_succeeded(self) -> bool:
+        """Returns true if this batch prediction job has succeeded."""
+        return self.state == gca_types.JobState.JOB_STATE_SUCCEEDED
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Returns detailed error info for this Job resource."""
+        return self._gca_resource.error
+
+    @property
+    def output_location(self) -> str:
+        """Returns the output location of this batch prediction job."""
+        return (
+            self._gca_resource.output_info.gcs_output_directory
+            or self._gca_resource.output_info.bigquery_output_table
+        )
 
     @classmethod
     def submit(
@@ -178,13 +213,53 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             _LOGGER.log_create_complete(
                 cls, job._gca_resource, "job", module_name="batch_prediction"
             )
-            _LOGGER.info(
-                "View Batch Prediction Job:\n%s" % aiplatform_job._dashboard_uri()
-            )
+            _LOGGER.info("View Batch Prediction Job:\n%s" % job._dashboard_uri())
 
             return job
         finally:
             logging.getLogger("google.cloud.aiplatform.jobs").disabled = False
+
+    def refresh(self) -> "BatchPredictionJob":
+        """Refreshes the batch prediction job from the service."""
+        self._sync_gca_resource()
+        return self
+
+    def cancel(self):
+        """Cancels this BatchPredictionJob.
+
+        Success of cancellation is not guaranteed. Use `job.refresh()` and
+        `job.state` to verify if cancellation was successful.
+        """
+        _LOGGER.log_action_start_against_resource("Cancelling", "run", self)
+        self.api_client.cancel_batch_prediction_job(name=self.resource_name)
+
+    def delete(self):
+        """Deletes this BatchPredictionJob resource.
+
+        WARNING: This deletion is permanent.
+        """
+        self._delete()
+
+    @classmethod
+    def list(cls, filter=None) -> List["BatchPredictionJob"]:
+        """Lists all BatchPredictionJob instances that run with GenAI models."""
+        return cls._list(
+            cls_filter=lambda gca_resource: re.search(
+                _GEMINI_MODEL_PATTERN, gca_resource.model
+            ),
+            filter=filter,
+        )
+
+    def _dashboard_uri(self) -> Optional[str]:
+        """Returns the Google Cloud console URL where job can be viewed."""
+        fields = self._parse_resource_name(self.resource_name)
+        location = fields.pop("location")
+        project = fields.pop("project")
+        job = list(fields.values())[0]
+        return (
+            "https://console.cloud.google.com/ai/platform/locations/"
+            f"{location}/{self._job_type}/{job}?project={project}"
+        )
 
     @classmethod
     def _reconcile_model_name(cls, model_name: str) -> str:
