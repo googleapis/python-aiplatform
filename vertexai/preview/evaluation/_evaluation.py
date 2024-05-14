@@ -534,8 +534,7 @@ async def _compute_metrics(
                 metric_name = metric
             tasks_by_metric[metric_name].append(task)
 
-    api_request_count = (len(api_metrics) + len(custom_metrics)) * len(
-        evaluation_run_config.dataset)
+    api_request_count = len(api_metrics) * len(evaluation_run_config.dataset)
     _LOGGER.info(
         f"Computing metrics with a total of {api_request_count} Vertex online"
         " evaluation service requests."
@@ -629,7 +628,8 @@ def evaluate(
     Raises:
       ValueError: If the metrics list is empty, or the prompt template is not
       provided for PairwiseMetric, or multiple baseline models are specified for
-      PairwiseMetric instances.
+      PairwiseMetric instances, or both model and dataset model response column
+      are present.
     """
 
     if not metrics:
@@ -653,6 +653,22 @@ def evaluate(
     ):
         evaluation_run_config.validate_dataset_column(
             constants.Dataset.REFERENCE_COLUMN
+        )
+
+    if (
+        model
+        and evaluation_run_config.column_map.get(
+            constants.Dataset.MODEL_RESPONSE_COLUMN
+        )
+        in dataset.columns
+    ):
+        raise ValueError(
+            "The `model` parameter is specified, but the evaluation `dataset`"
+            f" contains model response column `{response_column_name}` to perform"
+            " bring-your-own-prediction(BYOP) evaluation. If you would like to"
+            " perform rapid evaluation using the dataset with the existing model"
+            f" response column `{response_column_name}`, please remove the"
+            " `model` input parameter."
         )
 
     baseline_model = None

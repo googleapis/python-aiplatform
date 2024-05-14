@@ -79,7 +79,7 @@ class EvalTask:
         documentation page [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
     Usage:
-        1. To perform bring your own prediction evaluation, provide the model
+        1. To perform bring-your-own-prediction(BYOP) evaluation, provide the model
         responses in the response column in the dataset. The response column name
         is "response" by default, or specify `response_column_name` parameter to
         customize.
