@@ -249,7 +249,7 @@ class EvalTask:
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
-        response_column_name: str = "response",
+        response_column_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -264,7 +264,7 @@ class EvalTask:
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
-            not set, default to `response`.
+            provided, this will override the `response_column_name` of the `EvalTask`.
 
         Returns:
           The evaluation result.
@@ -279,7 +279,7 @@ class EvalTask:
                 prompt_template=prompt_template,
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name or self.response_column_name,
+                response_column_name=response_column_name,
             )
             try:
                 vertexai.preview.log_metrics(eval_result.summary_metrics)
@@ -293,7 +293,7 @@ class EvalTask:
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
-        response_column_name: str = "response",
+        response_column_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask.
 
@@ -308,7 +308,7 @@ class EvalTask:
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
-            not set, default to `response`.
+            provided, this will override the `response_column_name` of the `EvalTask`.
 
         Returns:
           The evaluation result.
@@ -321,7 +321,7 @@ class EvalTask:
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."
             )
-
+        response_column_name = response_column_name or self.response_column_name
         experiment_run_name = experiment_run_name or f"{uuid.uuid4()}"
 
         if self.experiment and global_experiment_name:
@@ -354,7 +354,7 @@ class EvalTask:
                 prompt_template=prompt_template,
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name or self.response_column_name,
+                response_column_name=response_column_name,
             )
         return eval_result
 
