@@ -716,7 +716,9 @@ class ExperimentRun(
             The newly created experiment run.
         """
 
-        experiment = cls._get_experiment(experiment)
+        experiment = cls._get_experiment(
+            experiment, project=project, location=location, credentials=credentials
+        )
 
         run_id = _format_experiment_run_resource_id(
             experiment_name=experiment.name, run_name=run_name
@@ -760,7 +762,10 @@ class ExperimentRun(
         try:
             if tensorboard:
                 cls._assign_backing_tensorboard(
-                    self=experiment_run, tensorboard=tensorboard
+                    self=experiment_run,
+                    tensorboard=tensorboard,
+                    project=project,
+                    location=location,
                 )
             else:
                 cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
@@ -792,7 +797,10 @@ class ExperimentRun(
         return f"{experiment_name} Backing Tensorboard Experiment"
 
     def _assign_backing_tensorboard(
-        self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
+        self,
+        tensorboard: Union[tensorboard_resource.Tensorboard, str],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
     ):
         """Assign tensorboard as the backing tensorboard to this run.
 
@@ -802,7 +810,10 @@ class ExperimentRun(
         """
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(
-                tensorboard, credentials=self._metadata_node.credentials
+                tensorboard,
+                project=project,
+                location=location,
+                credentials=self._metadata_node.credentials,
             )
 
         tensorboard_resource_name_parts = tensorboard._parse_resource_name(
@@ -827,6 +838,8 @@ class ExperimentRun(
                             self._experiment.name
                         ),
                         tensorboard_name=tensorboard.resource_name,
+                        project=project,
+                        location=location,
                         credentials=tensorboard.credentials,
                         labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
                     )
@@ -849,6 +862,8 @@ class ExperimentRun(
                 tensorboard_run = tensorboard_resource.TensorboardRun.create(
                     tensorboard_run_id=self._run_name,
                     tensorboard_experiment_name=tensorboard_experiment.resource_name,
+                    project=project,
+                    location=location,
                     credentials=tensorboard.credentials,
                 )
 
@@ -865,6 +880,8 @@ class ExperimentRun(
                 schema_title=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
                 schema_version=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
                 state=gca_artifact.Artifact.State.LIVE,
+                project=project,
+                location=location,
             )
 
         self._metadata_node.add_artifacts_and_executions(

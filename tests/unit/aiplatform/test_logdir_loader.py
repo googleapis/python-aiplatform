@@ -189,6 +189,8 @@ class LogdirLoaderTest(tf.test.TestCase):
             writer.add_test_summary("tag_b")
         with FileWriter(os.path.join(logdir, "b", "x")) as writer:
             writer.add_test_summary("tag_b_x")
+        with FileWriter(os.path.join(logdir, "b_z")) as writer:
+            writer.add_test_summary("tag_b_z")
         writer_c = FileWriter(os.path.join(logdir, "c"))
         writer_c.add_test_summary("tag_c")
         writer_c.flush()
@@ -199,14 +201,15 @@ class LogdirLoaderTest(tf.test.TestCase):
             {
                 "a": ["tag_a"],
                 "b": ["tag_b"],
-                "b/x": ["tag_b_x"],
+                "b-x": ["tag_b_x"],
+                "b-z": ["tag_b_z"],
                 "c": ["tag_c"],
             },
         )
         # A second load should indicate no new data.
         self.assertEqual(
             self._extract_run_to_tags(loader.get_run_events()),
-            {"a": [], "b": [], "b/x": [], "c": []},
+            {"a": [], "b": [], "b-x": [], "b-z": [], "c": []},
         )
         # Write some new data to both new and pre-existing event files.
         with FileWriter(os.path.join(logdir, "a"), filename_suffix=".other") as writer:
@@ -225,7 +228,8 @@ class LogdirLoaderTest(tf.test.TestCase):
             {
                 "a": ["tag_a_2", "tag_a_3", "tag_a_4"],
                 "b": [],
-                "b/x": ["tag_b_x_2"],
+                "b-x": ["tag_b_x_2"],
+                "b-z": [],
                 "c": ["tag_c_2"],
             },
         )

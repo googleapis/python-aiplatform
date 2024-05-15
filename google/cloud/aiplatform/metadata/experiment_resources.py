@@ -634,7 +634,8 @@ class Experiment:
         self._metadata_context.update(
             metadata={
                 constants._BACKING_TENSORBOARD_RESOURCE_KEY: tensorboard.resource_name
-            }
+            },
+            location=self._metadata_context.location,
         )
 
     def _log_experiment_loggable(self, experiment_loggable: "_ExperimentLoggable"):
