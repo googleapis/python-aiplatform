@@ -178,6 +178,12 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 f"Unsupported python version: {sys_version}. ReasoningEngine "
                 f"only supports {_SUPPORTED_PYTHON_VERSIONS} at the moment."
             )
+        if sys_version != f"{sys.version_info.major}.{sys.version_info.minor}":
+            _LOGGER.warning(
+                f"{sys_version=} is inconsistent with {sys.version_info=}. "
+                "This might result in issues with deployment, and should only "
+                "be used as a workaround for advanced cases."
+            )
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(
             sdk_resource,
