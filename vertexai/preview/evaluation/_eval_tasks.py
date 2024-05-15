@@ -54,7 +54,8 @@ class EvalTask:
     models and their settings, and assess the quality of the model's generated
     text.
 
-    Dataset details:
+    Dataset Details:
+
         Default dataset column names:
             * content_column_name: "content"
             * reference_column_name: "reference"
@@ -74,11 +75,13 @@ class EvalTask:
               dataset must contain `instruction` and `context` column.
 
     Metrics Details:
+
         The supported metrics, metric bundle descriptions, grading rubrics, and
         the required input fields can be found on the Vertex AI public
         documentation page [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
     Usage:
+
         1. To perform bring-your-own-prediction(BYOP) evaluation, provide the model
         responses in the response column in the dataset. The response column name
         is "response" by default, or specify `response_column_name` parameter to
