@@ -108,6 +108,17 @@ def list_fg_mock():
         yield list_fg_mock
 
 
+@pytest.fixture
+def delete_fg_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "delete_feature_group",
+    ) as delete_fg_mock:
+        delete_fg_lro_mock = mock.Mock(ga_operation.Operation)
+        delete_fg_mock.return_value = delete_fg_lro_mock
+        yield delete_fg_mock
+
+
 def fg_eq(
     fg_to_check: FeatureGroup,
     name: str,
@@ -292,4 +303,34 @@ def test_list(list_fg_mock):
         project=_TEST_PROJECT,
         location=_TEST_LOCATION,
         labels=_TEST_FG3_LABELS,
+    )
+
+
+@pytest.mark.parametrize("force", [True, False])
+def test_delete(force, delete_fg_mock, get_fg_mock, fg_logger_mock, sync=True):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    fg.delete(force=force, sync=sync)
+
+    if not sync:
+        fg.wait()
+
+    delete_fg_mock.assert_called_once_with(
+        name=_TEST_FG1_PATH,
+        force=force,
+    )
+
+    fg_logger_mock.assert_has_calls(
+        [
+            call(
+                "Deleting FeatureGroup resource: projects/test-project/locations/us-central1/featureGroups/my_fg1"
+            ),
+            call(
+                f"Delete FeatureGroup backing LRO: {delete_fg_mock.return_value.operation.name}"
+            ),
+            call(
+                "FeatureGroup resource projects/test-project/locations/us-central1/featureGroups/my_fg1 deleted."
+            ),
+        ]
     )

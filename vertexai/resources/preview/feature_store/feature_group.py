@@ -208,6 +208,36 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         return feature_group_obj
 
+    @base.optional_sync()
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this feature group.
+
+        WARNING: This deletion is permanent.
+
+        Args:
+            force:
+                If set to True, all features under this online store will be
+                deleted prior to online store deletion. Otherwise, deletion
+                will only succeed if the online store has no FeatureViews.
+
+                If set to true, any Features under this FeatureGroup will also
+                be deleted. (Otherwise, the request will only work if the
+                FeatureGroup has no Features.)
+            sync:
+                Whether to execute this deletion synchronously. If False, this
+                method will be executed in concurrent Future and any downstream
+                object will be immediately returned and synced when the Future
+                has completed.
+        """
+
+        lro = getattr(self.api_client, self._delete_method)(
+            name=self.resource_name,
+            force=force,
+        )
+        _LOGGER.log_delete_with_lro(self, lro)
+        lro.result()
+        _LOGGER.log_delete_complete(self)
+
     @property
     def source(self) -> FeatureGroupBigQuerySource:
         return FeatureGroupBigQuerySource(
