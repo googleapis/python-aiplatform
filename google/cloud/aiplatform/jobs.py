@@ -22,7 +22,6 @@ import copy
 import datetime
 import time
 import tempfile
-import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
@@ -35,6 +34,7 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
+    execution as gca_execution_compat,
     explanation as gca_explanation_compat,
     encryption_spec as gca_encryption_spec_compat,
     io as gca_io_compat,
@@ -61,7 +61,6 @@ from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as batch_prediction_job_v1,
 )
 from google.cloud.aiplatform_v1.types import custom_job as custom_job_v1
-from google.cloud.aiplatform_v1.types import execution as execution_v1
 
 _LOGGER = base.Logger(__name__)
 
@@ -1583,8 +1582,6 @@ class _RunnableJob(_Job):
         self._logged_web_access_uris = set()
 
         if isinstance(self, CustomJob):
-            self._experiment = None
-            self._experiment_run = None
             self._enable_autolog = False
 
         return self
@@ -1633,13 +1630,18 @@ class _RunnableJob(_Job):
 
         self._log_job_state()
 
-        if isinstance(self, CustomJob) and self._experiment_run:
-            # sync resource before end run
-            self._experiment_run = aiplatform.ExperimentRun.get(
-                self._experiment_run.name,
-                experiment=self._experiment,
-            )
-            self._experiment_run.end_run()
+        if isinstance(self, CustomJob):
+            experiment_run = self._gca_resource.job_spec.experiment_run
+            if experiment_run:
+                # sync resource before end run
+                experiment_run_context = aiplatform.Context.get(
+                    resource_id=experiment_run
+                )
+                experiment_run_context.update(
+                    metadata={
+                        metadata_constants._STATE_KEY: gca_execution_compat.Execution.State.COMPLETE.name
+                    }
+                )
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
@@ -1852,8 +1854,6 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             ),
         )
 
-        self._experiment = None
-        self._experiment_run = None
         self._enable_autolog = False
 
     @property
@@ -2510,79 +2510,32 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         if persistent_resource_id:
             self._gca_resource.job_spec.persistent_resource_id = persistent_resource_id
 
-        # TODO(b/275105711) Update implementation after experiment/run in the proto
         if experiment:
-            # short-term solution to set experiment/experimentRun in SDK
-            if isinstance(experiment, aiplatform.Experiment):
-                self._experiment = experiment
-                # convert the Experiment instance to string to be passed to env
-                experiment = experiment.name
-            else:
-                self._experiment = aiplatform.Experiment.get(experiment_name=experiment)
-            if not self._experiment:
+            experiment_resource = (
+                aiplatform.Experiment.get(experiment)
+                if isinstance(experiment, str)
+                else experiment
+            )
+            if not experiment_resource:
                 raise ValueError(
-                    f"Experiment '{experiment}' doesn't exist. "
-                    "Please call aiplatform.init(experiment='my-exp') to create an experiment."
+                    f"Experiment '{experiment}' doesn't exist. Please call "
+                    "`aiplatform.init(experiment='my-exp')` to create an experiment."
                 )
-            elif (
-                not self._experiment.backing_tensorboard_resource_name
-                and self._enable_autolog
-            ):
-                raise ValueError(
-                    f"Experiment '{experiment}' doesn't have a backing tensorboard resource, "
-                    "which is required by the experiment autologging feature. "
-                    "Please call Experiment.assign_backing_tensorboard('my-tb-resource-name')."
+            self._gca_resource.job_spec.experiment = experiment_resource.resource_name
+
+            if experiment_run:
+                experiment_run_resource = (
+                    aiplatform.ExperimentRun.get(
+                        experiment_run, experiment=experiment_resource
+                    )
+                    if isinstance(experiment_run, str)
+                    else experiment_run
                 )
-
-            # if run name is not specified, auto-generate one
-            if not experiment_run:
-                experiment_run = (
-                    # TODO(b/223262536)Once display_name is optional this run name
-                    # might be invalid as well.
-                    f"{self._gca_resource.display_name}-{uuid.uuid4().hex[0:5]}"
+                if not experiment_run_resource:
+                    raise ValueError(f"ExperimentRun '{experiment_run}' doesn't exist.")
+                self._gca_resource.job_spec.experiment_run = (
+                    experiment_run_resource.resource_name
                 )
-
-            # get or create the experiment run for the job
-            if isinstance(experiment_run, aiplatform.ExperimentRun):
-                self._experiment_run = experiment_run
-                # convert the ExperimentRun instance to string to be passed to env
-                experiment_run = experiment_run.name
-            else:
-                self._experiment_run = aiplatform.ExperimentRun.get(
-                    run_name=experiment_run,
-                    experiment=self._experiment,
-                )
-            if not self._experiment_run:
-                self._experiment_run = aiplatform.ExperimentRun.create(
-                    run_name=experiment_run,
-                    experiment=self._experiment,
-                )
-            self._experiment_run.update_state(execution_v1.Execution.State.RUNNING)
-
-            worker_pool_specs = self._gca_resource.job_spec.worker_pool_specs
-            for spec in worker_pool_specs:
-                if not spec:
-                    continue
-
-                if "python_package_spec" in spec:
-                    container_spec = spec.python_package_spec
-                else:
-                    container_spec = spec.container_spec
-
-                experiment_env = [
-                    {
-                        "name": metadata_constants.ENV_EXPERIMENT_KEY,
-                        "value": experiment,
-                    },
-                    {
-                        "name": metadata_constants.ENV_EXPERIMENT_RUN_KEY,
-                        "value": experiment_run,
-                    },
-                ]
-                if "env" in container_spec:
-                    container_spec.env.extend(experiment_env)
-                else:
-                    container_spec.env = experiment_env
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -2605,22 +2558,6 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                     tensorboard, self.resource_name
                 )
             )
-
-        if experiment:
-            custom_job = {
-                metadata_constants._CUSTOM_JOB_RESOURCE_NAME: self.resource_name,
-                metadata_constants._CUSTOM_JOB_CONSOLE_URI: self._dashboard_uri(),
-            }
-
-            run_context = self._experiment_run._metadata_node
-            custom_jobs = run_context._gca_resource.metadata.get(
-                metadata_constants._CUSTOM_JOB_KEY
-            )
-            if custom_jobs:
-                custom_jobs.append(custom_job)
-            else:
-                custom_jobs = [custom_job]
-            run_context.update({metadata_constants._CUSTOM_JOB_KEY: custom_jobs})
 
     @property
     def job_spec(self):
