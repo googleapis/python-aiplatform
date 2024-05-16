@@ -39,6 +39,7 @@ from google.cloud.aiplatform.tensorboard import logdir_loader
 from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins import projector_uploader
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
     profile_uploader,
 )
@@ -283,6 +284,13 @@ class TensorBoardUploader(object):
             return True
         return False
 
+    def _should_projector(self) -> bool:
+        """Indicate if projector plugin should be enabled."""
+        if "projector" in self._allowed_plugins:
+            logger.info("Projector plugin is enabled.")
+            return True
+        return False
+
     def _create_additional_senders(self) -> Dict[str, uploader_utils.RequestSender]:
         """Create any additional senders for non traditional event files.
 
@@ -296,6 +304,20 @@ class TensorBoardUploader(object):
 
             self._additional_senders["profile"] = functools.partial(
                 profile_uploader.ProfileRequestSender,
+                api=self._api,
+                upload_limits=self._upload_limits,
+                blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
+                blob_storage_bucket=self._blob_storage_bucket,
+                blob_storage_folder=self._blob_storage_folder,
+                source_bucket=source_bucket,
+                tracker=self._tracker,
+                logdir=self._logdir,
+            )
+        if self._should_projector():
+            source_bucket = uploader_utils.get_source_bucket(self._logdir)
+
+            self._additional_senders["projector"] = functools.partial(
+                projector_uploader.ProjectorRequestSender,
                 api=self._api,
                 upload_limits=self._upload_limits,
                 blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
