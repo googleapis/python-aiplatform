@@ -92,6 +92,20 @@ _TEST_REASONING_ENGINE_QUERY_SCHEMA = _utils.to_proto(
         schema_name="CapitalizeEngine_query",
     )
 )
+_TEST_INPUT_REASONING_ENGINE_OBJ = types.ReasoningEngine(
+    display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+    spec=types.ReasoningEngineSpec(
+        package_spec=types.ReasoningEngineSpec.PackageSpec(
+            python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+            pickle_object_gcs_uri=_TEST_REASONING_ENGINE_GCS_URI,
+            dependency_files_gcs_uri=_TEST_REASONING_ENGINE_DEPENDENCY_FILES_GCS_URI,
+            requirements_gcs_uri=_TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI,
+        ),
+    ),
+)
+_TEST_INPUT_REASONING_ENGINE_OBJ.spec.class_methods.append(
+    _TEST_REASONING_ENGINE_QUERY_SCHEMA
+)
 _TEST_REASONING_ENGINE_OBJ = types.ReasoningEngine(
     name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
     display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
@@ -300,7 +314,6 @@ class TestReasoningEngine:
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
             self.test_app,
-            reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
         )
@@ -308,7 +321,7 @@ class TestReasoningEngine:
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
-            reasoning_engine=test_reasoning_engine.gca_resource,
+            reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
         )
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
@@ -329,7 +342,6 @@ class TestReasoningEngine:
         ) as mock_file:
             test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
                 self.test_app,
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements="requirements.txt",
             )
@@ -338,7 +350,7 @@ class TestReasoningEngine:
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
-            reasoning_engine=test_reasoning_engine.gca_resource,
+            reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
         )
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
@@ -356,7 +368,6 @@ class TestReasoningEngine:
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
             self.test_app,
-            reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
         )
@@ -364,7 +375,7 @@ class TestReasoningEngine:
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
-            reasoning_engine=test_reasoning_engine.gca_resource,
+            reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
         )
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
@@ -461,7 +472,6 @@ class TestReasoningEngineErrors:
             )
             reasoning_engines.ReasoningEngine.create(
                 self.test_app,
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
@@ -486,7 +496,6 @@ class TestReasoningEngineErrors:
         ):
             reasoning_engines.ReasoningEngine.create(
                 InvalidCapitalizeEngineWithoutQueryMethod(),
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
@@ -505,7 +514,6 @@ class TestReasoningEngineErrors:
         ):
             reasoning_engines.ReasoningEngine.create(
                 InvalidCapitalizeEngineWithNoncallableQuery(),
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
@@ -521,7 +529,6 @@ class TestReasoningEngineErrors:
         with pytest.raises(ValueError, match="Unsupported python version"):
             reasoning_engines.ReasoningEngine.create(
                 self.test_app,
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
                 sys_version="2.6",
@@ -538,7 +545,6 @@ class TestReasoningEngineErrors:
         with pytest.raises(IOError, match="Failed to read requirements"):
             reasoning_engines.ReasoningEngine.create(
                 self.test_app,
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements="nonexistent_requirements.txt",
             )
@@ -554,7 +560,6 @@ class TestReasoningEngineErrors:
         with pytest.raises(FileNotFoundError, match="not found"):
             reasoning_engines.ReasoningEngine.create(
                 self.test_app,
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
                 extra_packages=_TEST_REASONING_ENGINE_INVALID_EXTRA_PACKAGES,
@@ -571,7 +576,6 @@ class TestReasoningEngineErrors:
         with pytest.raises(ValueError, match="Invalid query signature"):
             reasoning_engines.ReasoningEngine.create(
                 InvalidCapitalizeEngineWithoutQuerySelf(),
-                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
