@@ -276,12 +276,21 @@ class _ExperimentTracker:
         """Returns the currently set experiment run or experiment run set via env variable AIP_EXPERIMENT_RUN_NAME."""
         if self._experiment_run:
             return self._experiment_run
-        if os.getenv(constants.ENV_EXPERIMENT_RUN_KEY):
-            self._experiment_run = experiment_run_resource.ExperimentRun.get(
-                os.getenv(constants.ENV_EXPERIMENT_RUN_KEY),
+
+        env_experiment_run = os.getenv(constants.ENV_EXPERIMENT_RUN_KEY)
+        if env_experiment_run and self.experiment:
+            # The run could be run name or full resource name,
+            # so we remove the experiment resource prefix if necessary.
+            env_experiment_run = env_experiment_run.replace(
+                f"{self.experiment.resource_name}-",
+                "",
+            )
+            self._experiment_run = experiment_run_resource.ExperimentRun(
+                env_experiment_run,
                 experiment=self.experiment,
             )
             return self._experiment_run
+
         return None
 
     def set_experiment(

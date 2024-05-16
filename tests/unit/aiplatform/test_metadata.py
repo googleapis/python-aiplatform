@@ -1487,8 +1487,28 @@ class TestExperiments:
         "get_tensorboard_run_artifact_not_found_mock",
         "get_or_create_default_tb_none_mock",
     )
-    def test_init_experiment_run_from_env(self):
+    def test_init_experiment_run_from_env_run_name(self):
         os.environ["AIP_EXPERIMENT_RUN_NAME"] = _TEST_RUN
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        run = metadata._experiment_tracker.experiment_run
+        assert run.name == _TEST_RUN
+
+        del os.environ["AIP_EXPERIMENT_RUN_NAME"]
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+        "get_or_create_default_tb_none_mock",
+    )
+    def test_init_experiment_run_from_env_run_resource_name(self):
+        os.environ["AIP_EXPERIMENT_RUN_NAME"] = _TEST_EXPERIMENT_RUN_CONTEXT_NAME
 
         aiplatform.init(
             project=_TEST_PROJECT,
