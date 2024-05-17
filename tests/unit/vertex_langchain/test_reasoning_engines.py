@@ -328,6 +328,43 @@ class TestReasoningEngine:
             retry=_TEST_RETRY,
         )
 
+    @pytest.mark.usefixtures("caplog")
+    def test_create_reasoning_engine_warn_resource_name(
+        self,
+        caplog,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+        )
+        assert "does not support user-defined resource IDs" in caplog.text
+
+    @pytest.mark.usefixtures("caplog")
+    def test_create_reasoning_engine_warn_sys_version(
+        self,
+        caplog,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            sys_version="3.10" if sys_version != "3.10" else "3.11",
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+        )
+        assert f"is inconsistent with {sys.version_info=}" in caplog.text
+
     def test_create_reasoning_engine_requirements_from_file(
         self,
         create_reasoning_engine_mock,
