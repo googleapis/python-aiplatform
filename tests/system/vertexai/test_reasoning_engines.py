@@ -22,6 +22,7 @@ from google.cloud import storage
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview import reasoning_engines
+from vertexai.preview.generative_models import ToolConfig
 
 
 _BLOB_FILENAME = vertexai.reasoning_engines._reasoning_engines._BLOB_FILENAME
@@ -48,7 +49,16 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
         )
         # Test prebuilt langchain_template
         created_app = reasoning_engines.ReasoningEngine.create(
-            reasoning_engines.LangchainAgent(model="gemini-1.0-pro"),
+            reasoning_engines.LangchainAgent(
+                model="gemini-1.5-pro-preview-0409",
+                model_tool_kwargs={
+                    "tool_config": {
+                        "function_calling_config": {
+                            "mode": ToolConfig.FunctionCallingConfig.Mode.AUTO,
+                        },
+                    },
+                },
+            ),
             requirements=["google-cloud-aiplatform[reasoningengine,langchain]"],
             display_name="test-display-name",
             description="test-description",
