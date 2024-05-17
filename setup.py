@@ -139,7 +139,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 reasoning_engine_extra_require = [
-    "cloudpickle >= 2.2.1, < 3.0",
+    "cloudpickle >= 2.2.1, < 4.0",
     "pydantic >= 2.6.3, < 3",
 ]
 
