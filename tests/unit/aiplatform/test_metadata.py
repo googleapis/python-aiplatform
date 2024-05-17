@@ -18,7 +18,7 @@
 import os
 import copy
 from importlib import reload
-from unittest import mock
+from unittest import TestCase, mock
 from unittest.mock import patch, call
 
 import numpy as np
@@ -2047,6 +2047,32 @@ class TestExperiments:
                 pipeline_job.gca_resource.job_detail.pipeline_run_context.name
             ],
         )
+
+    @pytest.mark.usefixtures(
+        "get_experiment_mock",
+    )
+    def test_get_experiment_df_passes_experiment_variable(
+        self,
+        list_context_mock_for_experiment_dataframe_mock,
+        list_artifact_mock_for_experiment_dataframe,
+        list_executions_mock_for_experiment_dataframe,
+        get_tensorboard_run_artifact_mock,
+        get_tensorboard_run_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with patch.object(
+            experiment_run_resource.ExperimentRun, "_query_experiment_row"
+        ) as query_experiment_row_mock:
+            row = experiment_resources._ExperimentRow(
+                experiment_run_type=constants.SYSTEM_EXPERIMENT_RUN,
+                name=_TEST_EXPERIMENT,
+            )
+            query_experiment_row_mock.return_value = row
+
+            aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+            _, kwargs = query_experiment_row_mock.call_args_list[0]
+            TestCase.assertTrue(self, kwargs["experiment"].name == _TEST_EXPERIMENT)
 
     @pytest.mark.usefixtures(
         "get_experiment_mock",

@@ -454,6 +454,8 @@ class ExperimentRun(
             self._metadata_metric_artifact = self._v1_get_metric_artifact()
         if not self._is_legacy_experiment_run() and lookup_tensorboard_run:
             self._backing_tensorboard_run = self._lookup_tensorboard_run_artifact()
+            if not self._backing_tensorboard_run:
+                self._assign_to_experiment_backing_tensorboard()
 
     @classmethod
     def list(
@@ -553,13 +555,16 @@ class ExperimentRun(
     def _query_experiment_row(
         cls,
         node: Union[context.Context, execution.Execution],
-        include_time_series: Optional[bool] = True,
+        experiment: Optional[experiment_resources.Experiment] = None,
+        include_time_series: bool = True,
     ) -> experiment_resources._ExperimentRow:
         """Retrieves the runs metric and parameters into an experiment run row.
 
         Args:
             node (Union[context._Context, execution.Execution]):
                 Required. Metadata node instance that represents this run.
+            experiment:
+                Optional. Experiment associated with this run.
             include_time_series (bool):
                 Optional. Whether or not to include time series metrics in df.
                 Default is True.
@@ -568,7 +573,7 @@ class ExperimentRun(
         """
         this_experiment_run = cls.__new__(cls)
         this_experiment_run._initialize_experiment_run(
-            node, lookup_tensorboard_run=include_time_series
+            node, experiment=experiment, lookup_tensorboard_run=include_time_series
         )
 
         row = experiment_resources._ExperimentRow(
@@ -620,8 +625,11 @@ class ExperimentRun(
             return {
                 display_name: data.values[-1].scalar.value
                 for display_name, data in time_series_metrics.items()
-                if data.value_type
-                == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+                if (
+                    data.values
+                    and data.value_type
+                    == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+                )
             }
         return {}
 

@@ -482,7 +482,8 @@ class Experiment:
                             metadata_context.schema_title
                         ]._query_experiment_row,
                         metadata_context,
-                        include_time_series,
+                        experiment=self,
+                        include_time_series=include_time_series,
                     )
                     for metadata_context in contexts
                 ]
@@ -494,7 +495,8 @@ class Experiment:
                             metadata_execution.schema_title
                         ]._query_experiment_row,
                         metadata_execution,
-                        include_time_series,
+                        experiment=self,
+                        include_time_series=include_time_series,
                     )
                     for metadata_execution in executions
                 )
