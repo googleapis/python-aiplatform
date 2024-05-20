@@ -26,6 +26,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
+    feature as gca_feature,
     feature_group as gca_feature_group,
     io as gca_io,
 )
@@ -251,6 +252,111 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
             Feature - the Feature resource object under this feature group.
         """
         return Feature(f"{self.resource_name}/features/{feature_id}")
+
+    def create_feature(
+        self,
+        name: str,
+        version_column_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        point_of_contact: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        create_request_timeout: Optional[float] = None,
+        sync: bool = True,
+    ) -> Feature:
+        """Creates a new feature.
+
+        Args:
+            name: The name of the feature.
+            version_column_name:
+                The name of the BigQuery Table/View column hosting data for this
+                version. If no value is provided, will use feature_id.
+            description: Description of the feature.
+            labels:
+                The labels with user-defined metadata to organize your Features.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters,
+                numeric characters, underscores and dashes. International
+                characters are allowed.
+
+                See https://goo.gl/xmQnxf for more information on and examples
+                of labels. No more than 64 user labels can be associated with
+                one Feature (System labels are excluded)." System reserved label
+                keys are prefixed with "aiplatform.googleapis.com/" and are
+                immutable.
+            point_of_contact:
+                Entity responsible for maintaining this feature. Can be comma
+                separated list of email addresses or URIs.
+            project:
+                Project to create feature in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to create feature in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to create this feature. Overrides
+                credentials set in aiplatform.init.
+            request_metadata:
+                Strings which should be sent along with the request as metadata.
+            create_request_timeout:
+                The timeout for the create request in seconds.
+            sync:
+                Whether to execute this creation synchronously. If False, this
+                method will be executed in concurrent Future and any downstream
+                object will be immediately returned and synced when the Future
+                has completed.
+
+        Returns:
+            Feature - the Feature resource object.
+        """
+
+        gapic_feature = gca_feature.Feature()
+
+        if version_column_name:
+            gapic_feature.version_column_name = version_column_name
+
+        if description:
+            gapic_feature.description = description
+
+        if labels:
+            utils.validate_labels(labels)
+            gapic_feature.labels = labels
+
+        if point_of_contact:
+            gapic_feature.point_of_contact = point_of_contact
+
+        if request_metadata is None:
+            request_metadata = ()
+
+        api_client = self.__class__._instantiate_client(
+            location=location, credentials=credentials
+        )
+
+        create_feature_lro = api_client.create_feature(
+            parent=self.resource_name,
+            feature=gapic_feature,
+            feature_id=name,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_with_lro(Feature, create_feature_lro)
+
+        created_feature = create_feature_lro.result()
+
+        _LOGGER.log_create_complete(Feature, created_feature, "feature")
+
+        feature_obj = Feature(
+            name=created_feature.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return feature_obj
 
     @property
     def source(self) -> FeatureGroupBigQuerySource:

@@ -60,6 +60,7 @@ from feature_store_constants import (
     _TEST_FG3_ENTITY_ID_COLUMNS,
     _TEST_FG3_LABELS,
     _TEST_FG_LIST,
+    _TEST_FG1_F1,
     _TEST_FG1_F1_ID,
     _TEST_FG1_F1_PATH,
     _TEST_FG1_F1_DESCRIPTION,
@@ -123,6 +124,18 @@ def delete_fg_mock():
         delete_fg_lro_mock = mock.Mock(ga_operation.Operation)
         delete_fg_mock.return_value = delete_fg_lro_mock
         yield delete_fg_mock
+
+
+@pytest.fixture
+def create_feature_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "create_feature",
+    ) as create_feature_mock:
+        create_feature_lro_mock = mock.Mock(ga_operation.Operation)
+        create_feature_lro_mock.result.return_value = _TEST_FG1_F1
+        create_feature_mock.return_value = create_feature_lro_mock
+        yield create_feature_mock
 
 
 def fg_eq(
@@ -362,4 +375,70 @@ def test_get_feature(get_fg_mock, get_feature_mock):
         description=_TEST_FG1_F1_DESCRIPTION,
         labels=_TEST_FG1_F1_LABELS,
         point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
+@pytest.mark.parametrize("sync", [True, False])
+def test_create_feature(
+    get_fg_mock,
+    create_feature_mock,
+    get_feature_mock,
+    fg_logger_mock,
+    create_request_timeout,
+    sync,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    feature = fg.create_feature(
+        _TEST_FG1_F1_ID,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+        create_request_timeout=create_request_timeout,
+        sync=sync,
+    )
+
+    if not sync:
+        feature.wait()
+
+    expected_feature = types.feature.Feature(
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+    create_feature_mock.assert_called_once_with(
+        parent=_TEST_FG1_PATH,
+        feature=expected_feature,
+        feature_id=_TEST_FG1_F1_ID,
+        metadata=(),
+        timeout=create_request_timeout,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+    fg_logger_mock.assert_has_calls(
+        [
+            call("Creating Feature"),
+            call(
+                f"Create Feature backing LRO: {create_feature_mock.return_value.operation.name}"
+            ),
+            call(
+                "Feature created. Resource name: projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f1"
+            ),
+            call("To use this Feature in another session:"),
+            call(
+                "feature = aiplatform.Feature('projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f1')"
+            ),
+        ]
     )
