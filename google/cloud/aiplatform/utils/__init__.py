@@ -640,16 +640,72 @@ class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
 
 
 class FeatureRegistryClientWithOverride(ClientWithOverride):
+    """Adds function override for client classes to support new Feature Store.
+
+    `feature_path()` and `parse_feature_path()` are overriden here to compensate
+    for the auto-generated GAPIC class which only supports Feature Store
+    Legacy's feature paths.
+    """
+
+    @staticmethod
+    def feature_path(
+        project: str,
+        location: str,
+        feature_group: str,
+        feature: str,
+    ) -> str:
+        return "projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}".format(
+            project=project,
+            location=location,
+            feature_group=feature_group,
+            feature=feature,
+        )
+
+    @staticmethod
+    def parse_feature_path(path: str) -> Dict[str, str]:
+        """Parses a feature path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featureGroups/(?P<feature_group>.+?)/features/(?P<feature>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    class FeatureRegistryServiceClientV1(
+        feature_registry_service_client_v1.FeatureRegistryServiceClient
+    ):
+        @staticmethod
+        def feature_path(project: str, location: str, feature_group: str, feature: str):
+            return FeatureRegistryClientWithOverride.feature_path(
+                project, location, feature_group, feature
+            )
+
+        @staticmethod
+        def parse_feature_path(path: str) -> Dict[str, str]:
+            return FeatureRegistryClientWithOverride.parse_feature_path(path)
+
+    class FeatureRegistryServiceClientV1Beta1(
+        feature_registry_service_client_v1beta1.FeatureRegistryServiceClient
+    ):
+        @staticmethod
+        def feature_path(project: str, location: str, feature_group: str, feature: str):
+            return FeatureRegistryClientWithOverride.feature_path(
+                project, location, feature_group, feature
+            )
+
+        @staticmethod
+        def parse_feature_path(path: str) -> Dict[str, str]:
+            return FeatureRegistryClientWithOverride.parse_feature_path(path)
+
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
         (
             compat.V1,
-            feature_registry_service_client_v1.FeatureRegistryServiceClient,
+            FeatureRegistryServiceClientV1,
         ),
         (
             compat.V1BETA1,
-            feature_registry_service_client_v1beta1.FeatureRegistryServiceClient,
+            FeatureRegistryServiceClientV1Beta1,
         ),
     )
 

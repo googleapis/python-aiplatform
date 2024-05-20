@@ -60,7 +60,13 @@ from feature_store_constants import (
     _TEST_FG3_ENTITY_ID_COLUMNS,
     _TEST_FG3_LABELS,
     _TEST_FG_LIST,
+    _TEST_FG1_F1_ID,
+    _TEST_FG1_F1_PATH,
+    _TEST_FG1_F1_DESCRIPTION,
+    _TEST_FG1_F1_LABELS,
+    _TEST_FG1_F1_POINT_OF_CONTACT,
 )
+from test_feature import feature_eq
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
@@ -333,4 +339,27 @@ def test_delete(force, delete_fg_mock, get_fg_mock, fg_logger_mock, sync=True):
                 "FeatureGroup resource projects/test-project/locations/us-central1/featureGroups/my_fg1 deleted."
             ),
         ]
+    )
+
+
+def test_get_feature(get_fg_mock, get_feature_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    feature = fg.get_feature(_TEST_FG1_F1_ID)
+
+    get_feature_mock.assert_called_once_with(
+        name=_TEST_FG1_F1_PATH,
+        retry=base._DEFAULT_RETRY,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
     )

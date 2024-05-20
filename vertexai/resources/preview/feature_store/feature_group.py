@@ -32,6 +32,9 @@ from google.cloud.aiplatform.compat.types import (
 from vertexai.resources.preview.feature_store.utils import (
     FeatureGroupBigQuerySource,
 )
+from vertexai.resources.preview.feature_store import (
+    Feature,
+)
 
 
 _LOGGER = base.Logger(__name__)
@@ -237,6 +240,17 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_delete_with_lro(self, lro)
         lro.result()
         _LOGGER.log_delete_complete(self)
+
+    def get_feature(self, feature_id: str) -> Feature:
+        """Retrieves an existing managed feature.
+
+        Args:
+            feature_id: The ID of the feature.
+
+        Returns:
+            Feature - the Feature resource object under this feature group.
+        """
+        return Feature(f"{self.resource_name}/features/{feature_id}")
 
     @property
     def source(self) -> FeatureGroupBigQuerySource:

@@ -314,3 +314,17 @@ _TEST_FG3 = types.feature_group.FeatureGroup(
 )
 
 _TEST_FG_LIST = [_TEST_FG1, _TEST_FG2, _TEST_FG3]
+
+_TEST_FG1_F1_ID = "my_fg1_f1"
+_TEST_FG1_F1_PATH = (
+    f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/features/{_TEST_FG1_F1_ID}"
+)
+_TEST_FG1_F1_DESCRIPTION = "My feature 1 in feature group 1"
+_TEST_FG1_F1_LABELS = {"my_fg1_feature": "f1"}
+_TEST_FG1_F1_POINT_OF_CONTACT = "fg1-f1-announce-list"
+_TEST_FG1_F1 = types.feature.Feature(
+    name=_TEST_FG1_F1_PATH,
+    description=_TEST_FG1_F1_DESCRIPTION,
+    labels=_TEST_FG1_F1_LABELS,
+    point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+)
