@@ -36,6 +36,9 @@ if DEFAULT_VERSION == V1BETA1:
     services.feature_online_store_service_client = (
         services.feature_online_store_service_client_v1beta1
     )
+    services.feature_registry_service_client = (
+        services.feature_registry_service_client_v1beta1
+    )
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1beta1
     )
@@ -91,6 +94,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.feature_online_store_admin_service = (
         types.feature_online_store_admin_service_v1beta1
     )
+    types.feature_registry_service = types.feature_registry_service_v1beta1
     types.feature_online_store_service = types.feature_online_store_service_v1beta1
     types.feature_selector = types.feature_selector_v1beta1
     types.feature_view = types.feature_view_v1beta1
@@ -157,6 +161,9 @@ if DEFAULT_VERSION == V1:
     services.feature_online_store_admin_service_client = (
         services.feature_online_store_admin_service_client_v1
     )
+    services.feature_registry_service_client = (
+        services.feature_registry_service_client_v1
+    )
     services.feature_online_store_service_client = (
         services.feature_online_store_service_client_v1
     )
@@ -208,6 +215,7 @@ if DEFAULT_VERSION == V1:
     types.feature_online_store_admin_service = (
         types.feature_online_store_admin_service_v1
     )
+    types.feature_registry_service = types.feature_registry_service_v1
     types.feature_online_store_service = types.feature_online_store_service_v1
     types.feature_selector = types.feature_selector_v1
     types.feature_view = types.feature_view_v1

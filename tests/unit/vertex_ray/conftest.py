@@ -18,7 +18,7 @@ from google.api_core import exceptions
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.cloud import resourcemanager
-from google.cloud.aiplatform.preview import vertex_ray
+from google.cloud.aiplatform import vertex_ray
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )

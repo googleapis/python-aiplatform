@@ -1204,6 +1204,9 @@ def test_retrieve_contexts_empty_call():
     with mock.patch.object(
         type(client.transport.retrieve_contexts), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.retrieve_contexts()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1229,12 +1232,52 @@ def test_retrieve_contexts_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.retrieve_contexts), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.retrieve_contexts(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vertex_rag_service.RetrieveContextsRequest(
             parent="parent_value",
         )
+
+
+def test_retrieve_contexts_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.retrieve_contexts in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.retrieve_contexts
+        ] = mock_rpc
+        request = {}
+        client.retrieve_contexts(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.retrieve_contexts(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1258,6 +1301,52 @@ async def test_retrieve_contexts_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vertex_rag_service.RetrieveContextsRequest()
+
+
+@pytest.mark.asyncio
+async def test_retrieve_contexts_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = VertexRagServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.retrieve_contexts
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.retrieve_contexts
+        ] = mock_object
+
+        request = {}
+        await client.retrieve_contexts(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.retrieve_contexts(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1495,6 +1584,44 @@ def test_retrieve_contexts_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vertex_rag_service.RetrieveContextsResponse)
+
+
+def test_retrieve_contexts_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.retrieve_contexts in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.retrieve_contexts
+        ] = mock_rpc
+
+        request = {}
+        client.retrieve_contexts(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.retrieve_contexts(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_retrieve_contexts_rest_required_fields(
@@ -2274,8 +2401,34 @@ def test_vertex_rag_service_transport_channel_mtls_with_adc(transport_class):
             assert transport.grpc_channel == mock_grpc_channel
 
 
+def test_rag_corpus_path():
+    project = "squid"
+    location = "clam"
+    rag_corpus = "whelk"
+    expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+        project=project,
+        location=location,
+        rag_corpus=rag_corpus,
+    )
+    actual = VertexRagServiceClient.rag_corpus_path(project, location, rag_corpus)
+    assert expected == actual
+
+
+def test_parse_rag_corpus_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "rag_corpus": "nudibranch",
+    }
+    path = VertexRagServiceClient.rag_corpus_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = VertexRagServiceClient.parse_rag_corpus_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2285,7 +2438,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = VertexRagServiceClient.common_billing_account_path(**expected)
 
@@ -2295,7 +2448,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -2305,7 +2458,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = VertexRagServiceClient.common_folder_path(**expected)
 
@@ -2315,7 +2468,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -2325,7 +2478,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = VertexRagServiceClient.common_organization_path(**expected)
 
@@ -2335,7 +2488,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -2345,7 +2498,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = VertexRagServiceClient.common_project_path(**expected)
 
@@ -2355,8 +2508,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -2367,8 +2520,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = VertexRagServiceClient.common_location_path(**expected)
 

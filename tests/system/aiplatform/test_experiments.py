@@ -476,6 +476,65 @@ class TestExperiments(e2e_base.TestEndToEnd):
             key=lambda d: d["run_name"],
         ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
+    def test_get_experiments_df_include_time_series_false(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+
+        df = aiplatform.get_experiment_df(include_time_series=False)
+
+        pipelines_param_and_metrics = {
+            "param.dropout_rate": 0.2,
+            "param.learning_rate": 0.1,
+            "metric.accuracy": 0.8,
+            "metric.mse": 1.2,
+        }
+
+        true_df_dict_1 = {f"metric.{key}": value for key, value in _METRICS.items()}
+        for key, value in _PARAMS.items():
+            true_df_dict_1[f"param.{key}"] = value
+
+        true_df_dict_1["experiment_name"] = self._experiment_name
+        true_df_dict_1["run_name"] = _RUN
+        true_df_dict_1["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
+        true_df_dict_1["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
+
+        true_df_dict_2 = {f"metric.{key}": value for key, value in _METRICS_2.items()}
+        for key, value in _PARAMS_2.items():
+            true_df_dict_2[f"param.{key}"] = value
+
+        true_df_dict_2["experiment_name"] = self._experiment_name
+        true_df_dict_2["run_name"] = _RUN_2
+        true_df_dict_2["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
+        true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
+        true_df_dict_2.update(pipelines_param_and_metrics)
+
+        true_df_dict_3 = {
+            "experiment_name": self._experiment_name,
+            "run_name": self._pipeline_job_id,
+            "run_type": aiplatform.metadata.constants.SYSTEM_PIPELINE_RUN,
+            "state": aiplatform.gapic.Execution.State.COMPLETE.name,
+        }
+
+        true_df_dict_3.update(pipelines_param_and_metrics)
+
+        for key in pipelines_param_and_metrics.keys():
+            true_df_dict_1[key] = 0.0
+            true_df_dict_2[key] = 0.0
+
+        for key in _PARAMS.keys():
+            true_df_dict_3[f"param.{key}"] = 0.0
+
+        for key in _METRICS.keys():
+            true_df_dict_3[f"metric.{key}"] = 0.0
+
+        assert sorted(
+            [true_df_dict_1, true_df_dict_2, true_df_dict_3],
+            key=lambda d: d["run_name"],
+        ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
+
     def test_delete_run_does_not_exist_raises_exception(self):
         run = aiplatform.ExperimentRun(
             run_name=_RUN,

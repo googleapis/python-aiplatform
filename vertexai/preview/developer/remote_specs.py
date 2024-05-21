@@ -34,10 +34,6 @@ from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
 
-try:
-    import torch
-except ImportError:
-    pass
 
 _LOGGER = base.Logger(__name__)
 
@@ -842,6 +838,8 @@ def setup_pytorch_distributed_training(model: Any) -> Any:
     Returns:
         A custom model built on top of `torch.nn.Module` wrapped in DistributedDataParallel.
     """
+    import torch
+
     if not model.cluster_spec:  # cluster_spec is populated for multi-worker training
         return model
 

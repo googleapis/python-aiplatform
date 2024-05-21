@@ -43,6 +43,7 @@ except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
+from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -91,6 +92,14 @@ class NotebookServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_delete_notebook_execution_job(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_delete_notebook_execution_job(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_delete_notebook_runtime(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -107,6 +116,14 @@ class NotebookServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_get_notebook_execution_job(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_get_notebook_execution_job(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_get_notebook_runtime(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -120,6 +137,14 @@ class NotebookServiceRestInterceptor:
                 return request, metadata
 
             def post_get_notebook_runtime_template(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_list_notebook_execution_jobs(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_list_notebook_execution_jobs(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -211,6 +236,31 @@ class NotebookServiceRestInterceptor:
         """
         return response
 
+    def pre_delete_notebook_execution_job(
+        self,
+        request: notebook_service.DeleteNotebookExecutionJobRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        notebook_service.DeleteNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for delete_notebook_execution_job
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_delete_notebook_execution_job(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for delete_notebook_execution_job
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
     def pre_delete_notebook_runtime(
         self,
         request: notebook_service.DeleteNotebookRuntimeRequest,
@@ -261,6 +311,31 @@ class NotebookServiceRestInterceptor:
         """
         return response
 
+    def pre_get_notebook_execution_job(
+        self,
+        request: notebook_service.GetNotebookExecutionJobRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        notebook_service.GetNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for get_notebook_execution_job
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_get_notebook_execution_job(
+        self, response: notebook_execution_job.NotebookExecutionJob
+    ) -> notebook_execution_job.NotebookExecutionJob:
+        """Post-rpc interceptor for get_notebook_execution_job
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
     def pre_get_notebook_runtime(
         self,
         request: notebook_service.GetNotebookRuntimeRequest,
@@ -302,6 +377,31 @@ class NotebookServiceRestInterceptor:
         self, response: notebook_runtime.NotebookRuntimeTemplate
     ) -> notebook_runtime.NotebookRuntimeTemplate:
         """Post-rpc interceptor for get_notebook_runtime_template
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_list_notebook_execution_jobs(
+        self,
+        request: notebook_service.ListNotebookExecutionJobsRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        notebook_service.ListNotebookExecutionJobsRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for list_notebook_execution_jobs
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_list_notebook_execution_jobs(
+        self, response: notebook_service.ListNotebookExecutionJobsResponse
+    ) -> notebook_service.ListNotebookExecutionJobsResponse:
+        """Post-rpc interceptor for list_notebook_execution_jobs
 
         Override in a subclass to manipulate the response
         after it is returned by the NotebookService server but before
@@ -954,10 +1054,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                     },
                     {
@@ -1328,10 +1424,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                     },
                     {
@@ -1687,10 +1779,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2068,10 +2156,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                     },
                     {
@@ -2446,10 +2530,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
                     },
                     {
@@ -2798,6 +2878,94 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
             resp = self._interceptor.post_create_notebook_runtime_template(resp)
             return resp
 
+    class _DeleteNotebookExecutionJob(NotebookServiceRestStub):
+        def __hash__(self):
+            return hash("DeleteNotebookExecutionJob")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: notebook_service.DeleteNotebookExecutionJobRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the delete notebook execution
+            job method over HTTP.
+
+                Args:
+                    request (~.notebook_service.DeleteNotebookExecutionJobRequest):
+                        The request object. Request message for
+                    [NotebookService.DeleteNotebookExecutionJob]
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.operations_pb2.Operation:
+                        This resource represents a
+                    long-running operation that is the
+                    result of a network API call.
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*}",
+                },
+            ]
+            request, metadata = self._interceptor.pre_delete_notebook_execution_job(
+                request, metadata
+            )
+            pb_request = notebook_service.DeleteNotebookExecutionJobRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_delete_notebook_execution_job(resp)
+            return resp
+
     class _DeleteNotebookRuntime(NotebookServiceRestStub):
         def __hash__(self):
             return hash("DeleteNotebookRuntime")
@@ -2973,6 +3141,95 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
             resp = self._interceptor.post_delete_notebook_runtime_template(resp)
+            return resp
+
+    class _GetNotebookExecutionJob(NotebookServiceRestStub):
+        def __hash__(self):
+            return hash("GetNotebookExecutionJob")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: notebook_service.GetNotebookExecutionJobRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> notebook_execution_job.NotebookExecutionJob:
+            r"""Call the get notebook execution
+            job method over HTTP.
+
+                Args:
+                    request (~.notebook_service.GetNotebookExecutionJobRequest):
+                        The request object. Request message for
+                    [NotebookService.GetNotebookExecutionJob]
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.notebook_execution_job.NotebookExecutionJob:
+                        NotebookExecutionJob represents an
+                    instance of a notebook execution.
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*}",
+                },
+            ]
+            request, metadata = self._interceptor.pre_get_notebook_execution_job(
+                request, metadata
+            )
+            pb_request = notebook_service.GetNotebookExecutionJobRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = notebook_execution_job.NotebookExecutionJob()
+            pb_resp = notebook_execution_job.NotebookExecutionJob.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_get_notebook_execution_job(resp)
             return resp
 
     class _GetNotebookRuntime(NotebookServiceRestStub):
@@ -3155,6 +3412,95 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
             resp = self._interceptor.post_get_notebook_runtime_template(resp)
+            return resp
+
+    class _ListNotebookExecutionJobs(NotebookServiceRestStub):
+        def __hash__(self):
+            return hash("ListNotebookExecutionJobs")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: notebook_service.ListNotebookExecutionJobsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> notebook_service.ListNotebookExecutionJobsResponse:
+            r"""Call the list notebook execution
+            jobs method over HTTP.
+
+                Args:
+                    request (~.notebook_service.ListNotebookExecutionJobsRequest):
+                        The request object. Request message for
+                    [NotebookService.ListNotebookExecutionJobs]
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.notebook_service.ListNotebookExecutionJobsResponse:
+                        Response message for
+                    [NotebookService.CreateNotebookExecutionJob]
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*}/notebookExecutionJobs",
+                },
+            ]
+            request, metadata = self._interceptor.pre_list_notebook_execution_jobs(
+                request, metadata
+            )
+            pb_request = notebook_service.ListNotebookExecutionJobsRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = notebook_service.ListNotebookExecutionJobsResponse()
+            pb_resp = notebook_service.ListNotebookExecutionJobsResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_list_notebook_execution_jobs(resp)
             return resp
 
     class _ListNotebookRuntimes(NotebookServiceRestStub):
@@ -3546,6 +3892,16 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
         return self._CreateNotebookRuntimeTemplate(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
+    def delete_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.DeleteNotebookExecutionJobRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._DeleteNotebookExecutionJob(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def delete_notebook_runtime(
         self,
     ) -> Callable[
@@ -3567,6 +3923,17 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
         return self._DeleteNotebookRuntimeTemplate(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
+    def get_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.GetNotebookExecutionJobRequest],
+        notebook_execution_job.NotebookExecutionJob,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._GetNotebookExecutionJob(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def get_notebook_runtime(
         self,
     ) -> Callable[
@@ -3586,6 +3953,17 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._GetNotebookRuntimeTemplate(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def list_notebook_execution_jobs(
+        self,
+    ) -> Callable[
+        [notebook_service.ListNotebookExecutionJobsRequest],
+        notebook_service.ListNotebookExecutionJobsResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._ListNotebookExecutionJobs(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_notebook_runtimes(
@@ -4397,10 +4775,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
                 },
                 {
@@ -4828,10 +5202,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
                 },
                 {
@@ -5247,10 +5617,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -5689,10 +6055,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
                 },
                 {
@@ -6125,10 +6487,6 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/deployments/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

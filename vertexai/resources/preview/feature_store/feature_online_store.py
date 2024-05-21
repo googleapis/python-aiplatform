@@ -38,6 +38,7 @@ from vertexai.resources.preview.feature_store.feature_view import (
 )
 from vertexai.resources.preview.feature_store.utils import (
     IndexConfig,
+    FeatureViewBigQuerySource,
 )
 
 
@@ -377,10 +378,10 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         return self._gca_resource.labels
 
     @base.optional_sync()
-    def create_feature_view_from_big_query(
+    def create_feature_view(
         self,
         name: str,
-        big_query_source: FeatureView.BigQuerySource,
+        source: FeatureViewBigQuerySource,
         labels: Optional[Dict[str, str]] = None,
         sync_config: Optional[str] = None,
         index_config: Optional[IndexConfig] = None,
@@ -390,7 +391,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
         create_request_timeout: Optional[float] = None,
         sync: bool = True,
-    ) -> "FeatureView":
+    ) -> FeatureView:
         """Creates a FeatureView from a BigQuery source.
 
         Example Usage:
@@ -422,9 +423,9 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         ```
         Args:
             name: The name of the feature view.
-            big_query_source:
-                The BigQuery source to load data from when a feature view sync
-                runs.
+            source:
+                The source to load data from when a feature view sync runs.
+                Currently supports a BigQuery source.
             labels:
                 The labels with user-defined metadata to organize your
                 FeatureViews.
@@ -445,6 +446,11 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
                 for each entity ID of this FeatureView are made ready for online
                 serving. Example format: "TZ=America/New_York 0 9 * * *" (sync
                 daily at 9 AM EST).
+            index_config:
+                Configuration for index preparation for vector search. It
+                contains the required configurations to create an index from
+                source data, so that approximate nearest neighbor (a.k.a ANN)
+                algorithms search can be performed during online serving.
             project:
                 Project to create feature view in. If unset, the project set in
                 aiplatform.init will be used.
@@ -467,17 +473,24 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             FeatureView - the FeatureView resource object.
         """
-        if not big_query_source:
-            raise ValueError("Please specify valid big_query_source.")
-        elif not big_query_source.uri:
-            raise ValueError("Please specify URI in big_query_source.")
-        elif not big_query_source.entity_id_columns:
-            raise ValueError("Please specify entity ID columns in big_query_source.")
+        if not source:
+            raise ValueError("Please specify a valid source.")
+
+        # Only BigQuery source is supported right now.
+        if not isinstance(source, FeatureViewBigQuerySource):
+            raise ValueError("Only FeatureViewBigQuerySource is a supported source.")
+
+        # BigQuery source validation.
+        if not source.uri:
+            raise ValueError("Please specify URI in BigQuery source.")
+
+        if not source.entity_id_columns:
+            raise ValueError("Please specify entity ID columns in BigQuery source.")
 
         gapic_feature_view = gca_feature_view.FeatureView(
             big_query_source=gca_feature_view.FeatureView.BigQuerySource(
-                uri=big_query_source.uri,
-                entity_id_columns=big_query_source.entity_id_columns,
+                uri=source.uri,
+                entity_id_columns=source.entity_id_columns,
             ),
             sync_config=gca_feature_view.FeatureView.SyncConfig(cron=sync_config)
             if sync_config

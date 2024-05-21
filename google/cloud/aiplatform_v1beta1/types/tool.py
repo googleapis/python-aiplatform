@@ -356,25 +356,63 @@ class VertexRagStore(proto.Message):
 
     Attributes:
         rag_corpora (MutableSequence[str]):
-            Required. Vertex RAG Store corpus resource name:
-            ``projects/{project}/locations/{location}/ragCorpora/{ragCorpus}``
-            Currently only one corpus is allowed. In the future we may
-            open up multiple corpora support. However, they should be
-            from the same project and location.
+            Optional. Deprecated. Please use rag_resources instead.
+        rag_resources (MutableSequence[google.cloud.aiplatform_v1beta1.types.VertexRagStore.RagResource]):
+            Optional. The representation of the rag
+            source. It can be used to specify corpus only or
+            ragfiles. Currently only support one corpus or
+            multiple files from one corpus. In the future we
+            may open up multiple corpora support.
         similarity_top_k (int):
             Optional. Number of top k results to return
             from the selected corpora.
 
             This field is a member of `oneof`_ ``_similarity_top_k``.
+        vector_distance_threshold (float):
+            Optional. Only return results with vector
+            distance smaller than the threshold.
+
+            This field is a member of `oneof`_ ``_vector_distance_threshold``.
     """
+
+    class RagResource(proto.Message):
+        r"""The definition of the Rag resource.
+
+        Attributes:
+            rag_corpus (str):
+                Optional. RagCorpora resource name. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            rag_file_ids (MutableSequence[str]):
+                Optional. rag_file_id. The files should be in the same
+                rag_corpus set in rag_corpus field.
+        """
+
+        rag_corpus: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        rag_file_ids: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
 
     rag_corpora: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )
+    rag_resources: MutableSequence[RagResource] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=RagResource,
+    )
     similarity_top_k: int = proto.Field(
         proto.INT32,
         number=2,
+        optional=True,
+    )
+    vector_distance_threshold: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
         optional=True,
     )
 

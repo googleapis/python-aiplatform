@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 import importlib
-import json
 from typing import Optional
 from unittest import mock
 
@@ -25,11 +24,9 @@ from vertexai.preview import reasoning_engines
 import pytest
 
 
-from langchain_core import agents
-from langchain_core import messages
-from langchain_core import outputs
-from langchain_core import tools as lc_tools
+from langchain_core import prompts
 from langchain.load import dump as langchain_load_dump
+from langchain.agents.format_scratchpad import format_to_openai_function_messages
 from langchain.tools.base import StructuredTool
 
 
@@ -93,6 +90,18 @@ class TestLangchainAgent:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        self.prompt = {
+            "input": lambda x: x["input"],
+            "agent_scratchpad": (
+                lambda x: format_to_openai_function_messages(x["intermediate_steps"])
+            ),
+        } | prompts.ChatPromptTemplate.from_messages(
+            [
+                ("user", "{input}"),
+                prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
+        self.output_parser = mock.Mock()
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -105,24 +114,33 @@ class TestLangchainAgent:
         assert agent._runnable is None
 
     def test_initialization_with_tools(self):
+        tools = [
+            place_tool_query,
+            StructuredTool.from_function(place_photo_query),
+        ]
         agent = reasoning_engines.LangchainAgent(
             model=_TEST_MODEL,
-            tools=[
-                place_tool_query,
-                StructuredTool.from_function(place_photo_query),
-            ],
+            tools=tools,
         )
-        for tool in agent._tools:
-            assert isinstance(tool, lc_tools.BaseTool)
+        for tool, agent_tool in zip(tools, agent._tools):
+            assert isinstance(agent_tool, type(tool))
 
     def test_set_up(self, vertexai_init_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
+        agent = reasoning_engines.LangchainAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            output_parser=self.output_parser,
+        )
         assert agent._runnable is None
         agent.set_up()
         assert agent._runnable is not None
 
     def test_query(self, langchain_dump_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
+        agent = reasoning_engines.LangchainAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            output_parser=self.output_parser,
+        )
         agent._runnable = mock.Mock()
         mocks = mock.Mock()
         mocks.attach_mock(mock=agent._runnable, attribute="invoke")
@@ -130,63 +148,6 @@ class TestLangchainAgent:
         mocks.assert_has_calls(
             [mock.call.invoke.invoke(input={"input": "test query"}, config=None)]
         )
-
-
-class TestDefaultOutputParser:
-    def test_parse_result_function_call(self, vertexai_init_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
-        agent.set_up()
-        tool_input = {
-            "photo_reference": "abcd1234",
-            "maxwidth": _DEFAULT_PLACE_PHOTO_MAXWIDTH,
-        }
-        result = agent._output_parser.parse_result(
-            [
-                outputs.ChatGeneration(
-                    message=messages.AIMessage(
-                        content="",
-                        additional_kwargs={
-                            "function_call": {
-                                "name": "place_tool_query",
-                                "arguments": json.dumps(tool_input),
-                            },
-                        },
-                    )
-                )
-            ]
-        )
-        assert isinstance(result, agents.AgentActionMessageLog)
-        assert result.tool == "place_tool_query"
-        assert result.tool_input == tool_input
-
-    def test_parse_result_not_function_call(self, vertexai_init_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
-        agent.set_up()
-        content = "test content"
-        result = agent._output_parser.parse_result(
-            [
-                outputs.ChatGeneration(
-                    message=messages.AIMessage(content=content),
-                )
-            ]
-        )
-        assert isinstance(result, agents.AgentFinish)
-        assert result.return_values == {"output": content}
-        assert result.log == content
-
-
-class TestDefaultOutputParserErrors:
-    def test_parse_result_non_chat_generation_errors(self, vertexai_init_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
-        agent.set_up()
-        with pytest.raises(ValueError, match=r"only works on ChatGeneration"):
-            agent._output_parser.parse_result(["text"])
-
-    def test_parse_text_errors(self, vertexai_init_mock):
-        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
-        agent.set_up()
-        with pytest.raises(ValueError, match=r"Can only parse messages"):
-            agent._output_parser.parse("text")
 
 
 class TestConvertToolsOrRaise:

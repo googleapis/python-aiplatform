@@ -441,18 +441,21 @@ class ExperimentRun(
         self,
         node: Union[context.Context, execution.Execution],
         experiment: Optional[experiment_resources.Experiment] = None,
+        lookup_tensorboard_run: bool = True,
     ):
         self._experiment = experiment
         self._run_name = node.display_name
         self._metadata_node = node
         self._largest_step = None
+        self._backing_tensorboard_run = None
+        self._metadata_metric_artifact = None
 
         if self._is_legacy_experiment_run():
             self._metadata_metric_artifact = self._v1_get_metric_artifact()
-            self._backing_tensorboard_run = None
-        else:
-            self._metadata_metric_artifact = None
+        if not self._is_legacy_experiment_run() and lookup_tensorboard_run:
             self._backing_tensorboard_run = self._lookup_tensorboard_run_artifact()
+            if not self._backing_tensorboard_run:
+                self._assign_to_experiment_backing_tensorboard()
 
     @classmethod
     def list(
@@ -550,18 +553,28 @@ class ExperimentRun(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: Union[context.Context, execution.Execution]
+        cls,
+        node: Union[context.Context, execution.Execution],
+        experiment: Optional[experiment_resources.Experiment] = None,
+        include_time_series: bool = True,
     ) -> experiment_resources._ExperimentRow:
         """Retrieves the runs metric and parameters into an experiment run row.
 
         Args:
             node (Union[context._Context, execution.Execution]):
                 Required. Metadata node instance that represents this run.
+            experiment:
+                Optional. Experiment associated with this run.
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True.
         Returns:
             Experiment run row that represents this run.
         """
         this_experiment_run = cls.__new__(cls)
-        this_experiment_run._initialize_experiment_run(node)
+        this_experiment_run._initialize_experiment_run(
+            node, experiment=experiment, lookup_tensorboard_run=include_time_series
+        )
 
         row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title,
@@ -571,9 +584,10 @@ class ExperimentRun(
         row.params = this_experiment_run.get_params()
         row.metrics = this_experiment_run.get_metrics()
         row.state = this_experiment_run.get_state()
-        row.time_series_metrics = (
-            this_experiment_run._get_latest_time_series_metric_columns()
-        )
+        if include_time_series:
+            row.time_series_metrics = (
+                this_experiment_run._get_latest_time_series_metric_columns()
+            )
 
         return row
 
@@ -611,8 +625,11 @@ class ExperimentRun(
             return {
                 display_name: data.values[-1].scalar.value
                 for display_name, data in time_series_metrics.items()
-                if data.value_type
-                == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+                if (
+                    data.values
+                    and data.value_type
+                    == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+                )
             }
         return {}
 
@@ -707,7 +724,9 @@ class ExperimentRun(
             The newly created experiment run.
         """
 
-        experiment = cls._get_experiment(experiment)
+        experiment = cls._get_experiment(
+            experiment, project=project, location=location, credentials=credentials
+        )
 
         run_id = _format_experiment_run_resource_id(
             experiment_name=experiment.name, run_name=run_name
@@ -751,7 +770,10 @@ class ExperimentRun(
         try:
             if tensorboard:
                 cls._assign_backing_tensorboard(
-                    self=experiment_run, tensorboard=tensorboard
+                    self=experiment_run,
+                    tensorboard=tensorboard,
+                    project=project,
+                    location=location,
                 )
             else:
                 cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
@@ -783,7 +805,10 @@ class ExperimentRun(
         return f"{experiment_name} Backing Tensorboard Experiment"
 
     def _assign_backing_tensorboard(
-        self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
+        self,
+        tensorboard: Union[tensorboard_resource.Tensorboard, str],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
     ):
         """Assign tensorboard as the backing tensorboard to this run.
 
@@ -793,7 +818,10 @@ class ExperimentRun(
         """
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(
-                tensorboard, credentials=self._metadata_node.credentials
+                tensorboard,
+                project=project,
+                location=location,
+                credentials=self._metadata_node.credentials,
             )
 
         tensorboard_resource_name_parts = tensorboard._parse_resource_name(
@@ -818,6 +846,8 @@ class ExperimentRun(
                             self._experiment.name
                         ),
                         tensorboard_name=tensorboard.resource_name,
+                        project=project,
+                        location=location,
                         credentials=tensorboard.credentials,
                         labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
                     )
@@ -840,6 +870,8 @@ class ExperimentRun(
                 tensorboard_run = tensorboard_resource.TensorboardRun.create(
                     tensorboard_run_id=self._run_name,
                     tensorboard_experiment_name=tensorboard_experiment.resource_name,
+                    project=project,
+                    location=location,
                     credentials=tensorboard.credentials,
                 )
 
@@ -856,6 +888,8 @@ class ExperimentRun(
                 schema_title=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
                 schema_version=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
                 state=gca_artifact.Artifact.State.LIVE,
+                project=project,
+                location=location,
             )
 
         self._metadata_node.add_artifacts_and_executions(

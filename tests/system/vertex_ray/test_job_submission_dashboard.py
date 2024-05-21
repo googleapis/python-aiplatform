@@ -16,7 +16,7 @@
 #
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview import vertex_ray
+from google.cloud.aiplatform import vertex_ray
 from ray.job_submission import JobSubmissionClient
 from tests.system.aiplatform import e2e_base
 import datetime
@@ -57,7 +57,7 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
 
         # Need to use the full path since the installation is editable, not from a release
         client = JobSubmissionClient(
-            "google.cloud.aiplatform.preview.vertex_ray://{}".format(
+            "google.cloud.aiplatform.vertex_ray://{}".format(
                 cluster_details.dashboard_address
             )
         )

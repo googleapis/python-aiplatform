@@ -99,6 +99,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -194,6 +199,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -288,6 +298,11 @@
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
               ]
             }
           }
@@ -3036,6 +3051,190 @@
         }
       }
     },
+    "ModelMonitoringService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ModelMonitoringServiceClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ModelMonitoringServiceAsyncClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ModelMonitoringServiceClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ModelService": {
       "clients": {
         "grpc": {
@@ -3340,6 +3539,11 @@
                 "create_notebook_runtime_template"
               ]
             },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
+              ]
+            },
             "DeleteNotebookRuntime": {
               "methods": [
                 "delete_notebook_runtime"
@@ -3350,6 +3554,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3358,6 +3567,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3395,6 +3609,11 @@
                 "create_notebook_runtime_template"
               ]
             },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
+              ]
+            },
             "DeleteNotebookRuntime": {
               "methods": [
                 "delete_notebook_runtime"
@@ -3405,6 +3624,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3413,6 +3637,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3450,6 +3679,11 @@
                 "create_notebook_runtime_template"
               ]
             },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
+              ]
+            },
             "DeleteNotebookRuntime": {
               "methods": [
                 "delete_notebook_runtime"
@@ -3460,6 +3694,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3468,6 +3707,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3807,11 +4051,6 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
-            "ChatCompletions": {
-              "methods": [
-                "chat_completions"
-              ]
-            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -3882,11 +4121,6 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
-            "ChatCompletions": {
-              "methods": [
-                "chat_completions"
-              ]
-            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -3957,11 +4191,6 @@
         "rest": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
-            "ChatCompletions": {
-              "methods": [
-                "chat_completions"
-              ]
-            },
             "CountTokens": {
               "methods": [
                 "count_tokens"

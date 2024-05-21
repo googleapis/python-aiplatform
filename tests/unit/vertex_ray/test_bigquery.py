@@ -22,8 +22,8 @@ from google.api_core import operation
 from google.cloud import bigquery
 from google.cloud import bigquery_storage
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview.vertex_ray import bigquery_datasource
-from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasink import (
+from google.cloud.aiplatform.vertex_ray import bigquery_datasource
+from google.cloud.aiplatform.vertex_ray.bigquery_datasink import (
     _BigQueryDatasink,
 )
 import test_constants as tc
@@ -311,7 +311,7 @@ class TestWriteBigQuery:
         assert len(write_tasks_list) == 4
 
     # Ray 2.9.3 only
-    def test_write(self, ray_get_mock):
+    def test_write(self, ray_get_mock, ray_remote_function_mock):
         if _BigQueryDatasink is None:
             return
         bq_datasink = _BigQueryDatasink(
@@ -327,7 +327,7 @@ class TestWriteBigQuery:
         assert status == "ok"
 
     # Ray 2.9.3 only
-    def test_write_dataset_exists(self, ray_get_mock):
+    def test_write_dataset_exists(self, ray_get_mock, ray_remote_function_mock):
         if _BigQueryDatasink is None:
             return
         bq_datasink = _BigQueryDatasink(

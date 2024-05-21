@@ -27,18 +27,14 @@ class PromptTemplate:
     values using the `assemble` method, providing flexibility in generating
     dynamic prompts.
 
-    Example Usage:
+    Usage:
 
         ```
-            template_str = "Hello, {name}! Today is {day}. How are you?"
-            prompt_template = PromptTemplate(template_str)
-            completed_prompt = prompt_template.assemble(name="John", day="Monday")
-            print(completed_prompt)
+        template_str = "Hello, {name}! Today is {day}. How are you?"
+        prompt_template = PromptTemplate(template_str)
+        completed_prompt = prompt_template.assemble(name="John", day="Monday")
+        print(completed_prompt)
         ```
-
-    Attributes:
-        template: The template string containing placeholders for replacement.
-        placeholders: A set of placeholder names from the template string.
     """
 
     def __init__(self, template: str):

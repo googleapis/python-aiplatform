@@ -290,6 +290,7 @@ class Context(resource._Resource):
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        location: Optional[str] = None,
     ):
         """Updates an existing Metadata Context with new metadata.
 
@@ -307,7 +308,10 @@ class Context(resource._Resource):
         for _ in range(_ETAG_ERROR_MAX_RETRY_COUNT - 1):
             try:
                 super().update(
-                    metadata=metadata, description=description, credentials=credentials
+                    metadata=metadata,
+                    description=description,
+                    credentials=credentials,
+                    location=location,
                 )
                 return
             except Aborted as aborted_exception:
@@ -322,7 +326,10 @@ class Context(resource._Resource):
 
         # Expose result/exception directly in the last retry.
         super().update(
-            metadata=metadata, description=description, credentials=credentials
+            metadata=metadata,
+            description=description,
+            credentials=credentials,
+            location=location,
         )
 
     @classmethod

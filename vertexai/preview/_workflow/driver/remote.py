@@ -18,7 +18,7 @@
 import abc
 import inspect
 from typing import Any, Callable, Dict, Optional, Type
-
+import warnings
 from vertexai.preview._workflow import driver
 from vertexai.preview._workflow.executor import (
     training,
@@ -27,6 +27,7 @@ from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
 )
 from vertexai.preview._workflow.shared import (
+    constants,
     supported_frameworks,
 )
 from vertexai.preview.developer import remote_specs
@@ -39,6 +40,9 @@ def remote_method_decorator(
 ) -> Callable[..., Any]:
     """Wraps methods as Functor object to support configuration on method."""
     return driver.VertexRemoteFunctor(method, remote_executor, remote_executor_kwargs)
+
+
+warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
 
 
 def remote_class_decorator(cls: Type) -> Type:

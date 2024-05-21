@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 from typing import Any, Dict, Sequence, Union
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
@@ -33,6 +34,9 @@ from vertexai.preview.rag.utils.resources import (
     RagCorpus,
     RagFile,
 )
+
+
+_VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
 
 
 def create_rag_data_service_client():
@@ -153,3 +157,48 @@ def prepare_import_files_request(
         parent=corpus_name, import_rag_files_config=import_rag_files_config
     )
     return request
+
+
+def get_corpus_name(
+    name: str,
+) -> str:
+    if name:
+        client = create_rag_data_service_client()
+        if client.parse_rag_corpus_path(name):
+            return name
+        elif re.match("^{}$".format(_VALID_RESOURCE_NAME_REGEX), name):
+            return client.rag_corpus_path(
+                project=initializer.global_config.project,
+                location=initializer.global_config.location,
+                rag_corpus=name,
+            )
+        else:
+            raise ValueError(
+                "name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}` or `{rag_corpus}`"
+            )
+    return name
+
+
+def get_file_name(
+    name: str,
+    corpus_name: str,
+) -> str:
+    client = create_rag_data_service_client()
+    if client.parse_rag_file_path(name):
+        return name
+    elif re.match("^{}$".format(_VALID_RESOURCE_NAME_REGEX), name):
+        if not corpus_name:
+            raise ValueError(
+                "corpus_name must be provided if name is a `{rag_file}`, not a "
+                "full resource name (`projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}`). "
+            )
+        return client.rag_file_path(
+            project=initializer.global_config.project,
+            location=initializer.global_config.location,
+            rag_corpus=get_corpus_name(corpus_name),
+            rag_file=name,
+        )
+    else:
+        raise ValueError(
+            "name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}` or `{rag_file}`"
+        )

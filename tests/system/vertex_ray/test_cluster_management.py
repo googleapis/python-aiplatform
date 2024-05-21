@@ -16,7 +16,7 @@
 #
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview import vertex_ray
+from google.cloud.aiplatform import vertex_ray
 from tests.system.aiplatform import e2e_base
 import datetime
 import pytest

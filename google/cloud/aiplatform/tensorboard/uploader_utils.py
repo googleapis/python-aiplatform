@@ -23,7 +23,6 @@ import logging
 import re
 import time
 from typing import Callable, Dict, Generator, List, Optional, Tuple
-import uuid
 
 from absl import app
 from google.api_core import exceptions
@@ -31,9 +30,12 @@ from google.cloud import storage
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,
 )
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import tensorboard_run
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.metadata import experiment_run_resource
+from google.cloud.aiplatform.tensorboard import tensorboard_resource
 import grpc
 
 from tensorboard.util import tb_logging
@@ -102,7 +104,7 @@ class OnePlatformResourceManager(object):
 
     def batch_create_runs(
         self, run_names: List[str]
-    ) -> List[tensorboard_run.TensorboardRun]:
+    ) -> List[tensorboard_resource.TensorboardRun]:
         """Batch creates TensorboardRuns.
 
         Args:
@@ -110,31 +112,12 @@ class OnePlatformResourceManager(object):
         Returns:
             the created TensorboardRuns
         """
-        batch_size = OnePlatformResourceManager.CREATE_RUN_BATCH_SIZE
         created_runs = []
-        for i in range(0, len(run_names), batch_size):
-            one_batch_run_names = run_names[i : i + batch_size]
-            tb_run_requests = [
-                tensorboard_service.CreateTensorboardRunRequest(
-                    parent=self._experiment_resource_name,
-                    tensorboard_run=tensorboard_run.TensorboardRun(
-                        display_name=run_name
-                    ),
-                    tensorboard_run_id=str(uuid.uuid4()),
-                )
-                for run_name in one_batch_run_names
-            ]
-
-            tb_runs = self._api.batch_create_tensorboard_runs(
-                parent=self._experiment_resource_name,
-                requests=tb_run_requests,
-            ).tensorboard_runs
-
-            self._run_name_to_run_resource_name.update(
-                {run.display_name: run.name for run in tb_runs}
-            )
-
-            created_runs.extend(tb_runs)
+        for run_name in run_names:
+            tb_run = self._create_or_get_run_resource(run_name)
+            created_runs.append(tb_run)
+            if run_name not in self._run_name_to_run_resource_name:
+                self._run_name_to_run_resource_name[run_name] = tb_run.resource_name
 
         return created_runs
 
@@ -207,13 +190,16 @@ class OnePlatformResourceManager(object):
         """
         if run_name not in self._run_name_to_run_resource_name:
             tb_run = self._create_or_get_run_resource(run_name)
-            self._run_name_to_run_resource_name[run_name] = tb_run.name
+            self._run_name_to_run_resource_name[run_name] = tb_run.resource_name
         return self._run_name_to_run_resource_name[run_name]
 
     def _create_or_get_run_resource(
         self, run_name: str
     ) -> tensorboard_run.TensorboardRun:
-        """Creates a new run resource in current tensorboard experiment resource.
+        """Creates new experiment run and tensorboard run resources.
+
+        The experiment run will be associated with the tensorboard run resource.
+        This will link all tensorboard run data to the associated experiment.
 
         Args:
             run_name (str):
@@ -224,36 +210,32 @@ class OnePlatformResourceManager(object):
                 The TensorboardRun given the run_name.
 
         Raises:
-            ExistingResourceNotFoundError:
-                Run name could not be found in resource list.
-            exceptions.InvalidArgument:
+            ValueError:
                 run_name argument is invalid.
         """
-        tb_run = tensorboard_run.TensorboardRun()
-        tb_run.display_name = run_name
-        try:
-            tb_run = self._api.create_tensorboard_run(
-                parent=self._experiment_resource_name,
-                tensorboard_run=tb_run,
-                tensorboard_run_id=str(uuid.uuid4()),
+        m = re.match(
+            "projects/(.*)/locations/(.*)/tensorboards/(.*)/experiments/(.*)",
+            self._experiment_resource_name,
+        )
+        project = m[1]
+        location = m[2]
+        tensorboard = m[3]
+        experiment = m[4]
+        experiment_run = experiment_run_resource.ExperimentRun.get(
+            project=project, location=location, run_name=run_name
+        )
+        if not experiment_run:
+            experiment_run = experiment_run_resource.ExperimentRun.create(
+                project=project,
+                location=location,
+                run_name=run_name,
+                experiment=experiment,
+                tensorboard=tensorboard,
+                state=gca_execution.Execution.State.COMPLETE,
             )
-        except exceptions.InvalidArgument as e:
-            # If the run name already exists then retrieve it
-            if "already exist" in e.message:
-                runs_pages = self._api.list_tensorboard_runs(
-                    parent=self._experiment_resource_name
-                )
-                for tb_run in runs_pages:
-                    if tb_run.display_name == run_name:
-                        break
+        tb_run_artifact = experiment_run._backing_tensorboard_run
+        tb_run = tb_run_artifact.resource
 
-                if tb_run.display_name != run_name:
-                    raise ExistingResourceNotFoundError(
-                        "Run with name %s already exists but is not resource list."
-                        % run_name
-                    )
-            else:
-                raise
         return tb_run
 
     def get_time_series_resource_name(

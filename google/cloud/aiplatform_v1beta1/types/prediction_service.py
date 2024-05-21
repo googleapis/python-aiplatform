@@ -51,7 +51,6 @@ __protobuf__ = proto.module(
         "CountTokensResponse",
         "GenerateContentRequest",
         "GenerateContentResponse",
-        "ChatCompletionsRequest",
     },
 )
 
@@ -949,30 +948,6 @@ class GenerateContentResponse(proto.Message):
         proto.MESSAGE,
         number=4,
         message=UsageMetadata,
-    )
-
-
-class ChatCompletionsRequest(proto.Message):
-    r"""Request message for [PredictionService.ChatCompletions]
-
-    Attributes:
-        endpoint (str):
-            Required. The name of the Endpoint requested to serve the
-            prediction. Format:
-            ``projects/{project}/locations/{location}/endpoints/openapi``
-        http_body (google.api.httpbody_pb2.HttpBody):
-            Optional. The prediction input. Supports HTTP
-            headers and arbitrary data payload.
-    """
-
-    endpoint: str = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    http_body: httpbody_pb2.HttpBody = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=httpbody_pb2.HttpBody,
     )
 
 

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Rapid GenAI Evaluation Module."""
+"""GenAI Rapid Evaluation Module."""
 
 from vertexai.preview.evaluation import _base
 from vertexai.preview.evaluation import _eval_tasks
@@ -25,11 +25,13 @@ from vertexai.preview.evaluation import prompt_template
 EvalResult = _base.EvalResult
 EvalTask = _eval_tasks.EvalTask
 CustomMetric = metrics.CustomMetric
+PairwiseMetric = metrics.PairwiseMetric
 make_metric = metrics.make_metric
 PromptTemplate = prompt_template.PromptTemplate
 
 __all__ = [
     "CustomMetric",
+    "PairwiseMetric",
     "EvalResult",
     "EvalTask",
     "make_metric",

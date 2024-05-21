@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from dataclasses import dataclass
 import re
 from typing import List, Optional
 from google.cloud.aiplatform import initializer
@@ -27,7 +26,7 @@ from google.cloud.aiplatform.compat.types import (
     feature_view as gca_feature_view,
     feature_online_store_service as fos_service,
 )
-import vertexai.resources.preview.feature_store.utils as fv_utils
+import vertexai.resources.preview.feature_store.utils as fs_utils
 
 _LOGGER = base.Logger(__name__)
 
@@ -114,7 +113,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         if getattr(self, "_online_store_client", None):
             return self._online_store_client
 
-        fos_name = fv_utils.get_feature_online_store_name(self.resource_name)
+        fos_name = fs_utils.get_feature_online_store_name(self.resource_name)
         from .feature_online_store import FeatureOnlineStore
 
         fos = FeatureOnlineStore(name=fos_name)
@@ -131,7 +130,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
 
         # From here, optimized serving.
         if not fos._gca_resource.dedicated_serving_endpoint.public_endpoint_domain_name:
-            raise fv_utils.PublicEndpointNotFoundError(
+            raise fs_utils.PublicEndpointNotFoundError(
                 "Public endpoint is not created yet for the optimized online store:"
                 f"{fos_name}. Please run sync and wait for it to complete."
             )
@@ -254,7 +253,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         self,
         key: List[str],
         request_timeout: Optional[float] = None,
-    ) -> fv_utils.FeatureViewReadResponse:
+    ) -> fs_utils.FeatureViewReadResponse:
         """Read the feature values from FeatureView.
 
           Example Usage:
@@ -280,7 +279,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             ),
             timeout=request_timeout,
         )
-        return fv_utils.FeatureViewReadResponse(response)
+        return fs_utils.FeatureViewReadResponse(response)
 
     def search(
         self,
@@ -295,7 +294,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         approximate_neighbor_candidates: Optional[int] = None,
         leaf_nodes_search_fraction: Optional[float] = None,
         request_timeout: Optional[float] = None,
-    ) -> fv_utils.SearchNearestEntitiesResponse:
+    ) -> fs_utils.SearchNearestEntitiesResponse:
         """Search the nearest entities from FeatureView.
 
         Example Usage:
@@ -342,8 +341,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             )
         else:
             raise ValueError(
-                f"Either entity_id or embedding_value needs to be provided for"
-                f" search."
+                "Either entity_id or embedding_value needs to be provided for search."
             )
         response = self._get_online_store_client.search_nearest_entities(
             request=fos_service.SearchNearestEntitiesRequest(
@@ -363,12 +361,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             ),
             timeout=request_timeout,
         )
-        return fv_utils.SearchNearestEntitiesResponse(response)
-
-    @dataclass
-    class BigQuerySource:
-        uri: str
-        entity_id_columns: List[str]
+        return fs_utils.SearchNearestEntitiesResponse(response)
 
     class FeatureViewSync(base.VertexAiResourceNounWithFutureManager):
         """Class for managing Feature View Sync resources."""

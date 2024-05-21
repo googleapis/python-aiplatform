@@ -45,6 +45,12 @@ class PublicEndpointNotFoundError(RuntimeError):
 
 
 @dataclass
+class FeatureViewBigQuerySource:
+    uri: str
+    entity_id_columns: List[str]
+
+
+@dataclass
 class FeatureViewReadResponse:
     _response: fos_service.FetchFeatureValuesResponse
 
@@ -130,11 +136,11 @@ class IndexConfig:
     """Configuration options for the Vertex FeatureView for embedding."""
 
     embedding_column: str
-    filter_column: List[str]
-    crowding_column: str
-    dimentions: Optional[int]
-    distance_measure_type: DistanceMeasureType
+    dimensions: int
     algorithm_config: AlgorithmConfig
+    filter_columns: Optional[List[str]] = None
+    crowding_column: Optional[str] = None
+    distance_measure_type: Optional[DistanceMeasureType] = None
 
     def as_dict(self) -> Dict[str, Any]:
         """Returns the configuration as a dictionary.
@@ -144,13 +150,25 @@ class IndexConfig:
         """
         config = {
             "embedding_column": self.embedding_column,
-            "filter_columns": self.filter_column,
-            "crowding_column": self.crowding_column,
-            "embedding_dimension": self.dimentions,
-            "distance_measure_type": self.distance_measure_type.value,
+            "embedding_dimension": self.dimensions,
         }
+        if self.distance_measure_type is not None:
+            config["distance_measure_type"] = self.distance_measure_type.value
+        if self.filter_columns is not None:
+            config["filter_columns"] = self.filter_columns
+        if self.crowding_column is not None:
+            config["crowding_column"] = self.crowding_column
+
         if isinstance(self.algorithm_config, TreeAhConfig):
             config["tree_ah_config"] = self.algorithm_config.as_dict()
         else:
             config["brute_force_config"] = self.algorithm_config.as_dict()
         return config
+
+
+@dataclass
+class FeatureGroupBigQuerySource:
+    """BigQuery source for the Feature Group."""
+
+    uri: str
+    entity_id_columns: List[str]

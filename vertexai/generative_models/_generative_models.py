@@ -17,6 +17,7 @@
 
 import copy
 import io
+import json
 import pathlib
 from typing import (
     Any,
@@ -1260,7 +1261,7 @@ class GenerationConfig:
         return cls._from_gapic(raw_generation_config=raw_generation_config)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_generation_config).to_dict(self._raw_generation_config)
+        return _proto_to_dict(self._raw_generation_config)
 
     def __repr__(self) -> str:
         return self._raw_generation_config.__repr__()
@@ -1372,7 +1373,7 @@ class Tool:
         return cls._from_gapic(raw_tool=raw_tool)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_tool).to_dict(self._raw_tool)
+        return _proto_to_dict(self._raw_tool)
 
     def __repr__(self) -> str:
         return self._raw_tool.__repr__()
@@ -1537,9 +1538,7 @@ class FunctionDeclaration:
         return CallableFunctionDeclaration.from_func(func)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_function_declaration).to_dict(
-            self._raw_function_declaration
-        )
+        return _proto_to_dict(self._raw_function_declaration)
 
     def __repr__(self) -> str:
         return self._raw_function_declaration.__repr__()
@@ -1637,7 +1636,7 @@ class GenerationResponse:
         return cls._from_gapic(raw_response=raw_response)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_response).to_dict(self._raw_response)
+        return _proto_to_dict(self._raw_response)
 
     def __repr__(self) -> str:
         return self._raw_response.__repr__()
@@ -1658,8 +1657,23 @@ class GenerationResponse:
                 " Use `response.candidate[i].text` to get text of a particular candidate."
             )
         if not self.candidates:
-            raise ValueError("Response has no candidates (and no text).")
-        return self.candidates[0].text
+            raise ValueError(
+                "Response has no candidates (and thus no text)."
+                " The response is likely blocked by the safety filters.\n"
+                "Response:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
+        try:
+            return self.candidates[0].text
+        except (ValueError, AttributeError) as e:
+            # Enrich the error message with the whole Response.
+            # The Candidate object does not have full information.
+            raise ValueError(
+                "Cannot get the response text.\n"
+                f"{e}\n"
+                "Response:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            ) from e
 
     @property
     def prompt_feedback(
@@ -1694,7 +1708,7 @@ class Candidate:
         return cls._from_gapic(raw_candidate=raw_candidate)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_candidate).to_dict(self._raw_candidate)
+        return _proto_to_dict(self._raw_candidate)
 
     def __repr__(self) -> str:
         return self._raw_candidate.__repr__()
@@ -1725,10 +1739,24 @@ class Candidate:
     def citation_metadata(self) -> gapic_content_types.CitationMetadata:
         return self._raw_candidate.citation_metadata
 
+    @property
+    def grounding_metadata(self) -> gapic_content_types.GroundingMetadata:
+        return self._raw_candidate.grounding_metadata
+
     # GenerationPart properties
     @property
     def text(self) -> str:
-        return self.content.text
+        try:
+            return self.content.text
+        except (ValueError, AttributeError) as e:
+            # Enrich the error message with the whole Candidate.
+            # The Content object does not have full information.
+            raise ValueError(
+                "Cannot get the Candidate text.\n"
+                f"{e}\n"
+                "Candidate:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            ) from e
 
     @property
     def function_calls(self) -> Sequence[gapic_tool_types.FunctionCall]:
@@ -1774,7 +1802,7 @@ class Content:
         return cls._from_gapic(raw_content=raw_content)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_content).to_dict(self._raw_content)
+        return _proto_to_dict(self._raw_content)
 
     def __repr__(self) -> str:
         return self._raw_content.__repr__()
@@ -1799,7 +1827,12 @@ class Content:
         if len(self.parts) > 1:
             raise ValueError("Multiple content parts are not supported.")
         if not self.parts:
-            raise AttributeError("Content has no parts.")
+            raise ValueError(
+                "Response candidate content has no parts (and thus no text)."
+                " The candidate is likely blocked by the safety filters.\n"
+                "Content:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
         return self.parts[0].text
 
 
@@ -1881,17 +1914,26 @@ class Part:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_part).to_dict(self._raw_part)
+        return _proto_to_dict(self._raw_part)
 
     @property
     def text(self) -> str:
         if "text" not in self._raw_part:
-            raise AttributeError("Part has no text.")
+            raise AttributeError(
+                "Response candidate content part has no text.\n"
+                "Part:\n"
+                + _dict_to_pretty_string(self.to_dict())
+            )
         return self._raw_part.text
 
     @property
     def mime_type(self) -> Optional[str]:
-        return self._raw_part.mime_type
+        part_type = self._raw_part._pb.WhichOneof("data")
+        if part_type == "inline_data":
+            return self._raw_part.inline_data.mime_type
+        if part_type == "file_data":
+            return self._raw_part.file_data.mime_type
+        raise AttributeError(f"Part has no mime_type.\nPart:\n{self.to_dict()}")
 
     @property
     def inline_data(self) -> gapic_content_types.Blob:
@@ -1961,7 +2003,7 @@ class SafetySetting:
         return cls._from_gapic(raw_safety_setting=raw_safety_setting)
 
     def to_dict(self) -> Dict[str, Any]:
-        return type(self._raw_safety_setting).to_dict(self._raw_safety_setting)
+        return _proto_to_dict(self._raw_safety_setting)
 
     def __repr__(self):
         return self._raw_safety_setting.__repr__()
@@ -1969,6 +2011,28 @@ class SafetySetting:
 
 class grounding:  # pylint: disable=invalid-name
     """Grounding namespace."""
+
+    __module__ = "vertexai.generative_models"
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
+
+    class GoogleSearchRetrieval:
+        r"""Tool to retrieve public web data for grounding, powered by
+        Google Search.
+        """
+
+        def __init__(self):
+            """Initializes a Google Search Retrieval tool.
+            """
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+
+
+class preview_grounding:  # pylint: disable=invalid-name
+    """Grounding namespace (preview)."""
+
+    __name__ = "grounding"
+    __module__ = "vertexai.preview.generative_models"
 
     def __init__(self):
         raise RuntimeError("This class must not be instantiated.")
@@ -2188,6 +2252,20 @@ def _append_gapic_part(
         base_part._pb = copy.deepcopy(new_part._pb)
 
 
+def _proto_to_dict(message) -> Dict[str, Any]:
+    """Converts a proto-plus protobuf message to a dictionary."""
+    return type(message).to_dict(
+        message,
+        including_default_value_fields=False,
+        use_integers_for_enums=False,
+    )
+
+
+def _dict_to_pretty_string(d: dict) -> str:
+    """Format dict as a pretty-printed JSON string."""
+    return json.dumps(d, indent=2)
+
+
 _FORMAT_TO_MIME_TYPE = {
     "png": "image/png",
     "jpeg": "image/jpeg",
@@ -2322,7 +2400,13 @@ class AutomaticFunctionCallingResponder:
                     )
                 callable_function = None
                 for tool in tools:
-                    callable_function = tool._callable_functions.get(function_call.name)
+                    new_callable_function = tool._callable_functions.get(function_call.name)
+                    if new_callable_function and callable_function:
+                        raise ValueError(
+                            "Multiple functions with the same name are not supported."
+                            f" Found {callable_function} and {new_callable_function}."
+                        )
+                    callable_function = new_callable_function
                 if not callable_function:
                     raise RuntimeError(
                         f"""Model has asked to call function "{function_call.name}" which was not found."""

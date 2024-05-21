@@ -36,6 +36,9 @@ from google.cloud.aiplatform_v1beta1.services.feature_online_store_service impor
 from google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service import (
     client as feature_online_store_admin_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    client as feature_registry_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service import (
     client as featurestore_online_serving_service_client_v1beta1,
 )
@@ -62,6 +65,9 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
+    client as model_monitoring_service_client_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     client as persistent_resource_service_client_v1beta1,
@@ -115,6 +121,9 @@ from google.cloud.aiplatform_v1.services.feature_online_store_service import (
 )
 from google.cloud.aiplatform_v1.services.feature_online_store_admin_service import (
     client as feature_online_store_admin_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.feature_registry_service import (
+    client as feature_registry_service_client_v1,
 )
 from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
     client as featurestore_online_serving_service_client_v1,
@@ -171,6 +180,7 @@ __all__ = (
     endpoint_service_client_v1,
     feature_online_store_service_client_v1,
     feature_online_store_admin_service_client_v1,
+    feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -193,6 +203,7 @@ __all__ = (
     endpoint_service_client_v1beta1,
     feature_online_store_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
+    feature_registry_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -200,6 +211,7 @@ __all__ = (
     job_service_client_v1beta1,
     match_service_client_v1beta1,
     model_garden_service_client_v1beta1,
+    model_monitoring_service_client_v1beta1,
     model_service_client_v1beta1,
     persistent_resource_service_client_v1beta1,
     pipeline_service_client_v1beta1,

@@ -197,11 +197,6 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.chat_completions: gapic_v1.method.wrap_method(
-                self.chat_completions,
-                default_timeout=None,
-                client_info=client_info,
-            ),
         }
 
     def close(self):
@@ -363,15 +358,6 @@ class PredictionServiceTransport(abc.ABC):
             prediction_service.GenerateContentResponse,
             Awaitable[prediction_service.GenerateContentResponse],
         ],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def chat_completions(
-        self,
-    ) -> Callable[
-        [prediction_service.ChatCompletionsRequest],
-        Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
     ]:
         raise NotImplementedError()
 

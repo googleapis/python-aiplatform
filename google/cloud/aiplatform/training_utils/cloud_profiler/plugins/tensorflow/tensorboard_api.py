@@ -21,13 +21,13 @@ import os
 import re
 from typing import Tuple
 
-from tensorboard.uploader.proto import server_info_pb2
 from google.api_core import exceptions
 from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_utils
 from google.cloud.aiplatform.compat.types import tensorboard_experiment
 from google.cloud.aiplatform.tensorboard import upload_tracker
+from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
@@ -76,13 +76,13 @@ def _get_project_id() -> str:
     return m[1]
 
 
-def _make_upload_limits() -> server_info_pb2.UploadLimits:
+def _make_upload_limits() -> uploader_constants.UploadLimits:
     """Creates the upload limits for tensorboard.
 
     Returns:
         An UploadLimits object.
     """
-    upload_limits = server_info_pb2.UploadLimits()
+    upload_limits = uploader_constants.UploadLimits()
     upload_limits.min_blob_request_interval = 10
     upload_limits.max_blob_request_size = 4 * (2**20) - 256 * (2**10)
     upload_limits.max_blob_size = 10 * (2**30)  # 10GiB

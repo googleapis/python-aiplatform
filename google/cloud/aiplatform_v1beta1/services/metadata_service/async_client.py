@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -229,7 +230,11 @@ class MetadataServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, MetadataServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str, MetadataServiceTransport, Callable[..., MetadataServiceTransport]
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -241,9 +246,11 @@ class MetadataServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.MetadataServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,MetadataServiceTransport,Callable[..., MetadataServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the MetadataServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -385,8 +392,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_store, metadata_store_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -394,7 +401,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.CreateMetadataStoreRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.CreateMetadataStoreRequest):
+            request = metadata_service.CreateMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -407,11 +417,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_metadata_store,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_metadata_store
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -504,8 +512,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -513,7 +521,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.GetMetadataStoreRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.GetMetadataStoreRequest):
+            request = metadata_service.GetMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -522,11 +533,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_metadata_store,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_metadata_store
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -616,8 +625,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -625,7 +634,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.ListMetadataStoresRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.ListMetadataStoresRequest):
+            request = metadata_service.ListMetadataStoresRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -634,11 +646,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_metadata_stores,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_metadata_stores
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -748,8 +758,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -757,7 +767,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.DeleteMetadataStoreRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.DeleteMetadataStoreRequest):
+            request = metadata_service.DeleteMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -766,11 +779,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_metadata_store,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_metadata_store
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -882,8 +893,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, artifact, artifact_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -891,7 +902,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.CreateArtifactRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.CreateArtifactRequest):
+            request = metadata_service.CreateArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -904,11 +918,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_artifact,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_artifact
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -990,8 +1002,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -999,7 +1011,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.GetArtifactRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.GetArtifactRequest):
+            request = metadata_service.GetArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1008,11 +1023,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_artifact,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_artifact
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1100,8 +1113,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1109,7 +1122,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.ListArtifactsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.ListArtifactsRequest):
+            request = metadata_service.ListArtifactsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1118,11 +1134,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_artifacts,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_artifacts
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1223,8 +1237,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1232,7 +1246,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.UpdateArtifactRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.UpdateArtifactRequest):
+            request = metadata_service.UpdateArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1243,11 +1260,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_artifact,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_artifact
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1347,8 +1362,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1356,7 +1371,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.DeleteArtifactRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.DeleteArtifactRequest):
+            request = metadata_service.DeleteArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1365,11 +1383,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_artifact,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_artifact
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1468,8 +1484,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1477,7 +1493,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.PurgeArtifactsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.PurgeArtifactsRequest):
+            request = metadata_service.PurgeArtifactsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1486,11 +1505,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.purge_artifacts,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.purge_artifacts
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1602,8 +1619,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, context, context_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1611,7 +1628,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.CreateContextRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.CreateContextRequest):
+            request = metadata_service.CreateContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1624,11 +1644,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_context,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_context
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1710,8 +1728,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1719,7 +1737,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.GetContextRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.GetContextRequest):
+            request = metadata_service.GetContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1728,11 +1749,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_context,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_context
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1820,8 +1839,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1829,7 +1848,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.ListContextsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.ListContextsRequest):
+            request = metadata_service.ListContextsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1838,11 +1860,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_contexts,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_contexts
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1942,8 +1962,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1951,7 +1971,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.UpdateContextRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.UpdateContextRequest):
+            request = metadata_service.UpdateContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1962,11 +1985,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_context,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_context
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2066,8 +2087,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2075,7 +2096,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.DeleteContextRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.DeleteContextRequest):
+            request = metadata_service.DeleteContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2084,11 +2108,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_context,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_context
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2187,8 +2209,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2196,7 +2218,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.PurgeContextsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.PurgeContextsRequest):
+            request = metadata_service.PurgeContextsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2205,11 +2230,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.purge_contexts,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.purge_contexts
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2327,8 +2350,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, artifacts, executions])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2336,7 +2359,12 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.AddContextArtifactsAndExecutionsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, metadata_service.AddContextArtifactsAndExecutionsRequest
+        ):
+            request = metadata_service.AddContextArtifactsAndExecutionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2349,11 +2377,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.add_context_artifacts_and_executions,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.add_context_artifacts_and_executions
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2452,8 +2478,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2461,7 +2487,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.AddContextChildrenRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.AddContextChildrenRequest):
+            request = metadata_service.AddContextChildrenRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2472,11 +2501,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.add_context_children,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.add_context_children
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2573,8 +2600,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2582,7 +2609,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.RemoveContextChildrenRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.RemoveContextChildrenRequest):
+            request = metadata_service.RemoveContextChildrenRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2593,11 +2623,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.remove_context_children,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.remove_context_children
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2692,8 +2720,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2701,7 +2729,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.QueryContextLineageSubgraphRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.QueryContextLineageSubgraphRequest):
+            request = metadata_service.QueryContextLineageSubgraphRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2710,11 +2741,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.query_context_lineage_subgraph,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.query_context_lineage_subgraph
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2818,8 +2847,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, execution, execution_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2827,7 +2856,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.CreateExecutionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.CreateExecutionRequest):
+            request = metadata_service.CreateExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2840,11 +2872,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_execution,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_execution
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2926,8 +2956,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2935,7 +2965,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.GetExecutionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.GetExecutionRequest):
+            request = metadata_service.GetExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2944,11 +2977,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_execution,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_execution
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3036,8 +3067,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3045,7 +3076,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.ListExecutionsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.ListExecutionsRequest):
+            request = metadata_service.ListExecutionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3054,11 +3088,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_executions,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_executions
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3159,8 +3191,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3168,7 +3200,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.UpdateExecutionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.UpdateExecutionRequest):
+            request = metadata_service.UpdateExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3179,11 +3214,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_execution,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_execution
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3283,8 +3316,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3292,7 +3325,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.DeleteExecutionRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.DeleteExecutionRequest):
+            request = metadata_service.DeleteExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3301,11 +3337,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_execution,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_execution
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3404,8 +3438,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3413,7 +3447,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.PurgeExecutionsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.PurgeExecutionsRequest):
+            request = metadata_service.PurgeExecutionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3422,11 +3459,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.purge_executions,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.purge_executions
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3530,8 +3565,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, events])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3539,7 +3574,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.AddExecutionEventsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.AddExecutionEventsRequest):
+            request = metadata_service.AddExecutionEventsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3550,11 +3588,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.add_execution_events,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.add_execution_events
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3646,8 +3682,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3655,7 +3691,12 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.QueryExecutionInputsAndOutputsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, metadata_service.QueryExecutionInputsAndOutputsRequest
+        ):
+            request = metadata_service.QueryExecutionInputsAndOutputsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3664,11 +3705,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.query_execution_inputs_and_outputs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.query_execution_inputs_and_outputs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3782,8 +3821,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_schema, metadata_schema_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3791,7 +3830,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.CreateMetadataSchemaRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.CreateMetadataSchemaRequest):
+            request = metadata_service.CreateMetadataSchemaRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3804,11 +3846,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_metadata_schema,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_metadata_schema
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3892,8 +3932,8 @@ class MetadataServiceAsyncClient:
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3901,7 +3941,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.GetMetadataSchemaRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.GetMetadataSchemaRequest):
+            request = metadata_service.GetMetadataSchemaRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3910,11 +3953,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_metadata_schema,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_metadata_schema
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4004,8 +4045,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4013,7 +4054,10 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.ListMetadataSchemasRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, metadata_service.ListMetadataSchemasRequest):
+            request = metadata_service.ListMetadataSchemasRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4022,11 +4066,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_metadata_schemas,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_metadata_schemas
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4130,8 +4172,8 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4139,7 +4181,12 @@ class MetadataServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = metadata_service.QueryArtifactLineageSubgraphRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, metadata_service.QueryArtifactLineageSubgraphRequest
+        ):
+            request = metadata_service.QueryArtifactLineageSubgraphRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4148,11 +4195,9 @@ class MetadataServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.query_artifact_lineage_subgraph,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.query_artifact_lineage_subgraph
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

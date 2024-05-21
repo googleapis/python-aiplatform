@@ -16,7 +16,7 @@
 #
 
 import dataclasses
-from typing import Optional
+from typing import List, Optional
 
 
 @dataclasses.dataclass
@@ -49,3 +49,23 @@ class RagCorpus:
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagResource:
+    """RagResource.
+
+    The representation of the rag source. It can be used to specify corpus only
+    or ragfiles. Currently only support one corpus or multiple files from one
+    corpus. In the future we may open up multiple corpora support.
+
+    Attributes:
+        rag_corpus: A Rag corpus resource name or corpus id. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
+            or ``{rag_corpus_id}``.
+        rag_files_id: List of Rag file resource name or file ids in the same corpus. Format:
+            ``{rag_file}``.
+    """
+
+    rag_corpus: Optional[str] = None
+    rag_file_ids: Optional[List[str]] = None

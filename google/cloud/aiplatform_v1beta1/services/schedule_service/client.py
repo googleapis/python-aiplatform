@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -50,6 +51,8 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
+from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import schedule
@@ -222,6 +225,28 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def batch_prediction_job_path(
+        project: str,
+        location: str,
+        batch_prediction_job: str,
+    ) -> str:
+        """Returns a fully-qualified batch_prediction_job string."""
+        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+            project=project,
+            location=location,
+            batch_prediction_job=batch_prediction_job,
+        )
+
+    @staticmethod
+    def parse_batch_prediction_job_path(path: str) -> Dict[str, str]:
+        """Parses a batch_prediction_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/batchPredictionJobs/(?P<batch_prediction_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def context_path(
         project: str,
         location: str,
@@ -268,6 +293,50 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project,
+            location=location,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project,
+            location=location,
+            endpoint=endpoint,
+        )
+
+    @staticmethod
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def execution_path(
         project: str,
         location: str,
@@ -292,6 +361,52 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def model_monitor_path(
+        project: str,
+        location: str,
+        model_monitor: str,
+    ) -> str:
+        """Returns a fully-qualified model_monitor string."""
+        return "projects/{project}/locations/{location}/modelMonitors/{model_monitor}".format(
+            project=project,
+            location=location,
+            model_monitor=model_monitor,
+        )
+
+    @staticmethod
+    def parse_model_monitor_path(path: str) -> Dict[str, str]:
+        """Parses a model_monitor path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelMonitors/(?P<model_monitor>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_monitoring_job_path(
+        project: str,
+        location: str,
+        model_monitor: str,
+        model_monitoring_job: str,
+    ) -> str:
+        """Returns a fully-qualified model_monitoring_job string."""
+        return "projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}".format(
+            project=project,
+            location=location,
+            model_monitor=model_monitor,
+            model_monitoring_job=model_monitoring_job,
+        )
+
+    @staticmethod
+    def parse_model_monitoring_job_path(path: str) -> Dict[str, str]:
+        """Parses a model_monitoring_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelMonitors/(?P<model_monitor>.+?)/modelMonitoringJobs/(?P<model_monitoring_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def network_path(
         project: str,
         network: str,
@@ -307,6 +422,50 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notebook_execution_job_path(
+        project: str,
+        location: str,
+        notebook_execution_job: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_execution_job string."""
+        return "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
+            project=project,
+            location=location,
+            notebook_execution_job=notebook_execution_job,
+        )
+
+    @staticmethod
+    def parse_notebook_execution_job_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_execution_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookExecutionJobs/(?P<notebook_execution_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notebook_runtime_template_path(
+        project: str,
+        location: str,
+        notebook_runtime_template: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_runtime_template string."""
+        return "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
+            project=project,
+            location=location,
+            notebook_runtime_template=notebook_runtime_template,
+        )
+
+    @staticmethod
+    def parse_notebook_runtime_template_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_runtime_template path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookRuntimeTemplates/(?P<notebook_runtime_template>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 
@@ -679,7 +838,11 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, ScheduleServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str, ScheduleServiceTransport, Callable[..., ScheduleServiceTransport]
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -691,9 +854,11 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ScheduleServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,ScheduleServiceTransport,Callable[..., ScheduleServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the ScheduleServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -805,8 +970,15 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[ScheduleServiceTransport], Callable[..., ScheduleServiceTransport]
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., ScheduleServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -895,8 +1067,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, schedule])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -904,10 +1076,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.CreateScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.CreateScheduleRequest):
             request = schedule_service.CreateScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1017,8 +1187,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1026,10 +1196,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.DeleteScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.DeleteScheduleRequest):
             request = schedule_service.DeleteScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1132,8 +1300,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1141,10 +1309,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.GetScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.GetScheduleRequest):
             request = schedule_service.GetScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1242,8 +1408,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1251,10 +1417,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.ListSchedulesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.ListSchedulesRequest):
             request = schedule_service.ListSchedulesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1351,8 +1515,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1360,10 +1524,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.PauseScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.PauseScheduleRequest):
             request = schedule_service.PauseScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1467,8 +1629,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, catch_up])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1476,10 +1638,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.ResumeScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.ResumeScheduleRequest):
             request = schedule_service.ResumeScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1597,8 +1757,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([schedule, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1606,10 +1766,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.UpdateScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, schedule_service.UpdateScheduleRequest):
             request = schedule_service.UpdateScheduleRequest(request)
             # If we have keyword arguments corresponding to fields on the

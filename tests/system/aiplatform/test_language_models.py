@@ -363,6 +363,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert embeddings[1].statistics.token_count > 1000
         assert embeddings[1].statistics.truncated
 
+    # TODO(b/339907038): Re-enable test after timeout issue is fixed.
+    @pytest.mark.skip(reason="Causes system tests timeout")
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_tuning(self, shared_state, api_transport):
         """Test tuning, listing and loading models."""

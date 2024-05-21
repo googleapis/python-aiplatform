@@ -24,6 +24,7 @@ to local for uptraining.
 import os
 import re
 from typing import Any, Dict, Optional, Union
+import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -35,13 +36,11 @@ from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
     serializers_base,
 )
+from vertexai.preview._workflow.shared import constants
 
 # These need to be imported to be included in _ModelGardenModel.__init_subclass__
 from vertexai.language_models import (
     _language_models,
-)  # pylint:disable=unused-import
-from vertexai.vision_models import (
-    _vision_models,
 )  # pylint:disable=unused-import
 from vertexai._model_garden import _model_garden_models
 from google.cloud.aiplatform import _publisher_models
@@ -60,8 +59,9 @@ _OUTPUT_DIR = "output"
 _OUTPUT_ESTIMATOR_DIR = "output_estimator"
 _OUTPUT_PREDICTIONS_DIR = "output_predictions"
 
-
 _LOGGER = base.Logger("vertexai.remote_execution")
+
+warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
 
 
 def _get_model_file_from_image_uri(container_image_uri: str) -> str:
@@ -121,7 +121,7 @@ def _generate_remote_job_output_path(base_gcs_dir: str) -> str:
 
 def _get_model_from_successful_custom_job(
     job_dir: str,
-) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:
+) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:  # noqa: F821
 
     serializer = any_serializer.AnySerializer()
 

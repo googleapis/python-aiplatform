@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
-from .register import register_tensorflow
+from google.cloud.aiplatform.vertex_ray.predict.tensorflow import (
+    register_tensorflow,
+)
 
 __all__ = ("register_tensorflow",)

@@ -238,17 +238,27 @@ def mock_generate_content(
     else:
         grounding_metadata = None
 
+    response_part = gapic_content_types.Part(response_part_struct)
+    finish_reason = gapic_content_types.Candidate.FinishReason.STOP
+
+    # Handling the max_output_tokens limit
+    if response_part.text:
+        if request.generation_config.max_output_tokens:
+            tokens = response_part.text.split()
+            if len(tokens) >= request.generation_config.max_output_tokens:
+                tokens = tokens[: request.generation_config.max_output_tokens]
+                response_part.text = " ".join(tokens)
+                finish_reason = gapic_content_types.Candidate.FinishReason.MAX_TOKENS
+
     response = gapic_prediction_service_types.GenerateContentResponse(
         candidates=[
             gapic_content_types.Candidate(
                 index=0,
                 content=gapic_content_types.Content(
                     role="model",
-                    parts=[
-                        gapic_content_types.Part(response_part_struct),
-                    ],
+                    parts=[response_part],
                 ),
-                finish_reason=gapic_content_types.Candidate.FinishReason.STOP,
+                finish_reason=finish_reason,
                 safety_ratings=[
                     gapic_content_types.SafetyRating(rating)
                     for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
@@ -496,6 +506,58 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generate_content_response_accessor_errors(
+        self, generative_models: generative_models
+    ):
+        """Checks that the exception text contains response information."""
+        model = generative_models.GenerativeModel("gemini-pro")
+
+        # Case when response has no candidates
+        response1 = model.generate_content("Please block with block_reason=OTHER")
+
+        assert response1.prompt_feedback.block_reason.name == "OTHER"
+
+        with pytest.raises(ValueError) as e:
+            _ = response1.text
+        assert e.match("no candidates")
+        assert e.match("prompt_feedback")
+
+        # Case when response candidate content has no parts
+        response2 = model.generate_content("Please fail!")
+
+        with pytest.raises(ValueError) as e:
+            _ = response2.text
+        assert e.match("no parts")
+        assert e.match("finish_reason")
+
+        with pytest.raises(ValueError) as e:
+            _ = response2.candidates[0].text
+        assert e.match("no parts")
+        assert e.match("finish_reason")
+
+        # Case when response candidate content part has no text
+        weather_tool = generative_models.Tool(
+            function_declarations=[
+                generative_models.FunctionDeclaration.from_func(get_current_weather)
+            ],
+        )
+        response3 = model.generate_content(
+            "What's the weather like in Boston?", tools=[weather_tool]
+        )
+        with pytest.raises(ValueError) as e:
+            print(response3.text)
+        assert e.match("no text")
+        assert e.match("function_call")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_chat_send_message(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()
@@ -592,6 +654,39 @@ class TestGenerativeModels:
             chat.send_message("Please block response with finish_reason=OTHER.")
 
         # Checking that history did not get updated
+        assert not chat.history
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_finish_reason_max_tokens_in_generate_content_and_send_message(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            generation_config=generative_models.GenerationConfig(
+                max_output_tokens=5,
+            ),
+        )
+        chat = model.start_chat()
+
+        # Test that generate_content succeeds:
+        response1 = model.generate_content("Why is sky blue?")
+        assert response1.text
+        assert len(response1.text.split()) <= 5
+        assert response1.candidates[0].finish_reason.name == "MAX_TOKENS"
+
+        # Test that ChatSession.send_message raises error:
+        with pytest.raises(generative_models.ResponseValidationError):
+            chat.send_message("Please block response with finish_reason=OTHER.")
+
+        # Verify that history did not get updated
         assert not chat.history
 
     @mock.patch.object(
@@ -765,18 +860,38 @@ class TestGenerativeModels:
                 part_new = generative_models.Part.from_dict(part.to_dict())
                 assert repr(part_new) == repr(part)
 
+        # Checking that the enums are serialized as strings, not integers.
+        assert response.to_dict()["candidates"][0]["finish_reason"] == "STOP"
+
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_generate_content_grounding_google_search_retriever(self):
+    def test_generate_content_grounding_google_search_retriever_preview(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
                 preview_generative_models.grounding.GoogleSearchRetrieval(
                     disable_attribution=False
                 )
+            )
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[google_search_retriever_tool]
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_generate_content_grounding_google_search_retriever(self):
+        model = generative_models.GenerativeModel("gemini-pro")
+        google_search_retriever_tool = (
+            generative_models.Tool.from_google_search_retrieval(
+                generative_models.grounding.GoogleSearchRetrieval()
             )
         )
         response = model.generate_content(
@@ -810,13 +925,18 @@ class TestGenerativeModels:
     )
     def test_generate_content_vertex_rag_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
+        rag_resources = [
+            rag.RagResource(
+                rag_corpus=f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556",
+                rag_file_ids=["123", "456"],
+            ),
+        ]
         rag_retriever_tool = preview_generative_models.Tool.from_retrieval(
             retrieval=rag.Retrieval(
                 source=rag.VertexRagStore(
-                    rag_corpora=[
-                        f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556"
-                    ],
+                    rag_resources=rag_resources,
                     similarity_top_k=1,
+                    vector_distance_threshold=0.4,
                 ),
             ),
         )

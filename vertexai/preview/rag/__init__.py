@@ -36,6 +36,10 @@ from vertexai.preview.rag.rag_store import (
     Retrieval,
     VertexRagStore,
 )
+from vertexai.preview.rag.utils.resources import (
+    RagResource,
+)
+
 
 __all__ = (
     "create_corpus",
@@ -51,4 +55,5 @@ __all__ = (
     "retrieval_query",
     "Retrieval",
     "VertexRagStore",
+    "RagResource",
 )

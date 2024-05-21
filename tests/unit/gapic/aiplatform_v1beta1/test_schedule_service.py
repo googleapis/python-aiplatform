@@ -57,10 +57,22 @@ from google.cloud.aiplatform_v1beta1.services.schedule_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
 from google.cloud.aiplatform_v1beta1.services.schedule_service import transports
+from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution
+from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import explanation_metadata
+from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
+from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
+from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
+from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
@@ -77,11 +89,13 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
@@ -1235,6 +1249,9 @@ def test_create_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1258,12 +1275,50 @@ def test_create_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.CreateScheduleRequest(
             parent="parent_value",
         )
+
+
+def test_create_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.create_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.create_schedule] = mock_rpc
+        request = {}
+        client.create_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1294,6 +1349,52 @@ async def test_create_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.CreateScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_schedule
+        ] = mock_object
+
+        request = {}
+        await client.create_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.create_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1545,6 +1646,9 @@ def test_delete_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1568,12 +1672,54 @@ def test_delete_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.DeleteScheduleRequest(
             name="name_value",
         )
+
+
+def test_delete_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.delete_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.delete_schedule] = mock_rpc
+        request = {}
+        client.delete_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1595,6 +1741,56 @@ async def test_delete_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.DeleteScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_schedule
+        ] = mock_object
+
+        request = {}
+        await client.delete_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1837,6 +2033,9 @@ def test_get_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1860,12 +2059,50 @@ def test_get_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.GetScheduleRequest(
             name="name_value",
         )
+
+
+def test_get_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_schedule] = mock_rpc
+        request = {}
+        client.get_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1896,6 +2133,52 @@ async def test_get_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.GetScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_schedule
+        ] = mock_object
+
+        request = {}
+        await client.get_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2136,6 +2419,9 @@ def test_list_schedules_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_schedules()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2162,6 +2448,9 @@ def test_list_schedules_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_schedules(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2171,6 +2460,41 @@ def test_list_schedules_non_empty_request_with_auto_populated_field():
             page_token="page_token_value",
             order_by="order_by_value",
         )
+
+
+def test_list_schedules_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_schedules in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.list_schedules] = mock_rpc
+        request = {}
+        client.list_schedules(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_schedules(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2194,6 +2518,52 @@ async def test_list_schedules_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.ListSchedulesRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_schedules_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_schedules
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_schedules
+        ] = mock_object
+
+        request = {}
+        await client.list_schedules(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_schedules(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2611,6 +2981,9 @@ def test_pause_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.pause_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2634,12 +3007,50 @@ def test_pause_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.pause_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.PauseScheduleRequest(
             name="name_value",
         )
+
+
+def test_pause_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.pause_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.pause_schedule] = mock_rpc
+        request = {}
+        client.pause_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.pause_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2659,6 +3070,52 @@ async def test_pause_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.PauseScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_pause_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.pause_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.pause_schedule
+        ] = mock_object
+
+        request = {}
+        await client.pause_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.pause_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2877,6 +3334,9 @@ def test_resume_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.resume_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2900,12 +3360,50 @@ def test_resume_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.resume_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.ResumeScheduleRequest(
             name="name_value",
         )
+
+
+def test_resume_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.resume_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.resume_schedule] = mock_rpc
+        request = {}
+        client.resume_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.resume_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2925,6 +3423,52 @@ async def test_resume_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.ResumeScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_resume_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.resume_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.resume_schedule
+        ] = mock_object
+
+        request = {}
+        await client.resume_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.resume_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3171,6 +3715,9 @@ def test_update_schedule_empty_call():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -3192,10 +3739,48 @@ def test_update_schedule_non_empty_request_with_auto_populated_field():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.update_schedule(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.UpdateScheduleRequest()
+
+
+def test_update_schedule_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.update_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.update_schedule] = mock_rpc
+        request = {}
+        client.update_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3226,6 +3811,52 @@ async def test_update_schedule_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.UpdateScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_schedule_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ScheduleServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_schedule
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_schedule
+        ] = mock_object
+
+        request = {}
+        await client.update_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.update_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3564,6 +4195,175 @@ def test_create_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_model_monitoring_job_request": {
+            "parent": "parent_value",
+            "model_monitoring_job": {
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "model_monitoring_spec": {
+                    "objective_spec": {
+                        "tabular_objective": {
+                            "feature_drift_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "categorical_metric_type": "categorical_metric_type_value",
+                                "numeric_metric_type": "numeric_metric_type_value",
+                                "default_categorical_alert_condition": {
+                                    "threshold": 0.973
+                                },
+                                "default_numeric_alert_condition": {},
+                                "feature_alert_conditions": {},
+                            },
+                            "prediction_output_drift_spec": {},
+                            "feature_attribution_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "default_alert_condition": {},
+                                "feature_alert_conditions": {},
+                                "batch_explanation_dedicated_resources": {
+                                    "machine_spec": {
+                                        "machine_type": "machine_type_value",
+                                        "accelerator_type": 1,
+                                        "accelerator_count": 1805,
+                                        "tpu_topology": "tpu_topology_value",
+                                    },
+                                    "starting_replica_count": 2355,
+                                    "max_replica_count": 1805,
+                                },
+                            },
+                        },
+                        "explanation_spec": {
+                            "parameters": {
+                                "sampled_shapley_attribution": {"path_count": 1077},
+                                "integrated_gradients_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {
+                                        "noise_sigma": 0.11660000000000001,
+                                        "feature_noise_sigma": {
+                                            "noise_sigma": [
+                                                {"name": "name_value", "sigma": 0.529}
+                                            ]
+                                        },
+                                        "noisy_sample_count": 1947,
+                                    },
+                                    "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                                },
+                                "xrai_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {},
+                                    "blur_baseline_config": {},
+                                },
+                                "examples": {
+                                    "example_gcs_source": {
+                                        "data_format": 1,
+                                        "gcs_source": {
+                                            "uris": ["uris_value1", "uris_value2"]
+                                        },
+                                    },
+                                    "nearest_neighbor_search_config": {
+                                        "null_value": 0,
+                                        "number_value": 0.1285,
+                                        "string_value": "string_value_value",
+                                        "bool_value": True,
+                                        "struct_value": {},
+                                        "list_value": {"values": {}},
+                                    },
+                                    "presets": {"query": 1, "modality": 1},
+                                    "gcs_source": {},
+                                    "neighbor_count": 1494,
+                                },
+                                "top_k": 541,
+                                "output_indices": {},
+                            },
+                            "metadata": {
+                                "inputs": {},
+                                "outputs": {},
+                                "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                                "latent_space_source": "latent_space_source_value",
+                            },
+                        },
+                        "baseline_dataset": {
+                            "columnized_dataset": {
+                                "vertex_dataset": "vertex_dataset_value",
+                                "gcs_source": {
+                                    "gcs_uri": "gcs_uri_value",
+                                    "format_": 1,
+                                },
+                                "bigquery_source": {
+                                    "table_uri": "table_uri_value",
+                                    "query": "query_value",
+                                },
+                                "timestamp_field": "timestamp_field_value",
+                            },
+                            "batch_prediction_output": {
+                                "batch_prediction_job": "batch_prediction_job_value"
+                            },
+                            "vertex_endpoint_logs": {
+                                "endpoints": ["endpoints_value1", "endpoints_value2"]
+                            },
+                            "time_interval": {"start_time": {}, "end_time": {}},
+                            "time_offset": {
+                                "offset": "offset_value",
+                                "window": "window_value",
+                            },
+                        },
+                        "target_dataset": {},
+                    },
+                    "notification_spec": {
+                        "email_config": {
+                            "user_emails": ["user_emails_value1", "user_emails_value2"]
+                        },
+                        "enable_cloud_logging": True,
+                        "notification_channel_configs": [
+                            {"notification_channel": "notification_channel_value"}
+                        ],
+                    },
+                    "output_spec": {
+                        "gcs_base_directory": {
+                            "output_uri_prefix": "output_uri_prefix_value"
+                        }
+                    },
+                },
+                "create_time": {},
+                "update_time": {},
+                "state": 1,
+                "schedule": "schedule_value",
+                "job_execution_detail": {
+                    "baseline_datasets": [
+                        {"location": "location_value", "time_range": {}}
+                    ],
+                    "target_datasets": {},
+                    "objective_status": {},
+                    "error": {},
+                },
+                "schedule_time": {},
+            },
+            "model_monitoring_job_id": "model_monitoring_job_id_value",
+        },
+        "create_notebook_execution_job_request": {
+            "parent": "parent_value",
+            "notebook_execution_job": {
+                "dataform_repository_source": {
+                    "dataform_repository_resource_name": "dataform_repository_resource_name_value",
+                    "commit_sha": "commit_sha_value",
+                },
+                "gcs_notebook_source": {
+                    "uri": "uri_value",
+                    "generation": "generation_value",
+                },
+                "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "gcs_output_uri": "gcs_output_uri_value",
+                "execution_user": "execution_user_value",
+                "service_account": "service_account_value",
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "schedule_resource_name": "schedule_resource_name_value",
+                "job_state": 1,
+                "status": {},
+                "create_time": {},
+                "update_time": {},
+            },
+            "notebook_execution_job_id": "notebook_execution_job_id_value",
+        },
         "name": "name_value",
         "display_name": "display_name_value",
         "start_time": {},
@@ -3689,6 +4489,42 @@ def test_create_schedule_rest(request_type):
     assert response.max_concurrent_run_count == 2596
     assert response.allow_queueing is True
     assert response.catch_up is True
+
+
+def test_create_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.create_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.create_schedule] = mock_rpc
+
+        request = {}
+        client.create_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_create_schedule_rest_required_fields(
@@ -3962,6 +4798,46 @@ def test_delete_schedule_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
+
+
+def test_delete_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.delete_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.delete_schedule] = mock_rpc
+
+        request = {}
+        client.delete_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_delete_schedule_rest_required_fields(
@@ -4245,6 +5121,42 @@ def test_get_schedule_rest(request_type):
     assert response.catch_up is True
 
 
+def test_get_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_schedule] = mock_rpc
+
+        request = {}
+        client.get_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_get_schedule_rest_required_fields(
     request_type=schedule_service.GetScheduleRequest,
 ):
@@ -4510,6 +5422,42 @@ def test_list_schedules_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSchedulesPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_schedules_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_schedules in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.list_schedules] = mock_rpc
+
+        request = {}
+        client.list_schedules(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_schedules(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_schedules_rest_required_fields(
@@ -4850,6 +5798,42 @@ def test_pause_schedule_rest(request_type):
     assert response is None
 
 
+def test_pause_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.pause_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.pause_schedule] = mock_rpc
+
+        request = {}
+        client.pause_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.pause_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_pause_schedule_rest_required_fields(
     request_type=schedule_service.PauseScheduleRequest,
 ):
@@ -5100,6 +6084,42 @@ def test_resume_schedule_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response is None
+
+
+def test_resume_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.resume_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.resume_schedule] = mock_rpc
+
+        request = {}
+        client.resume_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.resume_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_resume_schedule_rest_required_fields(
@@ -5453,6 +6473,175 @@ def test_update_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_model_monitoring_job_request": {
+            "parent": "parent_value",
+            "model_monitoring_job": {
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "model_monitoring_spec": {
+                    "objective_spec": {
+                        "tabular_objective": {
+                            "feature_drift_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "categorical_metric_type": "categorical_metric_type_value",
+                                "numeric_metric_type": "numeric_metric_type_value",
+                                "default_categorical_alert_condition": {
+                                    "threshold": 0.973
+                                },
+                                "default_numeric_alert_condition": {},
+                                "feature_alert_conditions": {},
+                            },
+                            "prediction_output_drift_spec": {},
+                            "feature_attribution_spec": {
+                                "features": ["features_value1", "features_value2"],
+                                "default_alert_condition": {},
+                                "feature_alert_conditions": {},
+                                "batch_explanation_dedicated_resources": {
+                                    "machine_spec": {
+                                        "machine_type": "machine_type_value",
+                                        "accelerator_type": 1,
+                                        "accelerator_count": 1805,
+                                        "tpu_topology": "tpu_topology_value",
+                                    },
+                                    "starting_replica_count": 2355,
+                                    "max_replica_count": 1805,
+                                },
+                            },
+                        },
+                        "explanation_spec": {
+                            "parameters": {
+                                "sampled_shapley_attribution": {"path_count": 1077},
+                                "integrated_gradients_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {
+                                        "noise_sigma": 0.11660000000000001,
+                                        "feature_noise_sigma": {
+                                            "noise_sigma": [
+                                                {"name": "name_value", "sigma": 0.529}
+                                            ]
+                                        },
+                                        "noisy_sample_count": 1947,
+                                    },
+                                    "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                                },
+                                "xrai_attribution": {
+                                    "step_count": 1092,
+                                    "smooth_grad_config": {},
+                                    "blur_baseline_config": {},
+                                },
+                                "examples": {
+                                    "example_gcs_source": {
+                                        "data_format": 1,
+                                        "gcs_source": {
+                                            "uris": ["uris_value1", "uris_value2"]
+                                        },
+                                    },
+                                    "nearest_neighbor_search_config": {
+                                        "null_value": 0,
+                                        "number_value": 0.1285,
+                                        "string_value": "string_value_value",
+                                        "bool_value": True,
+                                        "struct_value": {},
+                                        "list_value": {"values": {}},
+                                    },
+                                    "presets": {"query": 1, "modality": 1},
+                                    "gcs_source": {},
+                                    "neighbor_count": 1494,
+                                },
+                                "top_k": 541,
+                                "output_indices": {},
+                            },
+                            "metadata": {
+                                "inputs": {},
+                                "outputs": {},
+                                "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                                "latent_space_source": "latent_space_source_value",
+                            },
+                        },
+                        "baseline_dataset": {
+                            "columnized_dataset": {
+                                "vertex_dataset": "vertex_dataset_value",
+                                "gcs_source": {
+                                    "gcs_uri": "gcs_uri_value",
+                                    "format_": 1,
+                                },
+                                "bigquery_source": {
+                                    "table_uri": "table_uri_value",
+                                    "query": "query_value",
+                                },
+                                "timestamp_field": "timestamp_field_value",
+                            },
+                            "batch_prediction_output": {
+                                "batch_prediction_job": "batch_prediction_job_value"
+                            },
+                            "vertex_endpoint_logs": {
+                                "endpoints": ["endpoints_value1", "endpoints_value2"]
+                            },
+                            "time_interval": {"start_time": {}, "end_time": {}},
+                            "time_offset": {
+                                "offset": "offset_value",
+                                "window": "window_value",
+                            },
+                        },
+                        "target_dataset": {},
+                    },
+                    "notification_spec": {
+                        "email_config": {
+                            "user_emails": ["user_emails_value1", "user_emails_value2"]
+                        },
+                        "enable_cloud_logging": True,
+                        "notification_channel_configs": [
+                            {"notification_channel": "notification_channel_value"}
+                        ],
+                    },
+                    "output_spec": {
+                        "gcs_base_directory": {
+                            "output_uri_prefix": "output_uri_prefix_value"
+                        }
+                    },
+                },
+                "create_time": {},
+                "update_time": {},
+                "state": 1,
+                "schedule": "schedule_value",
+                "job_execution_detail": {
+                    "baseline_datasets": [
+                        {"location": "location_value", "time_range": {}}
+                    ],
+                    "target_datasets": {},
+                    "objective_status": {},
+                    "error": {},
+                },
+                "schedule_time": {},
+            },
+            "model_monitoring_job_id": "model_monitoring_job_id_value",
+        },
+        "create_notebook_execution_job_request": {
+            "parent": "parent_value",
+            "notebook_execution_job": {
+                "dataform_repository_source": {
+                    "dataform_repository_resource_name": "dataform_repository_resource_name_value",
+                    "commit_sha": "commit_sha_value",
+                },
+                "gcs_notebook_source": {
+                    "uri": "uri_value",
+                    "generation": "generation_value",
+                },
+                "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "gcs_output_uri": "gcs_output_uri_value",
+                "execution_user": "execution_user_value",
+                "service_account": "service_account_value",
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "schedule_resource_name": "schedule_resource_name_value",
+                "job_state": 1,
+                "status": {},
+                "create_time": {},
+                "update_time": {},
+            },
+            "notebook_execution_job_id": "notebook_execution_job_id_value",
+        },
         "name": "projects/sample1/locations/sample2/schedules/sample3",
         "display_name": "display_name_value",
         "start_time": {},
@@ -5578,6 +6767,42 @@ def test_update_schedule_rest(request_type):
     assert response.max_concurrent_run_count == 2596
     assert response.allow_queueing is True
     assert response.catch_up is True
+
+
+def test_update_schedule_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ScheduleServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.update_schedule in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.update_schedule] = mock_rpc
+
+        request = {}
+        client.update_schedule(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.update_schedule(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_update_schedule_rest_required_fields(
@@ -6469,11 +7694,39 @@ def test_parse_artifact_path():
     assert expected == actual
 
 
-def test_context_path():
+def test_batch_prediction_job_path():
     project = "winkle"
     location = "nautilus"
-    metadata_store = "scallop"
-    context = "abalone"
+    batch_prediction_job = "scallop"
+    expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+        project=project,
+        location=location,
+        batch_prediction_job=batch_prediction_job,
+    )
+    actual = ScheduleServiceClient.batch_prediction_job_path(
+        project, location, batch_prediction_job
+    )
+    assert expected == actual
+
+
+def test_parse_batch_prediction_job_path():
+    expected = {
+        "project": "abalone",
+        "location": "squid",
+        "batch_prediction_job": "clam",
+    }
+    path = ScheduleServiceClient.batch_prediction_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_batch_prediction_job_path(path)
+    assert expected == actual
+
+
+def test_context_path():
+    project = "whelk"
+    location = "octopus"
+    metadata_store = "oyster"
+    context = "nudibranch"
     expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
         project=project,
         location=location,
@@ -6488,10 +7741,10 @@ def test_context_path():
 
 def test_parse_context_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
-        "metadata_store": "whelk",
-        "context": "octopus",
+        "project": "cuttlefish",
+        "location": "mussel",
+        "metadata_store": "winkle",
+        "context": "nautilus",
     }
     path = ScheduleServiceClient.context_path(**expected)
 
@@ -6501,9 +7754,9 @@ def test_parse_context_path():
 
 
 def test_custom_job_path():
-    project = "oyster"
-    location = "nudibranch"
-    custom_job = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    custom_job = "squid"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
         project=project,
         location=location,
@@ -6515,9 +7768,9 @@ def test_custom_job_path():
 
 def test_parse_custom_job_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "custom_job": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "custom_job": "octopus",
     }
     path = ScheduleServiceClient.custom_job_path(**expected)
 
@@ -6526,11 +7779,63 @@ def test_parse_custom_job_path():
     assert expected == actual
 
 
-def test_execution_path():
+def test_dataset_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = ScheduleServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "dataset": "nautilus",
+    }
+    path = ScheduleServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
     project = "scallop"
     location = "abalone"
-    metadata_store = "squid"
-    execution = "clam"
+    endpoint = "squid"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = ScheduleServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
+        "endpoint": "octopus",
+    }
+    path = ScheduleServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_execution_path():
+    project = "oyster"
+    location = "nudibranch"
+    metadata_store = "cuttlefish"
+    execution = "mussel"
     expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
         project=project,
         location=location,
@@ -6545,10 +7850,10 @@ def test_execution_path():
 
 def test_parse_execution_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
-        "metadata_store": "oyster",
-        "execution": "nudibranch",
+        "project": "winkle",
+        "location": "nautilus",
+        "metadata_store": "scallop",
+        "execution": "abalone",
     }
     path = ScheduleServiceClient.execution_path(**expected)
 
@@ -6557,9 +7862,68 @@ def test_parse_execution_path():
     assert expected == actual
 
 
-def test_network_path():
+def test_model_monitor_path():
+    project = "squid"
+    location = "clam"
+    model_monitor = "whelk"
+    expected = (
+        "projects/{project}/locations/{location}/modelMonitors/{model_monitor}".format(
+            project=project,
+            location=location,
+            model_monitor=model_monitor,
+        )
+    )
+    actual = ScheduleServiceClient.model_monitor_path(project, location, model_monitor)
+    assert expected == actual
+
+
+def test_parse_model_monitor_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "model_monitor": "nudibranch",
+    }
+    path = ScheduleServiceClient.model_monitor_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_model_monitor_path(path)
+    assert expected == actual
+
+
+def test_model_monitoring_job_path():
     project = "cuttlefish"
-    network = "mussel"
+    location = "mussel"
+    model_monitor = "winkle"
+    model_monitoring_job = "nautilus"
+    expected = "projects/{project}/locations/{location}/modelMonitors/{model_monitor}/modelMonitoringJobs/{model_monitoring_job}".format(
+        project=project,
+        location=location,
+        model_monitor=model_monitor,
+        model_monitoring_job=model_monitoring_job,
+    )
+    actual = ScheduleServiceClient.model_monitoring_job_path(
+        project, location, model_monitor, model_monitoring_job
+    )
+    assert expected == actual
+
+
+def test_parse_model_monitoring_job_path():
+    expected = {
+        "project": "scallop",
+        "location": "abalone",
+        "model_monitor": "squid",
+        "model_monitoring_job": "clam",
+    }
+    path = ScheduleServiceClient.model_monitoring_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_model_monitoring_job_path(path)
+    assert expected == actual
+
+
+def test_network_path():
+    project = "whelk"
+    network = "octopus"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -6570,8 +7934,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "winkle",
-        "network": "nautilus",
+        "project": "oyster",
+        "network": "nudibranch",
     }
     path = ScheduleServiceClient.network_path(**expected)
 
@@ -6580,10 +7944,66 @@ def test_parse_network_path():
     assert expected == actual
 
 
+def test_notebook_execution_job_path():
+    project = "cuttlefish"
+    location = "mussel"
+    notebook_execution_job = "winkle"
+    expected = "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
+        project=project,
+        location=location,
+        notebook_execution_job=notebook_execution_job,
+    )
+    actual = ScheduleServiceClient.notebook_execution_job_path(
+        project, location, notebook_execution_job
+    )
+    assert expected == actual
+
+
+def test_parse_notebook_execution_job_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "notebook_execution_job": "abalone",
+    }
+    path = ScheduleServiceClient.notebook_execution_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_notebook_execution_job_path(path)
+    assert expected == actual
+
+
+def test_notebook_runtime_template_path():
+    project = "squid"
+    location = "clam"
+    notebook_runtime_template = "whelk"
+    expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
+        project=project,
+        location=location,
+        notebook_runtime_template=notebook_runtime_template,
+    )
+    actual = ScheduleServiceClient.notebook_runtime_template_path(
+        project, location, notebook_runtime_template
+    )
+    assert expected == actual
+
+
+def test_parse_notebook_runtime_template_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "notebook_runtime_template": "nudibranch",
+    }
+    path = ScheduleServiceClient.notebook_runtime_template_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_notebook_runtime_template_path(path)
+    assert expected == actual
+
+
 def test_pipeline_job_path():
-    project = "scallop"
-    location = "abalone"
-    pipeline_job = "squid"
+    project = "cuttlefish"
+    location = "mussel"
+    pipeline_job = "winkle"
     expected = (
         "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project,
@@ -6597,9 +8017,9 @@ def test_pipeline_job_path():
 
 def test_parse_pipeline_job_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "pipeline_job": "octopus",
+        "project": "nautilus",
+        "location": "scallop",
+        "pipeline_job": "abalone",
     }
     path = ScheduleServiceClient.pipeline_job_path(**expected)
 
@@ -6609,9 +8029,9 @@ def test_parse_pipeline_job_path():
 
 
 def test_schedule_path():
-    project = "oyster"
-    location = "nudibranch"
-    schedule = "cuttlefish"
+    project = "squid"
+    location = "clam"
+    schedule = "whelk"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -6623,9 +8043,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "schedule": "nautilus",
+        "project": "octopus",
+        "location": "oyster",
+        "schedule": "nudibranch",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
@@ -6635,7 +8055,7 @@ def test_parse_schedule_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6645,7 +8065,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "mussel",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -6655,7 +8075,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -6665,7 +8085,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "nautilus",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -6675,7 +8095,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -6685,7 +8105,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "abalone",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -6695,7 +8115,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -6705,7 +8125,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "clam",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -6715,8 +8135,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -6727,8 +8147,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 

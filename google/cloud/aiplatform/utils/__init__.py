@@ -43,6 +43,7 @@ from google.cloud.aiplatform.compat.services import (
     extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
     feature_online_store_service_client_v1beta1,
+    feature_registry_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -51,6 +52,7 @@ from google.cloud.aiplatform.compat.services import (
     match_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
+    model_monitoring_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     prediction_service_async_client_v1beta1,
@@ -70,6 +72,7 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client_v1,
     feature_online_store_admin_service_client_v1,
     feature_online_store_service_client_v1,
+    feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -99,11 +102,13 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1beta1.EndpointServiceClient,
     feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
     feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
+    feature_registry_service_client_v1beta1.FeatureRegistryServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
     index_service_client_v1beta1.IndexServiceClient,
     index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
+    model_monitoring_service_client_v1beta1.ModelMonitoringServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
     prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
@@ -118,6 +123,7 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1.EndpointServiceClient,
     feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
     feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
+    feature_registry_service_client_v1.FeatureRegistryServiceClient,
     featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1.FeaturestoreServiceClient,
     metadata_service_client_v1.MetadataServiceClient,
@@ -633,6 +639,77 @@ class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
     )
 
 
+class FeatureRegistryClientWithOverride(ClientWithOverride):
+    """Adds function override for client classes to support new Feature Store.
+
+    `feature_path()` and `parse_feature_path()` are overriden here to compensate
+    for the auto-generated GAPIC class which only supports Feature Store
+    Legacy's feature paths.
+    """
+
+    @staticmethod
+    def feature_path(
+        project: str,
+        location: str,
+        feature_group: str,
+        feature: str,
+    ) -> str:
+        return "projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}".format(
+            project=project,
+            location=location,
+            feature_group=feature_group,
+            feature=feature,
+        )
+
+    @staticmethod
+    def parse_feature_path(path: str) -> Dict[str, str]:
+        """Parses a feature path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featureGroups/(?P<feature_group>.+?)/features/(?P<feature>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    class FeatureRegistryServiceClientV1(
+        feature_registry_service_client_v1.FeatureRegistryServiceClient
+    ):
+        @staticmethod
+        def feature_path(project: str, location: str, feature_group: str, feature: str):
+            return FeatureRegistryClientWithOverride.feature_path(
+                project, location, feature_group, feature
+            )
+
+        @staticmethod
+        def parse_feature_path(path: str) -> Dict[str, str]:
+            return FeatureRegistryClientWithOverride.parse_feature_path(path)
+
+    class FeatureRegistryServiceClientV1Beta1(
+        feature_registry_service_client_v1beta1.FeatureRegistryServiceClient
+    ):
+        @staticmethod
+        def feature_path(project: str, location: str, feature_group: str, feature: str):
+            return FeatureRegistryClientWithOverride.feature_path(
+                project, location, feature_group, feature
+            )
+
+        @staticmethod
+        def parse_feature_path(path: str) -> Dict[str, str]:
+            return FeatureRegistryClientWithOverride.parse_feature_path(path)
+
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            FeatureRegistryServiceClientV1,
+        ),
+        (
+            compat.V1BETA1,
+            FeatureRegistryServiceClientV1Beta1,
+        ),
+    )
+
+
 class FeaturestoreClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -735,6 +812,17 @@ class MetadataClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, metadata_service_client_v1.MetadataServiceClient),
         (compat.V1BETA1, metadata_service_client_v1beta1.MetadataServiceClient),
+    )
+
+
+class ModelMonitoringClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            model_monitoring_service_client_v1beta1.ModelMonitoringServiceClient,
+        ),
     )
 
 
@@ -854,6 +942,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     PersistentResourceClientWithOverride,
     ReasoningEngineClientWithOverride,
     ReasoningEngineExecutionClientWithOverride,
+    ModelMonitoringClientWithOverride,
 )
 
 

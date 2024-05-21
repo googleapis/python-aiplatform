@@ -20,6 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import (
+    notebook_execution_job as gca_notebook_execution_job,
+)
+from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime as gca_notebook_runtime,
 )
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -29,6 +32,7 @@ from google.protobuf import field_mask_pb2  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "NotebookExecutionJobView",
         "CreateNotebookRuntimeTemplateRequest",
         "CreateNotebookRuntimeTemplateOperationMetadata",
         "GetNotebookRuntimeTemplateRequest",
@@ -47,8 +51,31 @@ __protobuf__ = proto.module(
         "StartNotebookRuntimeRequest",
         "StartNotebookRuntimeOperationMetadata",
         "StartNotebookRuntimeResponse",
+        "CreateNotebookExecutionJobRequest",
+        "GetNotebookExecutionJobRequest",
+        "ListNotebookExecutionJobsRequest",
+        "ListNotebookExecutionJobsResponse",
+        "DeleteNotebookExecutionJobRequest",
     },
 )
+
+
+class NotebookExecutionJobView(proto.Enum):
+    r"""Views for Get/List NotebookExecutionJob
+
+    Values:
+        NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED (0):
+            When unspecified, the API defaults to the
+            BASIC view.
+        NOTEBOOK_EXECUTION_JOB_VIEW_BASIC (1):
+            Includes all fields except for direct
+            notebook inputs.
+        NOTEBOOK_EXECUTION_JOB_VIEW_FULL (2):
+            Includes all fields.
+    """
+    NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED = 0
+    NOTEBOOK_EXECUTION_JOB_VIEW_BASIC = 1
+    NOTEBOOK_EXECUTION_JOB_VIEW_FULL = 2
 
 
 class CreateNotebookRuntimeTemplateRequest(proto.Message):
@@ -591,6 +618,181 @@ class StartNotebookRuntimeResponse(proto.Message):
     [NotebookService.StartNotebookRuntime][google.cloud.aiplatform.v1beta1.NotebookService.StartNotebookRuntime].
 
     """
+
+
+class CreateNotebookExecutionJobRequest(proto.Message):
+    r"""Request message for [NotebookService.CreateNotebookExecutionJob]
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location to create the
+            NotebookExecutionJob. Format:
+            ``projects/{project}/locations/{location}``
+        notebook_execution_job (google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob):
+            Required. The NotebookExecutionJob to create.
+        notebook_execution_job_id (str):
+            Optional. User specified ID for the
+            NotebookExecutionJob.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    notebook_execution_job: gca_notebook_execution_job.NotebookExecutionJob = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_notebook_execution_job.NotebookExecutionJob,
+        )
+    )
+    notebook_execution_job_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class GetNotebookExecutionJobRequest(proto.Message):
+    r"""Request message for [NotebookService.GetNotebookExecutionJob]
+
+    Attributes:
+        name (str):
+            Required. The name of the
+            NotebookExecutionJob resource.
+        view (google.cloud.aiplatform_v1beta1.types.NotebookExecutionJobView):
+            Optional. The NotebookExecutionJob view.
+            Defaults to BASIC.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    view: "NotebookExecutionJobView" = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum="NotebookExecutionJobView",
+    )
+
+
+class ListNotebookExecutionJobsRequest(proto.Message):
+    r"""Request message for [NotebookService.ListNotebookExecutionJobs]
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location from which to
+            list the NotebookExecutionJobs. Format:
+            ``projects/{project}/locations/{location}``
+        filter (str):
+            Optional. An expression for filtering the results of the
+            request. For field names both snake_case and camelCase are
+            supported.
+
+            -  ``notebookExecutionJob`` supports = and !=.
+               ``notebookExecutionJob`` represents the
+               NotebookExecutionJob ID.
+            -  ``displayName`` supports = and != and regex.
+            -  ``schedule`` supports = and != and regex.
+
+            Some examples:
+
+            -  ``notebookExecutionJob="123"``
+            -  ``notebookExecutionJob="my-execution-job"``
+            -  ``displayName="myDisplayName"`` and
+               ``displayName=~"myDisplayNameRegex"``
+        page_size (int):
+            Optional. The standard list page size.
+        page_token (str):
+            Optional. The standard list page token. Typically obtained
+            via [ListNotebookExecutionJobs.next_page_token][] of the
+            previous
+            [NotebookService.ListNotebookExecutionJobs][google.cloud.aiplatform.v1beta1.NotebookService.ListNotebookExecutionJobs]
+            call.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a field name for
+            descending. Supported fields:
+
+            -  ``display_name``
+            -  ``create_time``
+            -  ``update_time``
+
+            Example: ``display_name, create_time desc``.
+        view (google.cloud.aiplatform_v1beta1.types.NotebookExecutionJobView):
+            Optional. The NotebookExecutionJob view.
+            Defaults to BASIC.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    view: "NotebookExecutionJobView" = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum="NotebookExecutionJobView",
+    )
+
+
+class ListNotebookExecutionJobsResponse(proto.Message):
+    r"""Response message for [NotebookService.CreateNotebookExecutionJob]
+
+    Attributes:
+        notebook_execution_jobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob]):
+            List of NotebookExecutionJobs in the
+            requested page.
+        next_page_token (str):
+            A token to retrieve next page of results. Pass to
+            [ListNotebookExecutionJobs.page_token][] to obtain that
+            page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    notebook_execution_jobs: MutableSequence[
+        gca_notebook_execution_job.NotebookExecutionJob
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_notebook_execution_job.NotebookExecutionJob,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class DeleteNotebookExecutionJobRequest(proto.Message):
+    r"""Request message for [NotebookService.DeleteNotebookExecutionJob]
+
+    Attributes:
+        name (str):
+            Required. The name of the
+            NotebookExecutionJob resource to be deleted.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
