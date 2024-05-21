@@ -328,3 +328,20 @@ _TEST_FG1_F1 = types.feature.Feature(
     labels=_TEST_FG1_F1_LABELS,
     point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
 )
+
+
+_TEST_FG1_F2_ID = "my_fg1_f2"
+_TEST_FG1_F2_PATH = (
+    f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/features/{_TEST_FG1_F2_ID}"
+)
+_TEST_FG1_F2_DESCRIPTION = "My feature 2 in feature group 1"
+_TEST_FG1_F2_LABELS = {"my_fg1_feature": "f2"}
+_TEST_FG1_F2_POINT_OF_CONTACT = "fg1-f2-announce-list"
+_TEST_FG1_F2_VERSION_COLUMN_NAME = "specific_column_for_feature_2"
+_TEST_FG1_F2 = types.feature.Feature(
+    name=_TEST_FG1_F2_PATH,
+    version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
+    description=_TEST_FG1_F2_DESCRIPTION,
+    labels=_TEST_FG1_F2_LABELS,
+    point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+)

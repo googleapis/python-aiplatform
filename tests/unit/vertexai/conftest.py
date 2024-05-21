@@ -65,6 +65,7 @@ from feature_store_constants import (
     _TEST_PSC_OPTIMIZED_FOS,
     _TEST_OPTIMIZED_EMBEDDING_FV,
     _TEST_FG1_F1,
+    _TEST_FG1_F2,
 )
 
 _TEST_PROJECT = "test-project"
@@ -509,4 +510,14 @@ def get_feature_mock():
         "get_feature",
     ) as get_fg_mock:
         get_fg_mock.return_value = _TEST_FG1_F1
+        yield get_fg_mock
+
+
+@pytest.fixture
+def get_feature_with_version_column_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "get_feature",
+    ) as get_fg_mock:
+        get_fg_mock.return_value = _TEST_FG1_F2
         yield get_fg_mock
