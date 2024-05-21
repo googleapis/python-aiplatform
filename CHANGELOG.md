@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.52.0](https://github.com/googleapis/python-aiplatform/compare/v1.51.0...v1.52.0) (2024-05-21)
+
+
+### Features
+
+* Add FeatureGroup delete ([f9011e0](https://github.com/googleapis/python-aiplatform/commit/f9011e0b1b4ea8470849ecdd5ba9e086c73b778b))
+* Add support for ToolConfig in the LangChain template ([9bda328](https://github.com/googleapis/python-aiplatform/commit/9bda3288b59eb52c18a13c292561cb2c720ff331))
+* Create Vertex Experiment when uploading Tensorboard logs ([339f8b6](https://github.com/googleapis/python-aiplatform/commit/339f8b667952c7302c36605842ba92fa1c7135b8))
+* GenAI - Add BatchPredictionJob for GenAI models ([df4a4f2](https://github.com/googleapis/python-aiplatform/commit/df4a4f2745178a6458bb6dc1f124c8ee60e986c1))
+* GenAI - Add cancel, delete, list methods in BatchPredictionJob ([7ff8071](https://github.com/googleapis/python-aiplatform/commit/7ff80714c2ec55330d5d6a0075366f8f700128af))
+* GenAI - Added the `BatchPredictionJob.submit` method ([4d091c6](https://github.com/googleapis/python-aiplatform/commit/4d091c68b17b3c1b4a912aa38d3a098fdc21238d))
+* Private Endpoints - Added private service connect support to prediction endpoint. ([6bdcfb3](https://github.com/googleapis/python-aiplatform/commit/6bdcfb3c0c6b121d5fbfcdad9dd218a1ddfc3e0d))
+
+
+### Bug Fixes
+
+* Add validation for evaluation dataset fields, update logging info for eval api request count ([d6ef500](https://github.com/googleapis/python-aiplatform/commit/d6ef50080f3b2b923ba0fb89eb0a8daebf8f68d4))
+* Fix feature attribution drift visualization for model monitoring SDK ([710f33d](https://github.com/googleapis/python-aiplatform/commit/710f33d87e242a283e8fbe5327ba9fa781d0d8fc))
+* Fix the default value of response_column_name in EvalTask.evaluate() ([98f9b35](https://github.com/googleapis/python-aiplatform/commit/98f9b35ccde7dad7f3e6b9e259a201ee2784d15e))
+* Update get_experiment_df to pass Experiment and allow empty metrics. ([de5d0f3](https://github.com/googleapis/python-aiplatform/commit/de5d0f3a17a77cbc70ada480768d9209c7b02828))
+
+
+### Documentation
+
+* Add Vertex Model Monitoring V2 SDK documentation ([b47e6ff](https://github.com/googleapis/python-aiplatform/commit/b47e6ff1f17278a6f1e4c31def05f3a09d981b28))
+* Update docstrings for rapid evaluation library. ([d6d371d](https://github.com/googleapis/python-aiplatform/commit/d6d371d61abd2daa2f222ca82540c5e0c4b3a602))
+
 ## [1.51.0](https://github.com/googleapis/python-aiplatform/compare/v1.50.0...v1.51.0) (2024-05-10)
 
 
