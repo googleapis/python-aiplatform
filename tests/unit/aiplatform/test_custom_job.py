@@ -83,10 +83,6 @@ _TEST_WORKER_POOL_SPEC_WITH_EXPERIMENTS = [
             "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
             "command": [],
             "args": _TEST_RUN_ARGS,
-            "env": [
-                {"name": "AIP_EXPERIMENT_NAME", "value": _TEST_EXPERIMENT},
-                {"name": "AIP_EXPERIMENT_RUN_NAME", "value": _TEST_EXPERIMENT_RUN},
-            ],
         },
     }
 ]
@@ -160,6 +156,7 @@ _TEST_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_CONTEXT_ID}"
 _TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
 _TEST_RUN = "run-1"
 _TEST_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}"
+_TEST_EXPERIMENT_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXPERIMENT}"
 _TEST_EXPERIMENT_RUN_CONTEXT_NAME = (
     f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXECUTION_ID}"
 )
@@ -203,6 +200,8 @@ def _get_custom_job_proto_with_experiments(state=None, name=None, error=None):
     custom_job_proto.name = name
     custom_job_proto.state = state
     custom_job_proto.error = error
+    custom_job_proto.job_spec.experiment = _TEST_EXPERIMENT_CONTEXT_NAME
+    custom_job_proto.job_spec.experiment_run = _TEST_EXPERIMENT_RUN_CONTEXT_NAME
     return custom_job_proto
 
 
@@ -248,6 +247,28 @@ def get_custom_job_mock():
                 state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
             ),
             _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def get_custom_job_with_experiments_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_experiments(
                 name=_TEST_CUSTOM_JOB_NAME,
                 state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
             ),
@@ -456,6 +477,19 @@ def get_experiment_run_run_mock():
 
 
 @pytest.fixture
+def get_experiment_run_not_found_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            _EXPERIMENT_MOCK,
+            _EXPERIMENT_RUN_MOCK,
+            _EXPERIMENT_MOCK,
+            exceptions.NotFound(""),
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
 def update_context_mock():
     with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
         update_context_mock.return_value = _EXPERIMENT_RUN_MOCK
@@ -598,7 +632,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             create_request_timeout=None,
             experiment=_TEST_EXPERIMENT,
-            experiment_run=_TEST_EXPERIMENT_RUN,
+            experiment_run=_TEST_RUN,
             disable_retries=_TEST_DISABLE_RETRIES,
         )
 
@@ -614,17 +648,6 @@ class TestCustomJob:
             parent=_TEST_PARENT,
             custom_job=expected_custom_job,
             timeout=None,
-        )
-
-        expected_run_context = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
-        expected_run_context.metadata[constants._CUSTOM_JOB_KEY] = [
-            {
-                constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
-                constants._CUSTOM_JOB_CONSOLE_URI: job._dashboard_uri(),
-            }
-        ]
-        update_context_mock.assert_called_with(
-            context=expected_run_context,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -712,6 +735,44 @@ class TestCustomJob:
             parent=_TEST_PARENT,
             custom_job=expected_custom_job,
             timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "create_custom_job_mock",
+        "get_custom_job_with_experiments_mock",
+        "get_experiment_run_not_found_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
+    def test_run_custom_job_with_experiment_run_warning(self, caplog):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            experiment=_TEST_EXPERIMENT,
+            experiment_run=_TEST_RUN,
+            disable_retries=_TEST_DISABLE_RETRIES,
+        )
+
+        assert (
+            f"Failed to end experiment run {_TEST_EXPERIMENT_RUN_CONTEXT_NAME} due to:"
+            in caplog.text
         )
 
     @pytest.mark.parametrize("sync", [True, False])
