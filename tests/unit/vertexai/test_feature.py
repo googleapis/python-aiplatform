@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -35,6 +35,12 @@ from feature_store_constants import (
     _TEST_FG1_F1_DESCRIPTION,
     _TEST_FG1_F1_LABELS,
     _TEST_FG1_F1_POINT_OF_CONTACT,
+    _TEST_FG1_F2_ID,
+    _TEST_FG1_F2_PATH,
+    _TEST_FG1_F2_VERSION_COLUMN_NAME,
+    _TEST_FG1_F2_DESCRIPTION,
+    _TEST_FG1_F2_LABELS,
+    _TEST_FG1_F2_POINT_OF_CONTACT,
 )
 
 
@@ -50,6 +56,7 @@ def feature_eq(
     description: str,
     labels: Dict[str, str],
     point_of_contact: str,
+    version_column_name: Optional[str] = None,
 ):
     """Check if a Feature has the appropriate values set."""
     assert feature_to_check.name == name
@@ -59,6 +66,9 @@ def feature_eq(
     assert feature_to_check.description == description
     assert feature_to_check.labels == labels
     assert feature_to_check.point_of_contact == point_of_contact
+
+    if version_column_name:
+        assert feature_to_check.version_column_name == version_column_name
 
 
 def test_init_with_feature_id_and_no_fg_id_raises_error(get_feature_mock):
@@ -108,6 +118,31 @@ def test_init_with_feature_id(get_feature_mock):
     )
 
 
+def test_init_with_feature_id_for_explicit_version_column(
+    get_feature_with_version_column_mock,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature = Feature(_TEST_FG1_F2_ID, feature_group_id=_TEST_FG1_ID)
+
+    get_feature_with_version_column_mock.assert_called_once_with(
+        name=_TEST_FG1_F2_PATH,
+        retry=base._DEFAULT_RETRY,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F2_ID,
+        resource_name=_TEST_FG1_F2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F2_DESCRIPTION,
+        labels=_TEST_FG1_F2_LABELS,
+        point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+        version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
+    )
+
+
 def test_init_with_feature_path(get_feature_mock):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
@@ -127,4 +162,29 @@ def test_init_with_feature_path(get_feature_mock):
         description=_TEST_FG1_F1_DESCRIPTION,
         labels=_TEST_FG1_F1_LABELS,
         point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_init_with_feature_path_for_explicit_version_column(
+    get_feature_with_version_column_mock,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature = Feature(_TEST_FG1_F2_PATH)
+
+    get_feature_with_version_column_mock.assert_called_once_with(
+        name=_TEST_FG1_F2_PATH,
+        retry=base._DEFAULT_RETRY,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F2_ID,
+        resource_name=_TEST_FG1_F2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
+        description=_TEST_FG1_F2_DESCRIPTION,
+        labels=_TEST_FG1_F2_LABELS,
+        point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
     )

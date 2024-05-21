@@ -106,6 +106,11 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=feature)
 
     @property
+    def version_column_name(self) -> str:
+        """The name of the BigQuery Table/View column hosting data for this version."""
+        return self._gca_resource.version_column_name
+
+    @property
     def description(self) -> str:
         """The description of the feature."""
         return self._gca_resource.description
