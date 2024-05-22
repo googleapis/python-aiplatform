@@ -345,3 +345,5 @@ _TEST_FG1_F2 = types.feature.Feature(
     labels=_TEST_FG1_F2_LABELS,
     point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
 )
+
+_TEST_FG1_FEATURE_LIST = [_TEST_FG1_F1, _TEST_FG1_F2]

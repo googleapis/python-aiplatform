@@ -358,6 +358,36 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         return feature_obj
 
+    def list_features(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[Feature]:
+        """Lists features under this feature group.
+
+        Args:
+            project:
+                Project to create feature in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to create feature in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to create this feature. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List of features under this feature group.
+        """
+
+        return Feature.list(
+            parent=self.resource_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @property
     def source(self) -> FeatureGroupBigQuerySource:
         return FeatureGroupBigQuerySource(
