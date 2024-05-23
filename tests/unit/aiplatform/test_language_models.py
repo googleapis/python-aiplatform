@@ -1804,7 +1804,9 @@ class TestLanguageModels:
             )
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/text-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         assert (
@@ -1893,7 +1895,9 @@ class TestLanguageModels:
             )
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/text-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         assert (
@@ -3240,7 +3244,9 @@ class TestLanguageModels:
             model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/chat-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         chat = model.start_chat(
@@ -3480,7 +3486,9 @@ class TestLanguageModels:
             model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/chat-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
         chat_temperature = 0.1
         chat_max_output_tokens = 100
@@ -3620,7 +3628,9 @@ class TestLanguageModels:
             model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/chat-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         chat = model.start_chat(
@@ -3756,7 +3766,9 @@ class TestLanguageModels:
             model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/chat-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         chat = model.start_chat()
@@ -3935,6 +3947,7 @@ class TestLanguageModels:
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/codechat-bison@001",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         code_chat = model.start_chat(
@@ -4223,6 +4236,7 @@ class TestLanguageModels:
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/code-bison@001",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -4376,6 +4390,7 @@ class TestLanguageModels:
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/code-gecko@001",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -4457,6 +4472,7 @@ class TestLanguageModels:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        request_metadata = (("x-metadata-key", "metadata-value"),)
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
@@ -4465,12 +4481,14 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = preview_language_models.TextEmbeddingModel.from_pretrained(
-                "textembedding-gecko@001"
+                "textembedding-gecko@001",
+                request_metadata=request_metadata,
             )
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/textembedding-gecko@001",
             retry=base._DEFAULT_RETRY,
+            metadata=request_metadata,
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -4498,6 +4516,7 @@ class TestLanguageModels:
                 ],
                 auto_truncate=False,
                 output_dimensionality=3,
+                request_metadata=request_metadata,
             )
             prediction_instances = mock_predict.call_args[1]["instances"]
             assert prediction_instances == [
@@ -4590,6 +4609,7 @@ class TestLanguageModels:
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/textembedding-gecko@001",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -4754,7 +4774,9 @@ class TestLanguageModels:
             assert isinstance(model, preview_language_models.TextGenerationModel)
 
         mock_get_publisher_model.assert_called_with(
-            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+            name="publishers/google/models/text-bison@001",
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
         assert mock_get_publisher_model.call_count == 1
 
@@ -4817,6 +4839,7 @@ class TestLanguageModels:
         mock_get_publisher_model.assert_called_with(
             name="publishers/google/models/textembedding-gecko@001",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         assert mock_get_publisher_model.call_count == 1

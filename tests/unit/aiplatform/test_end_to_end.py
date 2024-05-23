@@ -221,6 +221,7 @@ class TestEndToEnd:
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
             timeout=None,
+            metadata=(),
         )
 
         expected_dataset = gca_dataset.Dataset(

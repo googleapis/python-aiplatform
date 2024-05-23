@@ -2037,6 +2037,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+            metadata=(),
         )
 
     @pytest.mark.asyncio
@@ -2062,6 +2063,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+            metadata=(),
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -2131,6 +2133,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=10.0,
+            metadata=(),
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -2147,6 +2150,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+            metadata=(),
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")

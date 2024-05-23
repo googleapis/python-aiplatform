@@ -16,7 +16,7 @@
 """Base class for working with Model Garden models."""
 
 import dataclasses
-from typing import Dict, Optional, Type, TypeVar
+from typing import Dict, Optional, Type, TypeVar, Sequence, Tuple
 from google.auth import exceptions as auth_exceptions
 
 from google.cloud import aiplatform
@@ -95,6 +95,7 @@ def _get_model_info(
     interface_class: Optional[Type["_ModelGardenModel"]] = None,
     publisher_model_res: Optional[_publisher_models._PublisherModel] = None,
     tuned_vertex_model: Optional[aiplatform.Model] = None,
+    request_metadata: Sequence[Tuple[str, str]] = (),
 ) -> _ModelInfo:
     """Gets the model information by model ID.
 
@@ -103,6 +104,8 @@ def _get_model_info(
             Identifier of a Model Garden Model. Example: "text-bison@001"
         schema_to_class_map (Dict[str, "_ModelGardenModel"]):
             Mapping of schema URI to model class.
+        request_metadata (Sequence[Tuple[str, str]]):
+            Strings which should be sent along with the request as metadata.
 
     Returns:
         _ModelInfo:
@@ -122,7 +125,8 @@ def _get_model_info(
     if not publisher_model_res:
         publisher_model_res = (
             _publisher_models._PublisherModel(  # pylint: disable=protected-access
-                resource_name=model_id
+                resource_name=model_id,
+                request_metadata=request_metadata,
             )._gca_resource
         )
 
@@ -186,11 +190,14 @@ def _from_pretrained(
     model_name: Optional[str] = None,
     publisher_model: Optional[_publisher_models._PublisherModel] = None,
     tuned_vertex_model: Optional[aiplatform.Model] = None,
+    request_metadata: Sequence[Tuple[str, str]] = (),
 ) -> T:
     """Loads a _ModelGardenModel.
 
     Args:
         model_name: Name of the model.
+        request_metadata (Sequence[Tuple[str, str]]):
+            Strings which should be sent along with the request as metadata.
 
     Returns:
         An instance of a class derieved from `_ModelGardenModel`.
@@ -208,6 +215,7 @@ def _from_pretrained(
         model_info = _get_model_info(
             model_id=model_name,
             schema_to_class_map={interface_class._INSTANCE_SCHEMA_URI: interface_class},
+            request_metadata=request_metadata,
         )
 
     else:
@@ -263,11 +271,15 @@ class _ModelGardenModel:
         )
 
     @classmethod
-    def from_pretrained(cls: Type[T], model_name: str) -> T:
+    def from_pretrained(
+        cls: Type[T], model_name: str, request_metadata: Sequence[Tuple[str, str]] = ()
+    ) -> T:
         """Loads a _ModelGardenModel.
 
         Args:
             model_name: Name of the model.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
 
         Returns:
             An instance of a class derieved from `_ModelGardenModel`.
@@ -288,6 +300,10 @@ class _ModelGardenModel:
         )
 
         try:
-            return _from_pretrained(interface_class=cls, model_name=model_name)
+            return _from_pretrained(
+                interface_class=cls,
+                model_name=model_name,
+                request_metadata=request_metadata,
+            )
         except auth_exceptions.GoogleAuthError as e:
             raise auth_exceptions.GoogleAuthError(credential_exception_str) from e

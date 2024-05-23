@@ -98,6 +98,7 @@ class TestModelGardenModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/text-bison@001",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )
 
     def test_init_model_garden_gecko_model_with_from_pretrained(self):
@@ -118,4 +119,5 @@ class TestModelGardenModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/textembedding-gecko@003",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )

@@ -63,7 +63,9 @@ class TestPublisherModel:
         )
         _ = _publisher_models._PublisherModel(_TEST_RESOURCE_NAME)
         mock_get_publisher_model.assert_called_once_with(
-            name=_TEST_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            name=_TEST_RESOURCE_NAME,
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
     def test_init_publisher_model_with_model_garden_id(self, mock_get_publisher_model):
@@ -73,7 +75,9 @@ class TestPublisherModel:
         )
         _ = _publisher_models._PublisherModel(_TEST_MODEL_GARDEN_ID)
         mock_get_publisher_model.assert_called_once_with(
-            name=_TEST_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            name=_TEST_RESOURCE_NAME,
+            retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
     def test_init_publisher_model_with_invalid_resource_name(
