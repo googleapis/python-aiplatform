@@ -172,6 +172,7 @@ class TestgenerativeModelTuning:
             validation_dataset="gs://some-bucket/some_dataset.jsonl",
             epochs=300,
             learning_rate_multiplier=1.0,
+            adapter_size=8,
         )
         assert sft_tuning_job.state == job_state.JobState.JOB_STATE_PENDING
         assert not sft_tuning_job.has_ended
