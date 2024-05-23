@@ -21,10 +21,11 @@ from typing import FrozenSet, Optional
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.compat.services import tensorboard_service_client
 from google.cloud.aiplatform.metadata.metadata import _experiment_tracker
-from google.cloud.aiplatform.compat.services import (
-    tensorboard_service_client,
-)
+from google.cloud.aiplatform.tensorboard import uploader_constants
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.uploader import TensorBoardUploader
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
 _LOGGER = base.Logger(__name__)
@@ -212,21 +213,8 @@ class _TensorBoardTracker:
             An instance of TensorBoardUploader.
 
         Raise:
-            ImportError if TensorBoard package is not installed.
             ValueError if TensorBoard ID is not specified in argument nor set with an Experiment
         """
-        try:
-            from google.cloud.aiplatform.tensorboard.uploader import (
-                TensorBoardUploader,
-            )
-            from google.cloud.aiplatform.tensorboard import uploader_utils
-            from google.cloud.aiplatform.tensorboard import (
-                uploader_constants,
-            )
-        except ImportError:
-            raise ImportError(
-                "TensorBoard is not installed. Please install TensorBoard using pip install google-cloud-aiplatform[tensorboard] to use it in the Vertex SDK."
-            )
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
         if tensorboard_id:
