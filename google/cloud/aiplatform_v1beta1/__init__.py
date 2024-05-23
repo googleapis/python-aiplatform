@@ -52,8 +52,6 @@ from .services.featurestore_online_serving_service import (
 )
 from .services.featurestore_service import FeaturestoreServiceClient
 from .services.featurestore_service import FeaturestoreServiceAsyncClient
-from .services.gen_ai_tuning_service import GenAiTuningServiceClient
-from .services.gen_ai_tuning_service import GenAiTuningServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
 from .services.index_endpoint_service import IndexEndpointServiceAsyncClient
 from .services.index_service import IndexServiceClient
@@ -456,11 +454,6 @@ from .types.featurestore_service import UpdateEntityTypeRequest
 from .types.featurestore_service import UpdateFeatureRequest
 from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
-from .types.genai_tuning_service import CancelTuningJobRequest
-from .types.genai_tuning_service import CreateTuningJobRequest
-from .types.genai_tuning_service import GetTuningJobRequest
-from .types.genai_tuning_service import ListTuningJobsRequest
-from .types.genai_tuning_service import ListTuningJobsResponse
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
 from .types.index import IndexDatapoint
@@ -946,13 +939,6 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
-from .types.tuning_job import SupervisedHyperParameters
-from .types.tuning_job import SupervisedTuningDatasetDistribution
-from .types.tuning_job import SupervisedTuningDataStats
-from .types.tuning_job import SupervisedTuningSpec
-from .types.tuning_job import TunedModel
-from .types.tuning_job import TuningDataStats
-from .types.tuning_job import TuningJob
 from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
@@ -1020,7 +1006,6 @@ __all__ = (
     "FeatureRegistryServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
-    "GenAiTuningServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
     "JobServiceAsyncClient",
@@ -1106,7 +1091,6 @@ __all__ = (
     "CancelNasJobRequest",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
-    "CancelTuningJobRequest",
     "Candidate",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
@@ -1191,7 +1175,6 @@ __all__ = (
     "CreateTensorboardTimeSeriesRequest",
     "CreateTrainingPipelineRequest",
     "CreateTrialRequest",
-    "CreateTuningJobRequest",
     "CsvDestination",
     "CsvSource",
     "CustomJob",
@@ -1366,7 +1349,6 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
-    "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
     "GenerationConfig",
@@ -1422,7 +1404,6 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
-    "GetTuningJobRequest",
     "GoogleDriveSource",
     "GoogleSearchRetrieval",
     "GroundednessInput",
@@ -1571,8 +1552,6 @@ __all__ = (
     "ListTrainingPipelinesResponse",
     "ListTrialsRequest",
     "ListTrialsResponse",
-    "ListTuningJobsRequest",
-    "ListTuningJobsResponse",
     "LlmUtilityServiceClient",
     "LookupStudyRequest",
     "MachineSpec",
@@ -1838,10 +1817,6 @@ __all__ = (
     "SummarizationVerbosityInstance",
     "SummarizationVerbosityResult",
     "SummarizationVerbositySpec",
-    "SupervisedHyperParameters",
-    "SupervisedTuningDataStats",
-    "SupervisedTuningDatasetDistribution",
-    "SupervisedTuningSpec",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
     "TFRecordDestination",
@@ -1886,9 +1861,6 @@ __all__ = (
     "TrainingPipeline",
     "Trial",
     "TrialContext",
-    "TunedModel",
-    "TuningDataStats",
-    "TuningJob",
     "Type",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
