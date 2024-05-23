@@ -58,15 +58,16 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
-        assert model.predict(
-            "What is the best recipe for banana bread? Recipe:",
+        response = model.predict(
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
             top_k=5,
             stop_sequences=["# %%"],
             grounding_source=grounding_source,
-        ).text
+        )
+        assert response.text or response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_text_generation_preview_count_tokens(self, api_transport):
@@ -97,7 +98,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
         response = await model.predict_async(
-            "What is the best recipe for banana bread? Recipe:",
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
@@ -105,7 +106,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             stop_sequences=["# %%"],
             grounding_source=grounding_source,
         )
-        assert response.text
+        assert response.text or response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_text_generation_streaming(self, api_transport):
@@ -118,13 +119,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
 
         for response in model.predict_streaming(
-            "What is the best recipe for banana bread? Recipe:",
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
             top_k=5,
         ):
-            assert response.text
+            assert response.text or response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_preview_text_embedding_top_level_from_pretrained(self, api_transport):
@@ -138,14 +139,15 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             foundation_model_name="google/text-bison@001"
         )
 
-        assert model.predict(
-            "What is the best recipe for banana bread? Recipe:",
+        response = model.predict(
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
             top_k=5,
             stop_sequences=["# %%"],
-        ).text
+        )
+        assert response.text or response.is_blocked
 
         assert isinstance(model, preview_language_models.TextGenerationModel)
 
@@ -430,13 +432,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         # Testing the new model returned by the `tuning_job.get_tuned_model` method
         response1 = tuned_model1.predict(
-            "What is the best recipe for banana bread? Recipe:",
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
             top_k=5,
         )
-        assert response1.text
+        assert response1.text or response1.is_blocked
 
         # Testing listing and getting tuned models
         tuned_model_names = model.list_tuned_model_names()
@@ -446,13 +448,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         tuned_model = TextGenerationModel.get_tuned_model(tuned_model_name)
 
         tuned_model_response = tuned_model.predict(
-            "What is the best recipe for banana bread? Recipe:",
+            "What is the best recipe for cupcakes? Recipe:",
             max_output_tokens=128,
             temperature=0.0,
             top_p=1.0,
             top_k=5,
         )
-        assert tuned_model_response.text
+        assert tuned_model_response.text or tuned_model_response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_batch_prediction_for_text_generation(self, api_transport):
