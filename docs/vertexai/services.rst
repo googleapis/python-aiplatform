@@ -54,3 +54,19 @@ Vertex AI SDK
     :members:
     :show-inheritance:
     :inherited-members:
+
+.. automodule:: vertexai.resources
+    :no-members:
+
+.. automodule:: vertexai.resources.preview
+    :no-members:
+
+.. automodule:: vertexai.resources.preview.ml_monitoring
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+.. automodule:: vertexai.resources.preview.ml_monitoring.spec
+    :members:
+    :show-inheritance:
+    :inherited-members:

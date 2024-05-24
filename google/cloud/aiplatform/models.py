@@ -62,6 +62,7 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     model_service as gca_model_service_compat,
     env_var as gca_env_var_compat,
+    service_networking as gca_service_networking,
 )
 
 from google.cloud.aiplatform.constants import (
@@ -313,6 +314,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "network", None)
 
+    @property
+    def private_service_connect_config(
+        self,
+    ) -> Optional[gca_service_networking.PrivateServiceConnectConfig]:
+        """The Private Service Connect configuration for this Endpoint."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.private_service_connect_config
+
     @classmethod
     def create(
         cls,
@@ -463,6 +472,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         predict_request_response_logging_config: Optional[
             gca_endpoint_compat.PredictRequestResponseLoggingConfig
         ] = None,
+        private_service_connect_config: Optional[
+            gca_service_networking.PrivateServiceConnectConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -506,8 +518,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
+                Cannot be specified when private_service_connect is enabled.
                 Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
@@ -525,6 +538,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 that are not included in either the URI or the body.
             predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
                 Optional. The request response logging configuration for online prediction.
+            private_service_connect_config (aiplatform.service_network.PrivateServiceConnectConfig):
+                If enabled, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be enabled when network is specified.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -542,6 +558,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             encryption_spec=encryption_spec,
             network=network,
             predict_request_response_logging_config=predict_request_response_logging_config,
+            private_service_connect_config=private_service_connect_config,
         )
 
         operation_future = api_client.create_endpoint(
@@ -1879,9 +1896,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
 
         return cls._list_with_local_order(
-            cls_filter=lambda ep: not bool(
-                ep.network
-            ),  # `network` is empty for public Endpoints
+            cls_filter=lambda ep: not bool(ep.network)
+            and not bool(ep.private_service_connect_config),
+            # `network` is empty and private_service_connect is not enabled for public Endpoints
             filter=filter,
             order_by=order_by,
             project=project,
@@ -2012,12 +2029,12 @@ class PrivateEndpoint(Endpoint):
             credentials=credentials,
         )
 
-        if not self.network:
+        if not self.network and not self.private_service_connect_config:
             raise ValueError(
                 "Please ensure the Endpoint being retrieved is a PrivateEndpoint."
             )
 
-        self._http_client = urllib3.PoolManager()
+        self._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
 
     @property
     def predict_http_uri(self) -> Optional[str]:
@@ -2040,6 +2057,30 @@ class PrivateEndpoint(Endpoint):
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
+    class PrivateServiceConnectConfig:
+        """Represents a Vertex AI PrivateServiceConnectConfig resource."""
+
+        _gapic_private_service_connect_config: gca_service_networking.PrivateServiceConnectConfig
+
+        def __init__(
+            self,
+            project_allowlist: Optional[Sequence[str]] = None,
+        ):
+            """PrivateServiceConnectConfig for a PrivateEndpoint.
+
+            Args:
+                project_allowlist (Sequence[str]):
+                    Optional. List of projects from which traffic can be accepted
+                    by the endpoint via [ServiceAttachment](https://cloud.google.com/vpc/docs/private-service-connect#service-attachments).
+                    If not set, the endpoint's project will be used.
+            """
+            self._gapic_private_service_connect_config = (
+                gca_service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=project_allowlist,
+                )
+            )
+
     @classmethod
     def create(
         cls,
@@ -2052,10 +2093,12 @@ class PrivateEndpoint(Endpoint):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
+        private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
     ) -> "PrivateEndpoint":
         """Creates a new PrivateEndpoint.
 
         Example usage:
+            For PSA based private endpoint:
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name="my_endpoint_name",
                 project="my_project_id",
@@ -2070,6 +2113,22 @@ class PrivateEndpoint(Endpoint):
                 network="projects/123456789123/global/networks/my_vpc"
             )
 
+        For PSC based private endpoint:
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                project="my_project_id",
+                location="us-central1",
+                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                    project_allowlist=["test-project"]),
+            )
+
+            or (when project and location are initialized)
+
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                    project_allowlist=["test-project"]),
+            )
         Args:
             display_name (str):
                 Required. The user-defined name of the Endpoint.
@@ -2086,6 +2145,7 @@ class PrivateEndpoint(Endpoint):
                 this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
                 If left unspecified, the network set with aiplatform.init will be used.
+                Cannot be set together with private_service_connect_config.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -2116,6 +2176,9 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            private_service_connect_config (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig):
+                [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect) configuration for the endpoint.
+                Cannot be set when network is specified.
 
         Returns:
             endpoint (aiplatform.PrivateEndpoint):
@@ -2134,10 +2197,22 @@ class PrivateEndpoint(Endpoint):
         location = location or initializer.global_config.location
         network = network or initializer.global_config.network
 
-        if not network:
+        if not network and not private_service_connect_config:
             raise ValueError(
-                "Please provide required argument `network` or set network"
+                "Please provide required argument `network` or"
+                "`private_service_connect_config`. You can also set network"
                 "using aiplatform.init(network=...)"
+            )
+        if network and private_service_connect_config:
+            raise ValueError(
+                "Argument `network` and `private_service_connect_config` enabled"
+                " mutually exclusive. You can only set one of them."
+            )
+
+        config = None
+        if private_service_connect_config:
+            config = (
+                private_service_connect_config._gapic_private_service_connect_config
             )
 
         return cls._create(
@@ -2153,6 +2228,7 @@ class PrivateEndpoint(Endpoint):
             ),
             network=network,
             sync=sync,
+            private_service_connect_config=config,
         )
 
     @classmethod
@@ -2200,7 +2276,7 @@ class PrivateEndpoint(Endpoint):
             credentials=credentials,
         )
 
-        endpoint._http_client = urllib3.PoolManager()
+        endpoint._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
 
         return endpoint
 
@@ -2262,13 +2338,42 @@ class PrivateEndpoint(Endpoint):
                 f"and that {url} is a valid URL."
             ) from exc
 
-    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+    def _validate_endpoint_override(self, endpoint_override: str) -> bool:
+        regex = re.compile("^[a-zA-Z0-9-.]+$")
+        return regex.match(endpoint_override) is not None
+
+    def predict(
+        self,
+        instances: List,
+        parameters: Optional[Dict] = None,
+        endpoint_override: Optional[str] = None,
+    ) -> Prediction:
         """Make a prediction against this PrivateEndpoint using a HTTP request.
-        This method must be called within the network the PrivateEndpoint is peered to.
-        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
+        For PSA based private endpoint, this method must be called within the
+        network the PrivateEndpoint is peered to. Otherwise, the predict() call
+        will fail with error code 404. To check, use `PrivateEndpoint.network`.
+
+        For PSC based priviate endpoint, the project where caller credential are
+        from must be allowlisted.
 
         Example usage:
+            PSA based private endpoint:
+
             response = my_private_endpoint.predict(instances=[...])
+            my_predictions = response.predictions
+
+            PSC based private endpoint:
+
+            After creating PSC Endpoint pointing to the endpoint's
+            ServiceAttachment, use the PSC Endpoint IP Address or DNS as
+            endpoint_override.
+
+            psc_endpoint_address = "10.0.1.23"
+            or
+            psc_endpoint_address = "test.my.prediction"
+
+            response = my_private_endpoint.predict(instances=[...],
+                endpoint_override=psc_endpoint_address)
             my_predictions = response.predictions
 
         Args:
@@ -2292,40 +2397,90 @@ class PrivateEndpoint(Endpoint):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
 
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction object with returned predictions and Model ID.
 
         Raises:
-            RuntimeError: If a model has not been deployed a request cannot be made.
+            RuntimeError: If a model has not been deployed a request cannot be
+                made for PSA based endpoint.
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                "Cannot make a predict request because a model has not been deployed on this Private"
-                "Endpoint. Please ensure a model has been deployed."
+        if self.network:
+            if not self._gca_resource.deployed_models:
+                raise RuntimeError(
+                    "Cannot make a predict request because a model has not been"
+                    "deployed on this Private Endpoint. Please ensure a model"
+                    "has been deployed."
+                )
+            response = self._http_request(
+                method="POST",
+                url=self.predict_http_uri,
+                body=json.dumps({"instances": instances}),
+                headers={"Content-Type": "application/json"},
+            )
+            prediction_response = json.loads(response.data)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=self._gca_resource.deployed_models[0].id,
             )
 
-        response = self._http_request(
-            method="POST",
-            url=self.predict_http_uri,
-            body=json.dumps({"instances": instances}),
-            headers={"Content-Type": "application/json"},
-        )
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make a predict request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
 
-        prediction_response = json.loads(response.data)
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
 
-        return Prediction(
-            predictions=prediction_response.get("predictions"),
-            metadata=prediction_response.get("metadata"),
-            deployed_model_id=self._gca_resource.deployed_models[0].id,
-        )
+            token = self.credentials.token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:predict"
+            response = self._http_request(
+                method="POST",
+                url=url,
+                body=json.dumps({"instances": instances}),
+                headers=headers,
+            )
+
+            prediction_response = json.loads(response.data)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=prediction_response.get("deployedModelId"),
+                model_resource_name=prediction_response.get("model"),
+                model_version_id=prediction_response.get("modelVersionId"),
+            )
 
     def raw_predict(
-        self, body: bytes, headers: Dict[str, str]
+        self,
+        body: bytes,
+        headers: Dict[str, str],
+        endpoint_override: Optional[str] = None,
     ) -> requests.models.Response:
         """Make a prediction request using arbitrary headers.
         This method must be called within the network the PrivateEndpoint is peered to.
@@ -2333,29 +2488,78 @@ class PrivateEndpoint(Endpoint):
 
         Example usage:
             my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+
+            # PSA based private endpint
             response = my_endpoint.raw_predict(
-                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
                 headers = {'Content-Type':'application/json'}
             )
+            # PSC based private endpoint
+
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
+                headers = {'Content-Type':'application/json'},
+                endpoint_override = "10.1.0.23"
+            )
+
             status_code = response.status_code
             results = json.dumps(response.text)
 
         Args:
             body (bytes):
-                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+                The body of the prediction request in bytes. This must not
+                exceed 1.5 mb per request.
             headers (Dict[str, str]):
-                The header of the request as a dictionary. There are no restrictions on the header.
+                The header of the request as a dictionary. There are no
+                restrictions on the header.
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
 
         Returns:
-            A requests.models.Response object containing the status code and prediction results.
+            A requests.models.Response object containing the status code and
+            prediction results.
+
+        Raises:
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
         """
         self.wait()
-        return self._http_request(
-            method="POST",
-            url=self.predict_http_uri,
-            body=body,
-            headers=headers,
-        )
+        if self.network:
+            return self._http_request(
+                method="POST",
+                url=self.predict_http_uri,
+                body=body,
+                headers=headers,
+            )
+
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make a predict request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
+
+            token = self.credentials.token
+            headers_with_token = dict(headers)
+            headers_with_token["Authorization"] = f"Bearer {token}"
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+            return self._http_request(
+                method="POST",
+                url=url,
+                body=body,
+                headers=headers_with_token,
+            )
 
     def explain(self):
         raise NotImplementedError(
@@ -2366,6 +2570,7 @@ class PrivateEndpoint(Endpoint):
         """
         Makes a request to this PrivateEndpoint's health check URI. Must be within network
         that this PrivateEndpoint is in.
+        This is only supported by PSA based private endpoint.
 
         Example Usage:
             if my_private_endpoint.health_check():
@@ -2377,9 +2582,15 @@ class PrivateEndpoint(Endpoint):
 
         Raises:
             RuntimeError: If a model has not been deployed a request cannot be made.
+            RuntimeError: If the endpoint is PSC based private endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
+
+        if self.private_service_connect_config:
+            raise RuntimeError(
+                "Health check request is not supported on PSC based Private Endpoint."
+            )
 
         if not self._gca_resource.deployed_models:
             raise RuntimeError(
@@ -2438,9 +2649,9 @@ class PrivateEndpoint(Endpoint):
         """
 
         return cls._list_with_local_order(
-            cls_filter=lambda ep: bool(
-                ep.network
-            ),  # Only PrivateEndpoints have a network set
+            cls_filter=lambda ep: bool(ep.network)
+            or bool(ep.private_service_connect_config),
+            # Only PrivateEndpoints have a network or private_service_connect_config
             filter=filter,
             order_by=order_by,
             project=project,
@@ -2466,12 +2677,33 @@ class PrivateEndpoint(Endpoint):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
         disable_container_logging: bool = False,
+        traffic_percentage: Optional[int] = 0,
+        traffic_split: Optional[Dict[str, int]] = None,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
         Example Usage:
+            PSA based private endpoint
             my_private_endpoint.deploy(
                 model=my_model
+            )
+
+            PSC based private endpoint
+
+            psc_endpoint.deploy(
+                model=first_model,
+            )
+            psc_endpoint.deploy(
+                model=second_model,
+                traffic_percentage=50,
+            )
+            psc_endpoint.deploy(
+                model=third_model,
+                traffic_percentage={
+                    'first_model_id': 40,
+                    'second_model_id': 30,
+                    'third_model_id': 30
+                },
             )
 
         Args:
@@ -2530,14 +2762,40 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model.
+                Defaults to 0 if there are pre-existing deployed models.
+                Defaults to 100 if there are no pre-existing deployed models.
+                Defaults to 100 for PSA based private endpoint.
+                Negative values should not be provided. Traffic of previously
+                deployed models at the endpoint will be scaled down to
+                accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC base private endpoint.
+                A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
         """
+
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based PrivateEndpoint."
+                )
+            traffic_percentage = 100
+
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
-            traffic_split=None,
-            traffic_percentage=100,
+            traffic_split=traffic_split,
+            traffic_percentage=traffic_percentage,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -2548,8 +2806,8 @@ class PrivateEndpoint(Endpoint):
         self._deploy(
             model=model,
             deployed_model_display_name=deployed_model_display_name,
-            traffic_percentage=100,
-            traffic_split=None,
+            traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
@@ -2563,14 +2821,90 @@ class PrivateEndpoint(Endpoint):
             disable_container_logging=disable_container_logging,
         )
 
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
+    ) -> "PrivateEndpoint":
+        """Updates a PrivateEndpoint.
+
+        Example usage:
+            PSC based private endpoint
+
+            my_endpoint = my_endpoint.update(
+                display_name='my-updated-endpoint',
+                description='my updated description',
+                labels={'key': 'value'},
+                traffic_split={
+                    '123456': 20,
+                    '234567': 80,
+                },
+            )
+
+        Args:
+            display_name (str):
+                Optional. The display name of the Endpoint.
+                The name can be up to 128 characters long and can be consist of any UTF-8
+                characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your Endpoints.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC based private endpoint
+                A map from a DeployedModel's ID to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+                The traffic percentage values must add up to 100, or map must be empty if
+                the Endpoint is to not accept any traffic at a moment.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            Endpoint (aiplatform.Prediction):
+                Updated endpoint resource.
+
+        Raises:
+            ValueError: If `traffic_split` is set for PSA based private endpoint.
+        """
+
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based Private Endpoint."
+                )
+
+        super().update(
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            traffic_split=traffic_split,
+            request_metadata=request_metadata,
+            update_request_timeout=update_request_timeout,
+        )
+
+        return self
+
     def undeploy(
         self,
         deployed_model_id: str,
         sync=True,
+        traffic_split: Optional[Dict[str, int]] = None,
     ) -> None:
         """Undeploys a deployed model from the PrivateEndpoint.
 
         Example Usage:
+            PSA based private endpoint:
             my_private_endpoint.undeploy(
                 deployed_model_id="1234567891232567891"
             )
@@ -2591,15 +2925,61 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC based private endpoint.
+                A map of DeployedModel IDs to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                Required if undeploying a model with non-zero traffic from an Endpoint
+                with multiple deployed models. The traffic percentage values must
+                add up to 100, or map must be empty if the Endpoint is to not
+                accept any traffic at the moment. If a DeployedModel's ID is not
+                listed in this map, then it receives no traffic.
         """
         self._sync_gca_resource_if_skipped()
 
-        # TODO(b/211351292): Add traffic splitting for PrivateEndpoint
-        self._undeploy(
-            deployed_model_id=deployed_model_id,
-            traffic_split=None,
-            sync=sync,
-        )
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based PrivateEndpoint."
+                )
+            # PSA based private endpoint
+            self._undeploy(
+                deployed_model_id=deployed_model_id,
+                traffic_split=None,
+                sync=sync,
+            )
+
+        # PSC based private endpoint
+        if self.private_service_connect_config:
+            super().undeploy(
+                deployed_model_id=deployed_model_id,
+                traffic_split=traffic_split,
+                sync=sync,
+            )
+
+    def undeploy_all(self, sync: bool = True) -> "PrivateEndpoint":
+        """Undeploys every model deployed to this PrivateEndpoint.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        if self.network:
+            self._sync_gca_resource()
+            # PSA based private endpoint
+            self._undeploy(
+                deployed_model_id=self._gca_resource.deployed_models[0].id,
+                traffic_split=None,
+                sync=sync,
+            )
+
+        if self.private_service_connect_config:
+            # PSC based private endpoint
+            super().undeploy_all(sync=sync)
+
+        return self
 
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Vertex AI PrivateEndpoint resource. If force is set to True,
@@ -2618,10 +2998,7 @@ class PrivateEndpoint(Endpoint):
             FailedPrecondition: If models are deployed on this Endpoint and force = False.
         """
         if force and self._gca_resource.deployed_models:
-            self.undeploy(
-                deployed_model_id=self._gca_resource.deployed_models[0].id,
-                sync=sync,
-            )
+            self.undeploy_all(sync=sync)
 
         super().delete(force=False, sync=sync)
 
@@ -3480,6 +3857,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
+        private_service_connect_config: Optional[
+            PrivateEndpoint.PrivateServiceConnectConfig
+        ] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3563,11 +3943,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             network (str):
                 Optional. The full name of the Compute Engine network to which
-                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
+                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC"
                 Private services access must already be configured for the network.
                 If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created.
                 If left unspecified, an Endpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                Cannot be set together with private_service_connect_config.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3586,6 +3967,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging (bool):
                 If True, container logs from the deployed model will not be
                 written to Cloud Logging. Defaults to False.
+            private_service_connect_config (PrivateEndpoint.PrivateServiceConnectConfig):
+                If true, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be set together with network.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3606,9 +3990,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         )
 
         if isinstance(endpoint, PrivateEndpoint):
-            if traffic_split:
+            if endpoint.network and traffic_split:
                 raise ValueError(
-                    "Traffic splitting is not yet supported for PrivateEndpoint. "
+                    "Traffic splitting is not yet supported for PSA based PrivateEndpoint. "
                     "Try calling deploy() without providing `traffic_split`. "
                     "A maximum of one model can be deployed to each private Endpoint."
                 )
@@ -3641,6 +4025,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
+            private_service_connect_config=private_service_connect_config,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3667,6 +4052,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
+        private_service_connect_config: Optional[
+            PrivateEndpoint.PrivateServiceConnectConfig
+        ] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3748,6 +4136,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Private services access must already be configured for the network.
                 Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                Cannot be set together with private_service_connect_config.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3766,6 +4155,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging (bool):
                 If True, container logs from the deployed model will not be
                 written to Cloud Logging. Defaults to False.
+            private_service_connect_config (PrivateEndpoint.PrivateServiceConnectConfig):
+                If true, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be set together with network.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3775,7 +4167,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
 
-            if not network:
+            if not network and not private_service_connect_config:
                 endpoint = Endpoint.create(
                     display_name=display_name,
                     project=self.project,
@@ -3791,6 +4183,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     location=self.location,
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
+                    private_service_connect_config=private_service_connect_config,
                 )
 
         _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)

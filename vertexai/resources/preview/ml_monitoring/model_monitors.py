@@ -121,7 +121,7 @@ def _visualize_feature_attribution(feature_attribution_output: str) -> None:
     import tensorflow as tf
 
     with tf.io.gfile.GFile(feature_attribution_output, "r") as f:
-        return json.loads(f.read())
+        print(json.dumps(json.loads(f.read()), indent=4))
 
 
 def _feature_drift_stats_output_path(output_directory: str, job_id: str) -> (str, str):

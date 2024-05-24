@@ -276,12 +276,21 @@ class _ExperimentTracker:
         """Returns the currently set experiment run or experiment run set via env variable AIP_EXPERIMENT_RUN_NAME."""
         if self._experiment_run:
             return self._experiment_run
-        if os.getenv(constants.ENV_EXPERIMENT_RUN_KEY):
-            self._experiment_run = experiment_run_resource.ExperimentRun.get(
-                os.getenv(constants.ENV_EXPERIMENT_RUN_KEY),
+
+        env_experiment_run = os.getenv(constants.ENV_EXPERIMENT_RUN_KEY)
+        if env_experiment_run and self.experiment:
+            # The run could be run name or full resource name,
+            # so we remove the experiment resource prefix if necessary.
+            env_experiment_run = env_experiment_run.replace(
+                f"{self.experiment.resource_name}-",
+                "",
+            )
+            self._experiment_run = experiment_run_resource.ExperimentRun(
+                env_experiment_run,
                 experiment=self.experiment,
             )
             return self._experiment_run
+
         return None
 
     def set_experiment(
@@ -292,6 +301,8 @@ class _ExperimentTracker:
         backing_tensorboard: Optional[
             Union[str, tensorboard_resource.Tensorboard, bool]
         ] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
     ):
         """Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.
 
@@ -309,11 +320,20 @@ class _ExperimentTracker:
 
                 To disable using a backing tensorboard, set `backing_tensorboard` to `False`.
                 To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
+            project (str):
+                Optional. Project where this experiment will be retrieved from or created. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment will be retrieved from or created. Overrides location set in
+                aiplatform.init.
         """
         self.reset()
 
         experiment = experiment_resources.Experiment.get_or_create(
-            experiment_name=experiment, description=description
+            experiment_name=experiment,
+            description=description,
+            project=project,
+            location=location,
         )
 
         if backing_tensorboard and not isinstance(backing_tensorboard, bool):

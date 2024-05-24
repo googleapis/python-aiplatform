@@ -61,14 +61,8 @@ class TestCustomJob(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-vertex-sdk-custom-job"
 
     def setup_class(cls):
-        cls._backing_tensorboard = aiplatform.Tensorboard.create(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            display_name=cls._make_display_name("tensorboard")[:64],
-        )
-
-        cls._experiment_name = cls._temp_prefix + "-experiment"
-        cls._experiment_run_name = cls._temp_prefix + "-experiment-run"
+        cls._experiment_name = cls._make_display_name("experiment")[:60]
+        cls._experiment_run_name = cls._make_display_name("experiment-run")[:60]
 
         project_number = resource_manager_utils.get_project_number(e2e_base._PROJECT)
         cls._service_account = f"{project_number}-compute@developer.gserviceaccount.com"
@@ -90,9 +84,10 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             container_uri=_PREBUILT_CONTAINER_IMAGE,
             requirements=["scikit-learn", "pandas"],
         )
-        custom_job.run()
-
-        shared_state["resources"].append(custom_job)
+        try:
+            custom_job.run()
+        finally:
+            shared_state["resources"].append(custom_job)
 
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
@@ -112,9 +107,10 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             container_uri=_CUSTOM_CONTAINER_IMAGE,
             requirements=["scikit-learn", "pandas"],
         )
-        custom_job.run()
-
-        shared_state["resources"].append(custom_job)
+        try:
+            custom_job.run()
+        finally:
+            shared_state["resources"].append(custom_job)
 
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
@@ -125,10 +121,8 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
             staging_bucket=shared_state["staging_bucket_name"],
             experiment=self._experiment_name,
-            experiment_tensorboard=self._backing_tensorboard,
         )
 
-        shared_state["resources"].append(self._backing_tensorboard)
         shared_state["resources"].append(
             aiplatform.metadata.metadata._experiment_tracker.experiment
         )
@@ -143,13 +137,16 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             enable_autolog=True,
         )
 
-        custom_job.run(
-            experiment=self._experiment_name,
-            experiment_run=self._experiment_run_name,
-            service_account=self._service_account,
-        )
-
-        shared_state["resources"].append(custom_job)
+        try:
+            with aiplatform.start_run(self._experiment_run_name) as run:
+                shared_state["resources"].append(run)
+                custom_job.run(
+                    experiment=self._experiment_name,
+                    experiment_run=run,
+                    service_account=self._service_account,
+                )
+        finally:
+            shared_state["resources"].append(custom_job)
 
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
@@ -159,8 +156,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             staging_bucket=shared_state["staging_bucket_name"],
-            experiment=self._experiment_name,
-            experiment_tensorboard=self._backing_tensorboard,
         )
 
         display_name = self._make_display_name("custom-job")
@@ -173,11 +168,18 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             enable_autolog=True,
         )
 
-        custom_job.run(
-            experiment=self._experiment_name,
-            service_account=self._service_account,
-        )
-
-        shared_state["resources"].append(custom_job)
+        # Let the job auto-create the experiment run.
+        try:
+            custom_job.run(
+                experiment=self._experiment_name,
+                service_account=self._service_account,
+            )
+        finally:
+            shared_state["resources"].append(custom_job)
+            experiment_run_resource = aiplatform.Context.get(
+                custom_job.job_spec.experiment_run
+            )
+            if experiment_run_resource:
+                shared_state["resources"].append(experiment_run_resource)
 
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED

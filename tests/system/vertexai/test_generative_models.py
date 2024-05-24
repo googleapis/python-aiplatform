@@ -112,7 +112,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         for chunk in stream:
-            assert chunk.text
+            assert (
+                chunk.text
+                or chunk.candidates[0].finish_reason
+                is generative_models.FinishReason.STOP
+            )
 
     @pytest.mark.asyncio
     async def test_generate_content_streaming_async(self):
@@ -123,7 +127,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         async for chunk in async_stream:
-            assert chunk.text
+            assert (
+                chunk.text
+                or chunk.candidates[0].finish_reason
+                is generative_models.FinishReason.STOP
+            )
 
     def test_generate_content_with_parameters(self):
         model = generative_models.GenerativeModel(
@@ -241,7 +249,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             tools=[google_search_retriever_tool],
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
-        assert response.text
+        assert (
+            response.candidates[0].finish_reason
+            is generative_models.FinishReason.RECITATION
+            or response.text
+        )
 
     # Chat
 

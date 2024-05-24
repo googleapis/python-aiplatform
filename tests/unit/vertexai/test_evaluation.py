@@ -571,6 +571,19 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate(model=mock_candidate_model)
 
+    def test_evaluate_invalid_model_and_dataset_input(self):
+        test_eval_task = evaluation.EvalTask(
+            dataset=_TEST_EVAL_DATASET,
+            metrics=_TEST_METRICS,
+        )
+        with pytest.raises(
+            ValueError,
+            match=("The `model` parameter is specified, but the evaluation `dataset`"),
+        ):
+            test_eval_task.evaluate(
+                model=generative_models.GenerativeModel(model_name="invalid_model_name")
+            )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEvaluationUtils:

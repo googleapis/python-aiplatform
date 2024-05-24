@@ -20,7 +20,67 @@ from vertexai import generative_models
 
 
 class PairwiseMetric:
-    """The Side-by-side(SxS) Pairwise Metric."""
+    """The Side-by-side(SxS) Pairwise Metric.
+
+    A model-based evaluation metric that compares two generative models
+    side-by-side, and allows users to A/B test their generative models to
+    determine which model is performing better on the given evaluation task.
+
+    For more details on when to use pairwise metrics, see
+    [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#pointwise_versus_pairwise).
+
+    Result Details:
+
+        * In `EvalResult.summary_metrics`, win rates for both the baseline and
+        candidate model are computed, showing the rate of each model performs
+        better on the given task. The win rate is computed as the number of times
+        the candidate model performs better than the baseline model divided by the
+        total number of examples. The win rate is a number between 0 and 1.
+
+        * In `EvalResult.metrics_table`, a pairwise metric produces three
+        evaluation results for each row in the dataset:
+            * `pairwise_choice`: the `pairwise_choice` in the evaluation result is
+              an enumeration that indicates whether the candidate or baseline
+              model perform better.
+            * `explanation`: The model AutoRater's rationale behind each verdict
+              using chain-of-thought reasoning. These explanations help users
+              scrutinize the AutoRater's judgment and build appropriate trust in
+              its decisions.
+            * `confidence`: A score between 0 and 1, which signifies how confident
+              the AutoRater was with its verdict. A score closer to 1 means higher
+              confidence.
+
+        See [documentation page](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#understand-results)
+        for more details on understanding the metric results.
+
+    Usages:
+
+        ```
+        from vertexai.generative_models import GenerativeModel
+        from vertexai.preview.evaluation import EvalTask, PairwiseMetric
+
+        baseline_model = GenerativeModel("gemini-1.0-pro")
+        candidate_model = GenerativeModel("gemini-1.5-pro")
+
+        pairwise_summarization_quality = PairwiseMetric(
+          metric = "summarization_quality",
+          baseline_model=baseline_model,
+        )
+
+        eval_task =  EvalTask(
+          dataset = pd.DataFrame({
+              "instruction": [...],
+              "context": [...],
+          }),
+          metrics=[pairwise_summarization_quality],
+        )
+
+        pairwise_results = eval_task.evaluate(
+            prompt_template="instruction: {instruction}. context: {context}",
+            model=candidate_model,
+        )
+        ```
+    """
 
     def __init__(
         self,
@@ -37,8 +97,8 @@ class PairwiseMetric:
         Args:
           metric: The Side-by-side(SxS) pairwise evaluation metric name.
           baseline_model: The baseline model for the Side-by-side(SxS) comparison.
-          use_reference: Whether to use reference to compute the metric. If specified,
-            the reference column is required in the dataset.
+          use_reference: Whether to use reference to compute the metric. If
+            specified, the reference column is required in the dataset.
           version: The metric version to use for evaluation.
         """
         self._metric = metric
@@ -74,8 +134,8 @@ class CustomMetric:
     Attributes:
       name: The name of the metric.
       metric_function: The evaluation function. Must use the dataset row/instance
-       as the metric_function input. Returns per-instance metric result as a
-       dictionary. The metric score must mapped to the CustomMetric.name as key.
+        as the metric_function input. Returns per-instance metric result as a
+        dictionary. The metric score must mapped to the CustomMetric.name as key.
     """
 
     def __init__(

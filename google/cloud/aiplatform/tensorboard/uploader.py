@@ -20,22 +20,21 @@ import abc
 from collections import defaultdict
 import functools
 import logging
-import os
 import re
 import time
 from typing import ContextManager, Dict, FrozenSet, Generator, Iterable, Optional, Tuple
 import uuid
 
-from google.api_core import exceptions
 from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,
 )
 from google.cloud.aiplatform.compat.types import tensorboard_data
-from google.cloud.aiplatform.compat.types import tensorboard_experiment
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.tensorboard import logdir_loader
 from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader_constants
@@ -215,47 +214,45 @@ class TensorBoardUploader(object):
 
         self._create_additional_senders()
 
-    def _create_or_get_experiment(self) -> tensorboard_experiment.TensorboardExperiment:
-        """Create an experiment or get an experiment.
+    def create_experiment(self):
+        """Creates an Experiment for this upload session.
 
-        Attempts to create an experiment. If the experiment already exists and
-        creation fails then the experiment will be retrieved.
-
-        Returns:
-          The created or retrieved experiment.
+        Sets the tensorboard resource and experiment, which will get or create a
+        Vertex Experiment and associate it with a Tensorboard Experiment.
         """
-        logger.info("Creating experiment")
+        m = self._api.parse_tensorboard_path(self._tensorboard_resource_name)
 
-        tb_experiment = tensorboard_experiment.TensorboardExperiment(
-            description=self._description, display_name=self._experiment_display_name
+        existing_experiment = experiment_resources.Experiment.get(
+            experiment_name=self._experiment_name,
+            project=m["project"],
+            location=m["location"],
+        )
+        if not existing_experiment:
+            self._is_brand_new_experiment = True
+
+        metadata._experiment_tracker.reset()
+        metadata._experiment_tracker.set_tensorboard(
+            tensorboard=self._tensorboard_resource_name,
+            project=m["project"],
+            location=m["location"],
+        )
+        metadata._experiment_tracker.set_experiment(
+            project=m["project"],
+            location=m["location"],
+            experiment=self._experiment_name,
+            description=self._description,
+            backing_tensorboard=self._tensorboard_resource_name,
         )
 
-        try:
-            experiment = self._api.create_tensorboard_experiment(
-                parent=self._tensorboard_resource_name,
-                tensorboard_experiment=tb_experiment,
-                tensorboard_experiment_id=self._experiment_name,
-            )
-            self._is_brand_new_experiment = True
-        except exceptions.AlreadyExists:
-            logger.info("Creating experiment failed. Retrieving experiment.")
-            experiment_name = os.path.join(
-                self._tensorboard_resource_name, "experiments", self._experiment_name
-            )
-            experiment = self._api.get_tensorboard_experiment(name=experiment_name)
-        return experiment
-
-    def create_experiment(self):
-        """Creates an Experiment for this upload session and returns the ID."""
-
-        experiment = self._create_or_get_experiment()
-        self._experiment = experiment
+        self._tensorboard_experiment_resource_name = (
+            f"{self._tensorboard_resource_name}/experiments/{self._experiment_name}"
+        )
         self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
-            self._experiment.name, self._api
+            self._tensorboard_experiment_resource_name, self._api
         )
 
         self._request_sender = _BatchedRequestSender(
-            self._experiment.name,
+            self._tensorboard_experiment_resource_name,
             self._api,
             allowed_plugins=self._allowed_plugins,
             upload_limits=self._upload_limits,
@@ -271,7 +268,7 @@ class TensorBoardUploader(object):
         # Update partials with experiment name
         for sender in self._additional_senders.keys():
             self._additional_senders[sender] = self._additional_senders[sender](
-                experiment_resource_name=self._experiment.name,
+                experiment_resource_name=self._tensorboard_experiment_resource_name,
             )
 
         self._dispatcher = _Dispatcher(
@@ -310,7 +307,7 @@ class TensorBoardUploader(object):
             )
 
     def get_experiment_resource_name(self):
-        return self._experiment.name
+        return self._tensorboard_experiment_resource_name
 
     def start_uploading(self):
         """Blocks forever to continuously upload data from the logdir.

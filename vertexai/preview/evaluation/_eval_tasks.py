@@ -54,7 +54,8 @@ class EvalTask:
     models and their settings, and assess the quality of the model's generated
     text.
 
-    Dataset details:
+    Dataset Details:
+
         Default dataset column names:
             * content_column_name: "content"
             * reference_column_name: "reference"
@@ -74,12 +75,14 @@ class EvalTask:
               dataset must contain `instruction` and `context` column.
 
     Metrics Details:
+
         The supported metrics, metric bundle descriptions, grading rubrics, and
         the required input fields can be found on the Vertex AI public
         documentation page [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
     Usage:
-        1. To perform bring your own prediction evaluation, provide the model
+
+        1. To perform bring-your-own-prediction(BYOP) evaluation, provide the model
         responses in the response column in the dataset. The response column name
         is "response" by default, or specify `response_column_name` parameter to
         customize.
@@ -249,7 +252,7 @@ class EvalTask:
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
-        response_column_name: str = "response",
+        response_column_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -264,7 +267,7 @@ class EvalTask:
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
-            not set, default to `response`.
+            provided, this will override the `response_column_name` of the `EvalTask`.
 
         Returns:
           The evaluation result.
@@ -279,7 +282,7 @@ class EvalTask:
                 prompt_template=prompt_template,
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name or self.response_column_name,
+                response_column_name=response_column_name,
             )
             try:
                 vertexai.preview.log_metrics(eval_result.summary_metrics)
@@ -293,7 +296,7 @@ class EvalTask:
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
-        response_column_name: str = "response",
+        response_column_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask.
 
@@ -308,7 +311,7 @@ class EvalTask:
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
-            not set, default to `response`.
+            provided, this will override the `response_column_name` of the `EvalTask`.
 
         Returns:
           The evaluation result.
@@ -321,7 +324,7 @@ class EvalTask:
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."
             )
-
+        response_column_name = response_column_name or self.response_column_name
         experiment_run_name = experiment_run_name or f"{uuid.uuid4()}"
 
         if self.experiment and global_experiment_name:
@@ -354,7 +357,7 @@ class EvalTask:
                 prompt_template=prompt_template,
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name or self.response_column_name,
+                response_column_name=response_column_name,
             )
         return eval_result
 

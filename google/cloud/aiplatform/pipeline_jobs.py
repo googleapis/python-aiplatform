@@ -887,17 +887,24 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context.Context, include_time_series: Optional[bool] = True
+        cls,
+        node: context.Context,
+        experiment: Optional[experiment_resources.Experiment] = None,
+        include_time_series: bool = True,
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
-        Parameters are retrieved from the system.Run Execution.metadata of the PipelineJob.
+        Parameters are retrieved from the system.Run Execution.metadata of the
+        PipelineJob.
 
-        Metrics are retrieved from the system.Metric Artifacts.metadata produced by this PipelineJob.
+        Metrics are retrieved from the system.Metric Artifacts.metadata produced
+        by this PipelineJob.
 
         Args:
             node (context._Context):
                 Required. System.PipelineRun context that represents a PipelineJob Run.
+            experiment:
+                Optional. Experiment associated with this run.
             include_time_series (bool):
                 Optional. Whether or not to include time series metrics in df.
                 Default is True.
