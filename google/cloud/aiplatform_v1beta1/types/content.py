@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.protobuf import duration_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
@@ -309,6 +310,17 @@ class GenerationConfig(proto.Message):
                The model needs to be prompted to output the appropriate
                response type, otherwise the behavior is undefined. This
                is a preview feature.
+        response_schema (google.cloud.aiplatform_v1beta1.types.Schema):
+            Optional. The ``Schema`` object allows the definition of
+            input and output data types. These types can be objects, but
+            also primitives and arrays. Represents a select subset of an
+            `OpenAPI 3.0 schema
+            object <https://spec.openapis.org/oas/v3.0.3#schema>`__. If
+            set, a compatible response_mime_type must also be set.
+            Compatible mimetypes: ``application/json``: Schema for JSON
+            response.
+
+            This field is a member of `oneof`_ ``_response_schema``.
     """
 
     temperature: float = proto.Field(
@@ -353,6 +365,12 @@ class GenerationConfig(proto.Message):
     response_mime_type: str = proto.Field(
         proto.STRING,
         number=13,
+    )
+    response_schema: openapi.Schema = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        optional=True,
+        message=openapi.Schema,
     )
 
 
