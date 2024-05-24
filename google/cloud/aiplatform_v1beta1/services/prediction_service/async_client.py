@@ -1665,12 +1665,14 @@ class PredictionServiceAsyncClient:
         self._client._validate_universe_domain()
 
         # Send the request.
+        print("==========> SDK debug logging: Send the request", request.contents)
         response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
         )
+        print("==========> SDK debug logging: Received Response for request", response.candidates[0].content)
 
         # Done; return the response.
         return response
