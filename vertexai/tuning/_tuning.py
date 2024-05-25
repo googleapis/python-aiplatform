@@ -27,8 +27,12 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.utils import _ipython_utils
-from google.cloud.aiplatform_v1.services import gen_ai_tuning_service as gen_ai_tuning_service_v1
-from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job_types
+from google.cloud.aiplatform_v1.services import (
+    gen_ai_tuning_service as gen_ai_tuning_service_v1,
+)
+from google.cloud.aiplatform_v1.types import (
+    tuning_job as gca_tuning_job_types,
+)
 from google.cloud.aiplatform_v1 import types as gca_types
 
 from google.rpc import status_pb2  # type: ignore
@@ -67,14 +71,14 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
 
     def __init__(self, tuning_job_name: str):
         super().__init__(resource_name=tuning_job_name)
-        self._gca_resource: gca_tuning_job_types.TuningJob = (
-            self._get_gca_resource(resource_name=tuning_job_name)
+        self._gca_resource: gca_tuning_job_types.TuningJob = self._get_gca_resource(
+            resource_name=tuning_job_name
         )
 
     def refresh(self) -> "TuningJob":
         """Refreshed the tuning job from the service."""
-        self._gca_resource: gca_tuning_job_types.TuningJob = (
-            self._get_gca_resource(resource_name=self.resource_name)
+        self._gca_resource: gca_tuning_job_types.TuningJob = self._get_gca_resource(
+            resource_name=self.resource_name
         )
         if self.experiment and not self._has_displayed_experiments_button:
             self._has_displayed_experiments_button = True
@@ -215,9 +219,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         )
         _LOGGER.info(f"View Tuning Job:\n{tuning_job._dashboard_url()}")
         if tuning_job._experiment_name:
-            _LOGGER.info(
-                f"View experiment:\n{tuning_job._experiment.dashboard_url}"
-            )
+            _LOGGER.info(f"View experiment:\n{tuning_job._experiment.dashboard_url}")
 
         return tuning_job
 

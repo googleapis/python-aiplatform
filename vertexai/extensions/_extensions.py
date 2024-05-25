@@ -95,22 +95,20 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         self.execution_api_client = initializer.global_config.create_client(
             client_class=aip_utils.ExtensionExecutionClientWithOverride,
         )
-        self._gca_resource = self._get_gca_resource(
-            resource_name=extension_name
-        )
+        self._gca_resource = self._get_gca_resource(resource_name=extension_name)
         self._api_spec = None
         self._operation_schemas = None
 
     @classmethod
     def create(
-            cls,
-            manifest: Union[_utils.JsonDict, types.ExtensionManifest],
-            *,
-            extension_name: Optional[str] = None,
-            display_name: Optional[str] = None,
-            description: Optional[str] = None,
-            runtime_config: Optional[_RuntimeConfigOrJson] = None,
-        ):
+        cls,
+        manifest: Union[_utils.JsonDict, types.ExtensionManifest],
+        *,
+        extension_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        runtime_config: Optional[_RuntimeConfigOrJson] = None,
+    ):
         """Creates a new Extension.
 
         Args:
@@ -150,7 +148,8 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         )
         if runtime_config:
             extension.runtime_config = _utils.to_proto(
-                runtime_config, types.RuntimeConfig(),
+                runtime_config,
+                types.RuntimeConfig(),
             )
         operation_future = sdk_resource.api_client.import_extension(
             parent=initializer.global_config.common_location_path(),
@@ -169,10 +168,8 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         sdk_resource._gca_resource = sdk_resource._get_gca_resource(
             resource_name=created_extension.name
         )
-        sdk_resource.execution_api_client = (
-            initializer.global_config.create_client(
-                client_class=aip_utils.ExtensionExecutionClientWithOverride,
-            )
+        sdk_resource.execution_api_client = initializer.global_config.create_client(
+            client_class=aip_utils.ExtensionExecutionClientWithOverride,
         )
         sdk_resource._api_spec = None
         sdk_resource._operation_schemas = None
@@ -186,9 +183,7 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
     def api_spec(self) -> _utils.JsonDict:
         """Returns the (Open)API Spec of the extension."""
         if self._api_spec is None:
-            self._api_spec = _load_api_spec(
-                self._gca_resource.manifest.api_spec
-            )
+            self._api_spec = _load_api_spec(self._gca_resource.manifest.api_spec)
         return self._api_spec
 
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
@@ -201,11 +196,11 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         return self._operation_schemas
 
     def execute(
-            self,
-            operation_id: str,
-            operation_params: Optional[_StructOrJson] = None,
-            runtime_auth_config: Optional[_AuthConfigOrJson] = None,
-        ) -> Union[_utils.JsonDict, str]:
+        self,
+        operation_id: str,
+        operation_params: Optional[_StructOrJson] = None,
+        runtime_auth_config: Optional[_AuthConfigOrJson] = None,
+    ) -> Union[_utils.JsonDict, str]:
         """Executes an operation of the extension with the specified params.
 
         Args:
@@ -230,7 +225,8 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         )
         if runtime_auth_config:
             request.runtime_auth_config = _utils.to_proto(
-                runtime_auth_config, types.AuthConfig(),
+                runtime_auth_config,
+                types.AuthConfig(),
             )
         response = self.execution_api_client.execute_extension(request)
         return _try_parse_execution_response(response)
@@ -263,7 +259,8 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         """
         if runtime_config:
             runtime_config = _utils.to_proto(
-                runtime_config, types.RuntimeConfig(),
+                runtime_config,
+                types.RuntimeConfig(),
             )
         if name == "code_interpreter":
             if runtime_config and not getattr(
@@ -301,8 +298,8 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
 
 
 def _try_parse_execution_response(
-        response: types.ExecuteExtensionResponse
-    ) -> Union[_utils.JsonDict, str]:
+    response: types.ExecuteExtensionResponse,
+) -> Union[_utils.JsonDict, str]:
     content: str = response.content
     try:
         content = json.loads(response.content)

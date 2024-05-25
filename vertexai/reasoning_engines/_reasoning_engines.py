@@ -48,6 +48,7 @@ class Queryable(Protocol):
 
 class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
     """Represents a Vertex AI Reasoning Engine resource."""
+
     client_class = aip_utils.ReasoningEngineClientWithOverride
     _resource_noun = "reasoning_engine"
     _getter_method = "get_reasoning_engine"
@@ -69,9 +70,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         self.execution_api_client = initializer.global_config.create_client(
             client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
         )
-        self._gca_resource = self._get_gca_resource(
-            resource_name=reasoning_engine_name
-        )
+        self._gca_resource = self._get_gca_resource(resource_name=reasoning_engine_name)
         self._operation_schemas = None
 
     @property
@@ -81,17 +80,17 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
 
     @classmethod
     def create(
-            cls,
-            reasoning_engine: Queryable,
-            *,
-            requirements: Optional[Union[str, Sequence[str]]] = None,
-            reasoning_engine_name: Optional[str] = None,
-            display_name: Optional[str] = None,
-            description: Optional[str] = None,
-            gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
-            sys_version: Optional[str] = None,
-            extra_packages: Optional[Sequence[str]] = None,
-        ) -> "ReasoningEngine":
+        cls,
+        reasoning_engine: Queryable,
+        *,
+        requirements: Optional[Union[str, Sequence[str]]] = None,
+        reasoning_engine_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
+        sys_version: Optional[str] = None,
+        extra_packages: Optional[Sequence[str]] = None,
+    ) -> "ReasoningEngine":
         """Creates a new ReasoningEngine.
 
         The Reasoning Engine will be an instance of the `reasoning_engine` that
@@ -203,9 +202,8 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         if not staging_bucket.startswith("gs://"):
             raise ValueError(f"{staging_bucket=} must start with `gs://`")
         if not (
-                hasattr(reasoning_engine, "query")
-                and callable(reasoning_engine.query)
-            ):
+            hasattr(reasoning_engine, "query") and callable(reasoning_engine.query)
+        ):
             raise TypeError(
                 "reasoning_engine does not have a callable method named `query`"
             )
@@ -305,12 +303,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         sdk_resource._gca_resource = sdk_resource._get_gca_resource(
             resource_name=created_resource.name
         )
-        sdk_resource.execution_api_client = (
-            initializer.global_config.create_client(
-                client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
-                credentials=sdk_resource.credentials,
-                location_override=sdk_resource.location,
-            )
+        sdk_resource.execution_api_client = initializer.global_config.create_client(
+            client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
+            credentials=sdk_resource.credentials,
+            location_override=sdk_resource.location,
         )
         sdk_resource._operation_schemas = None
         return sdk_resource
@@ -348,14 +344,14 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
 
 
 def _prepare(
-        reasoning_engine: Queryable,
-        requirements: Sequence[str],
-        project: str,
-        location: str,
-        staging_bucket: str,
-        gcs_dir_name: str,
-        extra_packages: Sequence[str],
-    ) -> None:
+    reasoning_engine: Queryable,
+    requirements: Sequence[str],
+    project: str,
+    location: str,
+    staging_bucket: str,
+    gcs_dir_name: str,
+    extra_packages: Sequence[str],
+) -> None:
     """Prepares the reasoning engine for creation in Vertex AI.
 
     This involves packaging and uploading the artifacts to Cloud Storage.

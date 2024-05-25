@@ -238,9 +238,7 @@ def _transform_field_schema(
     return result
 
 
-def _get_schedule_name(
-    schedule_name: str
-) -> str:
+def _get_schedule_name(schedule_name: str) -> str:
     if schedule_name:
         client = initializer.global_config.create_client(
             client_class=utils.ScheduleClientWithOverride,
@@ -884,8 +882,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
         )
         schedule_name = _get_schedule_name(schedule_name)
-        current_schedule = copy.deepcopy(
-            self.get_schedule(schedule_name=schedule_name))
+        current_schedule = copy.deepcopy(self.get_schedule(schedule_name=schedule_name))
         update_mask = []
         if display_name is not None:
             update_mask.append("display_name")
@@ -971,8 +968,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location_override=self.location,
         )
         schedule_name = _get_schedule_name(schedule_name)
-        return api_client.select_version("v1beta1").delete_schedule(
-            name=schedule_name)
+        return api_client.select_version("v1beta1").delete_schedule(name=schedule_name)
 
     def pause_schedule(self, schedule_name: str) -> None:
         """Pauses an existing Schedule.
@@ -990,8 +986,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location_override=self.location,
         )
         schedule_name = _get_schedule_name(schedule_name)
-        return api_client.select_version("v1beta1").pause_schedule(
-            name=schedule_name)
+        return api_client.select_version("v1beta1").pause_schedule(name=schedule_name)
 
     def resume_schedule(self, schedule_name: str) -> None:
         """Resumes an existing Schedule.
@@ -1009,8 +1004,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location_override=self.location,
         )
         schedule_name = _get_schedule_name(schedule_name)
-        return api_client.select_version("v1beta1").resume_schedule(
-                    name=schedule_name)
+        return api_client.select_version("v1beta1").resume_schedule(name=schedule_name)
 
     def get_schedule(self, schedule_name: str) -> "gca_schedule.Schedule":
         """Gets an existing Schedule.
@@ -1450,7 +1444,8 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location_override=self.location,
         )
         job_resource_name = _get_model_monitoring_job_name(
-            model_monitoring_job_name, self._gca_resource.name)
+            model_monitoring_job_name, self._gca_resource.name
+        )
         api_client.delete_model_monitoring_job(name=job_resource_name)
 
     def get_model_monitoring_job(
@@ -1471,7 +1466,8 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
         """
         self.wait()
         job_resource_name = _get_model_monitoring_job_name(
-            model_monitoring_job_name, self._gca_resource.name)
+            model_monitoring_job_name, self._gca_resource.name
+        )
         return ModelMonitoringJob(
             model_monitoring_job_name=job_resource_name,
             project=self.project,
