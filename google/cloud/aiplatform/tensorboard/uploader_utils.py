@@ -23,6 +23,7 @@ import logging
 import re
 import time
 from typing import Callable, Dict, Generator, List, Optional, Tuple
+import uuid
 
 from absl import app
 from google.api_core import exceptions
@@ -225,6 +226,8 @@ class OnePlatformResourceManager(object):
             project=project, location=location, run_name=run_name
         )
         if not experiment_run:
+            if not run_name:
+                run_name = str(uuid.uuid4())
             experiment_run = experiment_run_resource.ExperimentRun.create(
                 project=project,
                 location=location,
