@@ -1194,6 +1194,7 @@ class GenerationConfig:
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         response_mime_type: Optional[str] = None,
+        response_schema: Optional[Dict[str, Any]] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1216,6 +1217,8 @@ class GenerationConfig:
 
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
+            response_schema: Output response schema of the genreated candidate text. Only valid when
+                response_mime_type is application/json.
 
         Usage:
             ```
@@ -1232,6 +1235,11 @@ class GenerationConfig:
             )
             ```
         """
+        if response_schema is None:
+            raw_schema = None
+        else:
+            gapic_schema_dict = _convert_schema_dict_to_gapic(response_schema)
+            raw_schema = aiplatform_types.Schema(gapic_schema_dict)
         self._raw_generation_config = gapic_content_types.GenerationConfig(
             temperature=temperature,
             top_p=top_p,
@@ -1242,6 +1250,7 @@ class GenerationConfig:
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             response_mime_type=response_mime_type,
+            response_schema=raw_schema,
         )
 
     @classmethod
@@ -1660,8 +1669,7 @@ class GenerationResponse:
             raise ValueError(
                 "Response has no candidates (and thus no text)."
                 " The response is likely blocked by the safety filters.\n"
-                "Response:\n"
-                + _dict_to_pretty_string(self.to_dict())
+                "Response:\n" + _dict_to_pretty_string(self.to_dict())
             )
         try:
             return self.candidates[0].text
@@ -1671,8 +1679,7 @@ class GenerationResponse:
             raise ValueError(
                 "Cannot get the response text.\n"
                 f"{e}\n"
-                "Response:\n"
-                + _dict_to_pretty_string(self.to_dict())
+                "Response:\n" + _dict_to_pretty_string(self.to_dict())
             ) from e
 
     @property
@@ -1754,8 +1761,7 @@ class Candidate:
             raise ValueError(
                 "Cannot get the Candidate text.\n"
                 f"{e}\n"
-                "Candidate:\n"
-                + _dict_to_pretty_string(self.to_dict())
+                "Candidate:\n" + _dict_to_pretty_string(self.to_dict())
             ) from e
 
     @property
@@ -1830,8 +1836,7 @@ class Content:
             raise ValueError(
                 "Response candidate content has no parts (and thus no text)."
                 " The candidate is likely blocked by the safety filters.\n"
-                "Content:\n"
-                + _dict_to_pretty_string(self.to_dict())
+                "Content:\n" + _dict_to_pretty_string(self.to_dict())
             )
         return self.parts[0].text
 
@@ -1921,8 +1926,7 @@ class Part:
         if "text" not in self._raw_part:
             raise AttributeError(
                 "Response candidate content part has no text.\n"
-                "Part:\n"
-                + _dict_to_pretty_string(self.to_dict())
+                "Part:\n" + _dict_to_pretty_string(self.to_dict())
             )
         return self._raw_part.text
 
@@ -2023,8 +2027,7 @@ class grounding:  # pylint: disable=invalid-name
         """
 
         def __init__(self):
-            """Initializes a Google Search Retrieval tool.
-            """
+            """Initializes a Google Search Retrieval tool."""
             self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
 
 
@@ -2400,7 +2403,9 @@ class AutomaticFunctionCallingResponder:
                     )
                 callable_function = None
                 for tool in tools:
-                    new_callable_function = tool._callable_functions.get(function_call.name)
+                    new_callable_function = tool._callable_functions.get(
+                        function_call.name
+                    )
                     if new_callable_function and callable_function:
                         raise ValueError(
                             "Multiple functions with the same name are not supported."

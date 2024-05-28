@@ -187,7 +187,9 @@ class FeatureAttributionSpec:
         features: Optional[List[str]] = None,
         default_alert_threshold: Optional[float] = None,
         feature_alert_thresholds: Optional[Dict[str, float]] = None,
-        batch_dedicated_resources: Optional[machine_resources.BatchDedicatedResources] = None,
+        batch_dedicated_resources: Optional[
+            machine_resources.BatchDedicatedResources
+        ] = None,
     ):
         self.features = features
         self.default_alert_threshold = default_alert_threshold

@@ -20,6 +20,4 @@ from vertexai.extensions._extensions import (
     Extension,
 )
 
-__all__ = (
-    "Extension",
-)
+__all__ = ("Extension",)

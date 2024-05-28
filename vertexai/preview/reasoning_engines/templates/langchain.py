@@ -66,6 +66,7 @@ def _default_runnable_kwargs(has_history: bool) -> Mapping[str, Any]:
 
 def _default_output_parser():
     from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
+
     return ToolsAgentOutputParser()
 
 
@@ -103,6 +104,7 @@ def _default_runnable_builder(
     from langchain_core import tools as lc_tools
     from langchain.agents import AgentExecutor
     from langchain.tools.base import StructuredTool
+
     # The prompt template and runnable_kwargs needs to be customized depending
     # on whether the user intends for the agent to have history. The way the
     # user would reflect that is by setting chat_history (which defaults to
@@ -120,7 +122,8 @@ def _default_runnable_builder(
     agent_executor = AgentExecutor(
         agent=prompt | model | output_parser,
         tools=[
-            tool if isinstance(tool, lc_tools.BaseTool)
+            tool
+            if isinstance(tool, lc_tools.BaseTool)
             else StructuredTool.from_function(tool)
             for tool in tools
         ],
@@ -128,6 +131,7 @@ def _default_runnable_builder(
     )
     if has_history:
         from langchain_core.runnables.history import RunnableWithMessageHistory
+
         return RunnableWithMessageHistory(
             runnable=agent_executor,
             get_session_history=chat_history,
@@ -139,6 +143,7 @@ def _default_runnable_builder(
 def _default_prompt(has_history: bool) -> "RunnableSerializable":
     from langchain_core import prompts
     from langchain.agents.format_scratchpad.tools import format_to_tool_messages
+
     if has_history:
         return {
             "history": lambda x: x["history"],
@@ -146,21 +151,25 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
             "agent_scratchpad": (
                 lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
-        } | prompts.ChatPromptTemplate.from_messages([
-            prompts.MessagesPlaceholder(variable_name="history"),
-            ("user", "{input}"),
-            prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
+        } | prompts.ChatPromptTemplate.from_messages(
+            [
+                prompts.MessagesPlaceholder(variable_name="history"),
+                ("user", "{input}"),
+                prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
     else:
         return {
             "input": lambda x: x["input"],
             "agent_scratchpad": (
                 lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
-        } | prompts.ChatPromptTemplate.from_messages([
-            ("user", "{input}"),
-            prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
+        } | prompts.ChatPromptTemplate.from_messages(
+            [
+                ("user", "{input}"),
+                prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
 
 
 def _validate_callable_parameters_are_annotated(callable: Callable):
@@ -170,6 +179,7 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
     usable with Gemini function calling.
     """
     import inspect
+
     parameters = dict(inspect.signature(callable).parameters)
     for name, parameter in parameters.items():
         if parameter.annotation == inspect.Parameter.empty:
@@ -182,6 +192,7 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
 def _validate_tools(tools: Sequence[Union[Callable, "BaseTool"]]):
     """Validates that the tools are usable for tool calling."""
     from langchain_core import tools as lc_tools
+
     for tool in tools:
         if not isinstance(tool, lc_tools.BaseTool):
             _validate_callable_parameters_are_annotated(tool)
@@ -328,6 +339,7 @@ class LangchainAgent:
             that did not specify its type).
         """
         from google.cloud.aiplatform import initializer
+
         self._project = initializer.global_config.project
         self._location = initializer.global_config.location
         self._tools = []
@@ -400,6 +412,7 @@ class LangchainAgent:
             The output of querying the Agent with the given input and config.
         """
         from langchain.load import dump as langchain_load_dump
+
         if isinstance(input, str):
             input = {"input": input}
         if not self._runnable:

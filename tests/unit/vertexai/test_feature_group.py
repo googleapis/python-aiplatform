@@ -73,6 +73,7 @@ from feature_store_constants import (
     _TEST_FG1_F2_LABELS,
     _TEST_FG1_F2_POINT_OF_CONTACT,
     _TEST_FG1_F2_VERSION_COLUMN_NAME,
+    _TEST_FG1_FEATURE_LIST,
 )
 from test_feature import feature_eq
 
@@ -155,6 +156,16 @@ def create_feature_with_version_column_mock():
         create_feature_lro_mock.result.return_value = _TEST_FG1_F2
         create_feature_mock.return_value = create_feature_lro_mock
         yield create_feature_mock
+
+
+@pytest.fixture
+def list_features_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "list_features",
+    ) as list_features_mock:
+        list_features_mock.return_value = _TEST_FG1_FEATURE_LIST
+        yield list_features_mock
 
 
 def fg_eq(
@@ -529,4 +540,34 @@ def test_create_feature_with_version_feature_column(
                 "feature = aiplatform.Feature('projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f2')"
             ),
         ]
+    )
+
+
+def test_list_features(get_fg_mock, list_features_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    features = FeatureGroup(_TEST_FG1_ID).list_features()
+
+    list_features_mock.assert_called_once_with(request={"parent": _TEST_FG1_PATH})
+    assert len(features) == len(_TEST_FG1_FEATURE_LIST)
+    feature_eq(
+        features[0],
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+    feature_eq(
+        features[1],
+        name=_TEST_FG1_F2_ID,
+        resource_name=_TEST_FG1_F2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F2_DESCRIPTION,
+        labels=_TEST_FG1_F2_LABELS,
+        point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+        version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
     )

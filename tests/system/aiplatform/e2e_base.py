@@ -206,8 +206,8 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     resource.delete(delete_backing_tensorboard_runs=True)
                 else:
                     resource.delete()
-            except exceptions.GoogleAPIError as e:
-                logging.error(f"Could not delete resource: {resource} due to: {e}")
+            except (exceptions.GoogleAPIError, RuntimeError) as e:
+                logging.exception(f"Could not delete resource: {resource} due to: {e}")
 
     @pytest.fixture(scope="session")
     def event_loop(event_loop):
