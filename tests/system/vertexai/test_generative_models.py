@@ -70,6 +70,16 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "required": ["location"],
 }
 
+_RESPONSE_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+        },
+    },
+    "required": ["location"],
+}
+
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
@@ -174,6 +184,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 presence_penalty=0.0,
                 frequency_penalty=0.0,
                 response_mime_type="application/json",
+                response_schema=_RESPONSE_SCHEMA_STRUCT,
             ),
             safety_settings={
                 generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,

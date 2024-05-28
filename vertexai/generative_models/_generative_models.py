@@ -1194,6 +1194,7 @@ class GenerationConfig:
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         response_mime_type: Optional[str] = None,
+        response_schema: Optional[Dict[str, Any]] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1216,6 +1217,8 @@ class GenerationConfig:
 
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
+            response_schema: Output response schema of the genreated candidate text. Only valid when
+                response_mime_type is application/json.
 
         Usage:
             ```
@@ -1232,6 +1235,11 @@ class GenerationConfig:
             )
             ```
         """
+        if response_schema is None:
+            raw_schema = None
+        else:
+            gapic_schema_dict = _convert_schema_dict_to_gapic(response_schema)
+            raw_schema = aiplatform_types.Schema(gapic_schema_dict)
         self._raw_generation_config = gapic_content_types.GenerationConfig(
             temperature=temperature,
             top_p=top_p,
@@ -1242,6 +1250,7 @@ class GenerationConfig:
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             response_mime_type=response_mime_type,
+            response_schema=raw_schema,
         )
 
     @classmethod
