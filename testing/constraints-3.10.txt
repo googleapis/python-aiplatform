@@ -13,3 +13,4 @@ pytest-xdist==3.3.1 # Pinned to unbreak unit tests
 ray==2.4.0 # Pinned until 2.9.3 is verified for Ray tests
 ipython==8.22.2 # Pinned to unbreak TypeAliasType import error
 scikit-learn!=1.4.1.post1 # Pin to unbreak test_sklearn (b/332610038)
+requests==2.31.0 # Pinned to unbreak http+docker error (b/342669351)
