@@ -13,17 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import json
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Dict,
-    List,
     Mapping,
     Optional,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -388,6 +385,24 @@ class LangchainAgent:
             model_tool_kwargs=self._model_tool_kwargs,
             agent_executor_kwargs=self._agent_executor_kwargs,
             runnable_kwargs=self._runnable_kwargs,
+        )
+
+    def clone(self) -> "LangchainAgent":
+        """Returns a clone of the LangchainAgent."""
+        import copy
+
+        return LangchainAgent(
+            model=self._model_name,
+            prompt=copy.deepcopy(self._prompt),
+            tools=copy.deepcopy(self._tools),
+            output_parser=copy.deepcopy(self._output_parser),
+            chat_history=copy.deepcopy(self._chat_history),
+            model_kwargs=copy.deepcopy(self._model_kwargs),
+            model_tool_kwargs=copy.deepcopy(self._model_tool_kwargs),
+            agent_executor_kwargs=copy.deepcopy(self._agent_executor_kwargs),
+            runnable_kwargs=copy.deepcopy(self._runnable_kwargs),
+            model_builder=self._model_builder,
+            runnable_builder=self._runnable_builder,
         )
 
     def query(

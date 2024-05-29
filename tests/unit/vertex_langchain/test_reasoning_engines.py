@@ -46,6 +46,9 @@ class CapitalizeEngine:
         """Runs the engine."""
         return unused_arbitrary_string_name.upper()
 
+    def clone(self):
+        return self
+
 
 _TEST_RETRY = base._DEFAULT_RETRY
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())

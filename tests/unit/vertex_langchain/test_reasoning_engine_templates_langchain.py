@@ -135,6 +135,20 @@ class TestLangchainAgent:
         agent.set_up()
         assert agent._runnable is not None
 
+    def test_clone(self, vertexai_init_mock):
+        agent = reasoning_engines.LangchainAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            output_parser=self.output_parser,
+        )
+        agent.set_up()
+        assert agent._runnable is not None
+        agent_clone = agent.clone()
+        assert agent._runnable is not None
+        assert agent_clone._runnable is None
+        agent_clone.set_up()
+        assert agent_clone._runnable is not None
+
     def test_query(self, langchain_dump_mock):
         agent = reasoning_engines.LangchainAgent(
             model=_TEST_MODEL,

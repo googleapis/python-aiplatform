@@ -46,6 +46,15 @@ class Queryable(Protocol):
         """Runs the Reasoning Engine to serve the user query."""
 
 
+@typing.runtime_checkable
+class Cloneable(Protocol):
+    """Protocol for Reasoning Engine applications that can be cloned."""
+
+    @abc.abstractmethod
+    def clone(self):
+        """Return a clone of the object."""
+
+
 class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
     """Represents a Vertex AI Reasoning Engine resource."""
 
@@ -214,6 +223,9 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 "Invalid query signature. This might be due to a missing "
                 "`self` argument in the reasoning_engine.query method."
             ) from err
+        if isinstance(reasoning_engine, Cloneable):
+            # Avoid undeployable ReasoningChain states.
+            reasoning_engine = reasoning_engine.clone()
         if isinstance(requirements, str):
             try:
                 _LOGGER.info(f"Reading requirements from {requirements=}")
