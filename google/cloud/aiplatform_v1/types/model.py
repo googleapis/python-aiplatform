@@ -1189,7 +1189,8 @@ class Probe(proto.Message):
 
     Attributes:
         exec_ (google.cloud.aiplatform_v1.types.Probe.ExecAction):
-            Exec specifies the action to take.
+            ExecAction probes the health of a container
+            by executing a command.
 
             This field is a member of `oneof`_ ``probe_type``.
         period_seconds (int):

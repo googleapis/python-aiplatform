@@ -61,6 +61,7 @@ from google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service
 from google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service import (
     transports,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
 from google.cloud.aiplatform_v1beta1.types import (
     feature_online_store as gca_feature_online_store,
@@ -7274,6 +7275,7 @@ def test_create_feature_online_store_rest(request_type):
             "service_attachment": "service_attachment_value",
         },
         "embedding_management": {"enabled": True},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8466,6 +8468,7 @@ def test_update_feature_online_store_rest(request_type):
             "service_attachment": "service_attachment_value",
         },
         "embedding_management": {"enabled": True},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

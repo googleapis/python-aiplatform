@@ -3922,9 +3922,14 @@ def test_create_persistent_resource_rest(request_type):
                 "enable_custom_service_account": True,
                 "service_account": "service_account_value",
             },
-            "ray_spec": {},
+            "ray_spec": {
+                "image_uri": "image_uri_value",
+                "resource_pool_images": {},
+                "head_node_resource_pool_id": "head_node_resource_pool_id_value",
+                "ray_metric_spec": {"disabled": True},
+            },
         },
-        "resource_runtime": {},
+        "resource_runtime": {"access_uris": {}},
         "reserved_ip_ranges": [
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
@@ -5429,9 +5434,14 @@ def test_update_persistent_resource_rest(request_type):
                 "enable_custom_service_account": True,
                 "service_account": "service_account_value",
             },
-            "ray_spec": {},
+            "ray_spec": {
+                "image_uri": "image_uri_value",
+                "resource_pool_images": {},
+                "head_node_resource_pool_id": "head_node_resource_pool_id_value",
+                "ray_metric_spec": {"disabled": True},
+            },
         },
-        "resource_runtime": {},
+        "resource_runtime": {"access_uris": {}},
         "reserved_ip_ranges": [
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",

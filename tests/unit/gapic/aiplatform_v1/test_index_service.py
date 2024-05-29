@@ -3817,7 +3817,11 @@ def test_create_index_rest(request_type):
         "labels": {},
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
-        "index_stats": {"vectors_count": 1422, "shards_count": 1293},
+        "index_stats": {
+            "vectors_count": 1422,
+            "sparse_vectors_count": 2171,
+            "shards_count": 1293,
+        },
         "index_update_method": 1,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
@@ -4905,7 +4909,11 @@ def test_update_index_rest(request_type):
         "labels": {},
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
-        "index_stats": {"vectors_count": 1422, "shards_count": 1293},
+        "index_stats": {
+            "vectors_count": 1422,
+            "sparse_vectors_count": 2171,
+            "shards_count": 1293,
+        },
         "index_update_method": 1,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }

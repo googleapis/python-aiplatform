@@ -51,6 +51,7 @@ __protobuf__ = proto.module(
         "CountTokensResponse",
         "GenerateContentRequest",
         "GenerateContentResponse",
+        "ChatCompletionsRequest",
     },
 )
 
@@ -787,6 +788,12 @@ class GenerateContentRequest(proto.Message):
             will be in a separate paragraph.
 
             This field is a member of `oneof`_ ``_system_instruction``.
+        cached_content (str):
+            Optional. The name of the cached content used as context to
+            serve the prediction. Note: only used in explicit caching,
+            where users can have control over caching (e.g. what content
+            to cache) and enjoy guaranteed cost savings. Format:
+            ``projects/{project}/locations/{location}/cachedContents/{cachedContent}``
         tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
             Optional. A list of ``Tools`` the model may use to generate
             the next response.
@@ -819,6 +826,10 @@ class GenerateContentRequest(proto.Message):
         number=8,
         optional=True,
         message=content.Content,
+    )
+    cached_content: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
         proto.MESSAGE,
@@ -948,6 +959,30 @@ class GenerateContentResponse(proto.Message):
         proto.MESSAGE,
         number=4,
         message=UsageMetadata,
+    )
+
+
+class ChatCompletionsRequest(proto.Message):
+    r"""Request message for [PredictionService.ChatCompletions]
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/openapi``
+        http_body (google.api.httpbody_pb2.HttpBody):
+            Optional. The prediction input. Supports HTTP
+            headers and arbitrary data payload.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    http_body: httpbody_pb2.HttpBody = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=httpbody_pb2.HttpBody,
     )
 
 

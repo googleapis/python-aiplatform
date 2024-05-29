@@ -1324,6 +1324,131 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def update_dataset_version(
+        self,
+        request: Optional[
+            Union[dataset_service.UpdateDatasetVersionRequest, dict]
+        ] = None,
+        *,
+        dataset_version: Optional[gca_dataset_version.DatasetVersion] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_dataset_version.DatasetVersion:
+        r"""Updates a DatasetVersion.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_update_dataset_version():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                dataset_version = aiplatform_v1.DatasetVersion()
+                dataset_version.metadata.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.UpdateDatasetVersionRequest(
+                    dataset_version=dataset_version,
+                )
+
+                # Make the request
+                response = await client.update_dataset_version(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateDatasetVersionRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.UpdateDatasetVersion][google.cloud.aiplatform.v1.DatasetService.UpdateDatasetVersion].
+            dataset_version (:class:`google.cloud.aiplatform_v1.types.DatasetVersion`):
+                Required. The DatasetVersion which
+                replaces the resource on the server.
+
+                This corresponds to the ``dataset_version`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The update mask applies to the resource. For
+                the ``FieldMask`` definition, see
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
+                Updatable fields:
+
+                -  ``display_name``
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.DatasetVersion:
+                Describes the dataset version.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([dataset_version, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.UpdateDatasetVersionRequest):
+            request = dataset_service.UpdateDatasetVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if dataset_version is not None:
+            request.dataset_version = dataset_version
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_dataset_version
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("dataset_version.name", request.dataset_version.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def delete_dataset_version(
         self,
         request: Optional[

@@ -111,7 +111,9 @@ class UpdateExtensionRequest(proto.Message):
 
                * `display_name`
                * `description`
+               * `runtime_config`
                * `tool_use_examples`
+               * `manifest.description`
     """
 
     extension: gca_extension.Extension = proto.Field(

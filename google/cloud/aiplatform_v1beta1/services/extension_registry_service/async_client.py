@@ -733,7 +733,9 @@ class ExtensionRegistryServiceAsyncClient:
 
                    * `display_name`
                    * `description`
+                   * `runtime_config`
                    * `tool_use_examples`
+                   * `manifest.description`
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

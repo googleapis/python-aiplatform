@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -95,6 +96,10 @@ class FeatureOnlineStore(proto.Message):
             Optional. The dedicated serving endpoint for
             this FeatureOnlineStore, which is different from
             common Vertex service endpoint.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Optional. Customer-managed encryption key
+            spec for data storage. If set, online store will
+            be secured by this key.
     """
 
     class State(proto.Enum):
@@ -236,6 +241,11 @@ class FeatureOnlineStore(proto.Message):
         proto.MESSAGE,
         number=10,
         message=DedicatedServingEndpoint,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

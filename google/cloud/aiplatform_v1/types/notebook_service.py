@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         "ListNotebookRuntimeTemplatesRequest",
         "ListNotebookRuntimeTemplatesResponse",
         "DeleteNotebookRuntimeTemplateRequest",
+        "UpdateNotebookRuntimeTemplateRequest",
         "AssignNotebookRuntimeRequest",
         "AssignNotebookRuntimeOperationMetadata",
         "GetNotebookRuntimeRequest",
@@ -248,6 +249,38 @@ class DeleteNotebookRuntimeTemplateRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class UpdateNotebookRuntimeTemplateRequest(proto.Message):
+    r"""Request message for
+    [NotebookService.UpdateNotebookRuntimeTemplate][google.cloud.aiplatform.v1.NotebookService.UpdateNotebookRuntimeTemplate].
+
+    Attributes:
+        notebook_runtime_template (google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate):
+            Required. The NotebookRuntimeTemplate to
+            update.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask applies to the resource. For the
+            ``FieldMask`` definition, see
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
+            Input format: ``{paths: "${updated_filed}"}`` Updatable
+            fields:
+
+            -  ``encryption_spec.kms_key_name``
+    """
+
+    notebook_runtime_template: gca_notebook_runtime.NotebookRuntimeTemplate = (
+        proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=gca_notebook_runtime.NotebookRuntimeTemplate,
+        )
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
     )
 
 

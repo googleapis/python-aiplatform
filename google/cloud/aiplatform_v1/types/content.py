@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import tool
 from google.protobuf import duration_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
@@ -39,8 +40,6 @@ __protobuf__ = proto.module(
         "CitationMetadata",
         "Citation",
         "Candidate",
-        "Segment",
-        "GroundingAttribution",
         "GroundingMetadata",
         "SearchEntryPoint",
     },
@@ -309,6 +308,17 @@ class GenerationConfig(proto.Message):
                The model needs to be prompted to output the appropriate
                response type, otherwise the behavior is undefined. This
                is a preview feature.
+        response_schema (google.cloud.aiplatform_v1.types.Schema):
+            Optional. The ``Schema`` object allows the definition of
+            input and output data types. These types can be objects, but
+            also primitives and arrays. Represents a select subset of an
+            `OpenAPI 3.0 schema
+            object <https://spec.openapis.org/oas/v3.0.3#schema>`__. If
+            set, a compatible response_mime_type must also be set.
+            Compatible mimetypes: ``application/json``: Schema for JSON
+            response.
+
+            This field is a member of `oneof`_ ``_response_schema``.
     """
 
     temperature: float = proto.Field(
@@ -353,6 +363,12 @@ class GenerationConfig(proto.Message):
     response_mime_type: str = proto.Field(
         proto.STRING,
         number=13,
+    )
+    response_schema: openapi.Schema = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        optional=True,
+        message=openapi.Schema,
     )
 
 
@@ -696,96 +712,6 @@ class Candidate(proto.Message):
     )
 
 
-class Segment(proto.Message):
-    r"""Segment of the content.
-
-    Attributes:
-        part_index (int):
-            Output only. The index of a Part object
-            within its parent Content object.
-        start_index (int):
-            Output only. Start index in the given Part,
-            measured in bytes. Offset from the start of the
-            Part, inclusive, starting at zero.
-        end_index (int):
-            Output only. End index in the given Part,
-            measured in bytes. Offset from the start of the
-            Part, exclusive, starting at zero.
-    """
-
-    part_index: int = proto.Field(
-        proto.INT32,
-        number=1,
-    )
-    start_index: int = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    end_index: int = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-
-
-class GroundingAttribution(proto.Message):
-    r"""Grounding attribution.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
-    Attributes:
-        web (google.cloud.aiplatform_v1.types.GroundingAttribution.Web):
-            Optional. Attribution from the web.
-
-            This field is a member of `oneof`_ ``reference``.
-        segment (google.cloud.aiplatform_v1.types.Segment):
-            Output only. Segment of the content this
-            attribution belongs to.
-        confidence_score (float):
-            Optional. Output only. Confidence score of
-            the attribution. Ranges from 0 to 1. 1 is the
-            most confident.
-
-            This field is a member of `oneof`_ ``_confidence_score``.
-    """
-
-    class Web(proto.Message):
-        r"""Attribution from the web.
-
-        Attributes:
-            uri (str):
-                Output only. URI reference of the
-                attribution.
-            title (str):
-                Output only. Title of the attribution.
-        """
-
-        uri: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        title: str = proto.Field(
-            proto.STRING,
-            number=2,
-        )
-
-    web: Web = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        oneof="reference",
-        message=Web,
-    )
-    segment: "Segment" = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="Segment",
-    )
-    confidence_score: float = proto.Field(
-        proto.FLOAT,
-        number=2,
-        optional=True,
-    )
-
-
 class GroundingMetadata(proto.Message):
     r"""Metadata returned to client when grounding is enabled.
 
@@ -795,8 +721,6 @@ class GroundingMetadata(proto.Message):
         web_search_queries (MutableSequence[str]):
             Optional. Web search queries for the
             following-up web search.
-        grounding_attributions (MutableSequence[google.cloud.aiplatform_v1.types.GroundingAttribution]):
-            Optional. List of grounding attributions.
         search_entry_point (google.cloud.aiplatform_v1.types.SearchEntryPoint):
             Optional. Google search entry for the
             following-up web searches.
@@ -807,13 +731,6 @@ class GroundingMetadata(proto.Message):
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
-    )
-    grounding_attributions: MutableSequence[
-        "GroundingAttribution"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message="GroundingAttribution",
     )
     search_entry_point: "SearchEntryPoint" = proto.Field(
         proto.MESSAGE,

@@ -28,6 +28,9 @@ from .artifact import (
 from .batch_prediction_job import (
     BatchPredictionJob,
 )
+from .cached_content import (
+    CachedContent,
+)
 from .completion_stats import (
     CompletionStats,
 )
@@ -402,6 +405,8 @@ from .featurestore_online_service import (
     ReadFeatureValuesRequest,
     ReadFeatureValuesResponse,
     StreamingReadFeatureValuesRequest,
+    StructFieldValue,
+    StructValue,
     WriteFeatureValuesPayload,
     WriteFeatureValuesRequest,
     WriteFeatureValuesResponse,
@@ -449,6 +454,21 @@ from .featurestore_service import (
     UpdateFeatureRequest,
     UpdateFeaturestoreOperationMetadata,
     UpdateFeaturestoreRequest,
+)
+from .gen_ai_cache_service import (
+    CreateCachedContentRequest,
+    DeleteCachedContentRequest,
+    GetCachedContentRequest,
+    ListCachedContentsRequest,
+    ListCachedContentsResponse,
+    UpdateCachedContentRequest,
+)
+from .genai_tuning_service import (
+    CancelTuningJobRequest,
+    CreateTuningJobRequest,
+    GetTuningJobRequest,
+    ListTuningJobsRequest,
+    ListTuningJobsResponse,
 )
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
@@ -804,6 +824,7 @@ from .notebook_runtime_template_ref import (
 from .notebook_service import (
     AssignNotebookRuntimeOperationMetadata,
     AssignNotebookRuntimeRequest,
+    CreateNotebookExecutionJobOperationMetadata,
     CreateNotebookExecutionJobRequest,
     CreateNotebookRuntimeTemplateOperationMetadata,
     CreateNotebookRuntimeTemplateRequest,
@@ -822,6 +843,7 @@ from .notebook_service import (
     StartNotebookRuntimeOperationMetadata,
     StartNotebookRuntimeRequest,
     StartNotebookRuntimeResponse,
+    UpdateNotebookRuntimeTemplateRequest,
     UpgradeNotebookRuntimeOperationMetadata,
     UpgradeNotebookRuntimeRequest,
     UpgradeNotebookRuntimeResponse,
@@ -889,6 +911,7 @@ from .pipeline_state import (
     PipelineState,
 )
 from .prediction_service import (
+    ChatCompletionsRequest,
     CountTokensRequest,
     CountTokensResponse,
     DirectPredictRequest,
@@ -929,6 +952,8 @@ from .reasoning_engine_service import (
     GetReasoningEngineRequest,
     ListReasoningEnginesRequest,
     ListReasoningEnginesResponse,
+    UpdateReasoningEngineOperationMetadata,
+    UpdateReasoningEngineRequest,
 )
 from .saved_query import (
     SavedQuery,
@@ -1061,6 +1086,15 @@ from .training_pipeline import (
     TimestampSplit,
     TrainingPipeline,
 )
+from .tuning_job import (
+    SupervisedHyperParameters,
+    SupervisedTuningDatasetDistribution,
+    SupervisedTuningDataStats,
+    SupervisedTuningSpec,
+    TunedModel,
+    TuningDataStats,
+    TuningJob,
+)
 from .types import (
     BoolArray,
     DoubleArray,
@@ -1138,6 +1172,7 @@ __all__ = (
     "AnnotationSpec",
     "Artifact",
     "BatchPredictionJob",
+    "CachedContent",
     "CompletionStats",
     "Blob",
     "Candidate",
@@ -1433,6 +1468,8 @@ __all__ = (
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "StreamingReadFeatureValuesRequest",
+    "StructFieldValue",
+    "StructValue",
     "WriteFeatureValuesPayload",
     "WriteFeatureValuesRequest",
     "WriteFeatureValuesResponse",
@@ -1478,6 +1515,17 @@ __all__ = (
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",
+    "CreateCachedContentRequest",
+    "DeleteCachedContentRequest",
+    "GetCachedContentRequest",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
+    "UpdateCachedContentRequest",
+    "CancelTuningJobRequest",
+    "CreateTuningJobRequest",
+    "GetTuningJobRequest",
+    "ListTuningJobsRequest",
+    "ListTuningJobsResponse",
     "HyperparameterTuningJob",
     "Index",
     "IndexDatapoint",
@@ -1755,6 +1803,7 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "CreateNotebookExecutionJobOperationMetadata",
     "CreateNotebookExecutionJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
@@ -1773,6 +1822,7 @@ __all__ = (
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
+    "UpdateNotebookRuntimeTemplateRequest",
     "UpgradeNotebookRuntimeOperationMetadata",
     "UpgradeNotebookRuntimeRequest",
     "UpgradeNotebookRuntimeResponse",
@@ -1822,6 +1872,7 @@ __all__ = (
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "PipelineState",
+    "ChatCompletionsRequest",
     "CountTokensRequest",
     "CountTokensResponse",
     "DirectPredictRequest",
@@ -1854,6 +1905,8 @@ __all__ = (
     "GetReasoningEngineRequest",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
+    "UpdateReasoningEngineOperationMetadata",
+    "UpdateReasoningEngineRequest",
     "SavedQuery",
     "Schedule",
     "CreateScheduleRequest",
@@ -1955,6 +2008,13 @@ __all__ = (
     "StratifiedSplit",
     "TimestampSplit",
     "TrainingPipeline",
+    "SupervisedHyperParameters",
+    "SupervisedTuningDatasetDistribution",
+    "SupervisedTuningDataStats",
+    "SupervisedTuningSpec",
+    "TunedModel",
+    "TuningDataStats",
+    "TuningJob",
     "BoolArray",
     "DoubleArray",
     "Int64Array",

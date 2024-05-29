@@ -1564,6 +1564,179 @@
         }
       }
     },
+    "GenAiCacheService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "GenAiCacheServiceClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "GenAiCacheServiceAsyncClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "GenAiCacheServiceClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "GenAiTuningService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "GenAiTuningServiceAsyncClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        }
+      }
+    },
     "IndexEndpointService": {
       "clients": {
         "grpc": {
@@ -3534,6 +3707,11 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
@@ -3587,6 +3765,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -3604,6 +3787,11 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
@@ -3657,6 +3845,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -3674,6 +3867,11 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
@@ -3727,6 +3925,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -4051,6 +4254,11 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -4121,6 +4329,11 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -4191,6 +4404,11 @@
         "rest": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -4318,6 +4536,11 @@
               "methods": [
                 "list_reasoning_engines"
               ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
+              ]
             }
           }
         },
@@ -4343,6 +4566,11 @@
               "methods": [
                 "list_reasoning_engines"
               ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
+              ]
             }
           }
         },
@@ -4367,6 +4595,11 @@
             "ListReasoningEngines": {
               "methods": [
                 "list_reasoning_engines"
+              ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
               ]
             }
           }

@@ -153,6 +153,11 @@ class NotebookServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_notebook_runtime_template: gapic_v1.method.wrap_method(
+                self.update_notebook_runtime_template,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.assign_notebook_runtime: gapic_v1.method.wrap_method(
                 self.assign_notebook_runtime,
                 default_timeout=None,
@@ -238,6 +243,18 @@ class NotebookServiceTransport(abc.ABC):
     ) -> Callable[
         [notebook_service.DeleteNotebookRuntimeTemplateRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_notebook_runtime_template(
+        self,
+    ) -> Callable[
+        [notebook_service.UpdateNotebookRuntimeTemplateRequest],
+        Union[
+            notebook_runtime.NotebookRuntimeTemplate,
+            Awaitable[notebook_runtime.NotebookRuntimeTemplate],
+        ],
     ]:
         raise NotImplementedError()
 

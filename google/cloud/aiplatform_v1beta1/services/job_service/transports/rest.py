@@ -1444,6 +1444,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                     },
                     {
@@ -1601,6 +1609,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1778,6 +1794,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -1947,6 +1971,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2148,6 +2180,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -2325,6 +2365,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2526,6 +2574,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                     },
                     {
@@ -2699,6 +2755,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2900,6 +2964,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                     },
                     {
@@ -3073,6 +3145,14 @@ class JobServiceRestTransport(JobServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -7355,6 +7435,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -7512,6 +7600,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -7746,6 +7842,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -7915,6 +8019,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -8176,6 +8288,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -8353,6 +8473,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -8615,6 +8743,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -8788,6 +8924,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                 },
                 {
                     "method": "get",
@@ -9050,6 +9194,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                 },
                 {
@@ -9223,6 +9375,14 @@ class JobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

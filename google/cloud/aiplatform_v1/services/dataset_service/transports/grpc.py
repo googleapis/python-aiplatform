@@ -30,6 +30,7 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import dataset_version
+from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -470,6 +471,35 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_dataset_version"]
+
+    @property
+    def update_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.UpdateDatasetVersionRequest],
+        gca_dataset_version.DatasetVersion,
+    ]:
+        r"""Return a callable for the update dataset version method over gRPC.
+
+        Updates a DatasetVersion.
+
+        Returns:
+            Callable[[~.UpdateDatasetVersionRequest],
+                    ~.DatasetVersion]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_dataset_version" not in self._stubs:
+            self._stubs["update_dataset_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DatasetService/UpdateDatasetVersion",
+                request_serializer=dataset_service.UpdateDatasetVersionRequest.serialize,
+                response_deserializer=gca_dataset_version.DatasetVersion.deserialize,
+            )
+        return self._stubs["update_dataset_version"]
 
     @property
     def delete_dataset_version(

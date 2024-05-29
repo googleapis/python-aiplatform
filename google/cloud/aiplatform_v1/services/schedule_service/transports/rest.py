@@ -614,6 +614,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                     },
                     {
@@ -917,6 +925,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1247,6 +1263,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1592,6 +1616,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                     },
                     {
@@ -1927,6 +1959,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3457,6 +3497,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -3817,6 +3865,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -4207,6 +4263,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4613,6 +4677,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -5009,6 +5081,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

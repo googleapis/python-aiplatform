@@ -1164,7 +1164,10 @@ def test_prediction_service_client_create_channel_credentials_file(
             credentials=file_creds,
             credentials_file=None,
             quota_project_id=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             scopes=None,
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -6357,25 +6360,25 @@ def test_direct_raw_predict_rest_error():
     )
 
 
-def test_stream_direct_predict_rest_no_http_options():
+def test_stream_direct_predict_rest_unimplemented():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = prediction_service.StreamDirectPredictRequest()
     requests = [request]
-    with pytest.raises(RuntimeError):
+    with pytest.raises(NotImplementedError):
         client.stream_direct_predict(requests)
 
 
-def test_stream_direct_raw_predict_rest_no_http_options():
+def test_stream_direct_raw_predict_rest_unimplemented():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = prediction_service.StreamDirectRawPredictRequest()
     requests = [request]
-    with pytest.raises(RuntimeError):
+    with pytest.raises(NotImplementedError):
         client.stream_direct_raw_predict(requests)
 
 
@@ -7626,32 +7629,6 @@ def test_stream_generate_content_rest_error():
     )
 
 
-def test_stream_direct_predict_rest_error():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-    # Since a `google.api.http` annotation is required for using a rest transport
-    # method, this should error.
-    with pytest.raises(NotImplementedError) as not_implemented_error:
-        client.stream_direct_predict({})
-    assert "Method StreamDirectPredict is not available over REST transport" in str(
-        not_implemented_error.value
-    )
-
-
-def test_stream_direct_raw_predict_rest_error():
-    client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-    # Since a `google.api.http` annotation is required for using a rest transport
-    # method, this should error.
-    with pytest.raises(NotImplementedError) as not_implemented_error:
-        client.stream_direct_raw_predict({})
-    assert "Method StreamDirectRawPredict is not available over REST transport" in str(
-        not_implemented_error.value
-    )
-
-
 def test_streaming_predict_rest_error():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
@@ -7873,7 +7850,10 @@ def test_prediction_service_base_transport_with_credentials_file():
         load_creds.assert_called_once_with(
             "credentials.json",
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id="octopus",
         )
 
@@ -7896,7 +7876,10 @@ def test_prediction_service_auth_adc():
         PredictionServiceClient()
         adc.assert_called_once_with(
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id=None,
         )
 
@@ -7916,7 +7899,10 @@ def test_prediction_service_transport_auth_adc(transport_class):
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id="octopus",
         )
 
@@ -7968,7 +7954,10 @@ def test_prediction_service_transport_create_channel(transport_class, grpc_helpe
             credentials=creds,
             credentials_file=None,
             quota_project_id="octopus",
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             scopes=["1", "2"],
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,

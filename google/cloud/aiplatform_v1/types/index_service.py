@@ -379,8 +379,8 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 INVALID_EMBEDDING_ID (5):
                     The embedding id is not valid.
                 EMBEDDING_SIZE_MISMATCH (6):
-                    The size of the embedding vectors does not
-                    match with the specified dimension.
+                    The size of the dense embedding vectors does
+                    not match with the specified dimension.
                 NAMESPACE_MISSING (7):
                     The ``namespace`` field is missing.
                 PARSING_ERROR (8):
@@ -401,8 +401,14 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                     specified.
                 INVALID_ENCODING (13):
                     File is not in UTF_8 format.
+                INVALID_SPARSE_DIMENSIONS (14):
+                    Error parsing sparse dimensions field.
                 INVALID_TOKEN_VALUE (15):
                     Token restrict value is invalid.
+                INVALID_SPARSE_EMBEDDING (16):
+                    Invalid sparse embedding.
+                INVALID_EMBEDDING (17):
+                    Invalid dense embedding.
             """
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
@@ -418,7 +424,10 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             MULTIPLE_VALUES = 11
             INVALID_NUMERIC_VALUE = 12
             INVALID_ENCODING = 13
+            INVALID_SPARSE_DIMENSIONS = 14
             INVALID_TOKEN_VALUE = 15
+            INVALID_SPARSE_EMBEDDING = 16
+            INVALID_EMBEDDING = 17
 
         error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
             proto.ENUM,
@@ -460,6 +469,12 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 failures encountered for those invalid records
                 that couldn't be parsed. Up to 50 partial errors
                 will be reported.
+            valid_sparse_record_count (int):
+                Number of sparse records in this file that
+                were successfully processed.
+            invalid_sparse_record_count (int):
+                Number of sparse records in this file we
+                skipped due to validate errors.
         """
 
         source_gcs_uri: str = proto.Field(
@@ -480,6 +495,14 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             proto.MESSAGE,
             number=4,
             message="NearestNeighborSearchOperationMetadata.RecordError",
+        )
+        valid_sparse_record_count: int = proto.Field(
+            proto.INT64,
+            number=5,
+        )
+        invalid_sparse_record_count: int = proto.Field(
+            proto.INT64,
+            number=6,
         )
 
     content_validation_stats: MutableSequence[

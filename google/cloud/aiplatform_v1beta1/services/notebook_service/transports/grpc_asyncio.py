@@ -391,6 +391,38 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         return self._stubs["delete_notebook_runtime_template"]
 
     @property
+    def update_notebook_runtime_template(
+        self,
+    ) -> Callable[
+        [notebook_service.UpdateNotebookRuntimeTemplateRequest],
+        Awaitable[notebook_runtime.NotebookRuntimeTemplate],
+    ]:
+        r"""Return a callable for the update notebook runtime
+        template method over gRPC.
+
+        Updates a NotebookRuntimeTemplate.
+
+        Returns:
+            Callable[[~.UpdateNotebookRuntimeTemplateRequest],
+                    Awaitable[~.NotebookRuntimeTemplate]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_notebook_runtime_template" not in self._stubs:
+            self._stubs[
+                "update_notebook_runtime_template"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.NotebookService/UpdateNotebookRuntimeTemplate",
+                request_serializer=notebook_service.UpdateNotebookRuntimeTemplateRequest.serialize,
+                response_deserializer=notebook_runtime.NotebookRuntimeTemplate.deserialize,
+            )
+        return self._stubs["update_notebook_runtime_template"]
+
+    @property
     def assign_notebook_runtime(
         self,
     ) -> Callable[
@@ -567,6 +599,37 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         return self._stubs["start_notebook_runtime"]
 
     @property
+    def create_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.CreateNotebookExecutionJobRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the create notebook execution job method over gRPC.
+
+        Creates a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.CreateNotebookExecutionJobRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_notebook_execution_job" not in self._stubs:
+            self._stubs[
+                "create_notebook_execution_job"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.NotebookService/CreateNotebookExecutionJob",
+                request_serializer=notebook_service.CreateNotebookExecutionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["create_notebook_execution_job"]
+
+    @property
     def get_notebook_execution_job(
         self,
     ) -> Callable[
@@ -678,6 +741,11 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_notebook_runtime_template: gapic_v1.method_async.wrap_method(
+                self.update_notebook_runtime_template,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.assign_notebook_runtime: gapic_v1.method_async.wrap_method(
                 self.assign_notebook_runtime,
                 default_timeout=None,
@@ -705,6 +773,11 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
             ),
             self.start_notebook_runtime: gapic_v1.method_async.wrap_method(
                 self.start_notebook_runtime,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_notebook_execution_job: gapic_v1.method_async.wrap_method(
+                self.create_notebook_execution_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
