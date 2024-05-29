@@ -112,6 +112,10 @@ class Dataset(proto.Message):
             created in MetadataStore when creating the Dataset. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
+        model_reference (str):
+            Optional. Reference to the public base model
+            last used by the dataset. Only set for prompt
+            datasets.
     """
 
     name: str = proto.Field(
@@ -171,6 +175,10 @@ class Dataset(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=17,
+    )
+    model_reference: str = proto.Field(
+        proto.STRING,
+        number=18,
     )
 
 

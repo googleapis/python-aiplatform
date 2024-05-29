@@ -55,6 +55,8 @@ class MetadataStore(proto.Message):
         state (google.cloud.aiplatform_v1.types.MetadataStore.MetadataStoreState):
             Output only. State information of the
             MetadataStore.
+        dataplex_config (google.cloud.aiplatform_v1.types.MetadataStore.DataplexConfig):
+            Optional. Dataplex integration settings.
     """
 
     class MetadataStoreState(proto.Message):
@@ -68,6 +70,20 @@ class MetadataStore(proto.Message):
 
         disk_utilization_bytes: int = proto.Field(
             proto.INT64,
+            number=1,
+        )
+
+    class DataplexConfig(proto.Message):
+        r"""Represents Dataplex integration settings.
+
+        Attributes:
+            enabled_pipelines_lineage (bool):
+                Optional. Whether or not Data Lineage
+                synchronization is enabled for Vertex Pipelines.
+        """
+
+        enabled_pipelines_lineage: bool = proto.Field(
+            proto.BOOL,
             number=1,
         )
 
@@ -98,6 +114,11 @@ class MetadataStore(proto.Message):
         proto.MESSAGE,
         number=7,
         message=MetadataStoreState,
+    )
+    dataplex_config: DataplexConfig = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=DataplexConfig,
     )
 
 

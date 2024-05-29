@@ -99,6 +99,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -194,6 +199,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -288,6 +298,11 @@
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
               ]
             }
           }
@@ -3262,6 +3277,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
+              ]
+            },
             "UpgradeNotebookRuntime": {
               "methods": [
                 "upgrade_notebook_runtime"
@@ -3317,6 +3337,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
+              ]
+            },
             "UpgradeNotebookRuntime": {
               "methods": [
                 "upgrade_notebook_runtime"
@@ -3370,6 +3395,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {

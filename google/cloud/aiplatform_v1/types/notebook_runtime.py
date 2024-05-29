@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import network_spec as gca_network_spec
 from google.cloud.aiplatform_v1.types import notebook_euc_config
@@ -136,6 +137,9 @@ class NotebookRuntimeTemplate(proto.Message):
             Optional. The Compute Engine tags to add to runtime (see
             `Tagging
             instances <https://cloud.google.com/vpc/docs/add-remove-network-tags>`__).
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Customer-managed encryption key spec for the
+            notebook runtime.
     """
 
     name: str = proto.Field(
@@ -217,6 +221,11 @@ class NotebookRuntimeTemplate(proto.Message):
     network_tags: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=21,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -303,10 +312,20 @@ class NotebookRuntime(proto.Message):
         notebook_runtime_type (google.cloud.aiplatform_v1.types.NotebookRuntimeType):
             Output only. The type of the notebook
             runtime.
+        idle_shutdown_config (google.cloud.aiplatform_v1.types.NotebookIdleShutdownConfig):
+            Output only. The idle shutdown configuration
+            of the notebook runtime.
         network_tags (MutableSequence[str]):
             Optional. The Compute Engine tags to add to runtime (see
             `Tagging
             instances <https://cloud.google.com/vpc/docs/add-remove-network-tags>`__).
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Output only. Customer-managed encryption key
+            spec for the notebook runtime.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class HealthState(proto.Enum):
@@ -434,9 +453,29 @@ class NotebookRuntime(proto.Message):
         number=19,
         enum="NotebookRuntimeType",
     )
+    idle_shutdown_config: notebook_idle_shutdown_config.NotebookIdleShutdownConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=23,
+            message=notebook_idle_shutdown_config.NotebookIdleShutdownConfig,
+        )
+    )
     network_tags: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=29,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=30,
     )
 
 

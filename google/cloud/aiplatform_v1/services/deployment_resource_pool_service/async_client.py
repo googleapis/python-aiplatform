@@ -51,6 +51,7 @@ from google.cloud.aiplatform_v1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
 from google.cloud.aiplatform_v1.types import deployment_resource_pool_service
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation

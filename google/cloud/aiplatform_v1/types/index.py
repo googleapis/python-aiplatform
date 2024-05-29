@@ -201,8 +201,12 @@ class IndexDatapoint(proto.Message):
         datapoint_id (str):
             Required. Unique identifier of the datapoint.
         feature_vector (MutableSequence[float]):
-            Required. Feature embedding vector. An array of numbers with
-            the length of [NearestNeighborSearchConfig.dimensions].
+            Required. Feature embedding vector for dense index. An array
+            of numbers with the length of
+            [NearestNeighborSearchConfig.dimensions].
+        sparse_embedding (google.cloud.aiplatform_v1.types.IndexDatapoint.SparseEmbedding):
+            Optional. Feature embedding vector for sparse
+            index.
         restricts (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint.Restriction]):
             Optional. List of Restrict of the datapoint,
             used to perform "restricted searches" where
@@ -222,6 +226,28 @@ class IndexDatapoint(proto.Message):
             number of neighbors to return in each crowding
             can be configured during query.
     """
+
+    class SparseEmbedding(proto.Message):
+        r"""Feature embedding vector for sparse index. An array of
+        numbers whose values are located in the specified dimensions.
+
+        Attributes:
+            values (MutableSequence[float]):
+                Required. The list of embedding values of the
+                sparse vector.
+            dimensions (MutableSequence[int]):
+                Required. The list of indexes for the
+                embedding values of the sparse vector.
+        """
+
+        values: MutableSequence[float] = proto.RepeatedField(
+            proto.FLOAT,
+            number=1,
+        )
+        dimensions: MutableSequence[int] = proto.RepeatedField(
+            proto.INT64,
+            number=2,
+        )
 
     class Restriction(proto.Message):
         r"""Restriction of a datapoint which describe its
@@ -375,6 +401,11 @@ class IndexDatapoint(proto.Message):
         proto.FLOAT,
         number=2,
     )
+    sparse_embedding: SparseEmbedding = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=SparseEmbedding,
+    )
     restricts: MutableSequence[Restriction] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
@@ -397,8 +428,11 @@ class IndexStats(proto.Message):
 
     Attributes:
         vectors_count (int):
-            Output only. The number of vectors in the
-            Index.
+            Output only. The number of dense vectors in
+            the Index.
+        sparse_vectors_count (int):
+            Output only. The number of sparse vectors in
+            the Index.
         shards_count (int):
             Output only. The number of shards in the
             Index.
@@ -407,6 +441,10 @@ class IndexStats(proto.Message):
     vectors_count: int = proto.Field(
         proto.INT64,
         number=1,
+    )
+    sparse_vectors_count: int = proto.Field(
+        proto.INT64,
+        number=3,
     )
     shards_count: int = proto.Field(
         proto.INT32,

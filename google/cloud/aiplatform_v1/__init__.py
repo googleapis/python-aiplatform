@@ -96,13 +96,11 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
-from .types.content import GroundingAttribution
 from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
-from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
 from .types.context import Context
@@ -154,6 +152,7 @@ from .types.dataset_service import RestoreDatasetVersionRequest
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.dataset_service import UpdateDatasetVersionRequest
 from .types.dataset_version import DatasetVersion
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -276,6 +275,8 @@ from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
 from .types.featurestore_online_service import ReadFeatureValuesResponse
 from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_online_service import StructFieldValue
+from .types.featurestore_online_service import StructValue
 from .types.featurestore_online_service import WriteFeatureValuesPayload
 from .types.featurestore_online_service import WriteFeatureValuesRequest
 from .types.featurestore_online_service import WriteFeatureValuesResponse
@@ -585,6 +586,7 @@ from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
 from .types.notebook_service import StartNotebookRuntimeOperationMetadata
 from .types.notebook_service import StartNotebookRuntimeRequest
 from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import UpdateNotebookRuntimeTemplateRequest
 from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
@@ -593,6 +595,7 @@ from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RayMetricSpec
 from .types.persistent_resource import RaySpec
 from .types.persistent_resource import ResourcePool
 from .types.persistent_resource import ResourceRuntime
@@ -739,11 +742,13 @@ from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import FunctionCall
+from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import Retrieval
 from .types.tool import Tool
+from .types.tool import ToolConfig
 from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
@@ -1085,6 +1090,7 @@ __all__ = (
     "FindNeighborsResponse",
     "FractionSplit",
     "FunctionCall",
+    "FunctionCallingConfig",
     "FunctionDeclaration",
     "FunctionResponse",
     "GcsDestination",
@@ -1140,7 +1146,6 @@ __all__ = (
     "GetTrialRequest",
     "GetTuningJobRequest",
     "GoogleSearchRetrieval",
-    "GroundingAttribution",
     "GroundingMetadata",
     "HarmCategory",
     "HyperparameterTuningJob",
@@ -1360,6 +1365,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "RayMetricSpec",
     "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
@@ -1410,7 +1416,6 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
-    "Segment",
     "ServiceAccountSpec",
     "ShieldedVmConfig",
     "SmoothGradConfig",
@@ -1432,6 +1437,8 @@ __all__ = (
     "StreamingRawPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
+    "StructFieldValue",
+    "StructValue",
     "Study",
     "StudySpec",
     "StudyTimeConstraint",
@@ -1460,6 +1467,7 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolConfig",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
@@ -1478,6 +1486,7 @@ __all__ = (
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
+    "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
@@ -1501,6 +1510,7 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelRequest",
+    "UpdateNotebookRuntimeTemplateRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
     "UpdateScheduleRequest",
