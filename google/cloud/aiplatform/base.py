@@ -1021,7 +1021,6 @@ class _VertexAiResourceNounPlus(VertexAiResourceNoun):
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource
 
-    # TODO(b/144545165): Improve documentation for list filtering once available
     # TODO(b/184910159): Expose `page_size` field in list method
     @classmethod
     def _list(
@@ -1048,6 +1047,26 @@ class _VertexAiResourceNounPlus(VertexAiResourceNoun):
             filter (str):
                 Optional. An expression for filtering the results of the request.
                 For field names both snake_case and camelCase are supported.
+                The following fields are supported:
+                - pipelineName: Supports = and != comparisons.
+                - displayName: Supports =, != comparisons, and : wildcard.
+                - pipelineJobUserId: Supports =, != comparisons, and : wildcard. for example, can check if
+                    pipeline's displayName contains step by doing displayName:"*step*"
+                - state: Supports = and != comparisons.
+                - createTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - updateTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - endTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - labels: Supports key-value equality and key presence.
+                - templateUri: Supports =, != comparisons, and : wildcard.
+                - templateMetadata.version: Supports =, != comparisons, and : wildcard.
+                Filter expressions can be combined together using logical operators (AND & OR).
+                For example: pipelineName="test" AND createTime>"2020-05-18T13:30:00Z".
+                The syntax to define filter expression is based on https://google.aip.dev/160.
+                Examples:
+                - createTime>"2021-05-18T00:00:00Z" OR updateTime>"2020-05-18T00:00:00Z"
+                    PipelineJobs created or updated after 2020-05-18 00:00:00 UTC.
+                - labels.env = "prod"
+                    PipelineJobs with label "env" set to "prod".
             order_by (str):
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
@@ -1325,6 +1344,26 @@ class VertexAiResourceNounWithFutureManager(_VertexAiResourceNounPlus, FutureMan
             filter (str):
                 Optional. An expression for filtering the results of the request.
                 For field names both snake_case and camelCase are supported.
+                The following fields are supported:
+                - pipelineName: Supports = and != comparisons.
+                - displayName: Supports =, != comparisons, and : wildcard.
+                - pipelineJobUserId: Supports =, != comparisons, and : wildcard. for example, can check if
+                    pipeline's displayName contains step by doing displayName:"*step*"
+                - state: Supports = and != comparisons.
+                - createTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - updateTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - endTime: Supports =, !=, <, >, <=, and >= comparisons. Values must be in RFC 3339 format.
+                - labels: Supports key-value equality and key presence.
+                - templateUri: Supports =, != comparisons, and : wildcard.
+                - templateMetadata.version: Supports =, != comparisons, and : wildcard.
+                Filter expressions can be combined together using logical operators (AND & OR).
+                For example: pipelineName="test" AND createTime>"2020-05-18T13:30:00Z".
+                The syntax to define filter expression is based on https://google.aip.dev/160.
+                Examples:
+                - createTime>"2021-05-18T00:00:00Z" OR updateTime>"2020-05-18T00:00:00Z"
+                    PipelineJobs created or updated after 2020-05-18 00:00:00 UTC.
+                - labels.env = "prod"
+                    PipelineJobs with label "env" set to "prod".
             order_by (str):
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
