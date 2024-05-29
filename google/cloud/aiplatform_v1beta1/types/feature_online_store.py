@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -101,6 +102,10 @@ class FeatureOnlineStore(proto.Message):
             needed anymore and embedding management is
             automatically enabled when specifying Optimized
             storage type.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Optional. Customer-managed encryption key
+            spec for data storage. If set, online store will
+            be secured by this key.
     """
 
     class State(proto.Enum):
@@ -288,6 +293,11 @@ class FeatureOnlineStore(proto.Message):
         proto.MESSAGE,
         number=11,
         message=EmbeddingManagement,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

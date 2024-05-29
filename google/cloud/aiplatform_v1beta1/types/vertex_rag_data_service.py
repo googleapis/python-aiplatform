@@ -425,6 +425,11 @@ class ImportRagFilesOperationMetadata(proto.Message):
         import_rag_files_config (google.cloud.aiplatform_v1beta1.types.ImportRagFilesConfig):
             Output only. The config that was passed in
             the ImportRagFilesRequest.
+        progress_percentage (int):
+            The progress percentage of the operation. Value is in the
+            range [0, 100]. This percentage is calculated as follows:
+            progress_percentage = 100 \* (successes + failures + skips)
+            / total
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -440,6 +445,10 @@ class ImportRagFilesOperationMetadata(proto.Message):
         proto.MESSAGE,
         number=3,
         message=vertex_rag_data.ImportRagFilesConfig,
+    )
+    progress_percentage: int = proto.Field(
+        proto.INT32,
+        number=4,
     )
 
 

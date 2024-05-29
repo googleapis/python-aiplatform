@@ -36,6 +36,8 @@ __protobuf__ = proto.module(
         "ReadFeatureValuesResponse",
         "StreamingReadFeatureValuesRequest",
         "FeatureValue",
+        "StructValue",
+        "StructFieldValue",
         "FeatureValueList",
     },
 )
@@ -354,6 +356,10 @@ class FeatureValue(proto.Message):
             Bytes feature value.
 
             This field is a member of `oneof`_ ``value``.
+        struct_value (google.cloud.aiplatform_v1beta1.types.StructValue):
+            A struct type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         metadata (google.cloud.aiplatform_v1beta1.types.FeatureValue.Metadata):
             Metadata of feature value.
     """
@@ -428,10 +434,52 @@ class FeatureValue(proto.Message):
         number=13,
         oneof="value",
     )
+    struct_value: "StructValue" = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        oneof="value",
+        message="StructValue",
+    )
     metadata: Metadata = proto.Field(
         proto.MESSAGE,
         number=14,
         message=Metadata,
+    )
+
+
+class StructValue(proto.Message):
+    r"""Struct (or object) type feature value.
+
+    Attributes:
+        values (MutableSequence[google.cloud.aiplatform_v1beta1.types.StructFieldValue]):
+            A list of field values.
+    """
+
+    values: MutableSequence["StructFieldValue"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="StructFieldValue",
+    )
+
+
+class StructFieldValue(proto.Message):
+    r"""One field of a Struct (or object) type feature value.
+
+    Attributes:
+        name (str):
+            Name of the field in the struct feature.
+        value (google.cloud.aiplatform_v1beta1.types.FeatureValue):
+            The value for this field.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    value: "FeatureValue" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="FeatureValue",
     )
 
 

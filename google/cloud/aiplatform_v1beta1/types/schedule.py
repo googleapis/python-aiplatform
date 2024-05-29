@@ -69,7 +69,8 @@ class Schedule(proto.Message):
 
             This field is a member of `oneof`_ ``request``.
         create_notebook_execution_job_request (google.cloud.aiplatform_v1beta1.types.CreateNotebookExecutionJobRequest):
-            Request for [NotebookService.CreateNotebookExecutionJob][].
+            Request for
+            [NotebookService.CreateNotebookExecutionJob][google.cloud.aiplatform.v1beta1.NotebookService.CreateNotebookExecutionJob].
 
             This field is a member of `oneof`_ ``request``.
         name (str):

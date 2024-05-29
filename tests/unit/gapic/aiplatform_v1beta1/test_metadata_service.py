@@ -14799,6 +14799,7 @@ def test_create_metadata_store_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "description": "description_value",
         "state": {"disk_utilization_bytes": 2380},
+        "dataplex_config": {"enabled_pipelines_lineage": True},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

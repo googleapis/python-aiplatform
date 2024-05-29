@@ -151,6 +151,8 @@ class Feature(proto.Message):
                 Used for Feature that is a list of String.
             BYTES (13):
                 Used for Feature that is bytes.
+            STRUCT (14):
+                Used for Feature that is struct.
         """
         VALUE_TYPE_UNSPECIFIED = 0
         BOOL = 1
@@ -162,6 +164,7 @@ class Feature(proto.Message):
         STRING = 11
         STRING_ARRAY = 12
         BYTES = 13
+        STRUCT = 14
 
     class MonitoringStatsAnomaly(proto.Message):
         r"""A list of historical
