@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vertexai"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+authors = [
+  { name="Google LLC", email="googleapis-packages@google.com" },
+]
+license = {text = "Apache 2.0"}
+description = "Please run pip install vertexai to use the Vertex SDK."
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+repository = "https://github.com/googleapis/python-aiplatform.git"

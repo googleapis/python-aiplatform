@@ -1,0 +1,341 @@
+global:
+  api_endpoint: us-central1-aiplatform.googleapis.com
+  api_endpoint_comment: The AI Platform services require regional API endpoints.
+  timeout: 300
+  skip:
+  - etag
+  - create_time
+  - update_time
+  max_depth: -1
+  license_year: 2020
+batch_migrate_resources_sample: {}
+cancel_batch_prediction_job_sample: {}
+cancel_custom_job_sample: {}
+cancel_data_labeling_job_sample: {}
+cancel_hyperparameter_tuning_job_sample: {}
+cancel_training_pipeline_sample: {}
+create_batch_prediction_job_bigquery_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+create_batch_prediction_job_custom_image_explain_sample: {}
+create_batch_prediction_job_custom_tabular_explain_sample: {}
+create_batch_prediction_job_sample: {}
+create_batch_prediction_job_tabular_explain_sample: {}
+create_batch_prediction_job_tabular_forecasting_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+create_batch_prediction_job_text_classification_sample: {}
+create_batch_prediction_job_text_entity_extraction_sample: {}
+create_batch_prediction_job_text_sentiment_analysis_sample: {}
+create_batch_prediction_job_video_action_recognition_sample: {}
+create_batch_prediction_job_video_classification_sample: {}
+create_batch_prediction_job_video_object_tracking_sample: {}
+create_custom_job_python_package_sample: {}
+create_custom_job_sample: {}
+create_data_labeling_job_active_learning_sample: {}
+create_data_labeling_job_image_segmentation_sample: {}
+create_data_labeling_job_images_sample: {}
+create_data_labeling_job_sample: {}
+create_data_labeling_job_specialist_pool_sample: {}
+create_data_labeling_job_text_sample: {}
+create_data_labeling_job_video_sample: {}
+create_dataset_image_sample:
+  skip:
+  - create_time
+  - update_time
+create_dataset_sample:
+  skip:
+  - create_time
+  - update_time
+create_dataset_tabular_bigquery_sample:
+  skip:
+  - labels
+  - create_time
+  - update_time
+create_dataset_tabular_gcs_sample:
+  skip:
+  - labels
+  - create_time
+  - update_time
+create_dataset_text_sample:
+  skip:
+  - create_time
+  - update_time
+create_dataset_video_sample:
+  skip:
+  - create_time
+  - update_time
+create_endpoint_sample:
+  skip:
+  - traffic_split
+  - deployed_models
+create_hyperparameter_tuning_job_python_package_sample: {}
+create_hyperparameter_tuning_job_sample: {}
+create_specialist_pool_sample: {}
+create_training_pipeline_custom_job_sample: {}
+create_training_pipeline_custom_training_managed_dataset_sample: {}
+create_training_pipeline_image_classification_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlImageClassificationInputs
+create_training_pipeline_image_object_detection_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlImageObjectDetectionInputs
+create_training_pipeline_sample: {}
+create_training_pipeline_tabular_classification_sample: {}
+create_training_pipeline_tabular_forecasting_sample: {}
+create_training_pipeline_tabular_regression_sample: {}
+create_training_pipeline_text_classification_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextClassificationInputs
+create_training_pipeline_text_entity_extraction_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextExtractionInputs
+create_training_pipeline_text_sentiment_analysis_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextSentimentInputs
+create_training_pipeline_video_action_recognition_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoActionRecognitionInputs
+create_training_pipeline_video_classification_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoClassificationInputs
+create_training_pipeline_video_object_tracking_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoObjectTrackingInputs
+delete_batch_prediction_job_sample: {}
+delete_custom_job_sample: {}
+delete_data_labeling_job_sample: {}
+delete_dataset_sample: {}
+delete_endpoint_sample: {}
+delete_hyperparameter_tuning_job_sample: {}
+delete_model_sample: {}
+delete_specialist_pool_sample: {}
+delete_training_pipeline_sample: {}
+deploy_model_custom_trained_model_sample:
+  max_depth: 0
+  resource_name: endpoint
+  timeout: 7200
+  skip:
+  - explanation_spec
+deploy_model_sample:
+  max_depth: 0
+  resource_name: endpoint
+  timeout: 7200
+  skip:
+  - explanation_spec
+explain_custom_image_sample:
+  max_depth: 1
+  resource_name: endpoint
+explain_custom_tabular_sample:
+  max_depth: 1
+  resource_name: endpoint
+  comments:
+    approximation_error: This is the approximation error.
+    attributions: Feature attributions.
+explain_sample:
+  max_depth: 1
+  resource_name: endpoint
+  comments:
+    approximation_error: This is the approximation error.
+    attributions: Feature attributions.
+explain_tabular_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+  max_depth: 2
+  resource_name: endpoint
+  comments:
+    approximation_error: This is the approximation error.
+    attributions: Feature attributions.
+export_data_sample:
+  resource_name: dataset
+export_evaluated_data_items_sample:
+  resource_name: model_evaluation
+export_model_sample:
+  lro_metadata:
+  - output_info
+export_model_tabular_classification_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+  lro_metadata:
+  - output_info
+export_model_video_action_recognition_sample:
+  lro_metadata:
+  - output_info
+export_model_video_classification_sample:
+  lro_metadata:
+  - output_info
+export_model_video_object_tracking_sample:
+  lro_metadata:
+  - output_info
+get_annotation_spec_sample: {}
+get_batch_prediction_job_sample:
+  skip:
+  - dedicated_resources
+  - manual_batch_tuning_parameters
+get_custom_job_sample: {}
+get_data_labeling_job_sample: {}
+get_dataset_sample: {}
+get_endpoint_sample: {}
+get_hyperparameter_tuning_job_sample: {}
+get_model_evaluation_image_classification_sample: {}
+get_model_evaluation_image_object_detection_sample: {}
+get_model_evaluation_sample:
+  skip:
+  - model_explanation
+get_model_evaluation_slice_sample: {}
+get_model_evaluation_tabular_classification_sample: {}
+get_model_evaluation_tabular_forecasting_sample: {}
+get_model_evaluation_tabular_regression_sample: {}
+get_model_evaluation_text_classification_sample:
+  skip:
+  - create_time
+  - slice_dimensions
+get_model_evaluation_text_entity_extraction_sample:
+  skip:
+  - create_time
+get_model_evaluation_text_sentiment_analysis_sample:
+  skip:
+  - create_time
+get_model_evaluation_video_action_recognition_sample:
+  skip:
+  - model_explanation
+get_model_evaluation_video_classification_sample:
+  skip:
+  - model_explanation
+get_model_evaluation_video_object_tracking_sample:
+  skip:
+  - model_explanation
+get_model_sample:
+  skip:
+  - explanation_spec
+get_specialist_pool_sample: {}
+get_training_pipeline_sample: {}
+import_data_image_classification_sample:
+  resource_name: dataset
+import_data_image_classification_single_label_sample:
+  timeout: 1800
+  resource_name: dataset
+import_data_image_object_detection_sample:
+  timeout: 1800
+  resource_name: dataset
+import_data_sample:
+  timeout: 1800
+  resource_name: dataset
+import_data_text_classification_single_label_sample:
+  timeout: 1800
+  resource_name: dataset
+import_data_text_entity_extraction_sample:
+  resource_name: dataset
+  timeout: 1800
+import_data_text_sentiment_analysis_sample:
+  resource_name: dataset
+  timeout: 1800
+import_data_video_action_recognition_sample:
+  resource_name: dataset
+  timeout: 1800
+import_data_video_classification_sample:
+  timeout: 1800
+  resource_name: dataset
+import_data_video_object_tracking_sample:
+  timeout: 1800
+  resource_name: dataset
+list_annotations_sample: {}
+list_batch_prediction_jobs_sample: {}
+list_custom_jobs_sample: {}
+list_data_items_sample: {}
+list_data_labeling_jobs_sample: {}
+list_datasets_sample: {}
+list_endpoints_sample: {}
+list_hyperparameter_tuning_jobs_sample: {}
+list_model_evaluation_slices_sample: {}
+list_model_evaluations_sample: {}
+list_model_evaluations_tabular_forecasting_sample: {}
+list_models_sample: {}
+list_specialist_pools_sample: {}
+list_training_pipelines_sample: {}
+predict_custom_trained_model_sample:
+  max_depth: 1
+  resource_name: endpoint
+  comments:
+    predictions: The predictions are a google.protobuf.Value representation of the
+      model's predictions.
+predict_image_classification_sample:
+  max_depth: 1
+  resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_classification_1.0.0.yaml
+      for the format of the predictions.
+predict_image_file_sample:
+  max_depth: 1
+  resource_name: endpoint
+predict_image_object_detection_sample:
+  max_depth: 1
+  resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.ImageObjectDetectionPredictionInstance
+    parameters_dict: predict.params.ImageObjectDetectionPredictionParams
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection_1.0.0.yaml
+      for the format of the predictions.
+predict_sample:
+  max_depth: 1
+  resource_name: endpoint
+  region_tags:
+  - aiplatform_predict_sample
+  - aiplatform_predict_tutorial
+predict_tabular_classification_sample:
+  max_depth: 1
+  resource_name: endpoint
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tabular_classification_1.0.0.yaml
+      for the format of the predictions.
+predict_tabular_forecasting_sample: {}
+predict_tabular_regression_sample:
+  max_depth: 1
+  resource_name: endpoint
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tabular_regression_1.0.0.yaml
+      for the format of the predictions.
+predict_text_classification_single_label_sample:
+  max_depth: 1
+  resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextClassificationPredictionInstance
+predict_text_entity_extraction_sample:
+  max_depth: 1
+  resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextExtractionPredictionInstance
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction_1.0.0.yaml
+      for the format of the predictions.
+predict_text_sentiment_analysis_sample:
+  max_depth: 1
+  resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextSentimentPredictionInstance
+  comments:
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment_1.0.0.yaml
+      for the format of the predictions.
+search_migratable_resources_sample: {}
+undeploy_model_sample:
+  resource_name: endpoint
+update_dataset_sample: {}
+update_endpoint_sample: {}
+update_model_sample: {}
+update_specialist_pool_sample: {}
+upload_model_custom_container_sample:
+  timeout: 1800
+upload_model_explain_image_managed_container_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+upload_model_explain_tabular_managed_container_sample:
+  gapic_module_child: aiplatform_v1beta1
+  namespace: null
+upload_model_managed_container_sample:
+  timeout: 1800
+upload_model_sample:
+  timeout: 1800
