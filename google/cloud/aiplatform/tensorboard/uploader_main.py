@@ -103,13 +103,11 @@ def main(argv):
         experiment_name, FLAGS.experiment_display_name, project_id, region
     )
 
-    plugins = uploader_constants.ALLOWED_PLUGINS
-    if FLAGS.allowed_plugins:
-        plugins += [
-            plugin
-            for plugin in FLAGS.allowed_plugins
-            if plugin not in uploader_constants.ALLOWED_PLUGINS
-        ]
+    plugins = (
+        uploader_constants.ALLOWED_PLUGINS.union(FLAGS.allowed_plugins)
+        if FLAGS.allowed_plugins
+        else uploader_constants.ALLOWED_PLUGINS
+    )
 
     tb_uploader = uploader.TensorBoardUploader(
         experiment_name=experiment_name,
