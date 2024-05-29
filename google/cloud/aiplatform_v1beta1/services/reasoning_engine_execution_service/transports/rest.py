@@ -1119,6 +1119,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -1276,6 +1284,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1510,6 +1526,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -1679,6 +1703,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1940,6 +1972,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -2117,6 +2157,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2379,6 +2427,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -2552,6 +2608,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                 },
                 {
                     "method": "get",
@@ -2814,6 +2878,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                 },
                 {
@@ -2987,6 +3059,14 @@ class ReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -595,6 +595,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                     },
                     {
@@ -752,6 +760,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -929,6 +945,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -1098,6 +1122,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1299,6 +1331,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -1476,6 +1516,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1677,6 +1725,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                     },
                     {
@@ -1850,6 +1906,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2051,6 +2115,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                     },
                     {
@@ -2224,6 +2296,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3511,6 +3591,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -3668,6 +3756,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -3902,6 +3998,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -4071,6 +4175,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -4332,6 +4444,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -4509,6 +4629,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4771,6 +4899,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -4944,6 +5080,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                 },
                 {
                     "method": "get",
@@ -5206,6 +5350,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                 },
                 {
@@ -5379,6 +5531,14 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -349,6 +349,35 @@ class ReasoningEngineServiceGrpcAsyncIOTransport(ReasoningEngineServiceTransport
         return self._stubs["list_reasoning_engines"]
 
     @property
+    def update_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_service.UpdateReasoningEngineRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update reasoning engine method over gRPC.
+
+        Updates a reasoning engine.
+
+        Returns:
+            Callable[[~.UpdateReasoningEngineRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_reasoning_engine" not in self._stubs:
+            self._stubs["update_reasoning_engine"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ReasoningEngineService/UpdateReasoningEngine",
+                request_serializer=reasoning_engine_service.UpdateReasoningEngineRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_reasoning_engine"]
+
+    @property
     def delete_reasoning_engine(
         self,
     ) -> Callable[
@@ -392,6 +421,11 @@ class ReasoningEngineServiceGrpcAsyncIOTransport(ReasoningEngineServiceTransport
             ),
             self.list_reasoning_engines: gapic_v1.method_async.wrap_method(
                 self.list_reasoning_engines,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_reasoning_engine: gapic_v1.method_async.wrap_method(
+                self.update_reasoning_engine,
                 default_timeout=None,
                 client_info=client_info,
             ),

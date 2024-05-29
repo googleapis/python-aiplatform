@@ -63,7 +63,15 @@ class FindNeighborsRequest(proto.Message):
         r"""A query to find a number of the nearest neighbors (most
         similar vectors) of a vector.
 
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
+            rrf (google.cloud.aiplatform_v1beta1.types.FindNeighborsRequest.Query.RRF):
+                Optional. Represents RRF algorithm that
+                combines search results.
+
+                This field is a member of `oneof`_ ``ranking``.
             datapoint (google.cloud.aiplatform_v1beta1.types.IndexDatapoint):
                 Required. The datapoint/vector whose nearest
                 neighbors should be searched for.
@@ -95,6 +103,29 @@ class FindNeighborsRequest(proto.Message):
                 NearestNeighborSearchConfig.TreeAHConfig.fraction_leaf_nodes_to_search.
         """
 
+        class RRF(proto.Message):
+            r"""Parameters for RRF algorithm that combines search results.
+
+            Attributes:
+                alpha (float):
+                    Required. Users can provide an alpha value to
+                    give more weight to dense vs sparse results. For
+                    example, if the alpha is 0, we only return
+                    sparse and if the alpha is 1, we only return
+                    dense.
+            """
+
+            alpha: float = proto.Field(
+                proto.FLOAT,
+                number=1,
+            )
+
+        rrf: "FindNeighborsRequest.Query.RRF" = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            oneof="ranking",
+            message="FindNeighborsRequest.Query.RRF",
+        )
         datapoint: index.IndexDatapoint = proto.Field(
             proto.MESSAGE,
             number=1,
@@ -158,6 +189,9 @@ class FindNeighborsResponse(proto.Message):
             distance (float):
                 The distance between the neighbor and the
                 dense embedding query.
+            sparse_distance (float):
+                The distance between the neighbor and the query
+                sparse_embedding.
         """
 
         datapoint: index.IndexDatapoint = proto.Field(
@@ -168,6 +202,10 @@ class FindNeighborsResponse(proto.Message):
         distance: float = proto.Field(
             proto.DOUBLE,
             number=2,
+        )
+        sparse_distance: float = proto.Field(
+            proto.DOUBLE,
+            number=3,
         )
 
     class NearestNeighbors(proto.Message):

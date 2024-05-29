@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -44,6 +45,34 @@ class DeploymentResourcePool(proto.Message):
         dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
             Required. The underlying DedicatedResources
             that the DeploymentResourcePool uses.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            DeploymentResourcePool. If set, this
+            DeploymentResourcePool will be secured by this
+            key. Endpoints and the DeploymentResourcePool
+            they deploy in need to have the same
+            EncryptionSpec.
+        service_account (str):
+            The service account that the DeploymentResourcePool's
+            container(s) run as. Specify the email address of the
+            service account. If this service account is not specified,
+            the container(s) run as a service account that doesn't have
+            access to the resource project.
+
+            Users deploying the Models to this DeploymentResourcePool
+            must have the ``iam.serviceAccounts.actAs`` permission on
+            this service account.
+        disable_container_logging (bool):
+            If the DeploymentResourcePool is deployed with
+            custom-trained Models or AutoML Tabular Models, the
+            container(s) of the DeploymentResourcePool will send
+            ``stderr`` and ``stdout`` streams to Cloud Logging by
+            default. Please note that the logs incur cost, which are
+            subject to `Cloud Logging
+            pricing <https://cloud.google.com/logging/pricing>`__.
+
+            User can disable container logging by setting this flag to
+            true.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             DeploymentResourcePool was created.
@@ -57,6 +86,19 @@ class DeploymentResourcePool(proto.Message):
         proto.MESSAGE,
         number=2,
         message=machine_resources.DedicatedResources,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    service_account: str = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    disable_container_logging: bool = proto.Field(
+        proto.BOOL,
+        number=7,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,

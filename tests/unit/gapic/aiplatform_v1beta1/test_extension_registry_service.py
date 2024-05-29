@@ -3413,7 +3413,7 @@ def test_import_extension_rest(request_type):
             },
             "vertex_ai_search_runtime_config": {
                 "serving_config_name": "serving_config_name_value",
-                "app_id": "app_id_value",
+                "engine_id": "engine_id_value",
             },
             "default_params": {},
         },
@@ -4600,7 +4600,7 @@ def test_update_extension_rest(request_type):
             },
             "vertex_ai_search_runtime_config": {
                 "serving_config_name": "serving_config_name_value",
-                "app_id": "app_id_value",
+                "engine_id": "engine_id_value",
             },
             "default_params": {},
         },

@@ -55,6 +55,10 @@ class NotebookExecutionJob(proto.Message):
             ``gs://bucket/notebook_file.ipynb``
 
             This field is a member of `oneof`_ ``notebook_source``.
+        direct_notebook_source (google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob.DirectNotebookSource):
+            The contents of an input notebook file.
+
+            This field is a member of `oneof`_ ``notebook_source``.
         notebook_runtime_template_resource_name (str):
             The NotebookRuntimeTemplate to source compute
             configuration from.
@@ -103,6 +107,19 @@ class NotebookExecutionJob(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             NotebookExecutionJob was most recently updated.
+        labels (MutableMapping[str, str]):
+            The labels with user-defined metadata to
+            organize NotebookExecutionJobs.
+            Label keys and values can be no longer than 64
+            characters (Unicode codepoints), can only
+            contain lowercase letters, numeric characters,
+            underscores and dashes. International characters
+            are allowed.
+
+            See https://goo.gl/xmQnxf for more information
+            and examples of labels. System reserved label
+            keys are prefixed with
+            "aiplatform.googleapis.com/" and are immutable.
     """
 
     class DataformRepositorySource(proto.Message):
@@ -149,6 +166,20 @@ class NotebookExecutionJob(proto.Message):
             number=2,
         )
 
+    class DirectNotebookSource(proto.Message):
+        r"""The content of the input notebook in ipynb format.
+
+        Attributes:
+            content (bytes):
+                The base64-encoded contents of the input
+                notebook file.
+        """
+
+        content: bytes = proto.Field(
+            proto.BYTES,
+            number=1,
+        )
+
     dataform_repository_source: DataformRepositorySource = proto.Field(
         proto.MESSAGE,
         number=3,
@@ -160,6 +191,12 @@ class NotebookExecutionJob(proto.Message):
         number=4,
         oneof="notebook_source",
         message=GcsNotebookSource,
+    )
+    direct_notebook_source: DirectNotebookSource = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        oneof="notebook_source",
+        message=DirectNotebookSource,
     )
     notebook_runtime_template_resource_name: str = proto.Field(
         proto.STRING,
@@ -217,6 +254,11 @@ class NotebookExecutionJob(proto.Message):
         proto.MESSAGE,
         number=13,
         message=timestamp_pb2.Timestamp,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=19,
     )
 
 

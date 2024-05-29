@@ -84,6 +84,14 @@ class NotebookServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_create_notebook_execution_job(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_create_notebook_execution_job(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_create_notebook_runtime_template(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -172,6 +180,14 @@ class NotebookServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_update_notebook_runtime_template(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_update_notebook_runtime_template(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_upgrade_notebook_runtime(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -204,6 +220,31 @@ class NotebookServiceRestInterceptor:
         self, response: operations_pb2.Operation
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for assign_notebook_runtime
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_create_notebook_execution_job(
+        self,
+        request: notebook_service.CreateNotebookExecutionJobRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        notebook_service.CreateNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for create_notebook_execution_job
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_create_notebook_execution_job(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for create_notebook_execution_job
 
         Override in a subclass to manipulate the response
         after it is returned by the NotebookService server but before
@@ -473,6 +514,31 @@ class NotebookServiceRestInterceptor:
         self, response: operations_pb2.Operation
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for start_notebook_runtime
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_update_notebook_runtime_template(
+        self,
+        request: notebook_service.UpdateNotebookRuntimeTemplateRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        notebook_service.UpdateNotebookRuntimeTemplateRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for update_notebook_runtime_template
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_update_notebook_runtime_template(
+        self, response: notebook_runtime.NotebookRuntimeTemplate
+    ) -> notebook_runtime.NotebookRuntimeTemplate:
+        """Post-rpc interceptor for update_notebook_runtime_template
 
         Override in a subclass to manipulate the response
         after it is returned by the NotebookService server but before
@@ -850,6 +916,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                     },
                     {
@@ -1007,6 +1081,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1184,6 +1266,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -1353,6 +1443,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1554,6 +1652,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                     },
                     {
@@ -1731,6 +1837,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1932,6 +2046,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                     },
                     {
@@ -2105,6 +2227,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2306,6 +2436,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                     },
                     {
@@ -2479,6 +2617,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2779,6 +2925,101 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
             resp = self._interceptor.post_assign_notebook_runtime(resp)
+            return resp
+
+    class _CreateNotebookExecutionJob(NotebookServiceRestStub):
+        def __hash__(self):
+            return hash("CreateNotebookExecutionJob")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: notebook_service.CreateNotebookExecutionJobRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the create notebook execution
+            job method over HTTP.
+
+                Args:
+                    request (~.notebook_service.CreateNotebookExecutionJobRequest):
+                        The request object. Request message for
+                    [NotebookService.CreateNotebookExecutionJob]
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.operations_pb2.Operation:
+                        This resource represents a
+                    long-running operation that is the
+                    result of a network API call.
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*}/notebookExecutionJobs",
+                    "body": "notebook_execution_job",
+                },
+            ]
+            request, metadata = self._interceptor.pre_create_notebook_execution_job(
+                request, metadata
+            )
+            pb_request = notebook_service.CreateNotebookExecutionJobRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=False
+            )
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_create_notebook_execution_job(resp)
             return resp
 
     class _CreateNotebookRuntimeTemplate(NotebookServiceRestStub):
@@ -3776,6 +4017,109 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
             resp = self._interceptor.post_start_notebook_runtime(resp)
             return resp
 
+    class _UpdateNotebookRuntimeTemplate(NotebookServiceRestStub):
+        def __hash__(self):
+            return hash("UpdateNotebookRuntimeTemplate")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
+            "updateMask": {},
+        }
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: notebook_service.UpdateNotebookRuntimeTemplateRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> notebook_runtime.NotebookRuntimeTemplate:
+            r"""Call the update notebook runtime
+            template method over HTTP.
+
+                Args:
+                    request (~.notebook_service.UpdateNotebookRuntimeTemplateRequest):
+                        The request object. Request message for
+                    [NotebookService.UpdateNotebookRuntimeTemplate][google.cloud.aiplatform.v1beta1.NotebookService.UpdateNotebookRuntimeTemplate].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.notebook_runtime.NotebookRuntimeTemplate:
+                        A template that specifies runtime
+                    configurations such as machine type,
+                    runtime version, network configurations,
+                    etc. Multiple runtimes can be created
+                    from a runtime template.
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "patch",
+                    "uri": "/v1beta1/{notebook_runtime_template.name=projects/*/locations/*/notebookRuntimeTemplates/*}",
+                    "body": "notebook_runtime_template",
+                },
+            ]
+            request, metadata = self._interceptor.pre_update_notebook_runtime_template(
+                request, metadata
+            )
+            pb_request = notebook_service.UpdateNotebookRuntimeTemplateRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=False
+            )
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = notebook_runtime.NotebookRuntimeTemplate()
+            pb_resp = notebook_runtime.NotebookRuntimeTemplate.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_update_notebook_runtime_template(resp)
+            return resp
+
     class _UpgradeNotebookRuntime(NotebookServiceRestStub):
         def __hash__(self):
             return hash("UpgradeNotebookRuntime")
@@ -3879,6 +4223,16 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._AssignNotebookRuntime(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def create_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.CreateNotebookExecutionJobRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._CreateNotebookExecutionJob(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def create_notebook_runtime_template(
@@ -3996,6 +4350,17 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._StartNotebookRuntime(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def update_notebook_runtime_template(
+        self,
+    ) -> Callable[
+        [notebook_service.UpdateNotebookRuntimeTemplateRequest],
+        notebook_runtime.NotebookRuntimeTemplate,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._UpdateNotebookRuntimeTemplate(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def upgrade_notebook_runtime(
@@ -4571,6 +4936,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -4728,6 +5101,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -4962,6 +5343,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -5131,6 +5520,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -5392,6 +5789,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
                 },
                 {
@@ -5569,6 +5974,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -5831,6 +6244,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -6004,6 +6425,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
                 },
                 {
                     "method": "get",
@@ -6266,6 +6695,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
                 },
                 {
@@ -6439,6 +6876,14 @@ class NotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

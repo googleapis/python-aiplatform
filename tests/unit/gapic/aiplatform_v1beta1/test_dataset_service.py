@@ -1554,6 +1554,7 @@ def test_get_dataset(request_type, transport: str = "grpc"):
             data_item_count=1584,
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            model_reference="model_reference_value",
         )
         response = client.get_dataset(request)
 
@@ -1572,6 +1573,7 @@ def test_get_dataset(request_type, transport: str = "grpc"):
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_get_dataset_empty_call():
@@ -1677,6 +1679,7 @@ async def test_get_dataset_empty_call_async():
                 data_item_count=1584,
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.get_dataset()
@@ -1756,6 +1759,7 @@ async def test_get_dataset_async(
                 data_item_count=1584,
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.get_dataset(request)
@@ -1775,6 +1779,7 @@ async def test_get_dataset_async(
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 @pytest.mark.asyncio
@@ -1949,6 +1954,7 @@ def test_update_dataset(request_type, transport: str = "grpc"):
             data_item_count=1584,
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            model_reference="model_reference_value",
         )
         response = client.update_dataset(request)
 
@@ -1967,6 +1973,7 @@ def test_update_dataset(request_type, transport: str = "grpc"):
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_update_dataset_empty_call():
@@ -2068,6 +2075,7 @@ async def test_update_dataset_empty_call_async():
                 data_item_count=1584,
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.update_dataset()
@@ -2147,6 +2155,7 @@ async def test_update_dataset_async(
                 data_item_count=1584,
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.update_dataset(request)
@@ -2166,6 +2175,7 @@ async def test_update_dataset_async(
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 @pytest.mark.asyncio
@@ -4480,6 +4490,7 @@ def test_update_dataset_version(request_type, transport: str = "grpc"):
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
+            model_reference="model_reference_value",
         )
         response = client.update_dataset_version(request)
 
@@ -4495,6 +4506,7 @@ def test_update_dataset_version(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_update_dataset_version_empty_call():
@@ -4604,6 +4616,7 @@ async def test_update_dataset_version_empty_call_async():
                 etag="etag_value",
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.update_dataset_version()
@@ -4683,6 +4696,7 @@ async def test_update_dataset_version_async(
                 etag="etag_value",
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.update_dataset_version(request)
@@ -4699,6 +4713,7 @@ async def test_update_dataset_version_async(
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 @pytest.mark.asyncio
@@ -5287,6 +5302,7 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
+            model_reference="model_reference_value",
         )
         response = client.get_dataset_version(request)
 
@@ -5302,6 +5318,7 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_get_dataset_version_empty_call():
@@ -5414,6 +5431,7 @@ async def test_get_dataset_version_empty_call_async():
                 etag="etag_value",
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.get_dataset_version()
@@ -5493,6 +5511,7 @@ async def test_get_dataset_version_async(
                 etag="etag_value",
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
+                model_reference="model_reference_value",
             )
         )
         response = await client.get_dataset_version(request)
@@ -5509,6 +5528,7 @@ async def test_get_dataset_version_async(
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 @pytest.mark.asyncio
@@ -9743,6 +9763,7 @@ def test_create_dataset_rest(request_type):
         ],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "metadata_artifact": "metadata_artifact_value",
+        "model_reference": "model_reference_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10134,6 +10155,7 @@ def test_get_dataset_rest(request_type):
             data_item_count=1584,
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            model_reference="model_reference_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -10156,6 +10178,7 @@ def test_get_dataset_rest(request_type):
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_get_dataset_rest_use_cached_wrapped_rpc():
@@ -10472,6 +10495,7 @@ def test_update_dataset_rest(request_type):
         ],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "metadata_artifact": "metadata_artifact_value",
+        "model_reference": "model_reference_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10553,6 +10577,7 @@ def test_update_dataset_rest(request_type):
             data_item_count=1584,
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            model_reference="model_reference_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -10575,6 +10600,7 @@ def test_update_dataset_rest(request_type):
     assert response.data_item_count == 1584
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_update_dataset_rest_use_cached_wrapped_rpc():
@@ -12192,6 +12218,7 @@ def test_create_dataset_version_rest(request_type):
             "struct_value": {"fields": {}},
             "list_value": {"values": {}},
         },
+        "model_reference": "model_reference_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12598,6 +12625,7 @@ def test_update_dataset_version_rest(request_type):
             "struct_value": {"fields": {}},
             "list_value": {"values": {}},
         },
+        "model_reference": "model_reference_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12678,6 +12706,7 @@ def test_update_dataset_version_rest(request_type):
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
+            model_reference="model_reference_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -12697,6 +12726,7 @@ def test_update_dataset_version_rest(request_type):
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_update_dataset_version_rest_use_cached_wrapped_rpc():
@@ -13320,6 +13350,7 @@ def test_get_dataset_version_rest(request_type):
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
+            model_reference="model_reference_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -13339,6 +13370,7 @@ def test_get_dataset_version_rest(request_type):
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
+    assert response.model_reference == "model_reference_value"
 
 
 def test_get_dataset_version_rest_use_cached_wrapped_rpc():

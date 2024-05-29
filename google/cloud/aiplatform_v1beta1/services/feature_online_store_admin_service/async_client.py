@@ -48,6 +48,7 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service import (
     pagers,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
 from google.cloud.aiplatform_v1beta1.types import (
     feature_online_store as gca_feature_online_store,

@@ -67,6 +67,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
 from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -1699,6 +1700,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = deployment_resource_pool.DeploymentResourcePool(
             name="name_value",
+            service_account="service_account_value",
+            disable_container_logging=True,
         )
         response = client.get_deployment_resource_pool(request)
 
@@ -1711,6 +1714,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
 
 
 def test_get_deployment_resource_pool_empty_call():
@@ -1826,6 +1831,8 @@ async def test_get_deployment_resource_pool_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             deployment_resource_pool.DeploymentResourcePool(
                 name="name_value",
+                service_account="service_account_value",
+                disable_container_logging=True,
             )
         )
         response = await client.get_deployment_resource_pool()
@@ -1905,6 +1912,8 @@ async def test_get_deployment_resource_pool_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             deployment_resource_pool.DeploymentResourcePool(
                 name="name_value",
+                service_account="service_account_value",
+                disable_container_logging=True,
             )
         )
         response = await client.get_deployment_resource_pool(request)
@@ -1918,6 +1927,8 @@ async def test_get_deployment_resource_pool_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
@@ -4065,6 +4076,8 @@ def test_get_deployment_resource_pool_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = deployment_resource_pool.DeploymentResourcePool(
             name="name_value",
+            service_account="service_account_value",
+            disable_container_logging=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -4081,6 +4094,8 @@ def test_get_deployment_resource_pool_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
 
 
 def test_get_deployment_resource_pool_rest_use_cached_wrapped_rpc():

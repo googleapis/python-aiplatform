@@ -206,7 +206,9 @@ class ExtensionManifest(proto.Message):
             Required. The natural language description
             shown to the LLM. It should describe the usage
             of the extension, and is essential for the LLM
-            to perform reasoning.
+            to perform reasoning. e.g., if the extension is
+            a data store, you can let the LLM know what data
+            it contains.
         api_spec (google.cloud.aiplatform_v1beta1.types.ExtensionManifest.ApiSpec):
             Required. Immutable. The API specification
             shown to the LLM.
@@ -609,22 +611,21 @@ class RuntimeConfig(proto.Message):
 
         Attributes:
             serving_config_name (str):
-                [Deprecated] Please use app_id instead. Vertex AI Search
-                serving config name. Format:
+                Optional. Vertex AI Search serving config name. Format:
                 ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
-            app_id (str):
-                Vertex AI Search App ID. This is used to construct the
-                search request. By setting this app_id, API will construct
-                the serving config which is required to call search API for
-                the user. The app_id and serving_config_name cannot both be
-                empty at the same time.
+            engine_id (str):
+                Optional. Vertex AI Search engine ID. This is used to
+                construct the search request. By setting this engine_id, API
+                will construct the serving config using the default value to
+                call search API for the user. The engine_id and
+                serving_config_name cannot both be empty at the same time.
         """
 
         serving_config_name: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        app_id: str = proto.Field(
+        engine_id: str = proto.Field(
             proto.STRING,
             number=2,
         )

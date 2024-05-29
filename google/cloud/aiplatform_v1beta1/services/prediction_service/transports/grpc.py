@@ -640,6 +640,33 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             )
         return self._stubs["stream_generate_content"]
 
+    @property
+    def chat_completions(
+        self,
+    ) -> Callable[[prediction_service.ChatCompletionsRequest], httpbody_pb2.HttpBody]:
+        r"""Return a callable for the chat completions method over gRPC.
+
+        Exposes an OpenAI-compatible endpoint for chat
+        completions.
+
+        Returns:
+            Callable[[~.ChatCompletionsRequest],
+                    ~.HttpBody]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "chat_completions" not in self._stubs:
+            self._stubs["chat_completions"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/ChatCompletions",
+                request_serializer=prediction_service.ChatCompletionsRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["chat_completions"]
+
     def close(self):
         self.grpc_channel.close()
 
