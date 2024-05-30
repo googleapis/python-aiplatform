@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.53.0](https://github.com/googleapis/python-aiplatform/compare/v1.52.0...v1.53.0) (2024-05-30)
+
+
+### Features
+
+* Add a `cloneable` protocol for Reasoning Engine. ([8960a80](https://github.com/googleapis/python-aiplatform/commit/8960a8022dc7556413a83786fc14e25e91df8362))
+* Add labels parameter to the supervised tuning train method ([f7c5567](https://github.com/googleapis/python-aiplatform/commit/f7c5567b6e44895033cf52e6f80a1bb55fb5f647))
+* Added reboot command for PersistentResource ([7785f8c](https://github.com/googleapis/python-aiplatform/commit/7785f8c327ee17da4827840396c49063b8e6d18f))
+* Added the new `GenerationConfig.response_schema` field ([#3772](https://github.com/googleapis/python-aiplatform/issues/3772)) ([5436d88](https://github.com/googleapis/python-aiplatform/commit/5436d88bf8d6c9b6a9df5a496afdc25106463d30))
+* Enable Tensorboard profile plugin in all regions by default. ([8a4a41a](https://github.com/googleapis/python-aiplatform/commit/8a4a41afe47aaff2f69a73e5011b34bcba5cd2e9))
+* GenAI - Added the `response_schema` parameter to the `GenerationConfig` class ([b5e2c02](https://github.com/googleapis/python-aiplatform/commit/b5e2c0204070e5f7fb695d39c7e5d23f937dbffd))
+* LLM - Added the `seed` parameter to the `TextGenerationModel`'s `predict` methods ([cb2f4aa](https://github.com/googleapis/python-aiplatform/commit/cb2f4aa021af05c90e54c5e41c1c91f9d8bf13b8))
+
+
+### Bug Fixes
+
+* Create run_name when run_name_prefix is not specified for Tensorboard uploader. ([ac17d87](https://github.com/googleapis/python-aiplatform/commit/ac17d876074f3fb51ab6c04beff0d3985df54633))
+* GenAI - Tuning - Supervised - Fix `adapter_size` parameter handling to match enum values. ([1cc22c3](https://github.com/googleapis/python-aiplatform/commit/1cc22c3c3561f7c6374d32fafd45839256064958))
+* Model Monitor console uri. ([71fbc81](https://github.com/googleapis/python-aiplatform/commit/71fbc81df8fa0d7c863233abc3ed6d40666c1623))
+
 ## [1.52.0](https://github.com/googleapis/python-aiplatform/compare/v1.51.0...v1.52.0) (2024-05-21)
 
 
