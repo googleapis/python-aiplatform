@@ -1597,13 +1597,13 @@ def test_search_migratable_resources_pager(transport_name: str = "grpc"):
             RuntimeError,
         )
 
-        metadata = ()
-        metadata = tuple(metadata) + (
+        expected_metadata = ()
+        expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
         pager = client.search_migratable_resources(request={})
 
-        assert pager._metadata == metadata
+        assert pager._metadata == expected_metadata
 
         results = list(pager)
         assert len(results) == 6
@@ -3559,31 +3559,8 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    dataset = "clam"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "whelk",
-        "dataset": "octopus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
+    location = "clam"
+    dataset = "whelk"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -3595,8 +3572,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
+    dataset = "mussel"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
