@@ -560,7 +560,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
         )
         model_monitor_id = self._gca_resource.name.split("/")[-1]
         _LOGGER.info(
-            f"https://console.cloud.google.com/vertex-ai/model-monitoring/locations/{location}/modelMonitors/{model_monitor_id}?project={project}"
+            f"https://console.cloud.google.com/vertex-ai/model-monitoring/locations/{location}/model-monitors/{model_monitor_id}?project={project}"
         )
         return self
 
