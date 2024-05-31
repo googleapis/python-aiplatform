@@ -374,11 +374,11 @@ class TestRagDataManagement:
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_GCS)
 
-    def test_prepare_import_files_request_drive_folders(self):
-        paths = [tc.TEST_DRIVE_FOLDER]
+    @pytest.mark.parametrize("path", [tc.TEST_DRIVE_FOLDER, tc.TEST_DRIVE_FOLDER_2])
+    def test_prepare_import_files_request_drive_folders(self, path):
         request = prepare_import_files_request(
             corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
-            paths=paths,
+            paths=[path],
             chunk_size=tc.TEST_CHUNK_SIZE,
             chunk_overlap=tc.TEST_CHUNK_OVERLAP,
         )
