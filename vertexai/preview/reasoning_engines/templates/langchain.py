@@ -42,6 +42,13 @@ if TYPE_CHECKING:
         RunnableConfig = Any
         RunnableSerializable = Any
 
+    try:
+        from langchain_google_vertexai.functions_utils import _ToolsType
+
+        _ToolLike = _ToolsType
+    except ImportError:
+        _ToolLike = Any
+
 
 def _default_runnable_kwargs(has_history: bool) -> Mapping[str, Any]:
     # https://github.com/langchain-ai/langchain/blob/5784dfed001730530637793bea1795d9d5a7c244/libs/core/langchain_core/runnables/history.py#L237-L241
@@ -62,7 +69,13 @@ def _default_runnable_kwargs(has_history: bool) -> Mapping[str, Any]:
 
 
 def _default_output_parser():
-    from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
+    try:
+        from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
+    except (ModuleNotFoundError, ImportError):
+        # Fallback to an older version if needed.
+        from langchain.agents.output_parsers.openai_tools import (
+            OpenAIToolsAgentOutputParser as ToolsAgentOutputParser,
+        )
 
     return ToolsAgentOutputParser()
 
@@ -90,7 +103,7 @@ def _default_model_builder(
 def _default_runnable_builder(
     model: "BaseLanguageModel",
     *,
-    tools: Optional[Sequence[Union[Callable, "BaseTool"]]] = None,
+    tools: Optional[Sequence["_ToolLike"]] = None,
     prompt: Optional["RunnableSerializable"] = None,
     output_parser: Optional["RunnableSerializable"] = None,
     chat_history: Optional["GetSessionHistoryCallable"] = None,
@@ -123,6 +136,7 @@ def _default_runnable_builder(
             if isinstance(tool, lc_tools.BaseTool)
             else StructuredTool.from_function(tool)
             for tool in tools
+            if isinstance(tool, (Callable, lc_tools.BaseTool))
         ],
         **agent_executor_kwargs,
     )
@@ -139,7 +153,14 @@ def _default_runnable_builder(
 
 def _default_prompt(has_history: bool) -> "RunnableSerializable":
     from langchain_core import prompts
-    from langchain.agents.format_scratchpad.tools import format_to_tool_messages
+
+    try:
+        from langchain.agents.format_scratchpad.tools import format_to_tool_messages
+    except (ModuleNotFoundError, ImportError):
+        # Fallback to an older version if needed.
+        from langchain.agents.format_scratchpad.openai_tools import (
+            format_to_openai_tool_messages as format_to_tool_messages,
+        )
 
     if has_history:
         return {
@@ -186,12 +207,10 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
             )
 
 
-def _validate_tools(tools: Sequence[Union[Callable, "BaseTool"]]):
+def _validate_tools(tools: Sequence["_ToolLike"]):
     """Validates that the tools are usable for tool calling."""
-    from langchain_core import tools as lc_tools
-
     for tool in tools:
-        if not isinstance(tool, lc_tools.BaseTool):
+        if isinstance(tool, Callable):
             _validate_callable_parameters_are_annotated(tool)
 
 
@@ -208,7 +227,7 @@ class LangchainAgent:
         model: str,
         *,
         prompt: Optional["RunnableSerializable"] = None,
-        tools: Optional[Sequence[Union[Callable, "BaseTool"]]] = None,
+        tools: Optional[Sequence["_ToolLike"]] = None,
         output_parser: Optional["RunnableSerializable"] = None,
         chat_history: Optional["GetSessionHistoryCallable"] = None,
         model_kwargs: Optional[Mapping[str, Any]] = None,
