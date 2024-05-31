@@ -95,7 +95,7 @@ def lint(session):
         "--diff",
         *LINT_PATHS,
     )
-    session.run("flake8", "google", "tests")
+    session.run("flake8", *LINT_PATHS)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
@@ -225,7 +225,7 @@ def unit_ray(session, ray):
 def unit_langchain(session):
     # Install all test dependencies, then install this package in-place.
 
-    constraints_path = str(CURRENT_DIRECTORY / "testing" / f"constraints-langchain.txt")
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-langchain.txt")
     standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
     session.install(*standard_deps, "-c", constraints_path)
 
@@ -236,7 +236,7 @@ def unit_langchain(session):
     session.run(
         "py.test",
         "--quiet",
-        f"--junitxml=unit_langchain_sponge_log.xml",
+        "--junitxml=unit_langchain_sponge_log.xml",
         "--cov=google",
         "--cov-append",
         "--cov-config=.coveragerc",

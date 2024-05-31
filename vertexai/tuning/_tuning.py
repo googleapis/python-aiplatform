@@ -15,8 +15,7 @@
 # pylint: disable=protected-access
 """Classes to support Tuning."""
 
-import typing
-from typing import Dict, List, Optional, Union, Sequence
+from typing import Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
 

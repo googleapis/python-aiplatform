@@ -4163,7 +4163,7 @@ def _uri_join(uri: str, path_fragment: str) -> str:
 
 # Importing here to prevent issues caused by circular references
 # pylint: disable=g-import-not-at-top,g-bad-import-order
-from vertexai.language_models import _distillation
+from vertexai.language_models import _distillation  # noqa: E402
 
 
 class _PreviewTextGenerationModel(

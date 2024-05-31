@@ -25,9 +25,6 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import _publisher_models
 
-# this is needed for class registration to _SUBCLASSES
-import vertexai  # pylint:disable=unused-import
-
 _SUPPORTED_PUBLISHERS = ["google"]
 
 _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
