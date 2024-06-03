@@ -60,6 +60,7 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard as gca_tensorboard,
 )
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import experiment_run_resource
 
 
 import test_tensorboard
@@ -516,6 +517,16 @@ def get_experiment_mock():
 
 
 @pytest.fixture
+def assign_backing_tensorboard_mock():
+    with patch.object(
+        experiment_run_resource.ExperimentRun,
+        "_assign_to_experiment_backing_tensorboard"
+    ) as assign_tensorboard_mock:
+        assign_tensorboard_mock.side_effect = None
+        yield assign_tensorboard_mock
+
+
+@pytest.fixture
 def get_experiment_mock_without_tensorboard():
     with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
         get_context_mock.return_value = _EXPERIMENT_MOCK_WITHOUT_TB_SET
@@ -929,6 +940,7 @@ class TestAutologging:
         "update_context_mock",
         "list_tensorboard_time_series_mock_empty",
         "add_context_artifacts_and_executions_mock",
+        "assign_backing_tensorboard_mock",
     )
     def test_autologging_with_manual_run_creation(
         self,

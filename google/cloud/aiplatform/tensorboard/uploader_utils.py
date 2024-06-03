@@ -220,7 +220,7 @@ class OnePlatformResourceManager(object):
         )
         project = m[1]
         location = m[2]
-        tensorboard = m[3]
+        tensorboard_id = m[3]
         experiment = m[4]
         experiment_run = experiment_run_resource.ExperimentRun.get(
             project=project, location=location, run_name=run_name
@@ -233,7 +233,7 @@ class OnePlatformResourceManager(object):
                 location=location,
                 run_name=run_name,
                 experiment=experiment,
-                tensorboard=tensorboard,
+                tensorboard=f"projects/{project}/locations/{location}/tensorboards/{tensorboard_id}",
                 state=gca_execution.Execution.State.COMPLETE,
             )
         tb_run_artifact = experiment_run._backing_tensorboard_run
