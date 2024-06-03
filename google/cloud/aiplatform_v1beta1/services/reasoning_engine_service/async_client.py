@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -56,6 +57,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ReasoningEngineServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ReasoningEngineServiceGrpcAsyncIOTransport
@@ -213,7 +215,13 @@ class ReasoningEngineServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ReasoningEngineServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                ReasoningEngineServiceTransport,
+                Callable[..., ReasoningEngineServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -225,9 +233,11 @@ class ReasoningEngineServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.ReasoningEngineServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,ReasoningEngineServiceTransport,Callable[..., ReasoningEngineServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the ReasoningEngineServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -356,8 +366,8 @@ class ReasoningEngineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, reasoning_engine])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -365,7 +375,12 @@ class ReasoningEngineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = reasoning_engine_service.CreateReasoningEngineRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, reasoning_engine_service.CreateReasoningEngineRequest
+        ):
+            request = reasoning_engine_service.CreateReasoningEngineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -376,11 +391,9 @@ class ReasoningEngineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_reasoning_engine,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_reasoning_engine
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -476,8 +489,8 @@ class ReasoningEngineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -485,7 +498,10 @@ class ReasoningEngineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = reasoning_engine_service.GetReasoningEngineRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, reasoning_engine_service.GetReasoningEngineRequest):
+            request = reasoning_engine_service.GetReasoningEngineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -494,11 +510,9 @@ class ReasoningEngineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_reasoning_engine,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_reasoning_engine
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -588,8 +602,8 @@ class ReasoningEngineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -597,7 +611,12 @@ class ReasoningEngineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = reasoning_engine_service.ListReasoningEnginesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, reasoning_engine_service.ListReasoningEnginesRequest
+        ):
+            request = reasoning_engine_service.ListReasoningEnginesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -606,11 +625,9 @@ class ReasoningEngineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_reasoning_engines,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_reasoning_engines
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -636,6 +653,145 @@ class ReasoningEngineServiceAsyncClient:
             request=request,
             response=response,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_reasoning_engine(
+        self,
+        request: Optional[
+            Union[reasoning_engine_service.UpdateReasoningEngineRequest, dict]
+        ] = None,
+        *,
+        reasoning_engine: Optional[gca_reasoning_engine.ReasoningEngine] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Updates a reasoning engine.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_update_reasoning_engine():
+                # Create a client
+                client = aiplatform_v1beta1.ReasoningEngineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                reasoning_engine = aiplatform_v1beta1.ReasoningEngine()
+                reasoning_engine.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateReasoningEngineRequest(
+                    reasoning_engine=reasoning_engine,
+                )
+
+                # Make the request
+                operation = client.update_reasoning_engine(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateReasoningEngineRequest, dict]]):
+                The request object. Request message for
+                [ReasoningEngineService.UpdateReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineService.UpdateReasoningEngine].
+            reasoning_engine (:class:`google.cloud.aiplatform_v1beta1.types.ReasoningEngine`):
+                Required. The ReasoningEngine which
+                replaces the resource on the server.
+
+                This corresponds to the ``reasoning_engine`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. Mask specifying which
+                fields to update.
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ReasoningEngine` ReasoningEngine provides a customizable runtime for models to determine
+                   which actions to take and in which order.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([reasoning_engine, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, reasoning_engine_service.UpdateReasoningEngineRequest
+        ):
+            request = reasoning_engine_service.UpdateReasoningEngineRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if reasoning_engine is not None:
+            request.reasoning_engine = reasoning_engine
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_reasoning_engine
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("reasoning_engine.name", request.reasoning_engine.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            gca_reasoning_engine.ReasoningEngine,
+            metadata_type=reasoning_engine_service.UpdateReasoningEngineOperationMetadata,
         )
 
         # Done; return the response.
@@ -719,8 +875,8 @@ class ReasoningEngineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -728,7 +884,12 @@ class ReasoningEngineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = reasoning_engine_service.DeleteReasoningEngineRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, reasoning_engine_service.DeleteReasoningEngineRequest
+        ):
+            request = reasoning_engine_service.DeleteReasoningEngineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -737,11 +898,9 @@ class ReasoningEngineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_reasoning_engine,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_reasoning_engine
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

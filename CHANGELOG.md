@@ -1,5 +1,107 @@
 # Changelog
 
+## [1.53.0](https://github.com/googleapis/python-aiplatform/compare/v1.52.0...v1.53.0) (2024-05-30)
+
+
+### Features
+
+* Add a `cloneable` protocol for Reasoning Engine. ([8960a80](https://github.com/googleapis/python-aiplatform/commit/8960a8022dc7556413a83786fc14e25e91df8362))
+* Add labels parameter to the supervised tuning train method ([f7c5567](https://github.com/googleapis/python-aiplatform/commit/f7c5567b6e44895033cf52e6f80a1bb55fb5f647))
+* Added reboot command for PersistentResource ([7785f8c](https://github.com/googleapis/python-aiplatform/commit/7785f8c327ee17da4827840396c49063b8e6d18f))
+* Added the new `GenerationConfig.response_schema` field ([#3772](https://github.com/googleapis/python-aiplatform/issues/3772)) ([5436d88](https://github.com/googleapis/python-aiplatform/commit/5436d88bf8d6c9b6a9df5a496afdc25106463d30))
+* Enable Tensorboard profile plugin in all regions by default. ([8a4a41a](https://github.com/googleapis/python-aiplatform/commit/8a4a41afe47aaff2f69a73e5011b34bcba5cd2e9))
+* GenAI - Added the `response_schema` parameter to the `GenerationConfig` class ([b5e2c02](https://github.com/googleapis/python-aiplatform/commit/b5e2c0204070e5f7fb695d39c7e5d23f937dbffd))
+* LLM - Added the `seed` parameter to the `TextGenerationModel`'s `predict` methods ([cb2f4aa](https://github.com/googleapis/python-aiplatform/commit/cb2f4aa021af05c90e54c5e41c1c91f9d8bf13b8))
+
+
+### Bug Fixes
+
+* Create run_name when run_name_prefix is not specified for Tensorboard uploader. ([ac17d87](https://github.com/googleapis/python-aiplatform/commit/ac17d876074f3fb51ab6c04beff0d3985df54633))
+* GenAI - Tuning - Supervised - Fix `adapter_size` parameter handling to match enum values. ([1cc22c3](https://github.com/googleapis/python-aiplatform/commit/1cc22c3c3561f7c6374d32fafd45839256064958))
+* Model Monitor console uri. ([71fbc81](https://github.com/googleapis/python-aiplatform/commit/71fbc81df8fa0d7c863233abc3ed6d40666c1623))
+
+## [1.52.0](https://github.com/googleapis/python-aiplatform/compare/v1.51.0...v1.52.0) (2024-05-21)
+
+
+### Features
+
+* Add FeatureGroup delete ([f9011e0](https://github.com/googleapis/python-aiplatform/commit/f9011e0b1b4ea8470849ecdd5ba9e086c73b778b))
+* Add support for ToolConfig in the LangChain template ([9bda328](https://github.com/googleapis/python-aiplatform/commit/9bda3288b59eb52c18a13c292561cb2c720ff331))
+* Create Vertex Experiment when uploading Tensorboard logs ([339f8b6](https://github.com/googleapis/python-aiplatform/commit/339f8b667952c7302c36605842ba92fa1c7135b8))
+* GenAI - Add BatchPredictionJob for GenAI models ([df4a4f2](https://github.com/googleapis/python-aiplatform/commit/df4a4f2745178a6458bb6dc1f124c8ee60e986c1))
+* GenAI - Add cancel, delete, list methods in BatchPredictionJob ([7ff8071](https://github.com/googleapis/python-aiplatform/commit/7ff80714c2ec55330d5d6a0075366f8f700128af))
+* GenAI - Added the `BatchPredictionJob.submit` method ([4d091c6](https://github.com/googleapis/python-aiplatform/commit/4d091c68b17b3c1b4a912aa38d3a098fdc21238d))
+* Private Endpoints - Added private service connect support to prediction endpoint. ([6bdcfb3](https://github.com/googleapis/python-aiplatform/commit/6bdcfb3c0c6b121d5fbfcdad9dd218a1ddfc3e0d))
+
+
+### Bug Fixes
+
+* Add validation for evaluation dataset fields, update logging info for eval api request count ([d6ef500](https://github.com/googleapis/python-aiplatform/commit/d6ef50080f3b2b923ba0fb89eb0a8daebf8f68d4))
+* Fix feature attribution drift visualization for model monitoring SDK ([710f33d](https://github.com/googleapis/python-aiplatform/commit/710f33d87e242a283e8fbe5327ba9fa781d0d8fc))
+* Fix the default value of response_column_name in EvalTask.evaluate() ([98f9b35](https://github.com/googleapis/python-aiplatform/commit/98f9b35ccde7dad7f3e6b9e259a201ee2784d15e))
+* Update get_experiment_df to pass Experiment and allow empty metrics. ([de5d0f3](https://github.com/googleapis/python-aiplatform/commit/de5d0f3a17a77cbc70ada480768d9209c7b02828))
+
+
+### Documentation
+
+* Add Vertex Model Monitoring V2 SDK documentation ([b47e6ff](https://github.com/googleapis/python-aiplatform/commit/b47e6ff1f17278a6f1e4c31def05f3a09d981b28))
+* Update docstrings for rapid evaluation library. ([d6d371d](https://github.com/googleapis/python-aiplatform/commit/d6d371d61abd2daa2f222ca82540c5e0c4b3a602))
+
+## [1.51.0](https://github.com/googleapis/python-aiplatform/compare/v1.50.0...v1.51.0) (2024-05-10)
+
+
+### Features
+
+* Add FeatureGroup create function ([3938107](https://github.com/googleapis/python-aiplatform/commit/393810728b6b940e4cc8e1ac7f55875e3b750beb))
+* Add FeatureGroup init/get ([e47d436](https://github.com/googleapis/python-aiplatform/commit/e47d436f24cc718e378a28c4a80293778e8c183a))
+* Add support for BaseModels in LangChain templates ([5eb885e](https://github.com/googleapis/python-aiplatform/commit/5eb885ee7e01eece15679ce400f222930da1ac16))
+* Added the `vision_models.Image._mime_type` property to make `vision_models.Image` compatible with `generative_models.Image` ([6557d88](https://github.com/googleapis/python-aiplatform/commit/6557d88eb73624c8dbc7da33db129f7cbdae8a06))
+* AutoSxS Pairwise Metric in Rapid Evaluation SDK ([b0c5eda](https://github.com/googleapis/python-aiplatform/commit/b0c5eda79489d4b32972b2acea647e3c8cdc3ce9))
+* GenAI - Grounding - Released Google Web Search retriever to GA ([32b030a](https://github.com/googleapis/python-aiplatform/commit/32b030a629a20d0557dba011df2658f46c199820))
+* GenAI - Tuning - Supervised - Added support for the `adapter_size` parameter ([88188d2](https://github.com/googleapis/python-aiplatform/commit/88188d294fc2ec55ec0b05640dc791a1a3a88255))
+* LLM - Made the tuning location parameters truly optional ([bae8429](https://github.com/googleapis/python-aiplatform/commit/bae8429ae078c69574d86280ae6c784aaa9b13b5))
+* LLM - Support tuning of new text embedding models by migrating to the new v1.1.3 pipeline. ([7fea754](https://github.com/googleapis/python-aiplatform/commit/7fea7547084277dc974cbacc517ca1e95629a034))
+* LLM - Text embedding - Added the `output_dimensionality` and `learning_rate_multiplier` parameters to text embedding tuning (Preview only) ([cc8bc96](https://github.com/googleapis/python-aiplatform/commit/cc8bc965932efb68a30db9decb5a24cf597b0d8b))
+* LLM - Text Embedding - Added validation for text embedding tuning parameters. ([5a300c1](https://github.com/googleapis/python-aiplatform/commit/5a300c1071fa1492502cfde95700e1b171cdfbfc))
+* Release Ray on Vertex SDK to GA ([f7c5132](https://github.com/googleapis/python-aiplatform/commit/f7c51327c49d000cc79d56bb5333ed7fea28fa01))
+* Support custom service account for Ray cluster creation and Ray Client connection ([e0c6227](https://github.com/googleapis/python-aiplatform/commit/e0c6227d0dd92d83c98cc3c7e7607fd252e74a32))
+* Support vector_distance_threshold filtering and file-based retrieval for RAG ([cd85d8f](https://github.com/googleapis/python-aiplatform/commit/cd85d8f74d3922de3f871415bacf77c594f0c547))
+
+
+### Bug Fixes
+
+* A bug in the evaluation library where the job crashes if only custom metrics are specified. ([c528b6f](https://github.com/googleapis/python-aiplatform/commit/c528b6ff44e2347797336db800ca01240e670d32))
+* Add DeprecationWarning to vertexai.preview predictive models SDK ([3c3727b](https://github.com/googleapis/python-aiplatform/commit/3c3727b48ce4ba12bdaf36806cda4907a788d38e))
+* Add MAX_TOKENS to the list of successful finish reasons for Rapid Evaluation SDK ([195c77e](https://github.com/googleapis/python-aiplatform/commit/195c77ed7320aea3ab5899427a922d606ed78997))
+* AttributeError for TorchModelSerializer.deserialize in torch &gt;=2.3.0 ([20b1866](https://github.com/googleapis/python-aiplatform/commit/20b18668f15c448813aad4f58f2a4d470d6da2ec))
+* GenAI - Fixed handling of multiple tools in `AutomaticFunctionCallingResponder` ([58e6ac9](https://github.com/googleapis/python-aiplatform/commit/58e6ac9b14daa42dc64d787156070c22bd7a1655))
+* Remove InternalServerError and Unknown evaluation service error from retriable exceptions ([12c147b](https://github.com/googleapis/python-aiplatform/commit/12c147b1f3e127c925b6c42b7dbbd4e949ff8e98))
+* Upload the reference model in model registry ([510c833](https://github.com/googleapis/python-aiplatform/commit/510c8334961cdb6f801863ecbd8fe49bf69b6c68))
+
+## [1.50.0](https://github.com/googleapis/python-aiplatform/compare/v1.49.0...v1.50.0) (2024-05-02)
+
+
+### Features
+
+* Add `Candidate.grounding_metadata` property ([b22a8b8](https://github.com/googleapis/python-aiplatform/commit/b22a8b847e3b299b828e37405e3678093486de28))
+* Add option to not include time_series_metrics in get_experiment_df call. This will improve execution time for Experiments with large number of runs. ([78a95c5](https://github.com/googleapis/python-aiplatform/commit/78a95c52d0e7bd9ec5b656ce67044b2f01677156))
+* Add tune_model and deploy_tuned_model for TextEmbeddingModel. ([42f5d6f](https://github.com/googleapis/python-aiplatform/commit/42f5d6f7cd13d51c4a73113c59e8b3c728cfc08b))
+* Automatically populate parents for full resource name in Vertex RAG SDK ([26657ff](https://github.com/googleapis/python-aiplatform/commit/26657ffd25ecb91882ca764e513c2e952833257f))
+* Deploy a tuned text embedding model -- it doesn't matter, if it's tuned using Node.js, or curl. ([8ca9cdf](https://github.com/googleapis/python-aiplatform/commit/8ca9cdf3576e3ce3b373ace4cd6ab0e9c54aa9f2))
+* Make get_embeddings work both for foundational & tuned models. ([b8b589c](https://github.com/googleapis/python-aiplatform/commit/b8b589ce9fff29d1721450d32b4a84a7f69413c3))
+* Python SDK for Vertex Model Monitoring V2. ([021d59f](https://github.com/googleapis/python-aiplatform/commit/021d59f1487e4e16c847d4135899d6845c0210aa))
+* Support public endpoint for Ray Client ([57a5f78](https://github.com/googleapis/python-aiplatform/commit/57a5f7815ffb8523e91d900da4ff7cfd0c344fe4))
+
+
+### Bug Fixes
+
+* Add deprecation warnings when using Ray v2.4 ([3a36784](https://github.com/googleapis/python-aiplatform/commit/3a367843840513e3257610c8ab38e9f79d3bcea0))
+* Append allowed_plugins in tb-gcp-uploader to default allowed plugins ([aab9c3e](https://github.com/googleapis/python-aiplatform/commit/aab9c3e41b92a1d60090e3d1d594390a5e9f3ff6))
+* LLM - Added missing parameters to the no-op `_TunableTextEmbeddingModelMixin.get_tuned_model` method ([eb05ac4](https://github.com/googleapis/python-aiplatform/commit/eb05ac421f186441a92c6e3b6a010d74caf14782))
+* LVM - Fixed the typo in the VisionModel aspect ratio type annotation ([2d19137](https://github.com/googleapis/python-aiplatform/commit/2d1913773cf9f4a4f8a2c8c8f45680c3ea97f68e))
+* Move torch import ([e6d34df](https://github.com/googleapis/python-aiplatform/commit/e6d34df7da7508c655eb17ee694e1ab2160fc8aa))
+* Ray - Fixed exception when using Ray 2.4 ([2661f52](https://github.com/googleapis/python-aiplatform/commit/2661f52fd08169e5d29b58f2afce9702b30101ae))
+
 ## [1.49.0](https://github.com/googleapis/python-aiplatform/compare/v1.48.0...v1.49.0) (2024-04-27)
 
 

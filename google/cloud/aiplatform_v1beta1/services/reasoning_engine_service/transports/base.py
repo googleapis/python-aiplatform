@@ -148,6 +148,11 @@ class ReasoningEngineServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_reasoning_engine: gapic_v1.method.wrap_method(
+                self.update_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_reasoning_engine: gapic_v1.method.wrap_method(
                 self.delete_reasoning_engine,
                 default_timeout=None,
@@ -199,6 +204,15 @@ class ReasoningEngineServiceTransport(abc.ABC):
             reasoning_engine_service.ListReasoningEnginesResponse,
             Awaitable[reasoning_engine_service.ListReasoningEnginesResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_service.UpdateReasoningEngineRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

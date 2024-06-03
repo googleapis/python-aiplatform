@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -45,9 +46,15 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.notebook_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
+from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import network_spec
 from google.cloud.aiplatform_v1beta1.types import notebook_euc_config
+from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
+from google.cloud.aiplatform_v1beta1.types import (
+    notebook_execution_job as gca_notebook_execution_job,
+)
 from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import (
@@ -60,8 +67,11 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import NotebookServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import NotebookServiceGrpcAsyncIOTransport
 from .client import NotebookServiceClient
@@ -83,6 +93,12 @@ class NotebookServiceAsyncClient:
 
     network_path = staticmethod(NotebookServiceClient.network_path)
     parse_network_path = staticmethod(NotebookServiceClient.parse_network_path)
+    notebook_execution_job_path = staticmethod(
+        NotebookServiceClient.notebook_execution_job_path
+    )
+    parse_notebook_execution_job_path = staticmethod(
+        NotebookServiceClient.parse_notebook_execution_job_path
+    )
     notebook_runtime_path = staticmethod(NotebookServiceClient.notebook_runtime_path)
     parse_notebook_runtime_path = staticmethod(
         NotebookServiceClient.parse_notebook_runtime_path
@@ -93,6 +109,8 @@ class NotebookServiceAsyncClient:
     parse_notebook_runtime_template_path = staticmethod(
         NotebookServiceClient.parse_notebook_runtime_template_path
     )
+    schedule_path = staticmethod(NotebookServiceClient.schedule_path)
+    parse_schedule_path = staticmethod(NotebookServiceClient.parse_schedule_path)
     subnetwork_path = staticmethod(NotebookServiceClient.subnetwork_path)
     parse_subnetwork_path = staticmethod(NotebookServiceClient.parse_subnetwork_path)
     common_billing_account_path = staticmethod(
@@ -225,7 +243,11 @@ class NotebookServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, NotebookServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str, NotebookServiceTransport, Callable[..., NotebookServiceTransport]
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -237,9 +259,11 @@ class NotebookServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.NotebookServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,NotebookServiceTransport,Callable[..., NotebookServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the NotebookServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -380,8 +404,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, notebook_runtime_template, notebook_runtime_template_id]
         )
@@ -391,7 +415,12 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.CreateNotebookRuntimeTemplateRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, notebook_service.CreateNotebookRuntimeTemplateRequest
+        ):
+            request = notebook_service.CreateNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -404,11 +433,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_notebook_runtime_template,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_notebook_runtime_template
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -505,8 +532,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -514,7 +541,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.GetNotebookRuntimeTemplateRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.GetNotebookRuntimeTemplateRequest):
+            request = notebook_service.GetNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -523,11 +553,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_notebook_runtime_template,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_notebook_runtime_template
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -617,8 +645,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -626,7 +654,12 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.ListNotebookRuntimeTemplatesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, notebook_service.ListNotebookRuntimeTemplatesRequest
+        ):
+            request = notebook_service.ListNotebookRuntimeTemplatesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -635,11 +668,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_notebook_runtime_templates,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_notebook_runtime_templates
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -748,8 +779,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -757,7 +788,12 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.DeleteNotebookRuntimeTemplateRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, notebook_service.DeleteNotebookRuntimeTemplateRequest
+        ):
+            request = notebook_service.DeleteNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -766,11 +802,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_notebook_runtime_template,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_notebook_runtime_template
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -795,6 +829,146 @@ class NotebookServiceAsyncClient:
             self._client._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_notebook_runtime_template(
+        self,
+        request: Optional[
+            Union[notebook_service.UpdateNotebookRuntimeTemplateRequest, dict]
+        ] = None,
+        *,
+        notebook_runtime_template: Optional[
+            notebook_runtime.NotebookRuntimeTemplate
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> notebook_runtime.NotebookRuntimeTemplate:
+        r"""Updates a NotebookRuntimeTemplate.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_update_notebook_runtime_template():
+                # Create a client
+                client = aiplatform_v1beta1.NotebookServiceAsyncClient()
+
+                # Initialize request argument(s)
+                notebook_runtime_template = aiplatform_v1beta1.NotebookRuntimeTemplate()
+                notebook_runtime_template.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateNotebookRuntimeTemplateRequest(
+                    notebook_runtime_template=notebook_runtime_template,
+                )
+
+                # Make the request
+                response = await client.update_notebook_runtime_template(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateNotebookRuntimeTemplateRequest, dict]]):
+                The request object. Request message for
+                [NotebookService.UpdateNotebookRuntimeTemplate][google.cloud.aiplatform.v1beta1.NotebookService.UpdateNotebookRuntimeTemplate].
+            notebook_runtime_template (:class:`google.cloud.aiplatform_v1beta1.types.NotebookRuntimeTemplate`):
+                Required. The NotebookRuntimeTemplate
+                to update.
+
+                This corresponds to the ``notebook_runtime_template`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The update mask applies to the resource. For
+                the ``FieldMask`` definition, see
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
+                Input format: ``{paths: "${updated_filed}"}`` Updatable
+                fields:
+
+                -  ``encryption_spec.kms_key_name``
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.NotebookRuntimeTemplate:
+                A template that specifies runtime
+                configurations such as machine type,
+                runtime version, network configurations,
+                etc. Multiple runtimes can be created
+                from a runtime template.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([notebook_runtime_template, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, notebook_service.UpdateNotebookRuntimeTemplateRequest
+        ):
+            request = notebook_service.UpdateNotebookRuntimeTemplateRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if notebook_runtime_template is not None:
+            request.notebook_runtime_template = notebook_runtime_template
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_notebook_runtime_template
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (
+                    (
+                        "notebook_runtime_template.name",
+                        request.notebook_runtime_template.name,
+                    ),
+                )
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -907,8 +1081,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, notebook_runtime_template, notebook_runtime, notebook_runtime_id]
         )
@@ -918,7 +1092,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.AssignNotebookRuntimeRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.AssignNotebookRuntimeRequest):
+            request = notebook_service.AssignNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -933,11 +1110,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.assign_notebook_runtime,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.assign_notebook_runtime
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1037,8 +1212,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1046,7 +1221,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.GetNotebookRuntimeRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.GetNotebookRuntimeRequest):
+            request = notebook_service.GetNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1055,11 +1233,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_notebook_runtime,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_notebook_runtime
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1149,8 +1325,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1158,7 +1334,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.ListNotebookRuntimesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.ListNotebookRuntimesRequest):
+            request = notebook_service.ListNotebookRuntimesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1167,11 +1346,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_notebook_runtimes,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_notebook_runtimes
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1284,8 +1461,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1293,7 +1470,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.DeleteNotebookRuntimeRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.DeleteNotebookRuntimeRequest):
+            request = notebook_service.DeleteNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1302,11 +1482,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_notebook_runtime,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_notebook_runtime
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1410,8 +1588,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1419,7 +1597,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.UpgradeNotebookRuntimeRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.UpgradeNotebookRuntimeRequest):
+            request = notebook_service.UpgradeNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1428,11 +1609,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.upgrade_notebook_runtime,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.upgrade_notebook_runtime
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1536,8 +1715,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1545,7 +1724,10 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = notebook_service.StartNotebookRuntimeRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.StartNotebookRuntimeRequest):
+            request = notebook_service.StartNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1554,11 +1736,9 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.start_notebook_runtime,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.start_notebook_runtime
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1583,6 +1763,522 @@ class NotebookServiceAsyncClient:
             self._client._transport.operations_client,
             notebook_service.StartNotebookRuntimeResponse,
             metadata_type=notebook_service.StartNotebookRuntimeOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def create_notebook_execution_job(
+        self,
+        request: Optional[
+            Union[notebook_service.CreateNotebookExecutionJobRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        notebook_execution_job: Optional[
+            gca_notebook_execution_job.NotebookExecutionJob
+        ] = None,
+        notebook_execution_job_id: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Creates a NotebookExecutionJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_create_notebook_execution_job():
+                # Create a client
+                client = aiplatform_v1beta1.NotebookServiceAsyncClient()
+
+                # Initialize request argument(s)
+                notebook_execution_job = aiplatform_v1beta1.NotebookExecutionJob()
+                notebook_execution_job.notebook_runtime_template_resource_name = "notebook_runtime_template_resource_name_value"
+                notebook_execution_job.gcs_output_uri = "gcs_output_uri_value"
+                notebook_execution_job.execution_user = "execution_user_value"
+
+                request = aiplatform_v1beta1.CreateNotebookExecutionJobRequest(
+                    parent="parent_value",
+                    notebook_execution_job=notebook_execution_job,
+                )
+
+                # Make the request
+                operation = client.create_notebook_execution_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateNotebookExecutionJobRequest, dict]]):
+                The request object. Request message for
+                [NotebookService.CreateNotebookExecutionJob]
+            parent (:class:`str`):
+                Required. The resource name of the Location to create
+                the NotebookExecutionJob. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            notebook_execution_job (:class:`google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob`):
+                Required. The NotebookExecutionJob to
+                create.
+
+                This corresponds to the ``notebook_execution_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            notebook_execution_job_id (:class:`str`):
+                Optional. User specified ID for the
+                NotebookExecutionJob.
+
+                This corresponds to the ``notebook_execution_job_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob`
+                NotebookExecutionJob represents an instance of a
+                notebook execution.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any(
+            [parent, notebook_execution_job, notebook_execution_job_id]
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.CreateNotebookExecutionJobRequest):
+            request = notebook_service.CreateNotebookExecutionJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if notebook_execution_job is not None:
+            request.notebook_execution_job = notebook_execution_job
+        if notebook_execution_job_id is not None:
+            request.notebook_execution_job_id = notebook_execution_job_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_notebook_execution_job
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            gca_notebook_execution_job.NotebookExecutionJob,
+            metadata_type=notebook_service.CreateNotebookExecutionJobOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_notebook_execution_job(
+        self,
+        request: Optional[
+            Union[notebook_service.GetNotebookExecutionJobRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> notebook_execution_job.NotebookExecutionJob:
+        r"""Gets a NotebookExecutionJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_get_notebook_execution_job():
+                # Create a client
+                client = aiplatform_v1beta1.NotebookServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetNotebookExecutionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_notebook_execution_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetNotebookExecutionJobRequest, dict]]):
+                The request object. Request message for
+                [NotebookService.GetNotebookExecutionJob]
+            name (:class:`str`):
+                Required. The name of the
+                NotebookExecutionJob resource.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob:
+                NotebookExecutionJob represents an
+                instance of a notebook execution.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.GetNotebookExecutionJobRequest):
+            request = notebook_service.GetNotebookExecutionJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_notebook_execution_job
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_notebook_execution_jobs(
+        self,
+        request: Optional[
+            Union[notebook_service.ListNotebookExecutionJobsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNotebookExecutionJobsAsyncPager:
+        r"""Lists NotebookExecutionJobs in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_list_notebook_execution_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.NotebookServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListNotebookExecutionJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_notebook_execution_jobs(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListNotebookExecutionJobsRequest, dict]]):
+                The request object. Request message for
+                [NotebookService.ListNotebookExecutionJobs]
+            parent (:class:`str`):
+                Required. The resource name of the Location from which
+                to list the NotebookExecutionJobs. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.notebook_service.pagers.ListNotebookExecutionJobsAsyncPager:
+                Response message for
+                [NotebookService.CreateNotebookExecutionJob]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.ListNotebookExecutionJobsRequest):
+            request = notebook_service.ListNotebookExecutionJobsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_notebook_execution_jobs
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListNotebookExecutionJobsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_notebook_execution_job(
+        self,
+        request: Optional[
+            Union[notebook_service.DeleteNotebookExecutionJobRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deletes a NotebookExecutionJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_delete_notebook_execution_job():
+                # Create a client
+                client = aiplatform_v1beta1.NotebookServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteNotebookExecutionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_notebook_execution_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteNotebookExecutionJobRequest, dict]]):
+                The request object. Request message for
+                [NotebookService.DeleteNotebookExecutionJob]
+            name (:class:`str`):
+                Required. The name of the
+                NotebookExecutionJob resource to be
+                deleted.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, notebook_service.DeleteNotebookExecutionJobRequest):
+            request = notebook_service.DeleteNotebookExecutionJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_notebook_execution_job
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.

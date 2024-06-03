@@ -58,6 +58,10 @@ class DatasetVersion(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Output only. Additional information
             about the DatasetVersion.
+        model_reference (str):
+            Output only. Reference to the public base
+            model last used by the dataset version. Only set
+            for prompt dataset versions.
     """
 
     name: str = proto.Field(
@@ -90,6 +94,10 @@ class DatasetVersion(proto.Message):
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
+    )
+    model_reference: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
 
 

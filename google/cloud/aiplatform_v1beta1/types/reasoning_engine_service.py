@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import (
     reasoning_engine as gca_reasoning_engine,
 )
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -31,6 +32,8 @@ __protobuf__ = proto.module(
         "CreateReasoningEngineRequest",
         "CreateReasoningEngineOperationMetadata",
         "GetReasoningEngineRequest",
+        "UpdateReasoningEngineRequest",
+        "UpdateReasoningEngineOperationMetadata",
         "ListReasoningEnginesRequest",
         "ListReasoningEnginesResponse",
         "DeleteReasoningEngineRequest",
@@ -92,6 +95,48 @@ class GetReasoningEngineRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class UpdateReasoningEngineRequest(proto.Message):
+    r"""Request message for
+    [ReasoningEngineService.UpdateReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineService.UpdateReasoningEngine].
+
+    Attributes:
+        reasoning_engine (google.cloud.aiplatform_v1beta1.types.ReasoningEngine):
+            Required. The ReasoningEngine which replaces
+            the resource on the server.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. Mask specifying which fields to
+            update.
+    """
+
+    reasoning_engine: gca_reasoning_engine.ReasoningEngine = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_reasoning_engine.ReasoningEngine,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class UpdateReasoningEngineOperationMetadata(proto.Message):
+    r"""Details of
+    [ReasoningEngineService.UpdateReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineService.UpdateReasoningEngine]
+    operation.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

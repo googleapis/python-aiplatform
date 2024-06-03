@@ -14,6 +14,8 @@ Services for Google Cloud Aiplatform v1beta1 API
     feature_registry_service
     featurestore_online_serving_service
     featurestore_service
+    gen_ai_cache_service
+    gen_ai_tuning_service
     index_endpoint_service
     index_service
     job_service

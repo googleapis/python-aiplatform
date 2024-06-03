@@ -41,7 +41,10 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 class PredictionServiceTransport(abc.ABC):
     """Abstract transport class for PredictionService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        "https://www.googleapis.com/auth/cloud-platform",
+        "https://www.googleapis.com/auth/cloud-platform.read-only",
+    )
 
     DEFAULT_HOST: str = "aiplatform.googleapis.com"
 

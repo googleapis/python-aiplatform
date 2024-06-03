@@ -52,6 +52,10 @@ from .services.featurestore_online_serving_service import (
 )
 from .services.featurestore_service import FeaturestoreServiceClient
 from .services.featurestore_service import FeaturestoreServiceAsyncClient
+from .services.gen_ai_cache_service import GenAiCacheServiceClient
+from .services.gen_ai_cache_service import GenAiCacheServiceAsyncClient
+from .services.gen_ai_tuning_service import GenAiTuningServiceClient
+from .services.gen_ai_tuning_service import GenAiTuningServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
 from .services.index_endpoint_service import IndexEndpointServiceAsyncClient
 from .services.index_service import IndexServiceClient
@@ -106,6 +110,7 @@ from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
+from .types.cached_content import CachedContent
 from .types.completion_stats import CompletionStats
 from .types.content import Blob
 from .types.content import Candidate
@@ -119,6 +124,7 @@ from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
@@ -170,6 +176,7 @@ from .types.dataset_service import RestoreDatasetVersionRequest
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.dataset_service import UpdateDatasetVersionRequest
 from .types.dataset_version import DatasetVersion
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -407,6 +414,8 @@ from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
 from .types.featurestore_online_service import ReadFeatureValuesResponse
 from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_online_service import StructFieldValue
+from .types.featurestore_online_service import StructValue
 from .types.featurestore_online_service import WriteFeatureValuesPayload
 from .types.featurestore_online_service import WriteFeatureValuesRequest
 from .types.featurestore_online_service import WriteFeatureValuesResponse
@@ -452,6 +461,17 @@ from .types.featurestore_service import UpdateEntityTypeRequest
 from .types.featurestore_service import UpdateFeatureRequest
 from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
+from .types.gen_ai_cache_service import CreateCachedContentRequest
+from .types.gen_ai_cache_service import DeleteCachedContentRequest
+from .types.gen_ai_cache_service import GetCachedContentRequest
+from .types.gen_ai_cache_service import ListCachedContentsRequest
+from .types.gen_ai_cache_service import ListCachedContentsResponse
+from .types.gen_ai_cache_service import UpdateCachedContentRequest
+from .types.genai_tuning_service import CancelTuningJobRequest
+from .types.genai_tuning_service import CreateTuningJobRequest
+from .types.genai_tuning_service import GetTuningJobRequest
+from .types.genai_tuning_service import ListTuningJobsRequest
+from .types.genai_tuning_service import ListTuningJobsResponse
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
 from .types.index import IndexDatapoint
@@ -729,6 +749,7 @@ from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
 from .types.network_spec import NetworkSpec
 from .types.notebook_euc_config import NotebookEucConfig
+from .types.notebook_execution_job import NotebookExecutionJob
 from .types.notebook_idle_shutdown_config import NotebookIdleShutdownConfig
 from .types.notebook_runtime import NotebookRuntime
 from .types.notebook_runtime import NotebookRuntimeTemplate
@@ -736,12 +757,18 @@ from .types.notebook_runtime import NotebookRuntimeType
 from .types.notebook_runtime_template_ref import NotebookRuntimeTemplateRef
 from .types.notebook_service import AssignNotebookRuntimeOperationMetadata
 from .types.notebook_service import AssignNotebookRuntimeRequest
+from .types.notebook_service import CreateNotebookExecutionJobOperationMetadata
+from .types.notebook_service import CreateNotebookExecutionJobRequest
 from .types.notebook_service import CreateNotebookRuntimeTemplateOperationMetadata
 from .types.notebook_service import CreateNotebookRuntimeTemplateRequest
+from .types.notebook_service import DeleteNotebookExecutionJobRequest
 from .types.notebook_service import DeleteNotebookRuntimeRequest
 from .types.notebook_service import DeleteNotebookRuntimeTemplateRequest
+from .types.notebook_service import GetNotebookExecutionJobRequest
 from .types.notebook_service import GetNotebookRuntimeRequest
 from .types.notebook_service import GetNotebookRuntimeTemplateRequest
+from .types.notebook_service import ListNotebookExecutionJobsRequest
+from .types.notebook_service import ListNotebookExecutionJobsResponse
 from .types.notebook_service import ListNotebookRuntimesRequest
 from .types.notebook_service import ListNotebookRuntimesResponse
 from .types.notebook_service import ListNotebookRuntimeTemplatesRequest
@@ -749,9 +776,11 @@ from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
 from .types.notebook_service import StartNotebookRuntimeOperationMetadata
 from .types.notebook_service import StartNotebookRuntimeRequest
 from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import UpdateNotebookRuntimeTemplateRequest
 from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
+from .types.notebook_service import NotebookExecutionJobView
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -830,6 +859,8 @@ from .types.reasoning_engine_service import DeleteReasoningEngineRequest
 from .types.reasoning_engine_service import GetReasoningEngineRequest
 from .types.reasoning_engine_service import ListReasoningEnginesRequest
 from .types.reasoning_engine_service import ListReasoningEnginesResponse
+from .types.reasoning_engine_service import UpdateReasoningEngineOperationMetadata
+from .types.reasoning_engine_service import UpdateReasoningEngineRequest
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -931,6 +962,13 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.tuning_job import SupervisedHyperParameters
+from .types.tuning_job import SupervisedTuningDatasetDistribution
+from .types.tuning_job import SupervisedTuningDataStats
+from .types.tuning_job import SupervisedTuningSpec
+from .types.tuning_job import TunedModel
+from .types.tuning_job import TuningDataStats
+from .types.tuning_job import TuningJob
 from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
@@ -998,6 +1036,8 @@ __all__ = (
     "FeatureRegistryServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
+    "GenAiCacheServiceAsyncClient",
+    "GenAiTuningServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
     "JobServiceAsyncClient",
@@ -1076,6 +1116,7 @@ __all__ = (
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
+    "CachedContent",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
@@ -1083,6 +1124,7 @@ __all__ = (
     "CancelNasJobRequest",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
+    "CancelTuningJobRequest",
     "Candidate",
     "ChatCompletionsRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
@@ -1109,6 +1151,7 @@ __all__ = (
     "CountTokensResponse",
     "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
+    "CreateCachedContentRequest",
     "CreateContextRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
@@ -1146,6 +1189,8 @@ __all__ = (
     "CreateModelMonitorRequest",
     "CreateModelMonitoringJobRequest",
     "CreateNasJobRequest",
+    "CreateNotebookExecutionJobOperationMetadata",
+    "CreateNotebookExecutionJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
     "CreatePersistentResourceOperationMetadata",
@@ -1167,6 +1212,7 @@ __all__ = (
     "CreateTensorboardTimeSeriesRequest",
     "CreateTrainingPipelineRequest",
     "CreateTrialRequest",
+    "CreateTuningJobRequest",
     "CsvDestination",
     "CsvSource",
     "CustomJob",
@@ -1180,6 +1226,7 @@ __all__ = (
     "DedicatedResources",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
+    "DeleteCachedContentRequest",
     "DeleteContextRequest",
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
@@ -1209,6 +1256,7 @@ __all__ = (
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
+    "DeleteNotebookExecutionJobRequest",
     "DeleteNotebookRuntimeRequest",
     "DeleteNotebookRuntimeTemplateRequest",
     "DeleteOperationMetadata",
@@ -1340,6 +1388,8 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GenAiCacheServiceClient",
+    "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
     "GenerationConfig",
@@ -1348,6 +1398,7 @@ __all__ = (
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
+    "GetCachedContentRequest",
     "GetContextRequest",
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
@@ -1377,6 +1428,7 @@ __all__ = (
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
+    "GetNotebookExecutionJobRequest",
     "GetNotebookRuntimeRequest",
     "GetNotebookRuntimeTemplateRequest",
     "GetPersistentResourceRequest",
@@ -1394,6 +1446,7 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "GetTuningJobRequest",
     "GoogleDriveSource",
     "GoogleSearchRetrieval",
     "GroundednessInput",
@@ -1440,6 +1493,8 @@ __all__ = (
     "ListArtifactsResponse",
     "ListBatchPredictionJobsRequest",
     "ListBatchPredictionJobsResponse",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
     "ListContextsRequest",
     "ListContextsResponse",
     "ListCustomJobsRequest",
@@ -1502,6 +1557,8 @@ __all__ = (
     "ListNasJobsResponse",
     "ListNasTrialDetailsRequest",
     "ListNasTrialDetailsResponse",
+    "ListNotebookExecutionJobsRequest",
+    "ListNotebookExecutionJobsResponse",
     "ListNotebookRuntimeTemplatesRequest",
     "ListNotebookRuntimeTemplatesResponse",
     "ListNotebookRuntimesRequest",
@@ -1540,6 +1597,8 @@ __all__ = (
     "ListTrainingPipelinesResponse",
     "ListTrialsRequest",
     "ListTrialsResponse",
+    "ListTuningJobsRequest",
+    "ListTuningJobsResponse",
     "LlmUtilityServiceClient",
     "LookupStudyRequest",
     "MachineSpec",
@@ -1606,6 +1665,8 @@ __all__ = (
     "NetworkSpec",
     "NfsMount",
     "NotebookEucConfig",
+    "NotebookExecutionJob",
+    "NotebookExecutionJobView",
     "NotebookIdleShutdownConfig",
     "NotebookRuntime",
     "NotebookRuntimeTemplate",
@@ -1748,6 +1809,7 @@ __all__ = (
     "Schema",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
+    "SearchEntryPoint",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",
@@ -1784,6 +1846,8 @@ __all__ = (
     "StreamingRawPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
+    "StructFieldValue",
+    "StructValue",
     "Study",
     "StudySpec",
     "StudyTimeConstraint",
@@ -1802,6 +1866,10 @@ __all__ = (
     "SummarizationVerbosityInstance",
     "SummarizationVerbosityResult",
     "SummarizationVerbositySpec",
+    "SupervisedHyperParameters",
+    "SupervisedTuningDataStats",
+    "SupervisedTuningDatasetDistribution",
+    "SupervisedTuningSpec",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
     "TFRecordDestination",
@@ -1846,6 +1914,9 @@ __all__ = (
     "TrainingPipeline",
     "Trial",
     "TrialContext",
+    "TunedModel",
+    "TuningDataStats",
+    "TuningJob",
     "Type",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
@@ -1855,8 +1926,10 @@ __all__ = (
     "UndeployModelResponse",
     "UnmanagedContainerModel",
     "UpdateArtifactRequest",
+    "UpdateCachedContentRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
+    "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
@@ -1883,8 +1956,11 @@ __all__ = (
     "UpdateModelMonitorOperationMetadata",
     "UpdateModelMonitorRequest",
     "UpdateModelRequest",
+    "UpdateNotebookRuntimeTemplateRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
+    "UpdateReasoningEngineOperationMetadata",
+    "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",

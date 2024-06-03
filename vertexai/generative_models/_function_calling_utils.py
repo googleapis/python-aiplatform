@@ -71,24 +71,23 @@ def _generate_json_schema_from_function_using_pydantic(
         name: (
             # 1. We infer the argument type here: use Any rather than None so
             # it will not try to auto-infer the type based on the default value.
-            (
-                param.annotation if param.annotation != inspect.Parameter.empty
-                else Any
-            ),
+            (param.annotation if param.annotation != inspect.Parameter.empty else Any),
             pydantic.Field(
                 # 2. We do not support default values for now.
                 default=(
-                    param.default if param.default != inspect.Parameter.empty
+                    param.default
+                    if param.default != inspect.Parameter.empty
                     # ! Need to use Undefined instead of None
                     else pydantic_fields.Undefined
                 ),
                 # 3. We support user-provided descriptions.
                 description=parameter_descriptions.get(name, None),
-            )
+            ),
         )
         for name, param in defaults.items()
         # We do not support *args or **kwargs
-        if param.kind in (
+        if param.kind
+        in (
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
             inspect.Parameter.POSITIONAL_ONLY,
@@ -105,10 +104,9 @@ def _generate_json_schema_from_function_using_pydantic(
         #     * https://github.com/pydantic/pydantic/issues/1270
         #     * https://stackoverflow.com/a/58841311
         #     * https://github.com/pydantic/pydantic/discussions/4872
-        if (
-                typing.get_origin(annotation) is typing.Union
-                and type(None) in typing.get_args(annotation)
-            ):
+        if typing.get_origin(annotation) is typing.Union and type(
+            None
+        ) in typing.get_args(annotation):
             # for "typing.Optional" arguments, function_arg might be a
             # dictionary like
             #
@@ -121,9 +119,12 @@ def _generate_json_schema_from_function_using_pydantic(
             property_schema["nullable"] = True
     # 6. Annotate required fields.
     function_schema["required"] = [
-        k for k in defaults if (
+        k
+        for k in defaults
+        if (
             defaults[k].default == inspect.Parameter.empty
-            and defaults[k].kind in (
+            and defaults[k].kind
+            in (
                 inspect.Parameter.POSITIONAL_OR_KEYWORD,
                 inspect.Parameter.KEYWORD_ONLY,
                 inspect.Parameter.POSITIONAL_ONLY,

@@ -206,7 +206,9 @@ class ExtensionManifest(proto.Message):
             Required. The natural language description
             shown to the LLM. It should describe the usage
             of the extension, and is essential for the LLM
-            to perform reasoning.
+            to perform reasoning. e.g., if the extension is
+            a data store, you can let the LLM know what data
+            it contains.
         api_spec (google.cloud.aiplatform_v1beta1.types.ExtensionManifest.ApiSpec):
             Required. Immutable. The API specification
             shown to the LLM.
@@ -577,20 +579,20 @@ class RuntimeConfig(proto.Message):
 
         Attributes:
             file_input_gcs_bucket (str):
-                Optional. The GCS bucket for file input of
-                this Extension. If specified, support input from
-                the GCS bucket. Vertex Extension Custom Code
-                Service Agent should be granted file reader to
-                this bucket.
+                Optional. The Cloud Storage bucket for file
+                input of this Extension. If specified, support
+                input from the Cloud Storage bucket. Vertex
+                Extension Custom Code Service Agent should be
+                granted file reader to this bucket.
                 If not specified, the extension will only accept
-                file contents from request body and reject GCS
-                file inputs.
+                file contents from request body and reject Cloud
+                Storage file inputs.
             file_output_gcs_bucket (str):
-                Optional. The GCS bucket for file output of
-                this Extension. If specified, write all output
-                files to the GCS bucket. Vertex Extension Custom
-                Code Service Agent should be granted file writer
-                to this bucket.
+                Optional. The Cloud Storage bucket for file
+                output of this Extension. If specified, write
+                all output files to the Cloud Storage bucket.
+                Vertex Extension Custom Code Service Agent
+                should be granted file writer to this bucket.
                 If not specified, the file content will be
                 output in response body.
         """
@@ -609,15 +611,23 @@ class RuntimeConfig(proto.Message):
 
         Attributes:
             serving_config_name (str):
-                Required. Vertext AI Search serving config name. Format:
+                Optional. Vertex AI Search serving config name. Format:
                 ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
-                or
-                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``
+            engine_id (str):
+                Optional. Vertex AI Search engine ID. This is used to
+                construct the search request. By setting this engine_id, API
+                will construct the serving config using the default value to
+                call search API for the user. The engine_id and
+                serving_config_name cannot both be empty at the same time.
         """
 
         serving_config_name: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+        engine_id: str = proto.Field(
+            proto.STRING,
+            number=2,
         )
 
     code_interpreter_runtime_config: CodeInterpreterRuntimeConfig = proto.Field(

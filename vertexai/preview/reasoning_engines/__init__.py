@@ -21,7 +21,7 @@ from vertexai.reasoning_engines._reasoning_engines import (
     ReasoningEngine,
 )
 from vertexai.preview.reasoning_engines.templates.langchain import (
-    LangchainAgent
+    LangchainAgent,
 )
 
 __all__ = (

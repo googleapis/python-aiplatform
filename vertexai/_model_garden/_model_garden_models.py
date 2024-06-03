@@ -25,9 +25,6 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import _publisher_models
 
-# this is needed for class registration to _SUBCLASSES
-import vertexai  # pylint:disable=unused-import
-
 _SUPPORTED_PUBLISHERS = ["google"]
 
 _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
@@ -39,8 +36,10 @@ _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
     "chat-bison-32k": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
     "codechat-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
     "codechat-bison-32k": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
-    "textembedding-gecko": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2",
-    "textembedding-gecko-multilingual": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2",
+    "textembedding-gecko": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.3",
+    "textembedding-gecko-multilingual": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.3",
+    "text-embedding-004": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.3",
+    "text-multilingual-embedding-002": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.3",
 }
 
 _LOGGER = base.Logger(__name__)

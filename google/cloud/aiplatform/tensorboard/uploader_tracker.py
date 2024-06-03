@@ -263,13 +263,11 @@ class _TensorBoardTracker:
             api_client, tensorboard_resource_name, project
         )
 
-        plugins = uploader_constants.ALLOWED_PLUGINS
-        if allowed_plugins:
-            plugins += [
-                plugin
-                for plugin in allowed_plugins
-                if plugin not in uploader_constants.ALLOWED_PLUGINS
-            ]
+        plugins = (
+            uploader_constants.ALLOWED_PLUGINS.union(allowed_plugins)
+            if allowed_plugins
+            else uploader_constants.ALLOWED_PLUGINS
+        )
 
         tensorboard_uploader = TensorBoardUploader(
             experiment_name=tensorboard_experiment_name,

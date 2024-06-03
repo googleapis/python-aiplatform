@@ -868,13 +868,30 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_generate_content_grounding_google_search_retriever(self):
+    def test_generate_content_grounding_google_search_retriever_preview(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
                 preview_generative_models.grounding.GoogleSearchRetrieval(
                     disable_attribution=False
                 )
+            )
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[google_search_retriever_tool]
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_generate_content_grounding_google_search_retriever(self):
+        model = generative_models.GenerativeModel("gemini-pro")
+        google_search_retriever_tool = (
+            generative_models.Tool.from_google_search_retrieval(
+                generative_models.grounding.GoogleSearchRetrieval()
             )
         )
         response = model.generate_content(
@@ -908,13 +925,18 @@ class TestGenerativeModels:
     )
     def test_generate_content_vertex_rag_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
+        rag_resources = [
+            rag.RagResource(
+                rag_corpus=f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556",
+                rag_file_ids=["123", "456"],
+            ),
+        ]
         rag_retriever_tool = preview_generative_models.Tool.from_retrieval(
             retrieval=rag.Retrieval(
                 source=rag.VertexRagStore(
-                    rag_corpora=[
-                        f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556"
-                    ],
+                    rag_resources=rag_resources,
                     similarity_top_k=1,
+                    vector_distance_threshold=0.4,
                 ),
             ),
         )

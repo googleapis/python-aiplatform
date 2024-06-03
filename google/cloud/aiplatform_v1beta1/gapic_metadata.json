@@ -99,6 +99,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -194,6 +199,11 @@
               "methods": [
                 "update_dataset"
               ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
+              ]
             }
           }
         },
@@ -288,6 +298,11 @@
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            },
+            "UpdateDatasetVersion": {
+              "methods": [
+                "update_dataset_version"
               ]
             }
           }
@@ -1543,6 +1558,179 @@
             "UpdateFeaturestore": {
               "methods": [
                 "update_featurestore"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "GenAiCacheService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "GenAiCacheServiceClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "GenAiCacheServiceAsyncClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "GenAiCacheServiceClient",
+          "rpcs": {
+            "CreateCachedContent": {
+              "methods": [
+                "create_cached_content"
+              ]
+            },
+            "DeleteCachedContent": {
+              "methods": [
+                "delete_cached_content"
+              ]
+            },
+            "GetCachedContent": {
+              "methods": [
+                "get_cached_content"
+              ]
+            },
+            "ListCachedContents": {
+              "methods": [
+                "list_cached_contents"
+              ]
+            },
+            "UpdateCachedContent": {
+              "methods": [
+                "update_cached_content"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "GenAiTuningService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "GenAiTuningServiceAsyncClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "GenAiTuningServiceClient",
+          "rpcs": {
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
+              ]
+            },
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
               ]
             }
           }
@@ -3519,9 +3707,19 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
               ]
             },
             "DeleteNotebookRuntime": {
@@ -3534,6 +3732,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3542,6 +3745,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3557,6 +3765,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -3574,9 +3787,19 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
               ]
             },
             "DeleteNotebookRuntime": {
@@ -3589,6 +3812,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3597,6 +3825,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3612,6 +3845,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -3629,9 +3867,19 @@
                 "assign_notebook_runtime"
               ]
             },
+            "CreateNotebookExecutionJob": {
+              "methods": [
+                "create_notebook_execution_job"
+              ]
+            },
             "CreateNotebookRuntimeTemplate": {
               "methods": [
                 "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookExecutionJob": {
+              "methods": [
+                "delete_notebook_execution_job"
               ]
             },
             "DeleteNotebookRuntime": {
@@ -3644,6 +3892,11 @@
                 "delete_notebook_runtime_template"
               ]
             },
+            "GetNotebookExecutionJob": {
+              "methods": [
+                "get_notebook_execution_job"
+              ]
+            },
             "GetNotebookRuntime": {
               "methods": [
                 "get_notebook_runtime"
@@ -3652,6 +3905,11 @@
             "GetNotebookRuntimeTemplate": {
               "methods": [
                 "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookExecutionJobs": {
+              "methods": [
+                "list_notebook_execution_jobs"
               ]
             },
             "ListNotebookRuntimeTemplates": {
@@ -3667,6 +3925,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "UpdateNotebookRuntimeTemplate": {
+              "methods": [
+                "update_notebook_runtime_template"
               ]
             },
             "UpgradeNotebookRuntime": {
@@ -4273,6 +4536,11 @@
               "methods": [
                 "list_reasoning_engines"
               ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
+              ]
             }
           }
         },
@@ -4298,6 +4566,11 @@
               "methods": [
                 "list_reasoning_engines"
               ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
+              ]
             }
           }
         },
@@ -4322,6 +4595,11 @@
             "ListReasoningEngines": {
               "methods": [
                 "list_reasoning_engines"
+              ]
+            },
+            "UpdateReasoningEngine": {
+              "methods": [
+                "update_reasoning_engine"
               ]
             }
           }

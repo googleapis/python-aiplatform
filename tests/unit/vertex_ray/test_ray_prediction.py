@@ -21,16 +21,16 @@ import pickle
 import tempfile
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview.vertex_ray.predict import (
+from google.cloud.aiplatform.vertex_ray.predict import (
     sklearn as prediction_sklearn,
 )
-from google.cloud.aiplatform.preview.vertex_ray.predict import (
+from google.cloud.aiplatform.vertex_ray.predict import (
     tensorflow as prediction_tensorflow,
 )
-from google.cloud.aiplatform.preview.vertex_ray.predict import (
+from google.cloud.aiplatform.vertex_ray.predict import (
     torch as prediction_torch,
 )
-from google.cloud.aiplatform.preview.vertex_ray.predict import (
+from google.cloud.aiplatform.vertex_ray.predict import (
     xgboost as prediction_xgboost,
 )
 from google.cloud.aiplatform.utils import gcs_utils

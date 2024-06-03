@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -642,7 +643,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, ModelServiceTransport]] = None,
+        transport: Optional[
+            Union[str, ModelServiceTransport, Callable[..., ModelServiceTransport]]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -654,9 +657,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ModelServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,ModelServiceTransport,Callable[..., ModelServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the ModelServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -765,8 +770,15 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[ModelServiceTransport], Callable[..., ModelServiceTransport]
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., ModelServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -857,8 +869,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -866,10 +878,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.UploadModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.UploadModelRequest):
             request = model_service.UploadModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -981,8 +991,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -990,10 +1000,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.GetModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.GetModelRequest):
             request = model_service.GetModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1091,8 +1099,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1100,10 +1108,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ListModelsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ListModelsRequest):
             request = model_service.ListModelsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1209,8 +1215,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1218,10 +1224,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ListModelVersionsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ListModelVersionsRequest):
             request = model_service.ListModelVersionsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1354,8 +1358,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1363,10 +1367,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.UpdateModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.UpdateModelRequest):
             request = model_service.UpdateModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1474,8 +1476,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1483,10 +1485,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.UpdateExplanationDatasetRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.UpdateExplanationDatasetRequest):
             request = model_service.UpdateExplanationDatasetRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1612,8 +1612,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1621,10 +1621,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.DeleteModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.DeleteModelRequest):
             request = model_service.DeleteModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1749,8 +1747,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1758,10 +1756,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.DeleteModelVersionRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.DeleteModelVersionRequest):
             request = model_service.DeleteModelVersionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1885,8 +1881,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, version_aliases])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1894,10 +1890,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.MergeVersionAliasesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.MergeVersionAliasesRequest):
             request = model_service.MergeVersionAliasesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2014,8 +2008,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, output_config])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2023,10 +2017,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ExportModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ExportModelRequest):
             request = model_service.ExportModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2153,8 +2145,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, source_model])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2162,10 +2154,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.CopyModelRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.CopyModelRequest):
             request = model_service.CopyModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2280,8 +2270,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_evaluation])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2289,10 +2279,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ImportModelEvaluationRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ImportModelEvaluationRequest):
             request = model_service.ImportModelEvaluationRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2401,8 +2389,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_evaluation_slices])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2410,10 +2398,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.BatchImportModelEvaluationSlicesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, model_service.BatchImportModelEvaluationSlicesRequest
         ):
@@ -2526,8 +2512,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, evaluated_annotations])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2535,10 +2521,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.BatchImportEvaluatedAnnotationsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, model_service.BatchImportEvaluatedAnnotationsRequest
         ):
@@ -2640,8 +2624,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2649,10 +2633,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.GetModelEvaluationRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.GetModelEvaluationRequest):
             request = model_service.GetModelEvaluationRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2752,8 +2734,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2761,10 +2743,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ListModelEvaluationsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ListModelEvaluationsRequest):
             request = model_service.ListModelEvaluationsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2871,8 +2851,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2880,10 +2860,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.GetModelEvaluationSliceRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.GetModelEvaluationSliceRequest):
             request = model_service.GetModelEvaluationSliceRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2985,8 +2963,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2994,10 +2972,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a model_service.ListModelEvaluationSlicesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, model_service.ListModelEvaluationSlicesRequest):
             request = model_service.ListModelEvaluationSlicesRequest(request)
             # If we have keyword arguments corresponding to fields on the

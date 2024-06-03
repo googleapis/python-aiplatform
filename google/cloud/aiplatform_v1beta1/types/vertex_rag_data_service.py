@@ -279,11 +279,25 @@ class ImportRagFilesResponse(proto.Message):
         imported_rag_files_count (int):
             The number of RagFiles that had been imported
             into the RagCorpus.
+        failed_rag_files_count (int):
+            The number of RagFiles that had failed while
+            importing into the RagCorpus.
+        skipped_rag_files_count (int):
+            The number of RagFiles that was skipped while
+            importing into the RagCorpus.
     """
 
     imported_rag_files_count: int = proto.Field(
         proto.INT64,
         number=1,
+    )
+    failed_rag_files_count: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    skipped_rag_files_count: int = proto.Field(
+        proto.INT64,
+        number=3,
     )
 
 
@@ -408,6 +422,14 @@ class ImportRagFilesOperationMetadata(proto.Message):
         rag_corpus_id (int):
             The resource ID of RagCorpus that this
             operation is executed on.
+        import_rag_files_config (google.cloud.aiplatform_v1beta1.types.ImportRagFilesConfig):
+            Output only. The config that was passed in
+            the ImportRagFilesRequest.
+        progress_percentage (int):
+            The progress percentage of the operation. Value is in the
+            range [0, 100]. This percentage is calculated as follows:
+            progress_percentage = 100 \* (successes + failures + skips)
+            / total
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -418,6 +440,15 @@ class ImportRagFilesOperationMetadata(proto.Message):
     rag_corpus_id: int = proto.Field(
         proto.INT64,
         number=2,
+    )
+    import_rag_files_config: vertex_rag_data.ImportRagFilesConfig = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=vertex_rag_data.ImportRagFilesConfig,
+    )
+    progress_percentage: int = proto.Field(
+        proto.INT32,
+        number=4,
     )
 
 

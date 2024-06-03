@@ -24,6 +24,7 @@ from google.cloud.aiplatform import base
 
 if typing.TYPE_CHECKING:
     from google.cloud.aiplatform.metadata import experiment_resources
+    from google.cloud.aiplatform.metadata import experiment_run_resource
     from google.cloud.aiplatform import model_evaluation
 
 _LOGGER = base.Logger(__name__)
@@ -166,6 +167,36 @@ def display_experiment_button(experiment: "experiment_resources.Experiment") -> 
         + f"runs?project={project}"
     )
     display_link("View Experiment", uri, "science")
+
+
+def display_experiment_run_button(
+    experiment_run: "experiment_run_resource.ExperimentRun",
+) -> None:
+    """Function to generate a link bound to the Vertex experiment run"""
+    if not is_ipython_available():
+        return
+    try:
+        project = experiment_run.project
+        location = experiment_run.location
+        experiment_name = experiment_run._experiment._metadata_context.name
+        run_name = experiment_run.name
+        if (
+            run_name is None
+            or experiment_name is None
+            or project is None
+            or location is None
+        ):
+            return
+    except AttributeError:
+        _LOGGER.warning("Unable to fetch experiment run metadata")
+        return
+
+    uri = (
+        "https://console.cloud.google.com/vertex-ai/experiments/locations/"
+        + f"{location}/experiments/{experiment_name}/"
+        + f"runs/{experiment_name}-{run_name}?project={project}"
+    )
+    display_link("View Experiment Run", uri, "science")
 
 
 def display_model_evaluation_button(

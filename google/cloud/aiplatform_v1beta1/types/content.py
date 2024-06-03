@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.protobuf import duration_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
@@ -42,6 +43,7 @@ __protobuf__ = proto.module(
         "Segment",
         "GroundingAttribution",
         "GroundingMetadata",
+        "SearchEntryPoint",
     },
 )
 
@@ -308,6 +310,17 @@ class GenerationConfig(proto.Message):
                The model needs to be prompted to output the appropriate
                response type, otherwise the behavior is undefined. This
                is a preview feature.
+        response_schema (google.cloud.aiplatform_v1beta1.types.Schema):
+            Optional. The ``Schema`` object allows the definition of
+            input and output data types. These types can be objects, but
+            also primitives and arrays. Represents a select subset of an
+            `OpenAPI 3.0 schema
+            object <https://spec.openapis.org/oas/v3.0.3#schema>`__. If
+            set, a compatible response_mime_type must also be set.
+            Compatible mimetypes: ``application/json``: Schema for JSON
+            response.
+
+            This field is a member of `oneof`_ ``_response_schema``.
     """
 
     temperature: float = proto.Field(
@@ -352,6 +365,12 @@ class GenerationConfig(proto.Message):
     response_mime_type: str = proto.Field(
         proto.STRING,
         number=13,
+    )
+    response_schema: openapi.Schema = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        optional=True,
+        message=openapi.Schema,
     )
 
 
@@ -824,10 +843,17 @@ class GroundingAttribution(proto.Message):
 class GroundingMetadata(proto.Message):
     r"""Metadata returned to client when grounding is enabled.
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         web_search_queries (MutableSequence[str]):
             Optional. Web search queries for the
             following-up web search.
+        search_entry_point (google.cloud.aiplatform_v1beta1.types.SearchEntryPoint):
+            Optional. Google search entry for the
+            following-up web searches.
+
+            This field is a member of `oneof`_ ``_search_entry_point``.
         retrieval_queries (MutableSequence[str]):
             Optional. Queries executed by the retrieval
             tools.
@@ -839,6 +865,12 @@ class GroundingMetadata(proto.Message):
         proto.STRING,
         number=1,
     )
+    search_entry_point: "SearchEntryPoint" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        optional=True,
+        message="SearchEntryPoint",
+    )
     retrieval_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=3,
@@ -849,6 +881,28 @@ class GroundingMetadata(proto.Message):
         proto.MESSAGE,
         number=2,
         message="GroundingAttribution",
+    )
+
+
+class SearchEntryPoint(proto.Message):
+    r"""Google search entry point.
+
+    Attributes:
+        rendered_content (str):
+            Optional. Web content snippet that can be
+            embedded in a web page or an app webview.
+        sdk_blob (bytes):
+            Optional. Base64 encoded JSON representing
+            array of <search term, search url> tuple.
+    """
+
+    rendered_content: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    sdk_blob: bytes = proto.Field(
+        proto.BYTES,
+        number=2,
     )
 
 

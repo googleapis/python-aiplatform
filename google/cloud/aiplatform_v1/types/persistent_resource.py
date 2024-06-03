@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
         "RaySpec",
         "ResourceRuntime",
         "ServiceAccountSpec",
+        "RayMetricSpec",
     },
 )
 
@@ -355,11 +356,69 @@ class RaySpec(proto.Message):
     cluster creation are 1:1 mapping: We will provision all the
     nodes within the Persistent cluster as Ray nodes.
 
+    Attributes:
+        image_uri (str):
+            Optional. Default image for user to choose a preferred ML
+            framework (for example, TensorFlow or Pytorch) by choosing
+            from `Vertex prebuilt
+            images <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`__.
+            Either this or the resource_pool_images is required. Use
+            this field if you need all the resource pools to have the
+            same Ray image. Otherwise, use the {@code
+            resource_pool_images} field.
+        resource_pool_images (MutableMapping[str, str]):
+            Optional. Required if image_uri isn't set. A map of
+            resource_pool_id to prebuild Ray image if user need to use
+            different images for different head/worker pools. This map
+            needs to cover all the resource pool ids. Example: {
+            "ray_head_node_pool": "head image" "ray_worker_node_pool1":
+            "worker image" "ray_worker_node_pool2": "another worker
+            image" }
+        head_node_resource_pool_id (str):
+            Optional. This will be used to indicate which
+            resource pool will serve as the Ray head
+            node(the first node within that pool). Will use
+            the machine from the first workerpool as the
+            head node by default if this field isn't set.
+        ray_metric_spec (google.cloud.aiplatform_v1.types.RayMetricSpec):
+            Optional. Ray metrics configurations.
     """
+
+    image_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    resource_pool_images: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    head_node_resource_pool_id: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    ray_metric_spec: "RayMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="RayMetricSpec",
+    )
 
 
 class ResourceRuntime(proto.Message):
-    r"""Persistent Cluster runtime information as output"""
+    r"""Persistent Cluster runtime information as output
+
+    Attributes:
+        access_uris (MutableMapping[str, str]):
+            Output only. URIs for user to connect to the Cluster.
+            Example: { "RAY_HEAD_NODE_INTERNAL_IP": "head-node-IP:10001"
+            "RAY_DASHBOARD_URI": "ray-dashboard-address:8888" }
+    """
+
+    access_uris: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=1,
+    )
 
 
 class ServiceAccountSpec(proto.Message):
@@ -397,6 +456,21 @@ class ServiceAccountSpec(proto.Message):
     service_account: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class RayMetricSpec(proto.Message):
+    r"""Configuration for the Ray metrics.
+
+    Attributes:
+        disabled (bool):
+            Optional. Flag to disable the Ray metrics
+            collection.
+    """
+
+    disabled: bool = proto.Field(
+        proto.BOOL,
+        number=1,
     )
 
 

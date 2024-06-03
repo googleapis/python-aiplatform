@@ -153,6 +153,20 @@ def delete_persistent_resource_mock():
         yield delete_persistent_resource_mock
 
 
+@pytest.fixture
+def reboot_persistent_resource_mock():
+    with mock.patch.object(
+        (persistent_resource_service_client_v1.PersistentResourceServiceClient),
+        "reboot_persistent_resource",
+    ) as reboot_persistent_resource_mock:
+        reboot_lro = mock.Mock(ga_operation.Operation)
+        reboot_lro.result.return_value = (
+            persistent_resource_service_v1.RebootPersistentResourceRequest()
+        )
+        reboot_persistent_resource_mock.return_value = reboot_lro
+        yield reboot_persistent_resource_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPersistentResource:
     def setup_method(self):
@@ -357,5 +371,25 @@ class TestPersistentResource:
 
         get_persistent_resource_mock.assert_called_once()
         delete_persistent_resource_mock.assert_called_once_with(
+            name=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_reboot_persistent_resource(
+        self,
+        get_persistent_resource_mock,
+        reboot_persistent_resource_mock,
+        sync,
+    ):
+        test_resource = persistent_resource.PersistentResource(
+            _TEST_PERSISTENT_RESOURCE_ID
+        )
+        test_resource.reboot(sync=sync)
+
+        if not sync:
+            test_resource.wait()
+
+        get_persistent_resource_mock.assert_called_once()
+        reboot_persistent_resource_mock.assert_called_once_with(
             name=_TEST_PERSISTENT_RESOURCE_ID,
         )

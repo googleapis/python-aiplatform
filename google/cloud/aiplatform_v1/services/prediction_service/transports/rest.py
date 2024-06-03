@@ -732,6 +732,11 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                     "uri": "/v1/{endpoint=projects/*/locations/*/endpoints/*}:directPredict",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:directPredict",
+                    "body": "*",
+                },
             ]
             request, metadata = self._interceptor.pre_direct_predict(request, metadata)
             pb_request = prediction_service.DirectPredictRequest.pb(request)
@@ -823,6 +828,11 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{endpoint=projects/*/locations/*/endpoints/*}:directRawPredict",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:directRawPredict",
                     "body": "*",
                 },
             ]
@@ -2368,6 +2378,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
                 },
                 {
@@ -2728,6 +2746,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -3118,6 +3144,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -3524,6 +3558,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
                 },
                 {
@@ -3920,6 +3962,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

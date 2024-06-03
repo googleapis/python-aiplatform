@@ -46,7 +46,7 @@ class TuningJob(proto.Message):
 
     Attributes:
         base_model (str):
-            Model name for tuning, e.g.,
+            The base model that is being tuned, e.g.,
             "gemini-1.0-pro-002".
 
             This field is a member of `oneof`_ ``source_model``.
@@ -397,11 +397,12 @@ class SupervisedHyperParameters(proto.Message):
 
     Attributes:
         epoch_count (int):
-            Optional. Number of training epoches for this
-            tuning job.
+            Optional. Number of complete passes the model
+            makes over the entire training dataset during
+            training.
         learning_rate_multiplier (float):
-            Optional. Learning rate multiplier for
-            tuning.
+            Optional. Multiplier for adjusting the
+            default learning rate.
         adapter_size (google.cloud.aiplatform_v1.types.SupervisedHyperParameters.AdapterSize):
             Optional. Adapter size for tuning.
     """
@@ -448,10 +449,12 @@ class SupervisedTuningSpec(proto.Message):
     Attributes:
         training_dataset_uri (str):
             Required. Cloud Storage path to file
-            containing training dataset for tuning.
+            containing training dataset for tuning. The
+            dataset must be formatted as a JSONL file.
         validation_dataset_uri (str):
             Optional. Cloud Storage path to file
-            containing validation dataset for tuning.
+            containing validation dataset for tuning. The
+            dataset must be formatted as a JSONL file.
         hyper_parameters (google.cloud.aiplatform_v1.types.SupervisedHyperParameters):
             Optional. Hyperparameters for SFT.
     """

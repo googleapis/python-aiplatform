@@ -176,7 +176,10 @@ class ProfileRequestSender(uploader_utils.RequestSender):
                 self._profile_dir(run_name)
             )
 
-        tb_run = self._one_platform_resource_manager.get_run_resource_name(run_name)
+        tensorboard_run_name = run_name if run_name else "profile"
+        tb_run = self._one_platform_resource_manager.get_run_resource_name(
+            tensorboard_run_name
+        )
 
         if run_name not in self._run_to_file_request_sender:
             self._run_to_file_request_sender[

@@ -15,9 +15,13 @@
 # limitations under the License.
 #
 
+import warnings
 
+from vertexai.preview._workflow.shared import constants
 from vertexai.preview.tabular_models import tabnet_trainer
 
+
+warnings.warn(constants._V2_0_WARNING_MSG, DeprecationWarning, stacklevel=1)
 
 TabNetTrainer = tabnet_trainer.TabNetTrainer
 

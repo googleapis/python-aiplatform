@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -633,7 +634,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, TensorboardServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                TensorboardServiceTransport,
+                Callable[..., TensorboardServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -645,9 +652,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, TensorboardServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,TensorboardServiceTransport,Callable[..., TensorboardServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the TensorboardServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -759,8 +768,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[TensorboardServiceTransport],
+                Callable[..., TensorboardServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., TensorboardServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -854,8 +871,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -863,10 +880,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.CreateTensorboardRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.CreateTensorboardRequest):
             request = tensorboard_service.CreateTensorboardRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -975,8 +990,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -984,10 +999,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.GetTensorboardRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.GetTensorboardRequest):
             request = tensorboard_service.GetTensorboardRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1107,8 +1120,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1116,10 +1129,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.UpdateTensorboardRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.UpdateTensorboardRequest):
             request = tensorboard_service.UpdateTensorboardRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1231,8 +1242,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1240,10 +1251,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ListTensorboardsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.ListTensorboardsRequest):
             request = tensorboard_service.ListTensorboardsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1362,8 +1371,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1371,10 +1380,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.DeleteTensorboardRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.DeleteTensorboardRequest):
             request = tensorboard_service.DeleteTensorboardRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1478,8 +1485,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1487,10 +1494,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ReadTensorboardUsageRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.ReadTensorboardUsageRequest):
             request = tensorboard_service.ReadTensorboardUsageRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1588,8 +1593,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1597,10 +1602,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ReadTensorboardSizeRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.ReadTensorboardSizeRequest):
             request = tensorboard_service.ReadTensorboardSizeRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1721,8 +1724,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, tensorboard_experiment, tensorboard_experiment_id]
         )
@@ -1732,10 +1735,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.CreateTensorboardExperimentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.CreateTensorboardExperimentRequest
         ):
@@ -1841,8 +1842,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1850,10 +1851,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.GetTensorboardExperimentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.GetTensorboardExperimentRequest):
             request = tensorboard_service.GetTensorboardExperimentRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1968,8 +1967,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1977,10 +1976,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.UpdateTensorboardExperimentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.UpdateTensorboardExperimentRequest
         ):
@@ -2088,8 +2085,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2097,10 +2094,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ListTensorboardExperimentsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.ListTensorboardExperimentsRequest
         ):
@@ -2223,8 +2218,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2232,10 +2227,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.DeleteTensorboardExperimentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.DeleteTensorboardExperimentRequest
         ):
@@ -2370,8 +2363,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2379,10 +2372,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.CreateTensorboardRunRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.CreateTensorboardRunRequest):
             request = tensorboard_service.CreateTensorboardRunRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2503,8 +2494,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2512,10 +2503,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.BatchCreateTensorboardRunsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.BatchCreateTensorboardRunsRequest
         ):
@@ -2619,8 +2608,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2628,10 +2617,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.GetTensorboardRunRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.GetTensorboardRunRequest):
             request = tensorboard_service.GetTensorboardRunRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2745,8 +2732,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2754,10 +2741,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.UpdateTensorboardRunRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.UpdateTensorboardRunRequest):
             request = tensorboard_service.UpdateTensorboardRunRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2861,8 +2846,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2870,10 +2855,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ListTensorboardRunsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.ListTensorboardRunsRequest):
             request = tensorboard_service.ListTensorboardRunsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2992,8 +2975,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3001,10 +2984,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.DeleteTensorboardRunRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.DeleteTensorboardRunRequest):
             request = tensorboard_service.DeleteTensorboardRunRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3131,8 +3112,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3140,10 +3121,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.BatchCreateTensorboardTimeSeriesRequest
         ):
@@ -3262,8 +3241,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3271,10 +3250,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.CreateTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.CreateTensorboardTimeSeriesRequest
         ):
@@ -3376,8 +3353,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3385,10 +3362,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.GetTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.GetTensorboardTimeSeriesRequest):
             request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3506,8 +3481,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3515,10 +3490,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.UpdateTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.UpdateTensorboardTimeSeriesRequest
         ):
@@ -3631,8 +3604,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3640,10 +3613,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ListTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.ListTensorboardTimeSeriesRequest
         ):
@@ -3766,8 +3737,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3775,10 +3746,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.DeleteTensorboardTimeSeriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.DeleteTensorboardTimeSeriesRequest
         ):
@@ -3896,8 +3865,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3905,10 +3874,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest
         ):
@@ -4016,8 +3983,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4025,10 +3992,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ReadTensorboardTimeSeriesDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest
         ):
@@ -4134,8 +4099,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4143,10 +4108,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ReadTensorboardBlobDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.ReadTensorboardBlobDataRequest):
             request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4264,8 +4227,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4273,10 +4236,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.WriteTensorboardExperimentDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.WriteTensorboardExperimentDataRequest
         ):
@@ -4403,8 +4364,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4412,10 +4373,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.WriteTensorboardRunDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, tensorboard_service.WriteTensorboardRunDataRequest):
             request = tensorboard_service.WriteTensorboardRunDataRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4522,8 +4481,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4531,10 +4490,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a tensorboard_service.ExportTensorboardTimeSeriesDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest
         ):

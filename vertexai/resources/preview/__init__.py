@@ -35,9 +35,12 @@ from google.cloud.aiplatform.preview.pipelinejobschedule.pipeline_job_schedules 
 )
 
 from vertexai.resources.preview.feature_store import (
+    Feature,
+    FeatureGroup,
     FeatureOnlineStore,
     FeatureOnlineStoreType,
     FeatureView,
+    FeatureViewBigQuerySource,
     FeatureViewReadResponse,
     IndexConfig,
     TreeAhConfig,
@@ -46,6 +49,10 @@ from vertexai.resources.preview.feature_store import (
     AlgorithmConfig,
 )
 
+from vertexai.resources.preview.ml_monitoring import (
+    ModelMonitor,
+    ModelMonitoringJob,
+)
 
 __all__ = (
     "CustomJob",
@@ -57,13 +64,19 @@ __all__ = (
     "PersistentResource",
     "EntityType",
     "PipelineJobSchedule",
+    "Feature",
+    "FeatureGroup",
+    "FeatureGroupBigQuerySource",
     "FeatureOnlineStoreType",
     "FeatureOnlineStore",
     "FeatureView",
+    "FeatureViewBigQuerySource",
     "FeatureViewReadResponse",
     "IndexConfig",
     "TreeAhConfig",
     "BruteForceConfig",
     "DistanceMeasureType",
     "AlgorithmConfig",
+    "ModelMonitor",
+    "ModelMonitoringJob",
 )

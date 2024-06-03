@@ -63,11 +63,14 @@ class LogdirLoader:
 
         In addition, any existing `DirectoryLoader` whose run directory
         no longer exists will be deleted.
+
+        Modify run name to work with Experiments restrictions.
         """
         logger.info("Starting logdir traversal of %s", self._logdir)
         runs_seen = set()
         for subdir in io_wrapper.GetLogdirSubdirectories(self._logdir):
             run = os.path.relpath(subdir, self._logdir)
+            run = run.replace("/", "-").replace("_", "-")
             runs_seen.add(run)
             if run not in self._directory_loaders:
                 logger.info("- Adding run for relative directory %s", run)

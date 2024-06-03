@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -191,6 +192,28 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 instance.
         """
         return self._transport
+
+    @staticmethod
+    def cached_content_path(
+        project: str,
+        location: str,
+        cached_content: str,
+    ) -> str:
+        """Returns a fully-qualified cached_content string."""
+        return "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+            project=project,
+            location=location,
+            cached_content=cached_content,
+        )
+
+    @staticmethod
+    def parse_cached_content_path(path: str) -> Dict[str, str]:
+        """Parses a cached_content path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/cachedContents/(?P<cached_content>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
 
     @staticmethod
     def endpoint_path(
@@ -583,7 +606,13 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, PredictionServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str,
+                PredictionServiceTransport,
+                Callable[..., PredictionServiceTransport],
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -595,9 +624,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, PredictionServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
+            transport (Optional[Union[str,PredictionServiceTransport,Callable[..., PredictionServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the PredictionServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -709,8 +740,16 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(cast(str, transport))
-            self._transport = Transport(
+            transport_init: Union[
+                Type[PredictionServiceTransport],
+                Callable[..., PredictionServiceTransport],
+            ] = (
+                type(self).get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., PredictionServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -817,8 +856,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -826,10 +865,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.PredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.PredictRequest):
             request = prediction_service.PredictRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1008,8 +1045,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, http_body])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1017,10 +1054,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.RawPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.RawPredictRequest):
             request = prediction_service.RawPredictRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1109,10 +1144,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.DirectPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.DirectPredictRequest):
             request = prediction_service.DirectPredictRequest(request)
 
@@ -1196,10 +1229,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.DirectRawPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.DirectRawPredictRequest):
             request = prediction_service.DirectRawPredictRequest(request)
 
@@ -1566,10 +1597,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.StreamingPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.StreamingPredictRequest):
             request = prediction_service.StreamingPredictRequest(request)
 
@@ -1807,8 +1836,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters, deployed_model_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1816,10 +1845,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.ExplainRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.ExplainRequest):
             request = prediction_service.ExplainRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1938,8 +1965,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1947,10 +1974,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.CountTokensRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.CountTokensRequest):
             request = prediction_service.CountTokensRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2063,8 +2088,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model, contents])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2072,10 +2097,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.GenerateContentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.GenerateContentRequest):
             request = prediction_service.GenerateContentRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2190,8 +2213,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model, contents])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2199,10 +2222,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.GenerateContentRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.GenerateContentRequest):
             request = prediction_service.GenerateContentRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2354,8 +2375,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, http_body])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2363,10 +2384,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.ChatCompletionsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, prediction_service.ChatCompletionsRequest):
             request = prediction_service.ChatCompletionsRequest(request)
             # If we have keyword arguments corresponding to fields on the

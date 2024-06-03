@@ -21,9 +21,11 @@ from vertexai.preview.evaluation.metrics import (
 )
 
 CustomMetric = _base.CustomMetric
+PairwiseMetric = _base.PairwiseMetric
 make_metric = _base.make_metric
 
 __all__ = [
     "CustomMetric",
+    "PairwiseMetric",
     "make_metric",
 ]

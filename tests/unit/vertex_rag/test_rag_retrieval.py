@@ -70,11 +70,22 @@ class TestRagRetrieval:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_success(self):
+    def test_retrieval_query_rag_resources_success(self):
         response = rag.retrieval_query(
-            rag_corpora=[tc.TEST_RAG_CORPUS_RESOURCE_NAME],
+            rag_resources=[tc.TEST_RAG_RESOURCE],
             text=tc.TEST_QUERY_TEXT,
             similarity_top_k=2,
+            vector_distance_threshold=0.5,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_success(self):
+        response = rag.retrieval_query(
+            rag_corpora=[tc.TEST_RAG_CORPUS_ID],
+            text=tc.TEST_QUERY_TEXT,
+            similarity_top_k=2,
+            vector_distance_threshold=0.5,
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
@@ -82,18 +93,39 @@ class TestRagRetrieval:
     def test_retrieval_query_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.retrieval_query(
-                rag_corpora=[tc.TEST_RAG_CORPUS_RESOURCE_NAME],
+                rag_resources=[tc.TEST_RAG_RESOURCE],
                 text=tc.TEST_QUERY_TEXT,
                 similarity_top_k=2,
+                vector_distance_threshold=0.5,
             )
             e.match("Failed in retrieving contexts due to")
 
     def test_retrieval_query_invalid_name(self):
         with pytest.raises(ValueError) as e:
             rag.retrieval_query(
-                # Should be RAG_CORPUS, not RAG_FILE
-                rag_corpora=[tc.TEST_RAG_FILE_RESOURCE_NAME],
+                rag_resources=[tc.TEST_RAG_RESOURCE_INVALID_NAME],
                 text=tc.TEST_QUERY_TEXT,
                 similarity_top_k=2,
+                vector_distance_threshold=0.5,
             )
             e.match("Invalid RagCorpus name")
+
+    def test_retrieval_query_multiple_rag_corpora(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_corpora=[tc.TEST_RAG_CORPUS_ID, tc.TEST_RAG_CORPUS_ID],
+                text=tc.TEST_QUERY_TEXT,
+                similarity_top_k=2,
+                vector_distance_threshold=0.5,
+            )
+            e.match("Currently only support 1 RagCorpus")
+
+    def test_retrieval_query_multiple_rag_resources(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
+                text=tc.TEST_QUERY_TEXT,
+                similarity_top_k=2,
+                vector_distance_threshold=0.5,
+            )
+            e.match("Currently only support 1 RagResource")

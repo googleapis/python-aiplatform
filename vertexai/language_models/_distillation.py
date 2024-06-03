@@ -105,9 +105,7 @@ def submit_distillation_pipeline_job(
         pipeline_arguments["learning_rate_multiplier"] = learning_rate_multiplier
     if evaluation_spec is not None:
         pipeline_arguments["evaluation_data_uri"] = evaluation_spec.evaluation_data
-        pipeline_arguments[
-            "evaluation_interval"
-        ] = evaluation_spec.evaluation_interval
+        pipeline_arguments["evaluation_interval"] = evaluation_spec.evaluation_interval
         pipeline_arguments[
             "enable_early_stopping"
         ] = evaluation_spec.enable_early_stopping
@@ -126,8 +124,7 @@ def submit_distillation_pipeline_job(
         pipeline_arguments["max_context_length"] = max_context_length
     if model_display_name is None:
         model_display_name = (
-            f"{student_short_model_id}"
-            f" distilled from {teacher_short_model_id}"
+            f"{student_short_model_id} distilled from {teacher_short_model_id}"
         )
     pipeline_arguments["model_display_name"] = model_display_name
     # # Not exposing these parameters:

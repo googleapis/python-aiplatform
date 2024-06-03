@@ -16,6 +16,14 @@
 #
 """The vertexai resources preview module."""
 
+from vertexai.resources.preview.feature_store.feature import (
+    Feature,
+)
+
+from vertexai.resources.preview.feature_store.feature_group import (
+    FeatureGroup,
+)
+
 from vertexai.resources.preview.feature_store.feature_online_store import (
     FeatureOnlineStore,
     FeatureOnlineStoreType,
@@ -26,6 +34,8 @@ from vertexai.resources.preview.feature_store.feature_view import (
 )
 
 from vertexai.resources.preview.feature_store.utils import (
+    FeatureGroupBigQuerySource,
+    FeatureViewBigQuerySource,
     FeatureViewReadResponse,
     IndexConfig,
     TreeAhConfig,
@@ -35,9 +45,13 @@ from vertexai.resources.preview.feature_store.utils import (
 )
 
 __all__ = (
+    Feature,
+    FeatureGroup,
+    FeatureGroupBigQuerySource,
     FeatureOnlineStoreType,
     FeatureOnlineStore,
     FeatureView,
+    FeatureViewBigQuerySource,
     FeatureViewReadResponse,
     IndexConfig,
     IndexConfig,

@@ -262,3 +262,88 @@ _TEST_FV_SEARCH1 = types.feature_online_store_service_v1.SearchNearestEntitiesRe
         ]
     )
 )
+
+_TEST_FG1_ID = "my_fg1"
+_TEST_FG1_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}"
+_TEST_FG1_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg1"
+_TEST_FG1_ENTITY_ID_COLUMNS = ["entity_id"]
+_TEST_FG1_LABELS = {"my_key": "my_fg1"}
+_TEST_FG1 = types.feature_group.FeatureGroup(
+    name=_TEST_FG1_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG1_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG1_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG1_LABELS,
+)
+
+
+_TEST_FG2_ID = "my_fg2"
+_TEST_FG2_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG2_ID}"
+_TEST_FG2_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg2"
+_TEST_FG2_ENTITY_ID_COLUMNS = ["entity_id1", "entity_id2"]
+_TEST_FG2_LABELS = {"my_key2": "my_fg2"}
+_TEST_FG2 = types.feature_group.FeatureGroup(
+    name=_TEST_FG2_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG2_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG2_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG2_LABELS,
+)
+
+
+_TEST_FG3_ID = "my_fg3"
+_TEST_FG3_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG3_ID}"
+_TEST_FG3_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg3"
+_TEST_FG3_ENTITY_ID_COLUMNS = ["entity_id1", "entity_id2", "entity_id3"]
+_TEST_FG3_LABELS = {"my_key3": "my_fg3"}
+_TEST_FG3 = types.feature_group.FeatureGroup(
+    name=_TEST_FG3_PATH,
+    big_query=types.feature_group.FeatureGroup.BigQuery(
+        big_query_source=types.io.BigQuerySource(
+            input_uri=_TEST_FG3_BQ_URI,
+        ),
+        entity_id_columns=_TEST_FG3_ENTITY_ID_COLUMNS,
+    ),
+    labels=_TEST_FG3_LABELS,
+)
+
+_TEST_FG_LIST = [_TEST_FG1, _TEST_FG2, _TEST_FG3]
+
+_TEST_FG1_F1_ID = "my_fg1_f1"
+_TEST_FG1_F1_PATH = (
+    f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/features/{_TEST_FG1_F1_ID}"
+)
+_TEST_FG1_F1_DESCRIPTION = "My feature 1 in feature group 1"
+_TEST_FG1_F1_LABELS = {"my_fg1_feature": "f1"}
+_TEST_FG1_F1_POINT_OF_CONTACT = "fg1-f1-announce-list"
+_TEST_FG1_F1 = types.feature.Feature(
+    name=_TEST_FG1_F1_PATH,
+    description=_TEST_FG1_F1_DESCRIPTION,
+    labels=_TEST_FG1_F1_LABELS,
+    point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+)
+
+
+_TEST_FG1_F2_ID = "my_fg1_f2"
+_TEST_FG1_F2_PATH = (
+    f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/features/{_TEST_FG1_F2_ID}"
+)
+_TEST_FG1_F2_DESCRIPTION = "My feature 2 in feature group 1"
+_TEST_FG1_F2_LABELS = {"my_fg1_feature": "f2"}
+_TEST_FG1_F2_POINT_OF_CONTACT = "fg1-f2-announce-list"
+_TEST_FG1_F2_VERSION_COLUMN_NAME = "specific_column_for_feature_2"
+_TEST_FG1_F2 = types.feature.Feature(
+    name=_TEST_FG1_F2_PATH,
+    version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
+    description=_TEST_FG1_F2_DESCRIPTION,
+    labels=_TEST_FG1_F2_LABELS,
+    point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+)
+
+_TEST_FG1_FEATURE_LIST = [_TEST_FG1_F1, _TEST_FG1_F2]

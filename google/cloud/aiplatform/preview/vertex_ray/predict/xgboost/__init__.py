@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
-from .register import register_xgboost
+from google.cloud.aiplatform.vertex_ray.predict.xgboost import (
+    register_xgboost,
+)
 
 __all__ = ("register_xgboost",)

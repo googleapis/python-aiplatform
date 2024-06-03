@@ -15,7 +15,7 @@
 import importlib
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.preview import vertex_ray
+from google.cloud.aiplatform import vertex_ray
 import test_constants as tc
 import mock
 import pytest

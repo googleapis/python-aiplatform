@@ -29,6 +29,7 @@ try:
     #   PydanticUserError: `query` is not fully defined; you should define
     #   `RunnableConfig`, then call `query.model_rebuild()`.
     import langchain_core.runnables.config
+
     RunnableConfig = langchain_core.runnables.config.RunnableConfig
 except ImportError:
     RunnableConfig = Any
@@ -77,9 +78,7 @@ def to_dict(message: proto.Message) -> JsonDict:
     """
     try:
         # Best effort attempt to convert the message into a JSON dictionary.
-        result: JsonDict = json.loads(
-            json_format.MessageToJson(message._pb)
-        )
+        result: JsonDict = json.loads(json_format.MessageToJson(message._pb))
     except AttributeError:
         result: JsonDict = json.loads(json_format.MessageToJson(message))
     return result
@@ -125,10 +124,7 @@ def generate_schema(
         name: (
             # 1. We infer the argument type here: use Any rather than None so
             # it will not try to auto-infer the type based on the default value.
-            (
-                param.annotation if param.annotation != inspect.Parameter.empty
-                else Any
-            ),
+            (param.annotation if param.annotation != inspect.Parameter.empty else Any),
             pydantic.Field(
                 # 2. We do not support default values for now.
                 # default=(
@@ -137,11 +133,12 @@ def generate_schema(
                 # ),
                 # 3. We support user-provided descriptions.
                 description=descriptions.get(name, None),
-            )
+            ),
         )
         for name, param in defaults.items()
         # We do not support *args or **kwargs
-        if param.kind in (
+        if param.kind
+        in (
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
             inspect.Parameter.POSITIONAL_ONLY,
@@ -160,10 +157,9 @@ def generate_schema(
         #     * https://github.com/pydantic/pydantic/issues/1270
         #     * https://stackoverflow.com/a/58841311
         #     * https://github.com/pydantic/pydantic/discussions/4872
-        if (
-                typing.get_origin(annotation) is typing.Union
-                and type(None) in typing.get_args(annotation)
-            ):
+        if typing.get_origin(annotation) is typing.Union and type(
+            None
+        ) in typing.get_args(annotation):
             # for "typing.Optional" arguments, function_arg might be a
             # dictionary like
             #
@@ -181,9 +177,12 @@ def generate_schema(
     else:
         # Otherwise we infer it from the function signature.
         parameters["required"] = [
-            k for k in defaults if (
+            k
+            for k in defaults
+            if (
                 defaults[k].default == inspect.Parameter.empty
-                and defaults[k].kind in (
+                and defaults[k].kind
+                in (
                     inspect.Parameter.POSITIONAL_OR_KEYWORD,
                     inspect.Parameter.KEYWORD_ONLY,
                     inspect.Parameter.POSITIONAL_ONLY,
@@ -224,6 +223,7 @@ def _import_pydantic_or_raise() -> types.ModuleType:
     """Tries to import the pydantic module."""
     try:
         import pydantic
+
         _ = pydantic.Field
     except AttributeError:
         from pydantic import v1 as pydantic

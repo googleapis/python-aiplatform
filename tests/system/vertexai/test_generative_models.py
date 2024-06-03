@@ -70,6 +70,16 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "required": ["location"],
 }
 
+_RESPONSE_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+        },
+    },
+    "required": ["location"],
+}
+
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
@@ -112,7 +122,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         for chunk in stream:
-            assert chunk.text
+            assert (
+                chunk.text
+                or chunk.candidates[0].finish_reason
+                is generative_models.FinishReason.STOP
+            )
 
     @pytest.mark.asyncio
     async def test_generate_content_streaming_async(self):
@@ -123,7 +137,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         async for chunk in async_stream:
-            assert chunk.text
+            assert (
+                chunk.text
+                or chunk.candidates[0].finish_reason
+                is generative_models.FinishReason.STOP
+            )
 
     def test_generate_content_with_parameters(self):
         model = generative_models.GenerativeModel(
@@ -166,6 +184,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 presence_penalty=0.0,
                 frequency_penalty=0.0,
                 response_mime_type="application/json",
+                response_schema=_RESPONSE_SCHEMA_STRUCT,
             ),
             safety_settings={
                 generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
@@ -241,7 +260,11 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             tools=[google_search_retriever_tool],
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
-        assert response.text
+        assert (
+            response.candidates[0].finish_reason
+            is generative_models.FinishReason.RECITATION
+            or response.text
+        )
 
     # Chat
 

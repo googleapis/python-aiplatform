@@ -26,7 +26,7 @@ from google.cloud.aiplatform import base
 from vertexai.resources.preview import (
     FeatureView,
 )
-import vertexai.resources.preview.feature_store.utils as fv_utils
+import vertexai.resources.preview.feature_store.utils as fs_utils
 import pytest
 from google.cloud.aiplatform.compat.services import (
     feature_online_store_admin_service_client,
@@ -418,7 +418,7 @@ def test_fetch_feature_values_optimized_no_endpoint(
 ):
     """Tests that the public endpoint is not created for the optimized online store."""
     with pytest.raises(
-        fv_utils.PublicEndpointNotFoundError,
+        fs_utils.PublicEndpointNotFoundError,
         match=re.escape(
             "Public endpoint is not created yet for the optimized online "
             "store:my_esf_optimised_fos2. Please run sync and wait for it "
@@ -498,8 +498,8 @@ def test_search_nearest_entities_no_endpoint(
     try:
         FeatureView(_TEST_OPTIMIZED_FV2_PATH).search(entity_id="key1").to_dict()
         assert not fetch_feature_values_mock.called
-    except fv_utils.PublicEndpointNotFoundError as e:
-        assert isinstance(e, fv_utils.PublicEndpointNotFoundError)
+    except fs_utils.PublicEndpointNotFoundError as e:
+        assert isinstance(e, fs_utils.PublicEndpointNotFoundError)
         error_msg = (
             "Public endpoint is not created yet for the optimized online "
             "store:my_esf_optimised_fos2. Please run sync and wait for it "

@@ -65,6 +65,7 @@ from google.cloud.aiplatform_v1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
 from google.cloud.aiplatform_v1.types import deployment_resource_pool_service
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -1285,6 +1286,9 @@ def test_create_deployment_resource_pool_empty_call():
     with mock.patch.object(
         type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1314,6 +1318,9 @@ def test_create_deployment_resource_pool_non_empty_request_with_auto_populated_f
     with mock.patch.object(
         type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.create_deployment_resource_pool(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1323,6 +1330,50 @@ def test_create_deployment_resource_pool_non_empty_request_with_auto_populated_f
             parent="parent_value",
             deployment_resource_pool_id="deployment_resource_pool_id_value",
         )
+
+
+def test_create_deployment_resource_pool_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_deployment_resource_pool
+        ] = mock_rpc
+        request = {}
+        client.create_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1349,6 +1400,56 @@ async def test_create_deployment_resource_pool_empty_call_async():
             args[0]
             == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
         )
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_deployment_resource_pool
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_deployment_resource_pool
+        ] = mock_object
+
+        request = {}
+        await client.create_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.create_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1597,6 +1698,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = deployment_resource_pool.DeploymentResourcePool(
             name="name_value",
+            service_account="service_account_value",
+            disable_container_logging=True,
         )
         response = client.get_deployment_resource_pool(request)
 
@@ -1609,6 +1712,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
 
 
 def test_get_deployment_resource_pool_empty_call():
@@ -1623,6 +1728,9 @@ def test_get_deployment_resource_pool_empty_call():
     with mock.patch.object(
         type(client.transport.get_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1651,6 +1759,9 @@ def test_get_deployment_resource_pool_non_empty_request_with_auto_populated_fiel
     with mock.patch.object(
         type(client.transport.get_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.get_deployment_resource_pool(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1659,6 +1770,46 @@ def test_get_deployment_resource_pool_non_empty_request_with_auto_populated_fiel
         ] == deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
             name="name_value",
         )
+
+
+def test_get_deployment_resource_pool_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_deployment_resource_pool
+        ] = mock_rpc
+        request = {}
+        client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1678,6 +1829,8 @@ async def test_get_deployment_resource_pool_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             deployment_resource_pool.DeploymentResourcePool(
                 name="name_value",
+                service_account="service_account_value",
+                disable_container_logging=True,
             )
         )
         response = await client.get_deployment_resource_pool()
@@ -1687,6 +1840,52 @@ async def test_get_deployment_resource_pool_empty_call_async():
             args[0]
             == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
         )
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_deployment_resource_pool
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_deployment_resource_pool
+        ] = mock_object
+
+        request = {}
+        await client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.get_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1711,6 +1910,8 @@ async def test_get_deployment_resource_pool_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             deployment_resource_pool.DeploymentResourcePool(
                 name="name_value",
+                service_account="service_account_value",
+                disable_container_logging=True,
             )
         )
         response = await client.get_deployment_resource_pool(request)
@@ -1724,6 +1925,8 @@ async def test_get_deployment_resource_pool_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
@@ -1934,6 +2137,9 @@ def test_list_deployment_resource_pools_empty_call():
     with mock.patch.object(
         type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_deployment_resource_pools()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1963,6 +2169,9 @@ def test_list_deployment_resource_pools_non_empty_request_with_auto_populated_fi
     with mock.patch.object(
         type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.list_deployment_resource_pools(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1972,6 +2181,46 @@ def test_list_deployment_resource_pools_non_empty_request_with_auto_populated_fi
             parent="parent_value",
             page_token="page_token_value",
         )
+
+
+def test_list_deployment_resource_pools_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_deployment_resource_pools
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_deployment_resource_pools
+        ] = mock_rpc
+        request = {}
+        client.list_deployment_resource_pools(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_deployment_resource_pools(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2000,6 +2249,52 @@ async def test_list_deployment_resource_pools_empty_call_async():
             args[0]
             == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
         )
+
+
+@pytest.mark.asyncio
+async def test_list_deployment_resource_pools_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_deployment_resource_pools
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_deployment_resource_pools
+        ] = mock_object
+
+        request = {}
+        await client.list_deployment_resource_pools(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.list_deployment_resource_pools(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2452,6 +2747,9 @@ def test_delete_deployment_resource_pool_empty_call():
     with mock.patch.object(
         type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2480,6 +2778,9 @@ def test_delete_deployment_resource_pool_non_empty_request_with_auto_populated_f
     with mock.patch.object(
         type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.delete_deployment_resource_pool(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2488,6 +2789,50 @@ def test_delete_deployment_resource_pool_non_empty_request_with_auto_populated_f
         ] == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
             name="name_value",
         )
+
+
+def test_delete_deployment_resource_pool_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_deployment_resource_pool
+        ] = mock_rpc
+        request = {}
+        client.delete_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2514,6 +2859,56 @@ async def test_delete_deployment_resource_pool_empty_call_async():
             args[0]
             == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
         )
+
+
+@pytest.mark.asyncio
+async def test_delete_deployment_resource_pool_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_deployment_resource_pool
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_deployment_resource_pool
+        ] = mock_object
+
+        request = {}
+        await client.delete_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2762,6 +3157,9 @@ def test_query_deployed_models_empty_call():
     with mock.patch.object(
         type(client.transport.query_deployed_models), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.query_deployed_models()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2788,6 +3186,9 @@ def test_query_deployed_models_non_empty_request_with_auto_populated_field():
     with mock.patch.object(
         type(client.transport.query_deployed_models), "__call__"
     ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
         client.query_deployed_models(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2795,6 +3196,46 @@ def test_query_deployed_models_non_empty_request_with_auto_populated_field():
             deployment_resource_pool="deployment_resource_pool_value",
             page_token="page_token_value",
         )
+
+
+def test_query_deployed_models_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.query_deployed_models
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.query_deployed_models
+        ] = mock_rpc
+        request = {}
+        client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.query_deployed_models(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2822,6 +3263,52 @@ async def test_query_deployed_models_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.query_deployed_models
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        class AwaitableMock(mock.AsyncMock):
+            def __await__(self):
+                self.await_count += 1
+                return iter([])
+
+        mock_object = AwaitableMock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.query_deployed_models
+        ] = mock_object
+
+        request = {}
+        await client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_object.call_count == 1
+
+        await client.query_deployed_models(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3262,6 +3749,51 @@ def test_create_deployment_resource_pool_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_create_deployment_resource_pool_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_deployment_resource_pool
+        ] = mock_rpc
+
+        request = {}
+        client.create_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_create_deployment_resource_pool_rest_required_fields(
     request_type=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
 ):
@@ -3542,6 +4074,8 @@ def test_get_deployment_resource_pool_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = deployment_resource_pool.DeploymentResourcePool(
             name="name_value",
+            service_account="service_account_value",
+            disable_container_logging=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -3558,6 +4092,49 @@ def test_get_deployment_resource_pool_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
     assert response.name == "name_value"
+    assert response.service_account == "service_account_value"
+    assert response.disable_container_logging is True
+
+
+def test_get_deployment_resource_pool_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_deployment_resource_pool
+        ] = mock_rpc
+
+        request = {}
+        client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_get_deployment_resource_pool_rest_required_fields(
@@ -3844,6 +4421,47 @@ def test_list_deployment_resource_pools_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDeploymentResourcePoolsPager)
     assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_deployment_resource_pools_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_deployment_resource_pools
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_deployment_resource_pools
+        ] = mock_rpc
+
+        request = {}
+        client.list_deployment_resource_pools(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_deployment_resource_pools(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_list_deployment_resource_pools_rest_required_fields(
@@ -4211,6 +4829,51 @@ def test_delete_deployment_resource_pool_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
+def test_delete_deployment_resource_pool_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_deployment_resource_pool
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_deployment_resource_pool
+        ] = mock_rpc
+
+        request = {}
+        client.delete_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_deployment_resource_pool(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
 def test_delete_deployment_resource_pool_rest_required_fields(
     request_type=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
 ):
@@ -4492,6 +5155,47 @@ def test_query_deployed_models_rest(request_type):
     assert response.next_page_token == "next_page_token_value"
     assert response.total_deployed_model_count == 2769
     assert response.total_endpoint_count == 2156
+
+
+def test_query_deployed_models_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DeploymentResourcePoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.query_deployed_models
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.query_deployed_models
+        ] = mock_rpc
+
+        request = {}
+        client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.query_deployed_models(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
 
 
 def test_query_deployed_models_rest_required_fields(

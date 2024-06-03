@@ -236,6 +236,15 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
+        # Clean up resources from previous test runs.
+        for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list():
+            for deployed_index in index_endpoint.deployed_indexes:
+                index_endpoint.undeploy_index(deployed_index_id=deployed_index.id)
+            index_endpoint.delete()
+
+        for index in aiplatform.MatchingEngineIndex.list():
+            index.delete()
+
         # Create an index
         index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
             display_name=_TEST_INDEX_DISPLAY_NAME,
@@ -445,6 +454,15 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
         )
+
+        # Clean up resources from previous test runs.
+        for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list():
+            for deployed_index in index_endpoint.deployed_indexes:
+                index_endpoint.undeploy_index(deployed_index_id=deployed_index.id)
+            index_endpoint.delete()
+
+        for index in aiplatform.MatchingEngineIndex.list():
+            index.delete()
 
         # Create an index
         stream_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
