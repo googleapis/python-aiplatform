@@ -48,6 +48,7 @@ packages += [
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
+matching_engine_extra_require = ["google-cloud-iam>=2.2.0, <3.0.0dev"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0dev",
@@ -163,6 +164,7 @@ langchain_testing_extra_require = list(
 full_extra_require = list(
     set(
         tensorboard_extra_require
+        + matching_engine_extra_require
         + metadata_extra_require
         + xai_extra_require
         + lit_extra_require
