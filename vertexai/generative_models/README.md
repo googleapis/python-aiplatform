@@ -133,9 +133,9 @@ print(chat.send_message(
 #### Automatic Function calling
 
 ```
-from vertexai..preview generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
+from vertexai.preview.generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
 
-# First, create functions that the model is can use to answer your questions.
+# First, create functions that the model can use to answer your questions.
 def get_current_weather(location: str, unit: str = "centigrade"):
     """Gets weather in the specified location.
 
