@@ -20,7 +20,6 @@ import os
 import logging
 import ray
 from typing import Callable, Optional, Union, TYPE_CHECKING
-import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -142,23 +141,11 @@ def _get_tensorflow_model_from(
 
     Raises:
         ValueError: Invalid Argument.
+        RuntimeError: Ray version 2.4.0 is not supported.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
-        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
-        if not isinstance(checkpoint, ray_tensorflow.TensorflowCheckpoint):
-            raise ValueError(
-                "[Ray on Vertex AI]: arg checkpoint should be a"
-                " ray.train.tensorflow.TensorflowCheckpoint instance"
-            )
-        if checkpoint.get_preprocessor() is not None:
-            logging.warning(
-                "Checkpoint contains preprocessor. However, converting from a Ray"
-                " Checkpoint to framework specific model does NOT support"
-                " preprocessing. The model will be exported without preprocessors."
-            )
-
-        return checkpoint.get_model(model)
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
     try:
         import tensorflow as tf

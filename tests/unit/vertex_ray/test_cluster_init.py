@@ -22,10 +22,10 @@ from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
     NodeImages,
 )
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
+from google.cloud.aiplatform_v1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import persistent_resource_service
 import test_constants as tc
 import mock
 import pytest
@@ -478,6 +478,15 @@ class TestClusterManagement:
             request,
         )
 
+    def test_create_ray_cluster_2_4_deprecated_error(self):
+        with pytest.raises(RuntimeError) as e:
+            vertex_ray.create_ray_cluster(
+                head_node_type=Resources(node_count=3),
+                network=tc.ProjectConstants.TEST_VPC_NETWORK,
+                ray_version="2.4",
+            )
+        e.match(regexp=r"Please use Ray version = 2.9.3")
+
     def test_create_ray_cluster_head_multinode_error(self):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
@@ -490,7 +499,7 @@ class TestClusterManagement:
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
-                python_version="3_8",
+                python_version="3.8",
             )
         e.match(regexp=r"The supported Python version is 3")
 
@@ -498,7 +507,7 @@ class TestClusterManagement:
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
-                ray_version="2_1",
+                ray_version="2.1",
             )
         e.match(regexp=r"The supported Ray versions are ")
 

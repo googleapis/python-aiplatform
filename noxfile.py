@@ -195,7 +195,7 @@ def unit(session):
 
 
 @nox.session(python="3.10")
-@nox.parametrize("ray", ["2.4.0", "2.9.3"])
+@nox.parametrize("ray", ["2.9.3"])
 def unit_ray(session, ray):
     # Install all test dependencies, then install this package in-place.
 

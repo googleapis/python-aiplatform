@@ -30,10 +30,10 @@ from google.cloud.aiplatform.vertex_ray.util.resources import (
     Cluster,
     Resources,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
+from google.cloud.aiplatform_v1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
 )
 
@@ -47,7 +47,7 @@ def create_persistent_resource_client():
     return initializer.global_config.create_client(
         client_class=PersistentResourceClientWithOverride,
         appended_gapic_version="vertex_ray",
-    ).select_version("v1beta1")
+    )
 
 
 def polling_delay(num_attempts: int, time_scale: float) -> datetime.timedelta:
@@ -84,7 +84,7 @@ def get_persistent_resource(
       tolerance: number of attemps to get persistent resource.
 
     Returns:
-      aiplatform_v1beta1.PersistentResource if state is RUNNING.
+      aiplatform_v1.PersistentResource if state is RUNNING.
 
     Raises:
       ValueError: Invalid cluster resource name.
