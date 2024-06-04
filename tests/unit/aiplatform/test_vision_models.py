@@ -217,6 +217,7 @@ class TestImageGenerationModels:
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/imagegeneration@002",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         return model
@@ -243,6 +244,7 @@ class TestImageGenerationModels:
         mock_get_publisher_model.assert_called_with(
             name="publishers/google/models/imagegeneration@002",
             retry=base._DEFAULT_RETRY,
+            metadata=(),
         )
 
         assert mock_get_publisher_model.call_count == 1
@@ -973,6 +975,7 @@ class TestMultiModalEmbeddingModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/multimodalembedding@001",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )
 
         test_image_embeddings = [0, 0]
@@ -1203,6 +1206,7 @@ class TestMultiModalEmbeddingModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/multimodalembedding@001",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )
 
         test_video_embeddings = [
@@ -1269,6 +1273,7 @@ class TestMultiModalEmbeddingModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/multimodalembedding@001",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )
 
         test_text_embedding = [0, 0]
@@ -1338,6 +1343,7 @@ class TestMultiModalEmbeddingModels:
             mock_get_publisher_model.assert_called_once_with(
                 name="publishers/google/models/multimodalembedding@001",
                 retry=base._DEFAULT_RETRY,
+                metadata=(),
             )
 
         test_embedding = [0, 0]

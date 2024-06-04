@@ -2167,6 +2167,7 @@ class _TextEmbeddingModel(_LanguageModel):
         *,
         auto_truncate: bool = True,
         output_dimensionality: Optional[int] = None,
+        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> List["TextEmbedding"]:
         """Calculates embeddings for the given texts.
 
@@ -2174,6 +2175,8 @@ class _TextEmbeddingModel(_LanguageModel):
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate: Whether to automatically truncate long texts. Default: True.
             output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -2187,6 +2190,7 @@ class _TextEmbeddingModel(_LanguageModel):
         prediction_response = self._endpoint.predict(
             instances=prediction_request.instances,
             parameters=prediction_request.parameters,
+            request_metadata=request_metadata,
         )
 
         return [
@@ -2202,6 +2206,7 @@ class _TextEmbeddingModel(_LanguageModel):
         *,
         auto_truncate: bool = True,
         output_dimensionality: Optional[int] = None,
+        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> List["TextEmbedding"]:
         """Asynchronously calculates embeddings for the given texts.
 
@@ -2209,6 +2214,8 @@ class _TextEmbeddingModel(_LanguageModel):
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate: Whether to automatically truncate long texts. Default: True.
             output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -2222,6 +2229,7 @@ class _TextEmbeddingModel(_LanguageModel):
         prediction_response = await self._endpoint.predict_async(
             instances=prediction_request.instances,
             parameters=prediction_request.parameters,
+            metadata=request_metadata,
         )
 
         return [
