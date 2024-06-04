@@ -15,9 +15,9 @@
 from random import randint
 from uuid import uuid4
 
+from google.protobuf import timestamp_pb2
 from google.auth import credentials
 from google.cloud import aiplatform
-from google.protobuf import timestamp_pb2
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -208,7 +208,7 @@ PYTHON_PACKAGE_GCS_URI = (
 PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
-# Feature store constants
+# Feature store constants (legacy)
 FEATURESTORE_ID = "movie_prediction"
 FEATURESTORE_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
@@ -251,6 +251,9 @@ USERS_GCS_SOURCE_URI = (
 )
 GCS_SOURCE_TYPE = "avro"
 WORKER_COUNT = 1
+
+# Feature online store constants
+FEATURE_ONLINE_STORE_ID = "sample_feature_online_store"
 
 TABULAR_TARGET_COLUMN = "target_column"
 FORECASTNG_TIME_COLUMN = "date"
