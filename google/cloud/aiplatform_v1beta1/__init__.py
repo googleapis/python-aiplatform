@@ -979,6 +979,7 @@ from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vertex_rag_data import ImportRagFilesConfig
 from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
 from .types.vertex_rag_data import UploadRagFileConfig
@@ -1747,6 +1748,7 @@ __all__ = (
     "QuestionAnsweringRelevanceSpec",
     "RagContexts",
     "RagCorpus",
+    "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
     "RagQuery",

@@ -75,6 +75,10 @@ class VertexRagDataServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = VertexRagDataServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = VertexRagDataServiceClient._DEFAULT_UNIVERSE
 
+    endpoint_path = staticmethod(VertexRagDataServiceClient.endpoint_path)
+    parse_endpoint_path = staticmethod(VertexRagDataServiceClient.parse_endpoint_path)
+    model_path = staticmethod(VertexRagDataServiceClient.model_path)
+    parse_model_path = staticmethod(VertexRagDataServiceClient.parse_model_path)
     rag_corpus_path = staticmethod(VertexRagDataServiceClient.rag_corpus_path)
     parse_rag_corpus_path = staticmethod(
         VertexRagDataServiceClient.parse_rag_corpus_path
