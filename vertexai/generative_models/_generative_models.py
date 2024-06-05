@@ -15,6 +15,7 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
+from collections.abc import Mapping
 import copy
 import io
 import json
@@ -2422,6 +2423,10 @@ class AutomaticFunctionCallingResponder:
                     # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
                     function_args = type(function_call).to_dict(function_call)["args"]
                     function_call_result = callable_function._function(**function_args)
+                    if not isinstance(function_call_result, Mapping):
+                        # If the function returns a single value, wrap it in the
+                        # format that Part.from_function_response can accept.
+                        function_call_result = {"result": function_call_result}
                 except Exception as ex:
                     raise RuntimeError(
                         f"""Error raised when calling function "{function_call.name}" as requested by the model."""

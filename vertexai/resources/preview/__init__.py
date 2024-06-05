@@ -29,7 +29,9 @@ from google.cloud.aiplatform.preview.models import (
 from google.cloud.aiplatform.preview.featurestore.entity_type import (
     EntityType,
 )
-
+from google.cloud.aiplatform.preview.persistent_resource import (
+    PersistentResource,
+)
 from google.cloud.aiplatform.preview.pipelinejobschedule.pipeline_job_schedules import (
     PipelineJobSchedule,
 )
@@ -37,6 +39,7 @@ from google.cloud.aiplatform.preview.pipelinejobschedule.pipeline_job_schedules 
 from vertexai.resources.preview.feature_store import (
     Feature,
     FeatureGroup,
+    FeatureGroupBigQuerySource,
     FeatureOnlineStore,
     FeatureOnlineStoreType,
     FeatureView,

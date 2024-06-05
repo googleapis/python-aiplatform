@@ -950,7 +950,7 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_chat_automatic_function_calling(self):
+    def test_chat_automatic_function_calling_with_function_returning_dict(self):
         generative_models = preview_generative_models
         get_current_weather_func = generative_models.FunctionDeclaration.from_func(
             get_current_weather
@@ -983,6 +983,51 @@ class TestGenerativeModels:
         with pytest.raises(RuntimeError) as err:
             chat2.send_message("What is the weather like in Boston?")
         assert err.match("Exceeded the maximum")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_chat_automatic_function_calling_with_function_returning_value(self):
+        # Define a new function that returns a value instead of a dict.
+        def get_current_weather(location: str):
+            """Gets weather in the specified location.
+
+            Args:
+                location: The location for which to get the weather.
+
+            Returns:
+                The weather information as a str.
+            """
+            if location == "Boston":
+                return "Super nice, but maybe a bit hot."
+            return "Unavailable"
+
+        generative_models = preview_generative_models
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            get_current_weather
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+        afc_responder = generative_models.AutomaticFunctionCallingResponder(
+            max_automatic_function_calls=5,
+        )
+        chat = model.start_chat(responder=afc_responder)
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert response1.text.startswith("The weather in Boston is")
+        assert "nice" in response1.text
+        assert len(chat.history) == 4
+        assert chat.history[-3].parts[0].function_call
+        assert chat.history[-2].parts[0].function_response
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
