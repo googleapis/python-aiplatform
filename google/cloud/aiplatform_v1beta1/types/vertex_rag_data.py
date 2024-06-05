@@ -26,6 +26,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "RagEmbeddingModelConfig",
         "RagCorpus",
         "RagFile",
         "RagFileChunkingConfig",
@@ -33,6 +34,64 @@ __protobuf__ = proto.module(
         "ImportRagFilesConfig",
     },
 )
+
+
+class RagEmbeddingModelConfig(proto.Message):
+    r"""Config for the embedding model to use for RAG.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        vertex_prediction_endpoint (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig.VertexPredictionEndpoint):
+            The Vertex AI Prediction Endpoint that either
+            refers to a publisher model or an endpoint that
+            is hosting a 1P fine-tuned text embedding model.
+            Endpoints hosting non-1P fine-tuned text
+            embedding models are currently not supported.
+
+            This field is a member of `oneof`_ ``model_config``.
+    """
+
+    class VertexPredictionEndpoint(proto.Message):
+        r"""Config representing a model hosted on Vertex Prediction
+        Endpoint.
+
+        Attributes:
+            endpoint (str):
+                Required. The endpoint resource name. Format:
+                ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``
+                or
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+            model (str):
+                Output only. The resource name of the model that is deployed
+                on the endpoint. Present only when the endpoint is not a
+                publisher model. Pattern:
+                ``projects/{project}/locations/{location}/models/{model}``
+            model_version_id (str):
+                Output only. Version ID of the model that is
+                deployed on the endpoint. Present only when the
+                endpoint is not a publisher model.
+        """
+
+        endpoint: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        model: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+        model_version_id: str = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+
+    vertex_prediction_endpoint: VertexPredictionEndpoint = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="model_config",
+        message=VertexPredictionEndpoint,
+    )
 
 
 class RagCorpus(proto.Message):
@@ -49,6 +108,9 @@ class RagCorpus(proto.Message):
             can consist of any UTF-8 characters.
         description (str):
             Optional. The description of the RagCorpus.
+        rag_embedding_model_config (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig):
+            Optional. Immutable. The embedding model
+            config of the RagCorpus.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this RagCorpus
             was created.
@@ -68,6 +130,11 @@ class RagCorpus(proto.Message):
     description: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    rag_embedding_model_config: "RagEmbeddingModelConfig" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="RagEmbeddingModelConfig",
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
@@ -263,6 +330,15 @@ class ImportRagFilesConfig(proto.Message):
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
+        max_embedding_requests_per_min (int):
+            Optional. The max number of queries per
+            minute that this job is allowed to make to the
+            embedding model specified on the corpus. This
+            value is specific to this job and not shared
+            across other import jobs. Consult the Quotas
+            page on the project to set an appropriate value
+            here. If unspecified, a default value of 1,000
+            QPM would be used.
     """
 
     gcs_source: io.GcsSource = proto.Field(
@@ -281,6 +357,10 @@ class ImportRagFilesConfig(proto.Message):
         proto.MESSAGE,
         number=4,
         message="RagFileChunkingConfig",
+    )
+    max_embedding_requests_per_min: int = proto.Field(
+        proto.INT32,
+        number=5,
     )
 
 

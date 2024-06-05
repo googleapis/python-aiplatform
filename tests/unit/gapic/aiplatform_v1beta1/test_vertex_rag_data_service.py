@@ -2397,13 +2397,13 @@ def test_list_rag_corpora_pager(transport_name: str = "grpc"):
             RuntimeError,
         )
 
-        metadata = ()
-        metadata = tuple(metadata) + (
+        expected_metadata = ()
+        expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
         pager = client.list_rag_corpora(request={})
 
-        assert pager._metadata == metadata
+        assert pager._metadata == expected_metadata
 
         results = list(pager)
         assert len(results) == 6
@@ -4551,13 +4551,13 @@ def test_list_rag_files_pager(transport_name: str = "grpc"):
             RuntimeError,
         )
 
-        metadata = ()
-        metadata = tuple(metadata) + (
+        expected_metadata = ()
+        expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
         pager = client.list_rag_files(request={})
 
-        assert pager._metadata == metadata
+        assert pager._metadata == expected_metadata
 
         results = list(pager)
         assert len(results) == 6
@@ -5093,6 +5093,13 @@ def test_create_rag_corpus_rest(request_type):
         "name": "name_value",
         "display_name": "display_name_value",
         "description": "description_value",
+        "rag_embedding_model_config": {
+            "vertex_prediction_endpoint": {
+                "endpoint": "endpoint_value",
+                "model": "model_value",
+                "model_version_id": "model_version_id_value",
+            }
+        },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
     }
@@ -8741,6 +8748,58 @@ def test_vertex_rag_data_service_grpc_lro_async_client():
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
+
+
+def test_endpoint_path():
+    project = "squid"
+    location = "clam"
+    endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = VertexRagDataServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
+    }
+    path = VertexRagDataServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = VertexRagDataServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_model_path():
+    project = "cuttlefish"
+    location = "mussel"
+    model = "winkle"
+    expected = "projects/{project}/locations/{location}/models/{model}".format(
+        project=project,
+        location=location,
+        model=model,
+    )
+    actual = VertexRagDataServiceClient.model_path(project, location, model)
+    assert expected == actual
+
+
+def test_parse_model_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "model": "abalone",
+    }
+    path = VertexRagDataServiceClient.model_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = VertexRagDataServiceClient.parse_model_path(path)
+    assert expected == actual
 
 
 def test_rag_corpus_path():

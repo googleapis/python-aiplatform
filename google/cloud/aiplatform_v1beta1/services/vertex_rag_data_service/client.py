@@ -195,6 +195,50 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project,
+            location=location,
+            endpoint=endpoint,
+        )
+
+    @staticmethod
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
+        """Returns a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project,
+            location=location,
+            model=model,
+        )
+
+    @staticmethod
+    def parse_model_path(path: str) -> Dict[str, str]:
+        """Parses a model path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def rag_corpus_path(
         project: str,
         location: str,
