@@ -302,8 +302,8 @@ def _try_parse_execution_response(
 ) -> Union[_utils.JsonDict, str]:
     content: str = response.content
     try:
-        content = json.loads(response.content)
-    except:
+        content = json.loads(content)
+    except json.JSONDecodeError:
         pass
     return content
 

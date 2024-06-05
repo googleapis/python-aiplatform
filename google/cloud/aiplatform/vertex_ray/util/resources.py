@@ -16,7 +16,7 @@
 #
 import dataclasses
 from typing import Dict, List, Optional
-from google.cloud.aiplatform_v1beta1.types import PersistentResource
+from google.cloud.aiplatform_v1.types import PersistentResource
 
 
 @dataclasses.dataclass
@@ -53,10 +53,10 @@ class Resources:
 @dataclasses.dataclass
 class NodeImages:
     """
-    Custom images for a ray cluster. We currently support Ray v2.4 and python v3.10.
+    Custom images for a ray cluster. We currently support Ray v2.9 and python v3.10.
     The custom images must be extended from the following base images:
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-4.py310:latest" or
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-4.py310:latest". In
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest" or
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest". In
     order to use custom images, need to specify both head and worker images.
 
     Attributes:
@@ -85,7 +85,7 @@ class Cluster:
             the cluster.
         state: Describes the cluster state (defined in PersistentResource.State).
         python_version: Python version for the ray cluster (e.g. "3.10").
-        ray_version: Ray version for the ray cluster (e.g. "2.4").
+        ray_version: Ray version for the ray cluster (e.g. "2.9").
         head_node_type: The head node resource. Resources.node_count must be 1.
             If not set, by default it is a CPU node with machine_type of n1-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not

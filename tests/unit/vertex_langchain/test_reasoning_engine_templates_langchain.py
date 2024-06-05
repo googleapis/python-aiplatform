@@ -21,6 +21,8 @@ from google.auth import credentials as auth_credentials
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
+from vertexai.preview.generative_models import grounding
+from vertexai.generative_models import Tool
 import pytest
 
 
@@ -81,6 +83,12 @@ def langchain_dump_mock():
         yield langchain_dump_mock
 
 
+@pytest.fixture
+def mock_chatvertexai():
+    with mock.patch("langchain_google_vertexai.ChatVertexAI") as model_mock:
+        yield model_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLangchainAgent:
     def setup_method(self):
@@ -113,10 +121,11 @@ class TestLangchainAgent:
         assert agent._location == _TEST_LOCATION
         assert agent._runnable is None
 
-    def test_initialization_with_tools(self):
+    def test_initialization_with_tools(self, mock_chatvertexai):
         tools = [
             place_tool_query,
             StructuredTool.from_function(place_photo_query),
+            Tool.from_google_search_retrieval(grounding.GoogleSearchRetrieval()),
         ]
         agent = reasoning_engines.LangchainAgent(
             model=_TEST_MODEL,
@@ -124,8 +133,11 @@ class TestLangchainAgent:
         )
         for tool, agent_tool in zip(tools, agent._tools):
             assert isinstance(agent_tool, type(tool))
+        assert agent._runnable is None
+        agent.set_up()
+        assert agent._runnable is not None
 
-    def test_set_up(self, vertexai_init_mock):
+    def test_set_up(self):
         agent = reasoning_engines.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
@@ -135,7 +147,7 @@ class TestLangchainAgent:
         agent.set_up()
         assert agent._runnable is not None
 
-    def test_clone(self, vertexai_init_mock):
+    def test_clone(self):
         agent = reasoning_engines.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,

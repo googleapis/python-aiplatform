@@ -101,7 +101,8 @@ preview_extra_require = [
 ]
 
 ray_extra_require = [
-    # Cluster only supports 2.4.0 and 2.9.3
+    # Cluster only supports 2.9.3. Keep 2.4.0 for our testing environment.
+    # Note that testing is submiting a job in a cluster with Ray 2.9.3 remotely.
     (
         "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
         " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'"
@@ -126,10 +127,7 @@ genai_requires = (
 ray_testing_extra_require = ray_extra_require + [
     "pytest-xdist",
     # ray train extras required for prediction tests
-    (
-        "ray[train] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
-        " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2"
-    ),
+    "ray[train] == 2.9.3",
     # Framework version constraints copied from testing_extra_require
     "scikit-learn",
     "tensorflow",

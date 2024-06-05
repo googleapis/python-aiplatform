@@ -18,7 +18,6 @@
 import ray.data
 from ray.data.dataset import Dataset
 from typing import Any, Dict, Optional
-import warnings
 
 from google.cloud.aiplatform.vertex_ray.bigquery_datasource import (
     BigQueryDatasource,
@@ -43,7 +42,6 @@ def read_bigquery(
     *,
     parallelism: int = -1,
 ) -> Dataset:
-    # The read is identical in Ray 2.4 and 2.9
     return ray.data.read_datasource(
         BigQueryDatasource(),
         project_id=project_id,
@@ -61,13 +59,8 @@ def write_bigquery(
     ray_remote_args: Dict[str, Any] = None,
 ) -> Any:
     if ray.__version__ == "2.4.0":
-        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
-        return ds.write_datasource(
-            BigQueryDatasource(),
-            project_id=project_id,
-            dataset=dataset,
-            max_retry_cnt=max_retry_cnt,
-        )
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
+
     elif ray.__version__ == "2.9.3":
         if ray_remote_args is None:
             ray_remote_args = {}
@@ -89,5 +82,5 @@ def write_bigquery(
     else:
         raise ImportError(
             f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-            + "Only 2.4.0 and 2.9.3 are supported."
+            + "Only 2.9.3 is supported."
         )

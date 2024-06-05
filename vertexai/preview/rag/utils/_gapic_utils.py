@@ -97,10 +97,12 @@ def convert_path_to_resource_id(
         # Google Drive source
         path_list = path.split("/")
         if "file" in path_list:
-            resource_id = path_list[5]
+            index = path_list.index("file") + 2
+            resource_id = path_list[index].split("?")[0]
             resource_type = GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FILE
         elif "folders" in path_list:
-            resource_id = path_list[6]
+            index = path_list.index("folders") + 1
+            resource_id = path_list[index].split("?")[0]
             resource_type = (
                 GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FOLDER
             )

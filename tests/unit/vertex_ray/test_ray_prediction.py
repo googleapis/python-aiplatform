@@ -65,11 +65,6 @@ def ray_tensorflow_checkpoint():
 
 @pytest.fixture()
 def ray_checkpoint_from_dict():
-    if ray.__version__ == "2.4.0":
-        checkpoint_data = {"data": 123}
-        return ray.air.checkpoint.Checkpoint.from_dict(checkpoint_data)
-
-    # Checkpoint.from_dict() removed  in future versions
     try:
         return ray.train.Checkpoint.from_directory("/tmp/checkpoint")
     except AttributeError:

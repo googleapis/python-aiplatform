@@ -749,7 +749,7 @@ class TestGenerativeModels:
     )
     @pytest.mark.parametrize(
         "generative_models",
-        [preview_generative_models],
+        [generative_models, preview_generative_models],
     )
     def test_chat_forced_function_calling(self, generative_models: generative_models):
         get_current_weather_func = generative_models.FunctionDeclaration(

@@ -91,7 +91,10 @@ _TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
 _TEST_DISPLAY_NAME = "test-display-name"
-_TEST_CREDENTIALS = mock.Mock(spec=credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = mock.Mock(
+    spec=credentials.AnonymousCredentials(),
+    universe_domain="googleapis.com",
+)
 _TEST_BUCKET_NAME = "gs://test-bucket"
 
 # resource attributes

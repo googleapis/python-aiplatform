@@ -22,6 +22,7 @@ import tarfile
 import typing
 from typing import Optional, Protocol, Sequence, Union
 
+from google.api_core import exceptions
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
@@ -378,10 +379,6 @@ def _prepare(
             use for staging the artifacts needed.
         extra_packages (Sequence[str]): The set of extra user-provided packages.
     """
-    try:
-        from google.cloud.exceptions import NotFound
-    except:
-        NotFound = Exception
     storage = _utils._import_cloud_storage_or_raise()
     cloudpickle = _utils._import_cloudpickle_or_raise()
     storage_client = storage.Client(project=project)
@@ -389,7 +386,7 @@ def _prepare(
     try:
         gcs_bucket = storage_client.get_bucket(staging_bucket)
         _LOGGER.info(f"Using bucket {staging_bucket}")
-    except NotFound:
+    except exceptions.NotFound:
         new_bucket = storage_client.bucket(staging_bucket)
         gcs_bucket = storage_client.create_bucket(new_bucket, location=location)
         _LOGGER.info(f"Creating bucket {staging_bucket} in {location=}")

@@ -636,7 +636,7 @@ def evaluate(
         raise ValueError("Metrics cannot be empty.")
 
     evaluation_run_config = evaluation_base.EvaluationRunConfig(
-        dataset=dataset,
+        dataset=dataset.copy(deep=True),
         metrics=_replace_metric_bundle_with_metrics(metrics),
         column_map={
             constants.Dataset.CONTENT_COLUMN: content_column_name,

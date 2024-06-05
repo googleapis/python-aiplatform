@@ -492,6 +492,8 @@ class _ExperimentTracker:
                 run_name=run, experiment=self.experiment, tensorboard=tensorboard
             )
 
+        _ipython_utils.display_experiment_run_button(self._experiment_run)
+
         return self._experiment_run
 
     def end_run(

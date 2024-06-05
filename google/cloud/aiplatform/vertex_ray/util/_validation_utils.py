@@ -28,7 +28,7 @@ from google.cloud.aiplatform.utils import resource_manager_utils
 SUPPORTED_RAY_VERSIONS = immutabledict({"2.4": "2.4.0", "2.9": "2.9.3"})
 SUPPORTED_PY_VERSION = ["3.10"]
 _V2_4_WARNING_MESSAGE = (
-    "After May 30, 2024, using Ray version = 2.4 will result in an error. "
+    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result in an error. "
     "Please use Ray version = 2.9.3 (default) instead."
 )
 

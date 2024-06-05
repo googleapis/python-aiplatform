@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import os
 import ray
 from ray.air._internal.torch_utils import load_torch_model
@@ -25,7 +24,6 @@ from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
 )
 from google.cloud.aiplatform.utils import gcs_utils
 from typing import Optional
-import warnings
 
 
 try:
@@ -62,22 +60,11 @@ def get_pytorch_model_from(
         ValueError: Invalid Argument.
         ModuleNotFoundError: PyTorch isn't installed.
         RuntimeError: Model not found.
+        RuntimeError: Ray version 2.4 is not supported.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
-        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
-        if not isinstance(checkpoint, ray_torch.TorchCheckpoint):
-            raise ValueError(
-                "[Ray on Vertex AI]: arg checkpoint should be a"
-                " ray.train.torch.TorchCheckpoint instance"
-            )
-        if checkpoint.get_preprocessor() is not None:
-            logging.warning(
-                "Checkpoint contains preprocessor. However, converting from a Ray"
-                " Checkpoint to framework specific model does NOT support"
-                " preprocessing. The model will be exported without preprocessors."
-            )
-        return checkpoint.get_model(model=model)
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
     try:
         return checkpoint.get_model()

@@ -176,11 +176,7 @@ def execute_extension_mock():
     with mock.patch.object(
         extension_execution_service.ExtensionExecutionServiceClient, "execute_extension"
     ) as execute_extension_mock:
-        response_mock = mock.MagicMock()
-        response_mock.content.return_value = _TEST_RESPONSE_CONTENT
-        api_client_mock = mock.MagicMock()
-        api_client_mock.execute_extension.return_value = response_mock
-        execute_extension_mock.return_value = api_client_mock
+        execute_extension_mock.return_value.content = _TEST_RESPONSE_CONTENT
         yield execute_extension_mock
 
 

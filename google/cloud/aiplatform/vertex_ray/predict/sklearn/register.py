@@ -17,14 +17,12 @@
 # limitations under the License.
 #
 
-import logging
 import os
 import pickle
 import ray
 import ray.cloudpickle as cpickle
 import tempfile
 from typing import Optional, TYPE_CHECKING
-import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -123,23 +121,12 @@ def _get_estimator_from(
     Raises:
         ValueError: Invalid Argument.
         RuntimeError: Model not found.
+        RuntimeError: Ray version 2.4 is not supported.
     """
 
     ray_version = ray.__version__
     if ray_version == "2.4.0":
-        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
-        if not isinstance(checkpoint, ray_sklearn.SklearnCheckpoint):
-            raise ValueError(
-                "[Ray on Vertex AI]: arg checkpoint should be a"
-                " ray.train.sklearn.SklearnCheckpoint instance"
-            )
-        if checkpoint.get_preprocessor() is not None:
-            logging.warning(
-                "Checkpoint contains preprocessor. However, converting from a Ray"
-                " Checkpoint to framework specific model does NOT support"
-                " preprocessing. The model will be exported without preprocessors."
-            )
-        return checkpoint.get_estimator()
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
     try:
         return checkpoint.get_model()

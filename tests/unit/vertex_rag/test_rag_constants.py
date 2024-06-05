@@ -91,6 +91,9 @@ TEST_DRIVE_FOLDER_ID = "123"
 TEST_DRIVE_FOLDER = (
     f"https://drive.google.com/corp/drive/folders/{TEST_DRIVE_FOLDER_ID}"
 )
+TEST_DRIVE_FOLDER_2 = (
+    f"https://drive.google.com/drive/folders/{TEST_DRIVE_FOLDER_ID}?resourcekey=0-eiOT3"
+)
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER = ImportRagFilesConfig()
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(

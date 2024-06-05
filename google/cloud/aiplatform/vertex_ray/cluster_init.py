@@ -19,14 +19,13 @@ import copy
 import logging
 import time
 from typing import Dict, List, Optional
-import warnings
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import persistent_resource_service
 
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     PersistentResource,
     RaySpec,
     RayMetricSpec,
@@ -42,6 +41,9 @@ from google.cloud.aiplatform.vertex_ray.util import (
 )
 
 from google.protobuf import field_mask_pb2  # type: ignore
+from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
+    _V2_4_WARNING_MESSAGE,
+)
 
 
 def create_ray_cluster(
@@ -51,7 +53,7 @@ def create_ray_cluster(
     network: Optional[str] = None,
     service_account: Optional[str] = None,
     cluster_name: Optional[str] = None,
-    worker_node_types: Optional[List[resources.Resources]] = None,
+    worker_node_types: Optional[List[resources.Resources]] = [resources.Resources()],
     custom_images: Optional[resources.NodeImages] = None,
     enable_metrics_collection: Optional[bool] = True,
     labels: Optional[Dict[str, str]] = None,
@@ -128,6 +130,9 @@ def create_ray_cluster(
 
     Returns:
         The cluster_resource_name of the initiated Ray cluster on Vertex.
+    Raise:
+        ValueError: If the cluster is not created successfully.
+        RuntimeError: If the ray_version is 2.4.
     """
 
     if network is None:
@@ -135,13 +140,11 @@ def create_ray_cluster(
             "[Ray on Vertex]: No VPC network configured. It is required for client connection."
         )
     if ray_version == "2.4":
-        warnings.warn(
-            _validation_utils._V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2
-        )
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
         if custom_images is None and head_node_type.custom_image is None:
-            install_ray_version = "2.9.3" if ray_version == "2.9" else "2.4.0"
+            install_ray_version = "2.9.3"
             logging.info(
                 "[Ray on Vertex]: Local runtime has Ray version %s"
                 ", but the requested cluster runtime has %s. Please "
