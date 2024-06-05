@@ -46,6 +46,7 @@ from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
+    gen_ai_cache_service_client_v1beta1,
     index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
@@ -730,6 +731,18 @@ class FeaturestoreOnlineServingClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
+        ),
+    )
+
+
+class GenAiCacheServiceClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    # TODO(b/342585299): Switch to compat.DEFAULT_VERSION once v1 is available.
+    _default_version = "v1beta1"
+    _version_map = (
+        (
+            compat.V1BETA1,
+            gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
         ),
     )
 

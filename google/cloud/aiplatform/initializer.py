@@ -21,7 +21,7 @@ import inspect
 import logging
 import os
 import types
-from typing import Iterator, List, Optional, Type, TypeVar, Union
+from typing import Iterator, List, Optional, Type, TypeVar, Tuple, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -518,6 +518,12 @@ class _Config:
                 kwargs["transport"] = self._api_transport
 
         return client_class(**kwargs)
+
+    def _get_default_project_and_location(self) -> Tuple[str, str]:
+        return (
+            self.project,
+            self.location,
+        )
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
