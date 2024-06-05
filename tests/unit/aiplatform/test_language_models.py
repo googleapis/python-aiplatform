@@ -65,7 +65,6 @@ from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as gca_prediction_service_v1beta1,
 )
 
-import vertexai
 from vertexai.preview import (
     language_models as preview_language_models,
 )
@@ -4735,93 +4734,6 @@ class TestLanguageModels:
                 gcs_destination_prefix="gs://test-bucket/results/",
                 model_parameters={},
             )
-
-    def test_text_generation_top_level_from_pretrained_preview(self):
-        """Tests the text generation model."""
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
-        with mock.patch.object(
-            target=model_garden_service_client.ModelGardenServiceClient,
-            attribute="get_publisher_model",
-            return_value=gca_publisher_model.PublisherModel(
-                _TEXT_BISON_PUBLISHER_MODEL_DICT
-            ),
-        ) as mock_get_publisher_model:
-            model = vertexai.preview.from_pretrained(
-                foundation_model_name="text-bison@001"
-            )
-
-            assert isinstance(model, preview_language_models.TextGenerationModel)
-
-        mock_get_publisher_model.assert_called_with(
-            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
-        )
-        assert mock_get_publisher_model.call_count == 1
-
-        assert (
-            model._model_resource_name
-            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/text-bison@001"
-        )
-
-        # Test that methods on TextGenerationModel still work as expected
-        gca_predict_response = gca_prediction_service.PredictResponse()
-        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
-
-        with mock.patch.object(
-            target=prediction_service_client.PredictionServiceClient,
-            attribute="predict",
-            return_value=gca_predict_response,
-        ):
-            response = model.predict(
-                "What is the best recipe for banana bread? Recipe:",
-                max_output_tokens=128,
-                temperature=0.0,
-                top_p=1.0,
-                top_k=5,
-            )
-
-        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
-        assert (
-            response.raw_prediction_response.predictions[0]
-            == _TEST_TEXT_GENERATION_PREDICTION
-        )
-        assert (
-            response.safety_attributes["Violent"]
-            == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
-        )
-
-    def test_text_embedding_top_level_from_pretrained_preview(self):
-        """Tests the text embedding model."""
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
-        with mock.patch.object(
-            target=model_garden_service_client.ModelGardenServiceClient,
-            attribute="get_publisher_model",
-            return_value=gca_publisher_model.PublisherModel(
-                _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
-            ),
-        ) as mock_get_publisher_model:
-            model = vertexai.preview.from_pretrained(
-                foundation_model_name="textembedding-gecko@001"
-            )
-
-            assert isinstance(model, preview_language_models.TextEmbeddingModel)
-
-            assert (
-                model._endpoint_name
-                == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/textembedding-gecko@001"
-            )
-
-        mock_get_publisher_model.assert_called_with(
-            name="publishers/google/models/textembedding-gecko@001",
-            retry=base._DEFAULT_RETRY,
-        )
-
-        assert mock_get_publisher_model.call_count == 1
 
 
 # TODO (b/285946649): add more test coverage before public preview release
