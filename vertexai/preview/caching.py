@@ -271,3 +271,9 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
 
     def delete(self):
         self._delete()
+
+    @classmethod
+    def list(cls):
+        # TODO(b/345326114): Make list() interface richer after aligning with
+        # Google AI SDK
+        return cls._list()
