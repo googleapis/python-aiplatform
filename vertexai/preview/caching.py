@@ -247,7 +247,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         update_mask: List[str] = []
 
         if ttl:
-            update_mask.append("description")
+            update_mask.append("ttl")
 
         if expire_time:
             update_mask.append("expire_time")
