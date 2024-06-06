@@ -24,7 +24,6 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
 )
-import vertexai
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.utils import gcs_utils
 from vertexai import language_models
@@ -128,15 +127,15 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             assert response.text or response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    def test_preview_text_embedding_top_level_from_pretrained(self, api_transport):
+    def test_preview_text_embedding_from_pretrained(self, api_transport):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             api_transport=api_transport,
         )
 
-        model = vertexai.preview.from_pretrained(
-            foundation_model_name="google/text-bison@001"
+        model = preview_language_models.TextEmbeddingModel.from_pretrained(
+            "google/text-bison@001"
         )
 
         response = model.predict(
