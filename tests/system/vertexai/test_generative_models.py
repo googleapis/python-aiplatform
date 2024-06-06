@@ -429,3 +429,12 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert chat.history[-3].parts[0].function_call.name == "get_current_weather"
         assert chat.history[-2].parts[0].function_response
         assert chat.history[-2].parts[0].function_response.name == "get_current_weather"
+
+    def test_additional_request_metadata(self):
+        aiplatform.init(request_metadata=[("foo", "bar")])
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+        response = model.generate_content(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
+        assert response
