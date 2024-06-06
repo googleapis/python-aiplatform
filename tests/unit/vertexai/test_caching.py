@@ -19,7 +19,7 @@
 import datetime
 import pytest
 import mock
-from vertexai.preview import caching
+from vertexai._caching import _caching as caching
 from google.cloud.aiplatform import initializer
 import vertexai
 from google.cloud.aiplatform_v1beta1.types.cached_content import (

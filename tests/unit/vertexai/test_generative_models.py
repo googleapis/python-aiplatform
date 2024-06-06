@@ -40,7 +40,7 @@ from google.cloud.aiplatform_v1beta1.services import (
     gen_ai_cache_service,
 )
 from vertexai.generative_models import _function_calling_utils
-from vertexai.preview import caching
+from vertexai._caching import _caching as caching
 
 
 _TEST_PROJECT = "test-project"
@@ -458,7 +458,7 @@ class TestGenerativeModels:
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = preview_generative_models.GenerativeModel._from_cached_content(
             cached_content=cached_content
         )
 
@@ -586,7 +586,7 @@ class TestGenerativeModels:
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = preview_generative_models.GenerativeModel._from_cached_content(
             cached_content=cached_content
         )
 

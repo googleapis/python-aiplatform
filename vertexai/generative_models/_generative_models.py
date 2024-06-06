@@ -50,7 +50,7 @@ import warnings
 
 if TYPE_CHECKING:
     from vertexai.preview import rag
-    from vertexai.preview import caching
+    from vertexai._caching import _caching as caching
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -2602,7 +2602,7 @@ class _PreviewGenerativeModel(_GenerativeModel):
         )
 
     @classmethod
-    def from_cached_content(
+    def _from_cached_content(
         cls,
         cached_content: "caching.CachedContent",
         *,
