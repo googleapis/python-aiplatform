@@ -32,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types.gen_ai_cache_service import (
     CreateCachedContentRequest,
     GetCachedContentRequest,
+    UpdateCachedContentRequest,
 )
 from vertexai.generative_models import _generative_models
 from vertexai.generative_models._generative_models import (
@@ -41,6 +42,7 @@ from vertexai.generative_models._generative_models import (
     ToolConfig,
     ContentsType,
 )
+from google.protobuf import field_mask_pb2
 
 
 def _prepare_create_request(
@@ -232,3 +234,40 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         obj = cls(cached_content_resource.name)
         obj._gca_resource = cached_content_resource
         return obj
+
+    def update(
+        self,
+        *,
+        expire_time: Optional[datetime.datetime] = None,
+        ttl: Optional[datetime.timedelta] = None,
+    ):
+        """Updates the expiration time of the cached content."""
+        if expire_time and ttl:
+            raise ValueError("Only one of ttl and expire_time can be set.")
+        update_mask: List[str] = []
+
+        if ttl:
+            update_mask.append("description")
+
+        if expire_time:
+            update_mask.append("expire_time")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+        request = UpdateCachedContentRequest(
+            cached_content=GapicCachedContent(
+                name=self.resource_name,
+                expire_time=expire_time,
+                ttl=ttl,
+            ),
+            update_mask=update_mask,
+        )
+        self.api_client.update_cached_content(request)
+
+    @property
+    def expire_time(self) -> datetime.datetime:
+        """Time this resource was last updated."""
+        self._sync_gca_resource()
+        return self._gca_resource.expire_time
+
+    def delete(self):
+        self._delete()
