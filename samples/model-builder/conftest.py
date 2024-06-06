@@ -15,7 +15,7 @@
 from unittest.mock import MagicMock, patch
 
 from google.cloud import aiplatform
-import vertexai
+from vertexai.resources import preview as preview_resources
 import pytest
 
 
@@ -694,14 +694,14 @@ def mock_write_feature_values(mock_entity_type):
 
 @pytest.fixture
 def mock_feature_online_store():
-    mock = MagicMock(vertexai.resources.preview.FeatureOnlineStore)
+    mock = MagicMock(preview_resources.FeatureOnlineStore)
     yield mock
 
 
 @pytest.fixture
 def mock_create_feature_online_store(mock_feature_online_store):
     with patch.object(
-        vertexai.resources.preview.FeatureOnlineStore, "create_bigtable_store"
+        preview_resources.FeatureOnlineStore, "create_bigtable_store"
     ) as mock_create_feature_online_store:
         mock_create_feature_online_store.return_value = mock_feature_online_store
         yield mock_create_feature_online_store
@@ -710,7 +710,7 @@ def mock_create_feature_online_store(mock_feature_online_store):
 @pytest.fixture
 def mock_create_optimized_public_online_store(mock_feature_online_store):
     with patch.object(
-        vertexai.resources.preview.FeatureOnlineStore, "create_optimized_store"
+        preview_resources.FeatureOnlineStore, "create_optimized_store"
     ) as mock_create_optimized_store:
         mock_create_optimized_store.return_value = mock_feature_online_store
         yield mock_create_optimized_store

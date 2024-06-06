@@ -15,7 +15,7 @@
 #  [START aiplatform_sdk_create_bigtable_feature_online_store_sample]
 
 from google.cloud import aiplatform
-import vertexai
+from vertexai.resources.preview import feature_store
 
 
 def create_bigtable_feature_online_store_sample(
@@ -24,7 +24,7 @@ def create_bigtable_feature_online_store_sample(
     feature_online_store_id: str,
 ):
     aiplatform.init(project=project, location=location)
-    fos = vertexai.resources.preview.FeatureOnlineStore.create_bigtable_store(
+    fos = feature_store.FeatureOnlineStore.create_bigtable_store(
         feature_online_store_id
     )
     return fos
