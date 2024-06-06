@@ -22,27 +22,27 @@ from google.cloud.aiplatform.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
 )
-from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
-from google.cloud.aiplatform_v1beta1.types.machine_resources import (
+from google.cloud.aiplatform_v1.types.machine_resources import DiskSpec
+from google.cloud.aiplatform_v1.types.machine_resources import (
     MachineSpec,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     RayMetricSpec,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import RaySpec
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import RaySpec
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     ResourcePool,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     ResourceRuntime,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     ResourceRuntimeSpec,
 )
-from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+from google.cloud.aiplatform_v1.types.persistent_resource import (
     ServiceAccountSpec,
 )
 import pytest

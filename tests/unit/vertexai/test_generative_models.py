@@ -33,7 +33,14 @@ from vertexai.generative_models._generative_models import (
     gapic_content_types,
     gapic_tool_types,
 )
+from google.cloud.aiplatform_v1beta1.types.cached_content import (
+    CachedContent as GapicCachedContent,
+)
+from google.cloud.aiplatform_v1beta1.services import (
+    gen_ai_cache_service,
+)
 from vertexai.generative_models import _function_calling_utils
+from vertexai.preview import caching
 
 
 _TEST_PROJECT = "test-project"
@@ -296,6 +303,18 @@ def mock_generate_content(
     return response
 
 
+@pytest.fixture
+def mock_generate_content_fixture():
+    """Mocks PredictionServiceClient.generate_content()."""
+
+    with mock.patch.object(
+        prediction_service.PredictionServiceClient,
+        "generate_content",
+        new=mock_generate_content,
+    ) as generate_content:
+        yield generate_content
+
+
 def mock_stream_generate_content(
     self,
     request: gapic_prediction_service_types.GenerateContentRequest,
@@ -329,6 +348,26 @@ def mock_stream_generate_content(
     yield response
     if blocked_chunk:
         yield blocked_chunk
+
+
+@pytest.fixture
+def mock_get_cached_content_fixture():
+    """Mocks GenAiCacheServiceClient.get_cached_content()."""
+
+    def get_cached_content(self, name, retry=None):
+        del self, retry
+        response = GapicCachedContent(
+            name=f"{name}",
+            model="gemini-pro-from-mock-get-cached-content",
+        )
+        return response
+
+    with mock.patch.object(
+        gen_ai_cache_service.client.GenAiCacheServiceClient,
+        "get_cached_content",
+        new=get_cached_content,
+    ) as get_cached_content:
+        yield get_cached_content
 
 
 def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
@@ -383,6 +422,7 @@ class TestGenerativeModels:
             model1._prediction_resource_name
             == project_location_prefix + "publishers/google/models/" + model_name1
         )
+        assert model1._model_name == "publishers/google/models/gemini-pro"
 
         model_name2 = "models/gemini-pro"
         model2 = generative_models.GenerativeModel(model_name2)
@@ -390,10 +430,12 @@ class TestGenerativeModels:
             model2._prediction_resource_name
             == project_location_prefix + "publishers/google/" + model_name2
         )
+        assert model2._model_name == "publishers/google/models/gemini-pro"
 
         model_name3 = "publishers/some_publisher/models/some_model"
         model3 = generative_models.GenerativeModel(model_name3)
         assert model3._prediction_resource_name == project_location_prefix + model_name3
+        assert model3._model_name == "publishers/some_publisher/models/some_model"
 
         model_name4 = (
             f"projects/{_TEST_PROJECT2}/locations/{_TEST_LOCATION2}/endpoints/endpoint1"
@@ -401,9 +443,44 @@ class TestGenerativeModels:
         model4 = generative_models.GenerativeModel(model_name4)
         assert model4._prediction_resource_name == model_name4
         assert _TEST_LOCATION2 in model4._prediction_client._api_endpoint
+        assert model4._model_name == model_name4
 
         with pytest.raises(ValueError):
             generative_models.GenerativeModel("foo/bar/models/gemini-pro")
+
+    def test_generative_model_from_cached_content(
+        self, mock_get_cached_content_fixture
+    ):
+        project_location_prefix = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+        )
+        cached_content = caching.CachedContent(
+            "cached-content-id-in-from-cached-content-test"
+        )
+
+        model = preview_generative_models.GenerativeModel.from_cached_content(
+            cached_content=cached_content
+        )
+
+        assert (
+            model._prediction_resource_name
+            == project_location_prefix
+            + "publishers/google/models/"
+            + "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.model_name
+            == "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+            "cachedContents/cached-content-id-in-from-cached-content-test"
+        )
+        assert (
+            model._cached_content.name
+            == "cached-content-id-in-from-cached-content-test"
+        )
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
@@ -481,6 +558,41 @@ class TestGenerativeModels:
             ],
         )
         assert response3.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=lambda self, request: gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[
+                gapic_content_types.Candidate(
+                    index=0,
+                    content=gapic_content_types.Content(
+                        role="model",
+                        parts=[
+                            gapic_content_types.Part(
+                                {"text": f"response to {request.cached_content}"}
+                            )
+                        ],
+                    ),
+                ),
+            ],
+        ),
+    )
+    def test_generate_content_with_cached_content(
+        self,
+        mock_get_cached_content_fixture,
+    ):
+        cached_content = caching.CachedContent(
+            "cached-content-id-in-from-cached-content-test"
+        )
+
+        model = preview_generative_models.GenerativeModel.from_cached_content(
+            cached_content=cached_content
+        )
+
+        response = model.generate_content("Why is sky blue?")
+
+        assert response.text == "response to " + cached_content.resource_name
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
@@ -749,7 +861,7 @@ class TestGenerativeModels:
     )
     @pytest.mark.parametrize(
         "generative_models",
-        [preview_generative_models],
+        [generative_models, preview_generative_models],
     )
     def test_chat_forced_function_calling(self, generative_models: generative_models):
         get_current_weather_func = generative_models.FunctionDeclaration(
@@ -950,7 +1062,7 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_chat_automatic_function_calling(self):
+    def test_chat_automatic_function_calling_with_function_returning_dict(self):
         generative_models = preview_generative_models
         get_current_weather_func = generative_models.FunctionDeclaration.from_func(
             get_current_weather
@@ -983,6 +1095,51 @@ class TestGenerativeModels:
         with pytest.raises(RuntimeError) as err:
             chat2.send_message("What is the weather like in Boston?")
         assert err.match("Exceeded the maximum")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_chat_automatic_function_calling_with_function_returning_value(self):
+        # Define a new function that returns a value instead of a dict.
+        def get_current_weather(location: str):
+            """Gets weather in the specified location.
+
+            Args:
+                location: The location for which to get the weather.
+
+            Returns:
+                The weather information as a str.
+            """
+            if location == "Boston":
+                return "Super nice, but maybe a bit hot."
+            return "Unavailable"
+
+        generative_models = preview_generative_models
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            get_current_weather
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+        afc_responder = generative_models.AutomaticFunctionCallingResponder(
+            max_automatic_function_calls=5,
+        )
+        chat = model.start_chat(responder=afc_responder)
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert response1.text.startswith("The weather in Boston is")
+        assert "nice" in response1.text
+        assert len(chat.history) == 4
+        assert chat.history[-3].parts[0].function_call
+        assert chat.history[-2].parts[0].function_response
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {

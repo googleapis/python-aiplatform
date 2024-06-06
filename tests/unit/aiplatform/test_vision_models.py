@@ -39,7 +39,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
 )
-import vertexai
+
 from vertexai import vision_models as ga_vision_models
 from vertexai.preview import (
     vision_models as preview_vision_models,
@@ -221,43 +221,8 @@ class TestImageGenerationModels:
 
         return model
 
-    def _get_preview_image_generation_model_top_level_from_pretrained(
-        self,
-    ) -> preview_vision_models.ImageGenerationModel:
-        """Gets the image generation model from the top-level vertexai.preview.from_pretrained method."""
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
-        with mock.patch.object(
-            target=model_garden_service_client.ModelGardenServiceClient,
-            attribute="get_publisher_model",
-            return_value=gca_publisher_model.PublisherModel(
-                _IMAGE_GENERATION_PUBLISHER_MODEL_DICT
-            ),
-        ) as mock_get_publisher_model:
-            model = vertexai.preview.from_pretrained(
-                foundation_model_name="imagegeneration@002"
-            )
-
-        mock_get_publisher_model.assert_called_with(
-            name="publishers/google/models/imagegeneration@002",
-            retry=base._DEFAULT_RETRY,
-        )
-
-        assert mock_get_publisher_model.call_count == 1
-
-        return model
-
     def test_from_pretrained(self):
         model = self._get_image_generation_model()
-        assert (
-            model._endpoint_name
-            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/imagegeneration@002"
-        )
-
-    def test_top_level_from_pretrained_preview(self):
-        model = self._get_preview_image_generation_model_top_level_from_pretrained()
         assert (
             model._endpoint_name
             == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/imagegeneration@002"

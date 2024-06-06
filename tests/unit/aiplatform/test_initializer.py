@@ -32,6 +32,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
+    prediction_service_client_v1beta1,
 )
 import constants as test_constants
 
@@ -450,6 +451,62 @@ class TestInit:
 
         initializer.global_config.init(project=_TEST_PROJECT_2)
         assert initializer.global_config.credentials is creds
+
+    def test_create_client_with_request_metadata_model_service(self):
+        global_metadata = [
+            ("global_param", "value1"),
+        ]
+        request_metadata = [
+            ("request_param", "value2"),
+        ]
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            request_metadata=global_metadata,
+            api_transport="rest",
+        )
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride
+        )
+        model_name = client.model_path(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            model="model_id",
+        )
+        with patch("requests.sessions.Session.get") as mock_get:
+            mock_get.return_value.status_code = 200
+            mock_get.return_value.content = "{}"
+            client.get_model(name=model_name, metadata=request_metadata)
+            call_kwargs = mock_get.call_args_list[0][1]
+            headers = call_kwargs["headers"]
+            for metadata_key in ["global_param", "request_param"]:
+                assert metadata_key in headers
+
+    def test_create_client_with_request_metadata_prediction_service(self):
+        global_metadata = [
+            ("global_param", "value1"),
+        ]
+        request_metadata = [
+            ("request_param", "value2"),
+        ]
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            request_metadata=global_metadata,
+            api_transport="rest",
+        )
+        client = initializer.global_config.create_client(
+            client_class=prediction_service_client_v1beta1.PredictionServiceClient
+        )
+        model_name = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/gemini-1.0-pro"
+        with patch("requests.sessions.Session.post") as mock_post:
+            mock_post.return_value.status_code = 200
+            mock_post.return_value.content = "{}"
+            client.generate_content(model=model_name, metadata=request_metadata)
+            call_kwargs = mock_post.call_args_list[0][1]
+            headers = call_kwargs["headers"]
+            for metadata_key in ["global_param", "request_param"]:
+                assert metadata_key in headers
 
 
 class TestThreadPool:

@@ -16,6 +16,10 @@
 #
 
 import contextlib
+from google.cloud.aiplatform import base
+
+
+_LOGGER = base.Logger(__name__)
 
 _tool_names_to_append = []
 
@@ -49,12 +53,15 @@ def tool_context_manager(tool_name: str) -> None:
 
 
 def _append_tool_name(tool_name: str) -> None:
-    _tool_names_to_append.append(tool_name)
+    if _tool_names_to_append[-1] != tool_name:
+        _tool_names_to_append.append(tool_name)
 
 
 def _pop_tool_name(tool_name: str) -> None:
     if not _tool_names_to_append or _tool_names_to_append[-1] != tool_name:
-        raise RuntimeError(
-            "Tool context error detected. This can occur due to parallelization."
+        _LOGGER.warning(
+            "Gapic client context issue detected."
+            + "This can occur due to parallelization."
         )
+        return
     _tool_names_to_append.pop()

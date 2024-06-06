@@ -17,14 +17,14 @@
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.generative_models._generative_models import (
-    GenerativeModel,
-    GenerationConfig,
-    GenerationResponse,
     Candidate,
     ChatSession,
     Content,
     FinishReason,
     FunctionDeclaration,
+    GenerationConfig,
+    GenerativeModel,
+    GenerationResponse,
     HarmCategory,
     HarmBlockThreshold,
     Image,
@@ -32,6 +32,7 @@ from vertexai.generative_models._generative_models import (
     ResponseValidationError,
     SafetySetting,
     Tool,
+    ToolConfig,
     grounding,
 )
 
@@ -51,5 +52,6 @@ __all__ = [
     "ResponseValidationError",
     "SafetySetting",
     "Tool",
+    "ToolConfig",
     "grounding",
 ]

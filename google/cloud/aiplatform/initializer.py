@@ -17,11 +17,12 @@
 
 
 from concurrent import futures
+import functools
 import inspect
 import logging
 import os
 import types
-from typing import Iterator, List, Optional, Type, TypeVar, Union
+from typing import Iterator, List, Optional, Sequence, Tuple, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -108,6 +109,7 @@ class _Config:
         self._service_account = None
         self._api_endpoint = None
         self._api_transport = None
+        self._request_metadata = None
 
     def init(
         self,
@@ -126,6 +128,7 @@ class _Config:
         service_account: Optional[str] = None,
         api_endpoint: Optional[str] = None,
         api_transport: Optional[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -188,6 +191,8 @@ class _Config:
                 Optional. The transport method which is either 'grpc' or 'rest'.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview).
+            request_metadata:
+                Optional. Additional gRPC metadata to send with every client request.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -235,6 +240,8 @@ class _Config:
             self._network = network
         if service_account is not None:
             self._service_account = service_account
+        if request_metadata is not None:
+            self._request_metadata = request_metadata
 
         # Finally, perform secondary state updates
         if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
@@ -517,7 +524,68 @@ class _Config:
             else:
                 kwargs["transport"] = self._api_transport
 
-        return client_class(**kwargs)
+        client = client_class(**kwargs)
+        # We only wrap the client if the request_metadata is set at the creation time.
+        if self._request_metadata:
+            client = _ClientWrapperThatAddsDefaultMetadata(client)
+        return client
+
+    def _get_default_project_and_location(self) -> Tuple[str, str]:
+        return (
+            self.project,
+            self.location,
+        )
+
+
+# Helper classes for adding default metadata to API requests.
+# We're solving multiple non-trivial issues here.
+# Intended behavior.
+# The first big question is whether calling `vertexai.init(request_metadata=...)`
+# should change the existing clients.
+# This question is non-trivial. Client's client options are immutable.
+# But changes to default project, location and credentials affect SDK calls immediately.
+# It can be argued that default metadata should affect previously created clients.
+# Implementation.
+# There are 3 kinds of clients:
+# 1) Raw GAPIC client (there are also different transports like "grpc" and "rest")
+# 2) ClientWithOverride with _is_temporary=True
+# 3) ClientWithOverride with _is_temporary=False
+# While a raw client or a non-temporary ClientWithOverride object can be patched once
+# (`callable._metadata for callable in client._transport._wrapped_methods.values()`),
+# a temporary `ClientWithOverride` creates new client at every call and they
+# need to be dynamically patched.
+# The temporary `ClientWithOverride` case requires dynamic wrapping/patching.
+# A client wrapper, that dynamically wraps methods to add metadata, solves all 3 cases.
+class _ClientWrapperThatAddsDefaultMetadata:
+    """A client wrapper that dynamically wraps methods to add default metadata."""
+
+    def __init__(self, client):
+        self._client = client
+
+    def __getattr__(self, name: str):
+        result = getattr(self._client, name)
+        if global_config._request_metadata and callable(result):
+            func = result
+            if "metadata" in inspect.signature(func).parameters:
+                return _FunctionWrapperThatAddsDefaultMetadata(func)
+        return result
+
+
+class _FunctionWrapperThatAddsDefaultMetadata:
+    """A function wrapper that wraps a function/method to add default metadata."""
+
+    def __init__(self, func):
+        self._func = func
+        functools.update_wrapper(self, func)
+
+    def __call__(self, *args, **kwargs):
+        # Start with default metadata (copy it)
+        metadata_list = list(global_config._request_metadata or [])
+        # Add per-request metadata (overrides defaults)
+        # The "metadata" argument is removed from "kwargs"
+        metadata_list.extend(kwargs.pop("metadata", []))
+        # Call the wrapped function with extra metadata
+        return self._func(*args, **kwargs, metadata=metadata_list)
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)

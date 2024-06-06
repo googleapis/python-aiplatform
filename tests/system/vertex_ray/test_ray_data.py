@@ -27,32 +27,10 @@ import time
 import tempfile
 
 # Local ray version will always be 2.4 regardless of cluster version due to
-# depenency conflicts
+# depenency conflicts. Remote job execution's Ray version is 2.9.
 RAY_VERSION = "2.4.0"
 SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
-
-my_script_ray24 = """
-import ray
-from vertex_ray import BigQueryDatasource
-
-parallelism = 10
-query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
-
-ds = ray.data.read_datasource(
-    BigQueryDatasource(),
-    parallelism=parallelism,
-    query=query
-)
-# The reads are lazy, so the end time cannot be captured until ds.fully_executed() is called
-ds.fully_executed()
-
-# Write
-ds.write_datasource(
-    BigQueryDatasource(),
-    dataset='bugbashbq1.system_test_write',
-)
-"""
 
 my_script_ray29 = """
 import ray
@@ -76,13 +54,13 @@ vertex_ray.data.write_bigquery(
 )
 """
 
-my_script = {"2.4": my_script_ray24, "2.9": my_script_ray29}
+my_script = {"2.9": my_script_ray29}
 
 
 class TestRayData(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-ray-data"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.4", "2.9"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.9"])
     def test_ray_data(self, cluster_ray_version):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [

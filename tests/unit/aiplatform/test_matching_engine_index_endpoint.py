@@ -29,6 +29,7 @@ from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint impo
     Namespace,
     NumericNamespace,
     MatchNeighbor,
+    HybridQuery,
 )
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
@@ -232,6 +233,18 @@ _TEST_QUERIES = [
     ]
 ]
 _TEST_QUERY_IDS = ["1", "2"]
+_TEST_HYBRID_QUERIES = [
+    HybridQuery(
+        sparse_embedding_dimensions=[1, 2, 3],
+        sparse_embedding_values=[0.1, 0.2, 0.3],
+        rrf_ranking_alpha=0.2,
+    ),
+    HybridQuery(
+        dense_embedding=_TEST_QUERIES[0],
+        sparse_embedding_dimensions=[1, 2, 3],
+        sparse_embedding_values=[0.1, 0.2, 0.3],
+    ),
+]
 _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
@@ -1278,7 +1291,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
-    def test_index_public_endpoint_find_neighbors_queries(
+    def test_index_public_endpoint_find_neighbors_queries_backward_compatibility(
         self, index_public_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1318,6 +1331,79 @@ class TestMatchingEngineIndexEndpoint:
                     approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
                     fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                 )
+            ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_find_neighbors_queries(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_public_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            queries=_TEST_HYBRID_QUERIES,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_public_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                        sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+                            values=[0.1, 0.2, 0.3], dimensions=[1, 2, 3]
+                        ),
+                    ),
+                    rrf=gca_match_service_v1beta1.FindNeighborsRequest.Query.RRF(
+                        alpha=0.2,
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                ),
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        feature_vector=_TEST_QUERIES[0],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                        sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+                            values=[0.1, 0.2, 0.3], dimensions=[1, 2, 3]
+                        ),
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                ),
             ],
             return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )

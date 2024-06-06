@@ -43,6 +43,7 @@ if DEFAULT_VERSION == V1BETA1:
         services.featurestore_online_serving_service_client_v1beta1
     )
     services.featurestore_service_client = services.featurestore_service_client_v1beta1
+    services.gen_ai_cache_service_client = services.gen_ai_cache_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1beta1
     services.model_service_client = services.model_service_client_v1beta1
     services.model_garden_service_client = services.model_garden_service_client_v1beta1
@@ -69,6 +70,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.annotation_spec = types.annotation_spec_v1beta1
     types.artifact = types.artifact_v1beta1
     types.batch_prediction_job = types.batch_prediction_job_v1beta1
+    types.cached_content = types.cached_content_v1beta1
     types.completion_stats = types.completion_stats_v1beta1
     types.context = types.context_v1beta1
     types.custom_job = types.custom_job_v1beta1
@@ -171,6 +173,8 @@ if DEFAULT_VERSION == V1:
         services.featurestore_online_serving_service_client_v1
     )
     services.featurestore_service_client = services.featurestore_service_client_v1
+    # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
+    services.gen_ai_cache_service_client = services.gen_ai_cache_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1
     services.model_garden_service_client = services.model_garden_service_client_v1
     services.model_service_client = services.model_service_client_v1
@@ -191,6 +195,8 @@ if DEFAULT_VERSION == V1:
     types.annotation_spec = types.annotation_spec_v1
     types.artifact = types.artifact_v1
     types.batch_prediction_job = types.batch_prediction_job_v1
+    # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
+    types.cached_content = types.cached_content_v1beta1
     types.completion_stats = types.completion_stats_v1
     types.context = types.context_v1
     types.custom_job = types.custom_job_v1

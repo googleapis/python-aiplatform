@@ -1114,6 +1114,7 @@ from .value import (
 from .vertex_rag_data import (
     ImportRagFilesConfig,
     RagCorpus,
+    RagEmbeddingModelConfig,
     RagFile,
     RagFileChunkingConfig,
     UploadRagFileConfig,
@@ -2025,6 +2026,7 @@ __all__ = (
     "Value",
     "ImportRagFilesConfig",
     "RagCorpus",
+    "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
     "UploadRagFileConfig",

@@ -50,7 +50,10 @@ _TEST_BUCKET_NAME = "gs://test-bucket"
 _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = mock.Mock(
+    spec=auth_credentials.AnonymousCredentials(),
+    universe_domain="googleapis.com",
+)
 
 
 # artifact

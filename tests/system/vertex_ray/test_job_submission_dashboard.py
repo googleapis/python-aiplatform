@@ -27,7 +27,7 @@ import time
 import tempfile
 
 # Local ray version will always be 2.4 regardless of cluster version due to
-# depenency conflicts
+# depenency conflicts. Remote job execution's Ray version is 2.9.
 RAY_VERSION = "2.4.0"
 PROJECT_ID = "ucaip-sample-tests"
 
@@ -35,7 +35,7 @@ PROJECT_ID = "ucaip-sample-tests"
 class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-job-submission-dashboard"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.4", "2.9"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.9"])
     def test_job_submission_dashboard(self, cluster_ray_version):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")

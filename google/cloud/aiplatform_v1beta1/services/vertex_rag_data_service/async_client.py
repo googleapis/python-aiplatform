@@ -38,6 +38,7 @@ from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -74,6 +75,10 @@ class VertexRagDataServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = VertexRagDataServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = VertexRagDataServiceClient._DEFAULT_UNIVERSE
 
+    endpoint_path = staticmethod(VertexRagDataServiceClient.endpoint_path)
+    parse_endpoint_path = staticmethod(VertexRagDataServiceClient.parse_endpoint_path)
+    model_path = staticmethod(VertexRagDataServiceClient.model_path)
+    parse_model_path = staticmethod(VertexRagDataServiceClient.parse_model_path)
     rag_corpus_path = staticmethod(VertexRagDataServiceClient.rag_corpus_path)
     parse_rag_corpus_path = staticmethod(
         VertexRagDataServiceClient.parse_rag_corpus_path

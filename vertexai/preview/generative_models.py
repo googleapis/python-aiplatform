@@ -69,5 +69,4 @@ __all__ = [
     "SafetySetting",
     "Tool",
     "ToolConfig",
-    #
 ]

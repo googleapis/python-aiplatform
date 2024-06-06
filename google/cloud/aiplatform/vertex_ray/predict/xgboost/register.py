@@ -17,13 +17,11 @@
 # limitations under the License.
 #
 
-import logging
 import os
 import pickle
 import ray
 import tempfile
 from typing import Optional, TYPE_CHECKING
-import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -134,22 +132,11 @@ def _get_xgboost_model_from(
         ValueError: Invalid Argument.
         ModuleNotFoundError: XGBoost isn't installed.
         RuntimeError: Model not found.
+        RuntimeError: Ray version 2.4 is not supported.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
-        warnings.warn(_V2_4_WARNING_MESSAGE, DeprecationWarning, stacklevel=2)
-        if not isinstance(checkpoint, ray_xgboost.XGBoostCheckpoint):
-            raise ValueError(
-                "[Ray on Vertex AI]: arg checkpoint should be a"
-                " ray.train.xgboost.XGBoostCheckpoint instance"
-            )
-        if checkpoint.get_preprocessor() is not None:
-            logging.warning(
-                "Checkpoint contains preprocessor. However, converting from a Ray"
-                " Checkpoint to framework specific model does NOT support"
-                " preprocessing. The model will be exported without preprocessors."
-            )
-        return checkpoint.get_model()
+        raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
     try:
         # This works for Ray v2.5
