@@ -26,26 +26,30 @@ from google.cloud.aiplatform_v1beta1.services import gen_ai_cache_service
 from google.cloud.aiplatform_v1beta1.types.cached_content import (
     CachedContent as GapicCachedContent,
 )
-from google.cloud.aiplatform_v1beta1.types.content import (
-    Content,
-)
-from google.cloud.aiplatform_v1beta1.types.tool import (
-    Tool,
-    ToolConfig,
+from google.cloud.aiplatform_v1beta1.types import (
+    content as gapic_content_types,
 )
 from google.cloud.aiplatform_v1beta1.types.gen_ai_cache_service import (
     CreateCachedContentRequest,
     GetCachedContentRequest,
+)
+from vertexai.generative_models import _generative_models
+from vertexai.generative_models._generative_models import (
+    Content,
+    PartsType,
+    Tool,
+    ToolConfig,
+    ContentsType,
 )
 
 
 def _prepare_create_request(
     model_name: str,
     *,
-    system_instruction: Optional[Content] = None,
+    system_instruction: Optional[PartsType] = None,
     tools: Optional[List[Tool]] = None,
     tool_config: Optional[ToolConfig] = None,
-    contents: Optional[List[Content]] = None,
+    contents: Optional[ContentsType] = None,
     expire_time: Optional[datetime.datetime] = None,
     ttl: Optional[datetime.timedelta] = None,
 ) -> CreateCachedContentRequest:
@@ -54,6 +58,27 @@ def _prepare_create_request(
         project,
         location,
     ) = aiplatform_initializer.global_config._get_default_project_and_location()
+    if contents:
+        _generative_models._validate_contents_type_as_valid_sequence(contents)
+    if tools:
+        _generative_models._validate_tools_type_as_valid_sequence(tools)
+    if tool_config:
+        _generative_models._validate_tool_config_type(tool_config)
+
+    # contents can either be a list of Content objects (most generic case)
+    contents = _generative_models._content_types_to_gapic_contents(contents)
+
+    gapic_system_instruction: Optional[gapic_content_types.Content] = None
+    if system_instruction:
+        gapic_system_instruction = _generative_models._to_content(system_instruction)
+
+    gapic_tools = None
+    if tools:
+        gapic_tools = _generative_models._tool_types_to_gapic_tools(tools)
+
+    gapic_tool_config = None
+    if tool_config:
+        gapic_tool_config = tool_config._gapic_tool_config
 
     if ttl and expire_time:
         raise ValueError("Only one of ttl and expire_time can be set.")
@@ -62,9 +87,9 @@ def _prepare_create_request(
         parent=f"projects/{project}/locations/{location}",
         cached_content=GapicCachedContent(
             model=model_name,
-            system_instruction=system_instruction,
-            tools=tools,
-            tool_config=tool_config,
+            system_instruction=gapic_system_instruction,
+            tools=gapic_tools,
+            tool_config=gapic_tool_config,
             contents=contents,
             expire_time=expire_time,
             ttl=ttl,
@@ -136,7 +161,6 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         cls,
         *,
         model_name: str,
-        # TODO: allow the types to be wrapped types
         system_instruction: Optional[Content] = None,
         tools: Optional[List[Tool]] = None,
         tool_config: Optional[ToolConfig] = None,

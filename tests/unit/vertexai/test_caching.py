@@ -49,6 +49,7 @@ def mock_create_cached_content():
     def create_cached_content(self, request):
         response = GapicCachedContent(
             name=f"{request.parent}/cachedContents/{_CREATED_CONTENT_ID}",
+            model=f"{request.cached_content.model}",
         )
         return response
 
@@ -131,5 +132,29 @@ class TestCaching:
         # _CREATED_CONTENT_ID is from the mock
         assert cache.resource_name == (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/{_CREATED_CONTENT_ID}"
+        )
+        assert cache.name == _CREATED_CONTENT_ID
+        assert (
+            cache.model_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
+        )
+
+    def test_create_with_real_payload_and_wrapped_type(
+        self, mock_create_cached_content, mock_get_cached_content
+    ):
+        cache = caching.CachedContent.create(
+            model_name="model-name",
+            system_instruction="Please answer my questions with cool",
+            tools=[],
+            tool_config=GapicToolConfig(),
+            contents=["user content"],
+            ttl=datetime.timedelta(days=1),
+        )
+
+        # parent is automantically set to align with the current project and location.
+        # _CREATED_CONTENT_ID is from the mock
+        assert (
+            cache.model_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
         )
         assert cache.name == _CREATED_CONTENT_ID

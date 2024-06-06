@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ from typing import (
     Optional,
     Sequence,
     Union,
+    TYPE_CHECKING,
 )
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
@@ -45,8 +46,11 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
-from vertexai.preview import rag
 import warnings
+
+if TYPE_CHECKING:
+    from vertexai.preview import rag
+    from vertexai.preview import caching
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -96,6 +100,169 @@ SafetySettingsType = Union[
         gapic_content_types.SafetySetting.HarmBlockThreshold,
     ],
 ]
+
+
+def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
+    """Returns a model name that's one of the following:
+    1. A full resource name starting with projects/
+    2. A partial resource name starting with publishers/
+    """
+    if "/" not in model_name:
+        return f"publishers/google/models/{model_name}"
+    elif model_name.startswith("models/"):
+        return f"projects/{project}/locations/{location}/publishers/google/{model_name}"
+    elif model_name.startswith("publishers/") or model_name.startswith("projects/"):
+        return model_name
+    else:
+        raise ValueError(
+            "model_name must be either a Model Garden model ID or a full resource name."
+            f"recieved model_name {model_name}"
+        )
+
+
+def _get_resource_name_from_model_name(
+    model_name: str, project: str, location: str
+) -> str:
+    """Returns the full resource name starting with projects/ given a model name."""
+    if model_name.startswith("publishers/"):
+        return f"projects/{project}/locations/{location}/{model_name}"
+    elif model_name.startswith("projects/"):
+        return model_name
+    else:
+        raise ValueError(
+            "model_name must be either a Model Garden model ID or a full resource name."
+        )
+
+
+def _validate_generate_content_parameters(
+    contents: ContentsType,
+    *,
+    generation_config: Optional[GenerationConfigType] = None,
+    safety_settings: Optional[SafetySettingsType] = None,
+    tools: Optional[List["Tool"]] = None,
+    tool_config: Optional["ToolConfig"] = None,
+    system_instruction: Optional[PartsType] = None,
+    cached_content: Optional["caching.CachedContent"] = None,
+) -> None:
+    """Validates the parameters for a generate_content call."""
+    if not contents:
+        raise TypeError("contents must not be empty")
+
+    _validate_contents_type_as_valid_sequence(contents)
+
+    if cached_content and any([tools, tool_config, system_instruction]):
+        raise ValueError(
+            "When using cached_content, tools, tool_config, and system_instruction must be None."
+        )
+
+    if safety_settings:
+        _validate_safety_settings_type_as_valid_sequence(safety_settings)
+
+    if generation_config:
+        if not isinstance(
+            generation_config,
+            (gapic_content_types.GenerationConfig, GenerationConfig, Dict),
+        ):
+            raise TypeError(
+                "generation_config must either be a GenerationConfig object or a dictionary representation of it."
+            )
+
+    if tools:
+        _validate_tools_type_as_valid_sequence(tools)
+
+    if tool_config:
+        _validate_tool_config_type(tool_config)
+
+
+def _validate_contents_type_as_valid_sequence(contents: ContentsType) -> None:
+    """Makes sure that individual elements of contents are of valid type."""
+    # contents can either be a list of Content objects (most generic case)
+    if isinstance(contents, Sequence) and any(
+        isinstance(c, gapic_content_types.Content) for c in contents
+    ):
+        if not all(isinstance(c, gapic_content_types.Content) for c in contents):
+            raise TypeError(
+                "When passing a list with Content objects, every item in a "
+                + "list must be a Content object."
+            )
+    elif isinstance(contents, Sequence) and any(
+        isinstance(c, Content) for c in contents
+    ):
+        if not all(isinstance(c, Content) for c in contents):
+            raise TypeError(
+                "When passing a list with Content objects, every item in a "
+                + "list must be a Content object."
+            )
+    elif isinstance(contents, Sequence) and any(isinstance(c, dict) for c in contents):
+        if not all(isinstance(c, dict) for c in contents):
+            raise TypeError(
+                "When passing a list with Content dict objects, every item in "
+                + "a list must be a Content dict object."
+            )
+
+
+def _validate_safety_settings_type_as_valid_sequence(
+    safety_settings: SafetySettingsType,
+) -> None:
+    if not isinstance(safety_settings, (Sequence, Dict)):
+        raise TypeError(
+            "safety_settings must either be a SafetySetting object or a "
+            + "dictionary mapping from HarmCategory to HarmBlockThreshold."
+        )
+    if isinstance(safety_settings, Sequence):
+        for safety_setting in safety_settings:
+            if not isinstance(
+                safety_setting,
+                (gapic_content_types.SafetySetting, SafetySetting),
+            ):
+                raise TypeError(
+                    "When passing a list with SafetySettings objects, every "
+                    + "item in a list must be a SafetySetting object."
+                )
+
+
+def _validate_tools_type_as_valid_sequence(tools: List["Tool"]):
+    for tool in tools:
+        if not isinstance(tool, (gapic_tool_types.Tool, Tool)):
+            raise TypeError(f"Unexpected tool type: {tool}.")
+
+
+def _validate_tool_config_type(tool_config: "ToolConfig"):
+    if not isinstance(tool_config, ToolConfig):
+        raise TypeError("tool_config must be a ToolConfig object.")
+
+
+def _content_types_to_gapic_contents(
+    contents: ContentsType,
+) -> List[gapic_content_types.Content]:
+    """Converts a list of Content objects to a list of gapic_content_types.Content objects."""
+    if isinstance(contents, Sequence) and any(
+        isinstance(c, gapic_content_types.Content) for c in contents
+    ):
+        return contents
+    elif isinstance(contents, Sequence) and any(
+        isinstance(c, Content) for c in contents
+    ):
+        return [content._raw_content for content in contents]
+    elif isinstance(contents, Sequence) and any(isinstance(c, dict) for c in contents):
+        return [gapic_content_types.Content(content_dict) for content_dict in contents]
+    # or a value that can be converted to a *single* Content object
+    else:
+        return [_to_content(contents)]
+
+
+def _tool_types_to_gapic_tools(
+    tools: Optional[List["Tool"]],
+) -> List[gapic_tool_types.Tool]:
+    """Converts a list of Tool objects to a list of gapic_tool_types.Tool objects."""
+    gapic_tools = []
+    if tools:
+        for tool in tools:
+            if isinstance(tool, gapic_tool_types.Tool):
+                gapic_tools.append(tool)
+            elif isinstance(tool, Tool):
+                gapic_tools.append(tool._raw_tool)
+    return gapic_tools
 
 
 class _GenerativeModel:
@@ -194,7 +361,7 @@ class _GenerativeModel:
         self._system_instruction = system_instruction
 
         # Validating the parameters
-        self._prepare_request(
+        _validate_generate_content_parameters(
             contents="test",
             generation_config=generation_config,
             safety_settings=safety_settings,
@@ -251,35 +418,16 @@ class _GenerativeModel:
         tool_config = tool_config or self._tool_config
         system_instruction = system_instruction or self._system_instruction
 
-        # contents can either be a list of Content objects (most generic case)
-        if isinstance(contents, Sequence) and any(
-            isinstance(c, gapic_content_types.Content) for c in contents
-        ):
-            if not all(isinstance(c, gapic_content_types.Content) for c in contents):
-                raise TypeError(
-                    "When passing a list with Content objects, every item in a list must be a Content object."
-                )
-        elif isinstance(contents, Sequence) and any(
-            isinstance(c, Content) for c in contents
-        ):
-            if not all(isinstance(c, Content) for c in contents):
-                raise TypeError(
-                    "When passing a list with Content objects, every item in a list must be a Content object."
-                )
-            contents = [content._raw_content for content in contents]
-        elif isinstance(contents, Sequence) and any(
-            isinstance(c, dict) for c in contents
-        ):
-            if not all(isinstance(c, dict) for c in contents):
-                raise TypeError(
-                    "When passing a list with Content dict objects, every item in a list must be a Content dict object."
-                )
-            contents = [
-                gapic_content_types.Content(content_dict) for content_dict in contents
-            ]
-        # or a value that can be converted to a *single* Content object
-        else:
-            contents = [_to_content(contents)]
+        _validate_generate_content_parameters(
+            contents=contents,
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            tools=tools,
+            tool_config=tool_config,
+            system_instruction=system_instruction,
+        )
+
+        contents = _content_types_to_gapic_contents(contents)
 
         gapic_system_instruction: Optional[gapic_content_types.Content] = None
         if system_instruction:
@@ -295,10 +443,6 @@ class _GenerativeModel:
                 gapic_generation_config = gapic_content_types.GenerationConfig(
                     **generation_config
                 )
-            else:
-                raise TypeError(
-                    "generation_config must either be a GenerationConfig object or a dictionary representation of it."
-                )
 
         gapic_safety_settings = None
         if safety_settings:
@@ -309,10 +453,6 @@ class _GenerativeModel:
                         gapic_safety_settings.append(safety_setting)
                     elif isinstance(safety_setting, SafetySetting):
                         gapic_safety_settings.append(safety_setting._raw_safety_setting)
-                    else:
-                        raise TypeError(
-                            "When passing a list with SafetySettings objects, every item in a list must be a SafetySetting object."
-                        )
             elif isinstance(safety_settings, dict):
                 gapic_safety_settings = [
                     gapic_content_types.SafetySetting(
@@ -323,28 +463,14 @@ class _GenerativeModel:
                     )
                     for category, threshold in safety_settings.items()
                 ]
-            else:
-                raise TypeError(
-                    "safety_settings must either be a list of SafetySettings objects or a dictionary mapping from HarmCategory to HarmBlockThreshold."
-                )
 
         gapic_tools = None
         if tools:
-            gapic_tools = []
-            for tool in tools:
-                if isinstance(tool, gapic_tool_types.Tool):
-                    gapic_tools.append(tool)
-                elif isinstance(tool, Tool):
-                    gapic_tools.append(tool._raw_tool)
-                else:
-                    raise TypeError(f"Unexpected tool type: {tool}.")
+            gapic_tools = _tool_types_to_gapic_tools(tools)
 
         gapic_tool_config = None
         if tool_config:
-            if isinstance(tool_config, ToolConfig):
-                gapic_tool_config = tool_config._gapic_tool_config
-            else:
-                raise TypeError("tool_config must be a ToolConfig object.")
+            gapic_tool_config = tool_config._gapic_tool_config
 
         return gapic_prediction_service_types.GenerateContentRequest(
             # The `model` parameter now needs to be set for the vision models.
