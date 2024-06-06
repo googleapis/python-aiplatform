@@ -110,7 +110,7 @@ def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
     if "/" not in model_name:
         return f"publishers/google/models/{model_name}"
     elif model_name.startswith("models/"):
-        return f"projects/{project}/locations/{location}/publishers/google/{model_name}"
+        return f"publishers/google/{model_name}"
     elif model_name.startswith("publishers/") or model_name.startswith("projects/"):
         return model_name
     else:
