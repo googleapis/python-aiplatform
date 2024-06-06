@@ -17,7 +17,6 @@
 """The vertexai resources module."""
 
 from google.cloud.aiplatform import initializer
-from vertexai.resources import preview
 
 from google.cloud.aiplatform.datasets import (
     ImageDataset,
@@ -178,5 +177,4 @@ __all__ = (
     "TimeSeriesDataset",
     "TimeSeriesDenseEncoderForecastingTrainingJob",
     "VideoDataset",
-    "preview",
 )

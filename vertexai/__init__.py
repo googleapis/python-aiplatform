@@ -20,10 +20,8 @@ __version__ = aiplatform_version.__version__
 
 from google.cloud.aiplatform import init
 from vertexai import preview
-from vertexai import resources
 
 __all__ = [
     "init",
     "preview",
-    "resources",
 ]
