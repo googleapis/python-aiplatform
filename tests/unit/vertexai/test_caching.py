@@ -65,10 +65,11 @@ def mock_create_cached_content():
 def mock_get_cached_content():
     """Mocks GenAiCacheServiceClient.get_cached_content()."""
 
-    def get_cached_content(self, name, retry):
+    def get_cached_content(self, name, retry=None):
         del self, retry
         response = GapicCachedContent(
             name=f"{name}",
+            model="model-name",
         )
         return response
 
@@ -106,13 +107,16 @@ class TestCaching:
 
     def test_constructor_with_only_content_id(self, mock_get_cached_content):
         partial_resource_name = "contents-id"
+
         cache = caching.CachedContent(
             cached_content_name=partial_resource_name,
         )
+
         assert cache.name == "contents-id"
         assert cache.resource_name == (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/contents-id"
         )
+        assert cache.model_name == "model-name"
 
     def test_create_with_real_payload(
         self, mock_create_cached_content, mock_get_cached_content

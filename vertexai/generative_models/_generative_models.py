@@ -326,26 +326,13 @@ class _GenerativeModel:
                 Note: Only text should be used in parts.
                 Content of each part will become a separate paragraph.
         """
-        if not model_name:
-            raise ValueError("model_name must not be empty")
-        if "/" not in model_name:
-            model_name = "publishers/google/models/" + model_name
-        if model_name.startswith("models/"):
-            model_name = "publishers/google/" + model_name
-
         project = aiplatform_initializer.global_config.project
         location = aiplatform_initializer.global_config.location
+        model_name = _reconcile_model_name(model_name, project, location)
 
-        if model_name.startswith("publishers/"):
-            prediction_resource_name = (
-                f"projects/{project}/locations/{location}/{model_name}"
-            )
-        elif model_name.startswith("projects/"):
-            prediction_resource_name = model_name
-        else:
-            raise ValueError(
-                "model_name must be either a Model Garden model ID or a full resource name."
-            )
+        prediction_resource_name = _get_resource_name_from_model_name(
+            model_name, project, location
+        )
 
         location = aiplatform_utils.extract_project_and_location_from_parent(
             prediction_resource_name
@@ -359,6 +346,7 @@ class _GenerativeModel:
         self._tools = tools
         self._tool_config = tool_config
         self._system_instruction = system_instruction
+        self._cached_content: Optional["caching.CachedContent"] = None
 
         # Validating the parameters
         _validate_generate_content_parameters(
@@ -417,6 +405,7 @@ class _GenerativeModel:
         tools = tools or self._tools
         tool_config = tool_config or self._tool_config
         system_instruction = system_instruction or self._system_instruction
+        cached_content = self._cached_content
 
         _validate_generate_content_parameters(
             contents=contents,
@@ -425,6 +414,7 @@ class _GenerativeModel:
             tools=tools,
             tool_config=tool_config,
             system_instruction=system_instruction,
+            cached_content=cached_content,
         )
 
         contents = _content_types_to_gapic_contents(contents)
@@ -483,6 +473,7 @@ class _GenerativeModel:
             tools=gapic_tools,
             tool_config=gapic_tool_config,
             system_instruction=gapic_system_instruction,
+            cached_content=cached_content.resource_name if cached_content else None,
         )
 
     def _parse_response(
@@ -2609,3 +2600,24 @@ class _PreviewGenerativeModel(_GenerativeModel):
             response_validation=response_validation,
             responder=responder,
         )
+
+    @classmethod
+    def from_cached_content(
+        cls,
+        cached_content: "caching.CachedContent",
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+    ) -> "_GenerativeModel":
+        model_name = cached_content.model_name
+        model = cls(
+            model_name=model_name,
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            tools=None,
+            tool_config=None,
+            system_instruction=None,
+        )
+        model._cached_content = cached_content
+
+        return model

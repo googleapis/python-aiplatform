@@ -33,7 +33,14 @@ from vertexai.generative_models._generative_models import (
     gapic_content_types,
     gapic_tool_types,
 )
+from google.cloud.aiplatform_v1beta1.types.cached_content import (
+    CachedContent as GapicCachedContent,
+)
+from google.cloud.aiplatform_v1beta1.services import (
+    gen_ai_cache_service,
+)
 from vertexai.generative_models import _function_calling_utils
+from vertexai.preview import caching
 
 
 _TEST_PROJECT = "test-project"
@@ -296,6 +303,18 @@ def mock_generate_content(
     return response
 
 
+@pytest.fixture
+def mock_generate_content_fixture():
+    """Mocks PredictionServiceClient.generate_content()."""
+
+    with mock.patch.object(
+        prediction_service.PredictionServiceClient,
+        "generate_content",
+        new=mock_generate_content,
+    ) as generate_content:
+        yield generate_content
+
+
 def mock_stream_generate_content(
     self,
     request: gapic_prediction_service_types.GenerateContentRequest,
@@ -329,6 +348,26 @@ def mock_stream_generate_content(
     yield response
     if blocked_chunk:
         yield blocked_chunk
+
+
+@pytest.fixture
+def mock_get_cached_content_fixture():
+    """Mocks GenAiCacheServiceClient.get_cached_content()."""
+
+    def get_cached_content(self, name, retry=None):
+        del self, retry
+        response = GapicCachedContent(
+            name=f"{name}",
+            model="gemini-pro-from-mock-get-cached-content",
+        )
+        return response
+
+    with mock.patch.object(
+        gen_ai_cache_service.client.GenAiCacheServiceClient,
+        "get_cached_content",
+        new=get_cached_content,
+    ) as get_cached_content:
+        yield get_cached_content
 
 
 def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
@@ -404,6 +443,40 @@ class TestGenerativeModels:
 
         with pytest.raises(ValueError):
             generative_models.GenerativeModel("foo/bar/models/gemini-pro")
+
+    def test_generative_model_from_cached_content(
+        self, mock_get_cached_content_fixture
+    ):
+        project_location_prefix = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+        )
+        cached_content = caching.CachedContent(
+            "cached-content-id-in-from-cached-content-test"
+        )
+
+        model = preview_generative_models.GenerativeModel.from_cached_content(
+            cached_content=cached_content
+        )
+
+        assert (
+            model._prediction_resource_name
+            == project_location_prefix
+            + "publishers/google/models/"
+            + "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.model_name
+            == "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+            "cachedContents/cached-content-id-in-from-cached-content-test"
+        )
+        assert (
+            model._cached_content.name
+            == "cached-content-id-in-from-cached-content-test"
+        )
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
@@ -481,6 +554,41 @@ class TestGenerativeModels:
             ],
         )
         assert response3.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=lambda self, request: gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[
+                gapic_content_types.Candidate(
+                    index=0,
+                    content=gapic_content_types.Content(
+                        role="model",
+                        parts=[
+                            gapic_content_types.Part(
+                                {"text": f"response to {request.cached_content}"}
+                            )
+                        ],
+                    ),
+                ),
+            ],
+        ),
+    )
+    def test_generate_content_with_cached_content(
+        self,
+        mock_get_cached_content_fixture,
+    ):
+        cached_content = caching.CachedContent(
+            "cached-content-id-in-from-cached-content-test"
+        )
+
+        model = preview_generative_models.GenerativeModel.from_cached_content(
+            cached_content=cached_content
+        )
+
+        response = model.generate_content("Why is sky blue?")
+
+        assert response.text == "response to " + cached_content.resource_name
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,

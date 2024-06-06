@@ -737,9 +737,13 @@ class FeaturestoreOnlineServingClientWithOverride(ClientWithOverride):
 
 class GenAiCacheServiceClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    # TODO(b/342585299): Switch to compat.DEFAULT_VERSION once v1 is available.
-    _default_version = "v1beta1"
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (
+            compat.V1,
+            # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
+            gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
+        ),
         (
             compat.V1BETA1,
             gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
