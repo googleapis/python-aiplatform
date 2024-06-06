@@ -127,14 +127,14 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             assert response.text or response.is_blocked
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    def test_preview_text_embedding_from_pretrained(self, api_transport):
+    def test_preview_text_generation_from_pretrained(self, api_transport):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             api_transport=api_transport,
         )
 
-        model = preview_language_models.TextEmbeddingModel.from_pretrained(
+        model = preview_language_models.TextGenerationModel.from_pretrained(
             "google/text-bison@001"
         )
 

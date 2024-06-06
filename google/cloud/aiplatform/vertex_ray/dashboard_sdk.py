@@ -69,10 +69,27 @@ def get_job_submission_client_cluster_info(
         "RAY_HEAD_NODE_INTERNAL_IP", None
     )
     if head_address is None:
-        raise RuntimeError(
-            "[Ray on Vertex AI]: Unable to obtain a response from the backend."
+        # No peering. Try to get the dashboard address.
+        dashboard_address = response.resource_runtime.access_uris.get(
+            "RAY_DASHBOARD_URI", None
         )
-
+        if dashboard_address is None:
+            raise RuntimeError(
+                "[Ray on Vertex AI]: Unable to obtain a response from the backend."
+            )
+        if _validation_utils.valid_dashboard_address(dashboard_address):
+            bearer_token = _validation_utils.get_bearer_token()
+            if kwargs.get("headers", None) is None:
+                kwargs["headers"] = {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {}".format(bearer_token),
+                }
+            return oss_dashboard_sdk.get_job_submission_client_cluster_info(
+                address=dashboard_address,
+                _use_tls=True,
+                *args,
+                **kwargs,
+            )
     # Assume that head node internal IP in a form of xxx.xxx.xxx.xxx:10001.
     # Ray-on-Vertex cluster serves the Dashboard at port 8888 instead of
     # the default 8251.

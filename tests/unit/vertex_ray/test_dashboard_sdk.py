@@ -45,6 +45,18 @@ def get_persistent_resource_status_running_mock():
 
 
 @pytest.fixture
+def get_persistent_resource_status_running_byosa_public_mock():
+    # Cluster with BYOSA and no peering
+    with mock.patch.object(
+        vertex_ray.util._gapic_utils, "get_persistent_resource"
+    ) as get_persistent_resource:
+        get_persistent_resource.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL_BYOSA
+        )
+        yield get_persistent_resource
+
+
+@pytest.fixture
 def get_bearer_token_mock():
     with mock.patch.object(
         vertex_ray.util._validation_utils, "get_bearer_token"
@@ -105,6 +117,30 @@ class TestGetJobSubmissionClientClusterInfo:
 
         vertex_ray.get_job_submission_client_cluster_info(
             tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS
+        )
+        get_bearer_token_mock.assert_called_once_with()
+        ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            _use_tls=True,
+            headers=tc.ClusterConstants.TEST_HEADERS,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_persistent_resource_status_running_byosa_public_mock", "google_auth_mock"
+    )
+    def test_job_submission_client_cluster_info_with_cluster_name_byosa_public(
+        self,
+        ray_get_job_submission_client_cluster_info_mock,
+        get_bearer_token_mock,
+        get_project_number_mock,
+    ):
+        aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
+
+        vertex_ray.get_job_submission_client_cluster_info(
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID
+        )
+        get_project_number_mock.assert_called_once_with(
+            name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
         )
         get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
