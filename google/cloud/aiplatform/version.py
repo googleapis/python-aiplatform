@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-__version__ = "1.54.0"
+__version__ = "1.54.1"
