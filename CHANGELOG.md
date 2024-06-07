@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.1](https://github.com/googleapis/python-aiplatform/compare/v1.54.0...v1.54.1) (2024-06-07)
+
+
+### Bug Fixes
+
+* _append_tool_name list index out of range ([#3914](https://github.com/googleapis/python-aiplatform/issues/3914)) ([323c2f5](https://github.com/googleapis/python-aiplatform/commit/323c2f5b4a63451c8bb3ef1eb5457cc674c4f56f))
+
 ## [1.54.0](https://github.com/googleapis/python-aiplatform/compare/v1.53.0...v1.54.0) (2024-06-06)
 
 ### BREAKING CHANGES
