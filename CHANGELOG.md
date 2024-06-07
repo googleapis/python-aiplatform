@@ -2,18 +2,15 @@
 
 ## [1.54.0](https://github.com/googleapis/python-aiplatform/compare/v1.53.0...v1.54.0) (2024-06-06)
 
+### BREAKING CHANGES
+* Remove Vertex SDK data science package ([ec4ec8f](https://github.com/googleapis/python-aiplatform/commit/ec4ec8f1214b3da12728c30a002b7f4632f4a90e))
 
 ### Features
 
-* Add cache module and CachedContent class ([c21beef](https://github.com/googleapis/python-aiplatform/commit/c21beeff427b5c4a8b7750f7a4237176c97bc98f))
 * Add display experiment run button for Ipython environments ([ba65828](https://github.com/googleapis/python-aiplatform/commit/ba6582856b1d7f9a6ac8f90a3fa5ea6723ac64ab))
 * Add hybrid search for public find_neighbors() call. ([9d35617](https://github.com/googleapis/python-aiplatform/commit/9d3561738d577129cb222417bf208166825d8043))
-* Add update, expire_time and delete method to CachedContent ([24dbdf1](https://github.com/googleapis/python-aiplatform/commit/24dbdf153da0b0b5e9e3f88ecea63a81defb161b))
 * Enable Ray Job submission without VPC peering ([37875b5](https://github.com/googleapis/python-aiplatform/commit/37875b507f25c31ac4a84e4fefe3cbba565682e3))
 * GenAI - Allowed callable functions to return values directly in Automatic Function Calling ([768af67](https://github.com/googleapis/python-aiplatform/commit/768af6772ade2b67b90a05ae3db95039a3f2786d))
-* GenAI - Explicit Caching - Allow `GenerativeModel` to be created with `CachedContent` ([70168eb](https://github.com/googleapis/python-aiplatform/commit/70168eb815b3ecdf53351b884c0d116437e9e518))
-* GenAI - Explicit Caching - Allow CachedContent to take wrapped types ([52d3e25](https://github.com/googleapis/python-aiplatform/commit/52d3e255ce89372c100a943ecc54dce8014c6e9b))
-* GenAI - ExplicitCaching - add public list() with no parameters ([b7056e7](https://github.com/googleapis/python-aiplatform/commit/b7056e74bcd180d8c07b6ac4ba566e3d3b6ce356))
 * GenAI - Release ToolConfig to GA ([bc8b14a](https://github.com/googleapis/python-aiplatform/commit/bc8b14a7c9c632721db9166dc9b63eec17d31afd))
 * Sample code for Vertex AI Feature Store ([6c14e8b](https://github.com/googleapis/python-aiplatform/commit/6c14e8b31bd950ac4f4a862b4e62ead42fe30463))
 * Support VertexTool in langchain template. ([28a3c56](https://github.com/googleapis/python-aiplatform/commit/28a3c56fdcfa4fab819e8f79d235f6576febdfce))
@@ -25,7 +22,6 @@
 * Deep copy dataset before passing it to evaluation ([019b610](https://github.com/googleapis/python-aiplatform/commit/019b6102c2dc98550592cde0adfbb4958faddbef))
 * Ensure model starts with publishers/ when users provide resource path from models/ ([d689331](https://github.com/googleapis/python-aiplatform/commit/d689331af5172cdfe7428333536954e8339f8ab4))
 * Fix failed unit tests due to google-cloud-storage upgrade. ([945b9e4](https://github.com/googleapis/python-aiplatform/commit/945b9e4835149111cd33beaee4301f3d8f05f59d))
-* GenAI-ExplicitCaching use the right update_mask for ttl update ([c118557](https://github.com/googleapis/python-aiplatform/commit/c118557fedba55f16886b51a5244d12346be6ca4))
 * Generalize RAG files import from Google Drive ([88c6a6a](https://github.com/googleapis/python-aiplatform/commit/88c6a6a4f11285d429c3777f59101e53e4672185))
 * Set upper bound of setuptools to unbreak public Colab for using vertex_ray namespace ([6cc45bb](https://github.com/googleapis/python-aiplatform/commit/6cc45bbbea154d087c1dfe4756d4e15f21b1d844))
 
