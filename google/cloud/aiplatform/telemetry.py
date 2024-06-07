@@ -53,7 +53,7 @@ def tool_context_manager(tool_name: str) -> None:
 
 
 def _append_tool_name(tool_name: str) -> None:
-    if _tool_names_to_append[-1] != tool_name:
+    if not _tool_names_to_append or _tool_names_to_append[-1] != tool_name:
         _tool_names_to_append.append(tool_name)
 
 
