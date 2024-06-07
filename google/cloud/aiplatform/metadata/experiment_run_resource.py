@@ -793,17 +793,6 @@ class ExperimentRun(
         if backing_tensorboard_resource:
             self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
-    @staticmethod
-    def _format_tensorboard_experiment_display_name(experiment_name: str) -> str:
-        """Formats Tensorboard experiment name that backs this run.
-        Args:
-            experiment_name (str): Required. The name of the experiment.
-        Returns:
-            Formatted Tensorboard Experiment name
-        """
-        # post fix helps distinguish from the Vertex Experiment in console
-        return f"{experiment_name} Backing Tensorboard Experiment"
-
     def _assign_backing_tensorboard(
         self,
         tensorboard: Union[tensorboard_resource.Tensorboard, str],
@@ -842,9 +831,7 @@ class ExperimentRun(
                 tensorboard_experiment = (
                     tensorboard_resource.TensorboardExperiment.create(
                         tensorboard_experiment_id=self._experiment.name,
-                        display_name=self._format_tensorboard_experiment_display_name(
-                            self._experiment.name
-                        ),
+                        display_name=self._experiment.name,
                         tensorboard_name=tensorboard.resource_name,
                         project=project,
                         location=location,

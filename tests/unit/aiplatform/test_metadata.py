@@ -1818,9 +1818,7 @@ class TestExperiments:
             parent=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             tensorboard_experiment_id=_TEST_CONTEXT_ID,
             tensorboard_experiment=gca_tensorboard_experiment.TensorboardExperiment(
-                display_name=experiment_run_resource.ExperimentRun._format_tensorboard_experiment_display_name(
-                    _TEST_CONTEXT_ID
-                ),
+                display_name=_TEST_CONTEXT_ID,
                 labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             ),
             metadata=(),
