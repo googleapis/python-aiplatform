@@ -178,3 +178,15 @@ class Dataset:
     REFERENCE_COLUMN = "reference"
     CONTENT_COLUMN = "content"
     INSTRUCTION_COLUMN = "instruction"
+
+
+@dataclasses.dataclass(frozen=True)
+class QuotaLimit:
+    """Generative AI on Vertex AI quota limits.
+
+    For more details about QPM quota by region for each available base model, see
+      https://cloud.google.com/vertex-ai/generative-ai/docs/quotas.
+    """
+
+    # Default queries per minute (QPM) quota for `gemini-1.0-pro` base model.
+    GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE = 300

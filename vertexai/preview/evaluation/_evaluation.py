@@ -17,7 +17,9 @@
 
 import asyncio
 import collections
-from typing import Any, Dict, List, Optional, Set, TYPE_CHECKING, Tuple, Union, Callable
+from concurrent import futures
+import time
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1beta1.types import (
@@ -264,34 +266,49 @@ def _generate_response_from_gemini_model(
         evaluation_run_config: Evaluation Run Configurations.
         is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
     """
-    response_column_name = (
-        constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
-        if is_baseline_model
-        else constants.Dataset.MODEL_RESPONSE_COLUMN
+    max_workers = int(
+        constants.QuotaLimit.GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE / 2
     )
+    # Ensure thread safety and avoid race conditions.
+    df = evaluation_run_config.dataset.copy()
+
     _LOGGER.info(
         f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
         f"responses from Gemini model {model._model_name.split('/')[-1]}."
     )
+    tasks = []
     if (
         constants.Dataset.COMPLETED_PROMPT_COLUMN
         in evaluation_run_config.dataset.columns
     ):
-        evaluation_run_config.dataset[
-            response_column_name
-        ] = evaluation_run_config.dataset[
-            constants.Dataset.COMPLETED_PROMPT_COLUMN
-        ].apply(
-            lambda x: _generate_response_from_gemini(model, x)
-        )
+        with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for _, row in df.iterrows():
+                tasks.append(
+                    executor.submit(
+                        _generate_response_from_gemini,
+                        prompt=row[constants.Dataset.COMPLETED_PROMPT_COLUMN],
+                        model=model,
+                    )
+                )
     else:
-        evaluation_run_config.dataset[
-            response_column_name
-        ] = evaluation_run_config.dataset[
-            evaluation_run_config.column_map[constants.Dataset.CONTENT_COLUMN]
-        ].apply(
-            lambda x: _generate_response_from_gemini(model, x)
-        )
+        content_column_name = evaluation_run_config.column_map[
+            constants.Dataset.CONTENT_COLUMN
+        ]
+        with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for _, row in df.iterrows():
+                tasks.append(
+                    executor.submit(
+                        _generate_response_from_gemini,
+                        prompt=row[content_column_name],
+                        model=model,
+                    )
+                )
+    respones = [task.result() for task in tasks]
+    if is_baseline_model:
+        evaluation_run_config.dataset = df.assign(baseline_model_response=respones)
+    else:
+        evaluation_run_config.dataset = df.assign(response=respones)
+
     _LOGGER.info(
         f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
         f" generated from Gemini model {model._model_name.split('/')[-1]}."
@@ -311,42 +328,78 @@ def _generate_response_from_custom_model_fn(
         is_baseline_model: Whether the model is a baseline model for
           PairwiseMetric.
     """
-    response_column_name = (
-        constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
-        if is_baseline_model
-        else constants.Dataset.MODEL_RESPONSE_COLUMN
-    )
+    df = evaluation_run_config.dataset.copy()
+    max_workers = 5
+
     _LOGGER.info(
         f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
         "responses from the custom model function."
     )
+    tasks = []
     try:
         if (
             constants.Dataset.COMPLETED_PROMPT_COLUMN
             in evaluation_run_config.dataset.columns
         ):
-            evaluation_run_config.dataset[
-                response_column_name
-            ] = evaluation_run_config.dataset[
-                constants.Dataset.COMPLETED_PROMPT_COLUMN
-            ].apply(
-                model_fn
-            )
+            with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                for _, row in df.iterrows():
+                    tasks.append(
+                        executor.submit(
+                            model_fn, row[constants.Dataset.COMPLETED_PROMPT_COLUMN]
+                        )
+                    )
         else:
-            evaluation_run_config.dataset[
-                response_column_name
-            ] = evaluation_run_config.dataset[
-                evaluation_run_config.column_map[constants.Dataset.CONTENT_COLUMN]
-            ].apply(
-                model_fn
-            )
+            content_column_name = evaluation_run_config.column_map[
+                constants.Dataset.CONTENT_COLUMN
+            ]
+            with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                for _, row in df.iterrows():
+                    tasks.append(executor.submit(model_fn, row[content_column_name]))
     except (ValueError, IndexError) as e:
         _LOGGER.warning(f"Failed to generate response from model function: {e}")
+
+    respones = [task.result() for task in tasks]
+    if is_baseline_model:
+        evaluation_run_config.dataset = df.assign(baseline_model_response=respones)
+    else:
+        evaluation_run_config.dataset = df.assign(response=respones)
 
     _LOGGER.info(
         f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
         " generated from the custom model function."
     )
+
+
+def _run_model_inference(
+    model: Union[generative_models.GenerativeModel, Callable[[str], str]],
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    is_baseline_model: Optional[bool] = False,
+) -> None:
+    """Runs model inference on dataset for evaluation.
+
+    Args:
+      model: The GenerativeModel instance or a custom model function to generate
+        responses to evaluate. If not provided, the evaluation is computed with
+        the `response` column in the `dataset`.
+      evaluation_run_config: Evaluation Run Configurations.
+      is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
+
+    Raises:
+        ValueError: If the model or baseline model is not supported.
+    """
+    t1 = time.perf_counter()
+    if isinstance(model, generative_models.GenerativeModel):
+        _generate_response_from_gemini_model(
+            model, evaluation_run_config, is_baseline_model
+        )
+    elif callable(model):
+        _generate_response_from_custom_model_fn(
+            model, evaluation_run_config, is_baseline_model
+        )
+    else:
+        raise ValueError(f"Unsupported model or baseline model type: {type(model)}")
+    t2 = time.perf_counter()
+    _LOGGER.info(f"MultiThreaded Batch Inference Took:{t2 - t1} seconds")
 
 
 def _check_placeholder_columns_exist(
@@ -552,35 +605,6 @@ async def _compute_metrics(
     return summary_metrics, metrics_table
 
 
-def _run_model_inference(
-    model: Union[generative_models.GenerativeModel, Callable[[str], str]],
-    evaluation_run_config: evaluation_base.EvaluationRunConfig,
-    is_baseline_model: bool = False,
-) -> None:
-    """Runs model inference on dataset for evaluation.
-
-    Args:
-      model: The GenerativeModel instance or a custom model function to generate
-        responses to evaluate. If not provided, the evaluation is computed with
-        the `response` column in the `dataset`.
-      evaluation_run_config: Evaluation Run Configurations.
-      is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
-
-    Raises:
-        ValueError: If the model or baseline model is not supported.
-    """
-    if isinstance(model, generative_models.GenerativeModel):
-        _generate_response_from_gemini_model(
-            model, evaluation_run_config, is_baseline_model
-        )
-    elif callable(model):
-        _generate_response_from_custom_model_fn(
-            model, evaluation_run_config, is_baseline_model
-        )
-    else:
-        raise ValueError(f"Unsupported model or baseline model type: {type(model)}")
-
-
 def evaluate(
     dataset: "pd.DataFrame",
     metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
@@ -724,9 +748,12 @@ def evaluate(
         asyncio.set_event_loop(asyncio.new_event_loop())
     loop = asyncio.get_event_loop()
 
+    t1 = time.perf_counter()
     summary_metrics, metrics_table = loop.run_until_complete(
         _compute_metrics(evaluation_run_config)
     )
+    t2 = time.perf_counter()
+    _LOGGER.info(f"Evaluation Took:{t2 - t1} seconds")
 
     return evaluation_base.EvalResult(
         summary_metrics=summary_metrics, metrics_table=metrics_table
