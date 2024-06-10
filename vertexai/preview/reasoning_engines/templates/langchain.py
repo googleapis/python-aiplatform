@@ -236,6 +236,7 @@ class LangchainAgent:
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
         model_builder: Optional[Callable] = None,
         runnable_builder: Optional[Callable] = None,
+        enable_tracing: bool = False,
     ):
         """Initializes the LangchainAgent.
 
@@ -349,6 +350,9 @@ class LangchainAgent:
                 for customizing the orchestration logic of the Agent based on
                 the model returned by `model_builder` and the rest of the input
                 arguments.
+            enable_tracing (bool):
+                Optional. Whether to enable tracing in Cloud Trace. Defaults to
+                False.
 
         Raises:
             TypeError: If there is an invalid tool (e.g. function with an input
@@ -376,6 +380,8 @@ class LangchainAgent:
         self._model_builder = model_builder
         self._runnable = None
         self._runnable_builder = runnable_builder
+        self._instrumentor = None
+        self._enable_tracing = enable_tracing
 
     def set_up(self):
         """Sets up the agent for execution of queries at runtime.
@@ -387,6 +393,44 @@ class LangchainAgent:
         the ReasoningEngine service for deployment, as it initializes clients
         that can not be serialized.
         """
+        if self._enable_tracing:
+            from vertexai.reasoning_engines import _utils
+
+            cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
+            openinference_langchain = _utils._import_openinference_langchain_or_warn()
+            opentelemetry = _utils._import_opentelemetry_or_warn()
+            opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+            if all(
+                (
+                    cloud_trace_exporter,
+                    openinference_langchain,
+                    opentelemetry,
+                    opentelemetry_sdk_trace,
+                )
+            ):
+                tracer_provider = opentelemetry.trace.get_tracer_provider()
+                if tracer_provider and _utils._is_noop_tracer_provider(tracer_provider):
+                    # Set a trace provider if it has not been set.
+                    span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
+                        project_id=self._project,
+                    )
+                    span_processor = opentelemetry_sdk_trace.export.SimpleSpanProcessor(
+                        span_exporter=span_exporter,
+                    )
+                    tracer_provider = opentelemetry_sdk_trace.TracerProvider(
+                        active_span_processor=span_processor,
+                    )
+                opentelemetry.trace.set_tracer_provider(tracer_provider)
+                self._instrumentor = openinference_langchain.LangChainInstrumentor()
+                self._instrumentor.instrument()
+            else:
+                from google.cloud.aiplatform import base
+
+                _LOGGER = base.Logger(__name__)
+                _LOGGER.warning(
+                    "enable_tracing=True but proceeding with tracing disabled "
+                    "because not all packages for tracing have been installed"
+                )
         model_builder = self._model_builder or _default_model_builder
         self._model = model_builder(
             model_name=self._model_name,
@@ -422,6 +466,7 @@ class LangchainAgent:
             runnable_kwargs=copy.deepcopy(self._runnable_kwargs),
             model_builder=self._model_builder,
             runnable_builder=self._runnable_builder,
+            enable_tracing=self._enable_tracing,
         )
 
     def query(

@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
 
 import proto
 
+from google.cloud.aiplatform import base
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
@@ -35,6 +36,8 @@ except ImportError:
     RunnableConfig = Any
 
 JsonDict = Dict[str, Any]
+
+_LOGGER = base.Logger(__name__)
 
 
 def to_proto(
@@ -195,6 +198,14 @@ def generate_schema(
     return schema
 
 
+def _is_noop_tracer_provider(tracer_provider) -> bool:
+    """Returns True if the tracer_provider is Proxy or NoOp."""
+    opentelemetry = _import_opentelemetry_or_warn()
+    ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
+    NoOpTracerProvider = opentelemetry.trace.NoOpTracerProvider
+    return isinstance(tracer_provider, (NoOpTracerProvider, ProxyTracerProvider))
+
+
 def _import_cloud_storage_or_raise() -> types.ModuleType:
     """Tries to import the Cloud Storage module."""
     try:
@@ -233,3 +244,59 @@ def _import_pydantic_or_raise() -> types.ModuleType:
             "'pip install google-cloud-aiplatform[reasoningengine]'."
         ) from e
     return pydantic
+
+
+def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry module."""
+    try:
+        import opentelemetry  # noqa:F401
+
+        return opentelemetry
+    except ImportError:
+        _LOGGER.warning(
+            "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[reasoningengine]'."
+        )
+    return None
+
+
+def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.sdk.trace module."""
+    try:
+        import opentelemetry.sdk.trace  # noqa:F401
+
+        return opentelemetry.sdk.trace
+    except ImportError:
+        _LOGGER.warning(
+            "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[reasoningengine]'."
+        )
+    return None
+
+
+def _import_cloud_trace_exporter_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.exporter.cloud_trace module."""
+    try:
+        import opentelemetry.exporter.cloud_trace  # noqa:F401
+
+        return opentelemetry.exporter.cloud_trace
+    except ImportError:
+        _LOGGER.warning(
+            "opentelemetry-exporter-gcp-trace is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
+
+
+def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.langchain module."""
+    try:
+        import openinference.instrumentation.langchain  # noqa:F401
+
+        return openinference.instrumentation.langchain
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-langchain is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
