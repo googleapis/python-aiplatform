@@ -46,7 +46,15 @@ packages += [
     if package.startswith("google.cloud.aiplatform.vertex_ray")
 ]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
+profiler_extra_require = [
+    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
+    "werkzeug >= 2.0.0, <2.1.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev",
+]
+tensorboard_extra_require = [
+    "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"
+] + profiler_extra_require
+
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
@@ -54,11 +62,6 @@ lit_extra_require = [
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
-]
-profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
-    "werkzeug >= 2.0.0, <2.1.0dev",
-    "tensorflow >=2.4.0, <3.0.0dev",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
