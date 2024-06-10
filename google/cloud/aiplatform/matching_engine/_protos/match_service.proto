@@ -137,6 +137,9 @@ message MatchResponse {
     // The distances of the matches.
     double distance = 2;
 
+    // The distances of the matches for sparse embeddings.
+    double sparse_distance = 4;
+
     // If crowding is enabled, the crowding attribute of this neighbor will
     // be stored here.
     int64 crowding_attribute = 3;

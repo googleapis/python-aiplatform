@@ -32,7 +32,7 @@ from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\nCgoogle/cloud/aiplatform/matching_engine/_protos/match_service.proto\x12$google.cloud.aiplatform.container.v1\x1a\x17google/rpc/status.proto"\xc5\x05\n\x0cMatchRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\\\n\x10sparse_embedding\x18\x0c \x01(\x0b\x32\x42.google.cloud.aiplatform.container.v1.MatchRequest.SparseEmbedding\x12\x45\n\x03rrf\x18\r \x01(\x0b\x32\x36.google.cloud.aiplatform.container.v1.MatchRequest.RRFH\x00\x12\x15\n\rnum_neighbors\x18\x03 \x01(\x05\x12\x42\n\trestricts\x18\x04 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12Q\n\x11numeric_restricts\x18\x0b \x03(\x0b\x32\x36.google.cloud.aiplatform.container.v1.NumericNamespace\x12,\n$per_crowding_attribute_num_neighbors\x18\x05 \x01(\x05\x12\x1c\n\x14\x61pprox_num_neighbors\x18\x06 \x01(\x05\x12-\n%leaf_nodes_to_search_percent_override\x18\x07 \x01(\x05\x12.\n&fraction_leaf_nodes_to_search_override\x18\t \x01(\x01\x12\x19\n\x11\x65mbedding_enabled\x18\x08 \x01(\x08\x12\x14\n\x0c\x65mbedding_id\x18\n \x01(\t\x1a\x37\n\x0fSparseEmbedding\x12\x11\n\tfloat_val\x18\x01 \x03(\x02\x12\x11\n\tdimension\x18\x02 \x03(\x03\x1a\x14\n\x03RRF\x12\r\n\x05\x61lpha\x18\x01 \x01(\x02\x42\t\n\x07ranking"\xdd\x01\n\tEmbedding\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\x42\n\trestricts\x18\x03 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12Q\n\x11numeric_restricts\x18\x05 \x03(\x0b\x32\x36.google.cloud.aiplatform.container.v1.NumericNamespace\x12\x1a\n\x12\x63rowding_attribute\x18\x04 \x01(\x03"\xea\x01\n\rMatchResponse\x12N\n\x08neighbor\x18\x01 \x03(\x0b\x32<.google.cloud.aiplatform.container.v1.MatchResponse.Neighbor\x12\x43\n\nembeddings\x18\x02 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding\x1a\x44\n\x08Neighbor\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x64istance\x18\x02 \x01(\x01\x12\x1a\n\x12\x63rowding_attribute\x18\x03 \x01(\x03"B\n\x19\x42\x61tchGetEmbeddingsRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x03(\t"a\n\x1a\x42\x61tchGetEmbeddingsResponse\x12\x43\n\nembeddings\x18\x01 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding"\x95\x02\n\x11\x42\x61tchMatchRequest\x12\x63\n\x08requests\x18\x01 \x03(\x0b\x32Q.google.cloud.aiplatform.container.v1.BatchMatchRequest.BatchMatchRequestPerIndex\x1a\x9a\x01\n\x19\x42\x61tchMatchRequestPerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x44\n\x08requests\x18\x02 \x03(\x0b\x32\x32.google.cloud.aiplatform.container.v1.MatchRequest\x12\x1c\n\x14low_level_batch_size\x18\x03 \x01(\x05"\xa2\x02\n\x12\x42\x61tchMatchResponse\x12\x66\n\tresponses\x18\x01 \x03(\x0b\x32S.google.cloud.aiplatform.container.v1.BatchMatchResponse.BatchMatchResponsePerIndex\x1a\xa3\x01\n\x1a\x42\x61tchMatchResponsePerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x46\n\tresponses\x18\x02 \x03(\x0b\x32\x33.google.cloud.aiplatform.container.v1.MatchResponse\x12"\n\x06status\x18\x03 \x01(\x0b\x32\x12.google.rpc.Status"D\n\tNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61llow_tokens\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65ny_tokens\x18\x03 \x03(\t"\xb4\x02\n\x10NumericNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\tvalue_int\x18\x02 \x01(\x03H\x00\x12\x15\n\x0bvalue_float\x18\x03 \x01(\x02H\x00\x12\x16\n\x0cvalue_double\x18\x04 \x01(\x01H\x00\x12K\n\x02op\x18\x05 \x01(\x0e\x32?.google.cloud.aiplatform.container.v1.NumericNamespace.Operator"x\n\x08Operator\x12\x18\n\x14OPERATOR_UNSPECIFIED\x10\x00\x12\x08\n\x04LESS\x10\x01\x12\x0e\n\nLESS_EQUAL\x10\x02\x12\t\n\x05\x45QUAL\x10\x03\x12\x11\n\rGREATER_EQUAL\x10\x04\x12\x0b\n\x07GREATER\x10\x05\x12\r\n\tNOT_EQUAL\x10\x06\x42\x07\n\x05Value2\xa2\x03\n\x0cMatchService\x12r\n\x05Match\x12\x32.google.cloud.aiplatform.container.v1.MatchRequest\x1a\x33.google.cloud.aiplatform.container.v1.MatchResponse"\x00\x12\x81\x01\n\nBatchMatch\x12\x37.google.cloud.aiplatform.container.v1.BatchMatchRequest\x1a\x38.google.cloud.aiplatform.container.v1.BatchMatchResponse"\x00\x12\x99\x01\n\x12\x42\x61tchGetEmbeddings\x12?.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsRequest\x1a@.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsResponse"\x00\x62\x06proto3'
+    b'\nCgoogle/cloud/aiplatform/matching_engine/_protos/match_service.proto\x12$google.cloud.aiplatform.container.v1\x1a\x17google/rpc/status.proto"\xc5\x05\n\x0cMatchRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\\\n\x10sparse_embedding\x18\x0c \x01(\x0b\x32\x42.google.cloud.aiplatform.container.v1.MatchRequest.SparseEmbedding\x12\x45\n\x03rrf\x18\r \x01(\x0b\x32\x36.google.cloud.aiplatform.container.v1.MatchRequest.RRFH\x00\x12\x15\n\rnum_neighbors\x18\x03 \x01(\x05\x12\x42\n\trestricts\x18\x04 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12Q\n\x11numeric_restricts\x18\x0b \x03(\x0b\x32\x36.google.cloud.aiplatform.container.v1.NumericNamespace\x12,\n$per_crowding_attribute_num_neighbors\x18\x05 \x01(\x05\x12\x1c\n\x14\x61pprox_num_neighbors\x18\x06 \x01(\x05\x12-\n%leaf_nodes_to_search_percent_override\x18\x07 \x01(\x05\x12.\n&fraction_leaf_nodes_to_search_override\x18\t \x01(\x01\x12\x19\n\x11\x65mbedding_enabled\x18\x08 \x01(\x08\x12\x14\n\x0c\x65mbedding_id\x18\n \x01(\t\x1a\x37\n\x0fSparseEmbedding\x12\x11\n\tfloat_val\x18\x01 \x03(\x02\x12\x11\n\tdimension\x18\x02 \x03(\x03\x1a\x14\n\x03RRF\x12\r\n\x05\x61lpha\x18\x01 \x01(\x02\x42\t\n\x07ranking"\xdd\x01\n\tEmbedding\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\x42\n\trestricts\x18\x03 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12Q\n\x11numeric_restricts\x18\x05 \x03(\x0b\x32\x36.google.cloud.aiplatform.container.v1.NumericNamespace\x12\x1a\n\x12\x63rowding_attribute\x18\x04 \x01(\x03"\x83\x02\n\rMatchResponse\x12N\n\x08neighbor\x18\x01 \x03(\x0b\x32<.google.cloud.aiplatform.container.v1.MatchResponse.Neighbor\x12\x43\n\nembeddings\x18\x02 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding\x1a]\n\x08Neighbor\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x64istance\x18\x02 \x01(\x01\x12\x17\n\x0fsparse_distance\x18\x04 \x01(\x01\x12\x1a\n\x12\x63rowding_attribute\x18\x03 \x01(\x03"B\n\x19\x42\x61tchGetEmbeddingsRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x03(\t"a\n\x1a\x42\x61tchGetEmbeddingsResponse\x12\x43\n\nembeddings\x18\x01 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding"\x95\x02\n\x11\x42\x61tchMatchRequest\x12\x63\n\x08requests\x18\x01 \x03(\x0b\x32Q.google.cloud.aiplatform.container.v1.BatchMatchRequest.BatchMatchRequestPerIndex\x1a\x9a\x01\n\x19\x42\x61tchMatchRequestPerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x44\n\x08requests\x18\x02 \x03(\x0b\x32\x32.google.cloud.aiplatform.container.v1.MatchRequest\x12\x1c\n\x14low_level_batch_size\x18\x03 \x01(\x05"\xa2\x02\n\x12\x42\x61tchMatchResponse\x12\x66\n\tresponses\x18\x01 \x03(\x0b\x32S.google.cloud.aiplatform.container.v1.BatchMatchResponse.BatchMatchResponsePerIndex\x1a\xa3\x01\n\x1a\x42\x61tchMatchResponsePerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x46\n\tresponses\x18\x02 \x03(\x0b\x32\x33.google.cloud.aiplatform.container.v1.MatchResponse\x12"\n\x06status\x18\x03 \x01(\x0b\x32\x12.google.rpc.Status"D\n\tNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61llow_tokens\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65ny_tokens\x18\x03 \x03(\t"\xb4\x02\n\x10NumericNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\tvalue_int\x18\x02 \x01(\x03H\x00\x12\x15\n\x0bvalue_float\x18\x03 \x01(\x02H\x00\x12\x16\n\x0cvalue_double\x18\x04 \x01(\x01H\x00\x12K\n\x02op\x18\x05 \x01(\x0e\x32?.google.cloud.aiplatform.container.v1.NumericNamespace.Operator"x\n\x08Operator\x12\x18\n\x14OPERATOR_UNSPECIFIED\x10\x00\x12\x08\n\x04LESS\x10\x01\x12\x0e\n\nLESS_EQUAL\x10\x02\x12\t\n\x05\x45QUAL\x10\x03\x12\x11\n\rGREATER_EQUAL\x10\x04\x12\x0b\n\x07GREATER\x10\x05\x12\r\n\tNOT_EQUAL\x10\x06\x42\x07\n\x05Value2\xa2\x03\n\x0cMatchService\x12r\n\x05Match\x12\x32.google.cloud.aiplatform.container.v1.MatchRequest\x1a\x33.google.cloud.aiplatform.container.v1.MatchResponse"\x00\x12\x81\x01\n\nBatchMatch\x12\x37.google.cloud.aiplatform.container.v1.BatchMatchRequest\x1a\x38.google.cloud.aiplatform.container.v1.BatchMatchResponse"\x00\x12\x99\x01\n\x12\x42\x61tchGetEmbeddings\x12?.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsRequest\x1a@.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsResponse"\x00\x62\x06proto3'
 )
 
 
@@ -221,27 +221,27 @@ if _descriptor._USE_C_DESCRIPTORS == False:
     _EMBEDDING._serialized_start = 847
     _EMBEDDING._serialized_end = 1068
     _MATCHRESPONSE._serialized_start = 1071
-    _MATCHRESPONSE._serialized_end = 1305
+    _MATCHRESPONSE._serialized_end = 1330
     _MATCHRESPONSE_NEIGHBOR._serialized_start = 1237
-    _MATCHRESPONSE_NEIGHBOR._serialized_end = 1305
-    _BATCHGETEMBEDDINGSREQUEST._serialized_start = 1307
-    _BATCHGETEMBEDDINGSREQUEST._serialized_end = 1373
-    _BATCHGETEMBEDDINGSRESPONSE._serialized_start = 1375
-    _BATCHGETEMBEDDINGSRESPONSE._serialized_end = 1472
-    _BATCHMATCHREQUEST._serialized_start = 1475
-    _BATCHMATCHREQUEST._serialized_end = 1752
-    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_start = 1598
-    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_end = 1752
-    _BATCHMATCHRESPONSE._serialized_start = 1755
-    _BATCHMATCHRESPONSE._serialized_end = 2045
-    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_start = 1882
-    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_end = 2045
-    _NAMESPACE._serialized_start = 2047
-    _NAMESPACE._serialized_end = 2115
-    _NUMERICNAMESPACE._serialized_start = 2118
-    _NUMERICNAMESPACE._serialized_end = 2426
-    _NUMERICNAMESPACE_OPERATOR._serialized_start = 2297
-    _NUMERICNAMESPACE_OPERATOR._serialized_end = 2417
-    _MATCHSERVICE._serialized_start = 2429
-    _MATCHSERVICE._serialized_end = 2847
+    _MATCHRESPONSE_NEIGHBOR._serialized_end = 1330
+    _BATCHGETEMBEDDINGSREQUEST._serialized_start = 1332
+    _BATCHGETEMBEDDINGSREQUEST._serialized_end = 1398
+    _BATCHGETEMBEDDINGSRESPONSE._serialized_start = 1400
+    _BATCHGETEMBEDDINGSRESPONSE._serialized_end = 1497
+    _BATCHMATCHREQUEST._serialized_start = 1500
+    _BATCHMATCHREQUEST._serialized_end = 1777
+    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_start = 1623
+    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_end = 1777
+    _BATCHMATCHRESPONSE._serialized_start = 1780
+    _BATCHMATCHRESPONSE._serialized_end = 2070
+    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_start = 1907
+    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_end = 2070
+    _NAMESPACE._serialized_start = 2072
+    _NAMESPACE._serialized_end = 2140
+    _NUMERICNAMESPACE._serialized_start = 2143
+    _NUMERICNAMESPACE._serialized_end = 2451
+    _NUMERICNAMESPACE_OPERATOR._serialized_start = 2322
+    _NUMERICNAMESPACE_OPERATOR._serialized_end = 2442
+    _MATCHSERVICE._serialized_start = 2454
+    _MATCHSERVICE._serialized_end = 2872
 # @@protoc_insertion_point(module_scope)
