@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_upload_tensorboard_profile_logs_to_experiment_sample]
 from typing import FrozenSet
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_upload_tensorboard_profile_logs_to_experiment_sample]
 def upload_tensorboard_profile_logs_to_experiment_sample(
     experiment_name: str,
     logdir: str,

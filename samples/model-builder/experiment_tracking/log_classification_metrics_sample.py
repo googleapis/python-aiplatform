@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_log_classification_metrics_sample]
 from typing import List, Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_classification_metrics_sample]
 def log_classification_metrics_sample(
     experiment_name: str,
     run_name: str,

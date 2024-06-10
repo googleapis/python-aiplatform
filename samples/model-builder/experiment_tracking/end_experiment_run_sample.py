@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+#  [START aiplatform_sdk_end_experiment_run_sample]
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_end_experiment_run_sample]
 def end_experiment_run_sample(
     experiment_name: str,
     run_name: str,

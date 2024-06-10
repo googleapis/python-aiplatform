@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_upload_tensorboard_to_experiment_sample]
 from typing import Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_upload_tensorboard_to_experiment_sample]
 def upload_tensorboard_log_to_experiment_sample(
     experiment_name: str,
     logdir: str,

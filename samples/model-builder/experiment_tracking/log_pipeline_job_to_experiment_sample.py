@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_log_pipeline_job_to_experiment_sample]
 from typing import Any, Dict, Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_pipeline_job_to_experiment_sample]
 def log_pipeline_job_to_experiment_sample(
     experiment_name: str,
     pipeline_job_display_name: str,

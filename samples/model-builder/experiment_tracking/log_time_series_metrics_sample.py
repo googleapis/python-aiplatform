@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_log_time_series_metrics_sample]
 from typing import Dict, Optional
 
 from google.cloud import aiplatform
 from google.protobuf import timestamp_pb2
 
 
-#  [START aiplatform_sdk_log_time_series_metrics_sample]
 def log_time_series_metrics_sample(
     experiment_name: str,
     run_name: str,

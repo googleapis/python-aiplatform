@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_delete_artifact_sample]
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_delete_artifact_sample]
 def delete_artifact_sample(
     artifact_id: str,
     project: str,

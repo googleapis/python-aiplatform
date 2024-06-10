@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 from typing import Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 def list_artifact_sample(
     project: str,
     location: str,

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_start_execution_sample]
 from typing import Any, Dict, List, Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_start_execution_sample]
 def start_execution_sample(
     schema_title: str,
     display_name: str,
