@@ -28,6 +28,7 @@ from vertexai.preview.evaluation import utils
 from vertexai.preview.evaluation.metrics import (
     _base as metrics_base,
 )
+import numpy as np
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -284,9 +285,14 @@ class EvalTask:
                 reference_column_name=self.reference_column_name,
                 response_column_name=response_column_name,
             )
+
+            eval_result.summary_metrics = {
+                k: ("NaN" if isinstance(v, float) and np.isnan(v) else v)
+                for k, v in eval_result.summary_metrics.items()
+            }
             try:
                 vertexai.preview.log_metrics(eval_result.summary_metrics)
-            except (ValueError, TypeError, exceptions.InvalidArgument) as e:
+            except (TypeError, exceptions.InvalidArgument) as e:
                 _LOGGER.warning(f"Experiment metrics logging failed: {str(e)}")
         return eval_result
 
@@ -366,8 +372,7 @@ class EvalTask:
         if metadata._experiment_tracker.experiment_run:
             raise ValueError(
                 "Experiment run already exists. Please specify the name of the"
-                " experiment run to assign current session with in this evaluate"
-                " method."
+                " experiment run to assign current session within this evaluation."
             )
 
     def _log_eval_experiment_param(

@@ -28,10 +28,12 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from vertexai import generative_models
 from vertexai.preview import evaluation
+from vertexai.preview.evaluation import _base as eval_base
+from vertexai.preview.evaluation import _evaluation
 from vertexai.preview.evaluation import utils
+import numpy as np
 import pandas as pd
 import pytest
-
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -78,6 +80,7 @@ _TEST_CSV_FILE_CONTENT = """reference,context,instruction\ntest,test,test\n
 text,text,text\n
 """
 
+_TEST_EXPERIMENT = "test-experiment"
 
 _MOCK_EXACT_MATCH_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
@@ -135,6 +138,19 @@ _MOCK_MODEL_INFERENCE_RESPONSE = generative_models.GenerationResponse.from_dict(
         ]
     }
 )
+MOCK_EVAL_RESULT = eval_base.EvalResult(
+    summary_metrics={
+        "row_count": 1,
+        "mock_metric/mean": 1.0,
+        "mock_metric/std": np.nan,
+    },
+    metrics_table=pd.DataFrame(
+        {
+            "response": ["test"],
+            "mock_metric": [1.0],
+        }
+    ),
+)
 
 
 @pytest.fixture
@@ -163,7 +179,6 @@ class TestEvaluation:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_eval_task(self):
-        test_experiment = "test_experiment_name"
         test_content_column_name = "test_content_column_name"
         test_reference_column_name = "test_reference_column_name"
         test_response_column_name = "test_response_column_name"
@@ -171,7 +186,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET,
             metrics=_TEST_METRICS,
-            experiment=test_experiment,
+            experiment=_TEST_EXPERIMENT,
             content_column_name=test_content_column_name,
             reference_column_name=test_reference_column_name,
             response_column_name=test_response_column_name,
@@ -179,7 +194,7 @@ class TestEvaluation:
 
         assert test_eval_task.dataset.equals(_TEST_EVAL_DATASET)
         assert test_eval_task.metrics == _TEST_METRICS
-        assert test_eval_task.experiment == test_experiment
+        assert test_eval_task.experiment == _TEST_EXPERIMENT
         assert test_eval_task.content_column_name == test_content_column_name
         assert test_eval_task.reference_column_name == test_reference_column_name
         assert test_eval_task.response_column_name == test_response_column_name
@@ -468,6 +483,44 @@ class TestEvaluation:
                 "pairwise_summarization_quality/baseline_model_win_rate"
             ]
             == 0.5
+        )
+
+    def test_eval_result_experiment_run_logging(self):
+        test_eval_task = evaluation.EvalTask(
+            dataset=_TEST_EVAL_DATASET,
+            metrics=_TEST_METRICS,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        with mock.patch.multiple(
+            metadata._experiment_tracker,
+            _experiment=mock.MagicMock(name=_TEST_EXPERIMENT),
+            _experiment_run=None,
+            set_experiment=mock.DEFAULT,
+            reset=mock.DEFAULT,
+        ):
+            with mock.patch.multiple(
+                vertexai.preview,
+                start_run=mock.MagicMock(),
+                log_params=mock.DEFAULT,
+                log_metrics=mock.DEFAULT,
+            ) as mock_metadata:
+                with mock.patch.object(
+                    target=_evaluation,
+                    attribute="evaluate",
+                    side_effect=[MOCK_EVAL_RESULT],
+                ):
+                    test_result = test_eval_task.evaluate()
+
+        assert test_result.summary_metrics["row_count"] == 1
+        assert test_result.summary_metrics["mock_metric/mean"] == 1.0
+        assert test_result.summary_metrics["mock_metric/std"] == "NaN"
+        mock_metadata["log_metrics"].assert_called_once_with(
+            {
+                "row_count": 1,
+                "mock_metric/mean": 1.0,
+                "mock_metric/std": "NaN",
+            }
         )
 
 
