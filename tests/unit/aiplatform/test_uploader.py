@@ -665,7 +665,12 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
 
     @parameterized.parameters(
-        {"existing_experiment": None}, {"existing_experiment": _TEST_EXPERIMENT_NAME}
+        {"existing_experiment": None, "one_platform_run_name": None},
+        {"existing_experiment": None, "one_platform_run_name": "."},
+        {
+            "existing_experiment": _TEST_EXPERIMENT_NAME,
+            "one_platform_run_name": _TEST_ONE_PLATFORM_RUN_NAME,
+        },
     )
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -686,6 +691,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock,
         run_resource_mock,
         existing_experiment,
+        one_platform_run_name,
     ):
         """Check that one-shot uploading stops without AbortUploadError."""
 
@@ -734,7 +740,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
 
         mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
-        run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        run_resource_mock.return_value = one_platform_run_name
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
         ):

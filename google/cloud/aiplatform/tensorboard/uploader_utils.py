@@ -222,12 +222,12 @@ class OnePlatformResourceManager(object):
         location = m[2]
         tensorboard = m[3]
         experiment = m[4]
+        if not run_name or run_name == ".":
+            run_name = str(uuid.uuid4())
         experiment_run = experiment_run_resource.ExperimentRun.get(
             project=project, location=location, run_name=run_name
         )
         if not experiment_run:
-            if not run_name:
-                run_name = str(uuid.uuid4())
             experiment_run = experiment_run_resource.ExperimentRun.create(
                 project=project,
                 location=location,
