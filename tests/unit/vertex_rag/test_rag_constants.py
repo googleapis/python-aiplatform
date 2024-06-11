@@ -16,6 +16,7 @@
 #
 
 from vertexai.preview.rag.utils.resources import (
+    EmbeddingModelConfig,
     RagCorpus,
     RagFile,
     RagResource,
@@ -49,10 +50,19 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
 )
+TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+    "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+        TEST_PROJECT, TEST_REGION
+    )
+)
+TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
+    publisher_model="publishers/google/models/textembedding-gecko",
+)
 TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
+    embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 
@@ -114,6 +124,8 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FILE = ImportRagFilesConfig(
         chunk_overlap=TEST_CHUNK_OVERLAP,
     )
 )
+TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.max_embedding_requests_per_min = 800
+
 TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(
         resource_id=TEST_DRIVE_FILE_ID,

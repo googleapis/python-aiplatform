@@ -37,6 +37,7 @@ from vertexai.preview.rag.rag_store import (
     VertexRagStore,
 )
 from vertexai.preview.rag.utils.resources import (
+    EmbeddingModelConfig,
     RagResource,
 )
 
@@ -53,6 +54,7 @@ __all__ = (
     "list_files",
     "delete_file",
     "retrieval_query",
+    "EmbeddingModelConfig",
     "Retrieval",
     "VertexRagStore",
     "RagResource",

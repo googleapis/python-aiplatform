@@ -19,6 +19,7 @@ from google.api_core import operation as ga_operation
 from vertexai.preview import rag
 from vertexai.preview.rag.utils._gapic_utils import (
     prepare_import_files_request,
+    set_embedding_model_config,
 )
 from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceAsyncClient,
@@ -171,7 +172,10 @@ class TestRagDataManagement:
 
     @pytest.mark.usefixtures("create_rag_corpus_mock")
     def test_create_corpus_success(self):
-        rag_corpus = rag.create_corpus(display_name=tc.TEST_CORPUS_DISPLAY_NAME)
+        rag_corpus = rag.create_corpus(
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            embedding_model_config=tc.TEST_EMBEDDING_MODEL_CONFIG,
+        )
 
         rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS)
 
@@ -391,6 +395,7 @@ class TestRagDataManagement:
             paths=paths,
             chunk_size=tc.TEST_CHUNK_SIZE,
             chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+            max_embedding_requests_per_min=800,
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_DRIVE_FILE)
 
@@ -415,3 +420,42 @@ class TestRagDataManagement:
                 chunk_overlap=tc.TEST_CHUNK_OVERLAP,
             )
         e.match("path must be a Google Cloud Storage uri or a Google Drive url")
+
+    def test_set_embedding_model_config_set_both_error(self):
+        embedding_model_config = rag.EmbeddingModelConfig(
+            publisher_model="whatever",
+            endpoint="whatever",
+        )
+        with pytest.raises(ValueError) as e:
+            set_embedding_model_config(
+                embedding_model_config,
+                tc.TEST_GAPIC_RAG_CORPUS,
+            )
+        e.match("publisher_model and endpoint cannot be set at the same time")
+
+    def test_set_embedding_model_config_not_set_error(self):
+        embedding_model_config = rag.EmbeddingModelConfig()
+        with pytest.raises(ValueError) as e:
+            set_embedding_model_config(
+                embedding_model_config,
+                tc.TEST_GAPIC_RAG_CORPUS,
+            )
+        e.match("At least one of publisher_model and endpoint must be set")
+
+    def test_set_embedding_model_config_wrong_publisher_model_format_error(self):
+        embedding_model_config = rag.EmbeddingModelConfig(publisher_model="whatever")
+        with pytest.raises(ValueError) as e:
+            set_embedding_model_config(
+                embedding_model_config,
+                tc.TEST_GAPIC_RAG_CORPUS,
+            )
+        e.match("publisher_model must be of the format ")
+
+    def test_set_embedding_model_config_wrong_endpoint_format_error(self):
+        embedding_model_config = rag.EmbeddingModelConfig(endpoint="whatever")
+        with pytest.raises(ValueError) as e:
+            set_embedding_model_config(
+                embedding_model_config,
+                tc.TEST_GAPIC_RAG_CORPUS,
+            )
+        e.match("endpoint must be of the format ")

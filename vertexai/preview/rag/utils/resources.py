@@ -36,6 +36,38 @@ class RagFile:
 
 
 @dataclasses.dataclass
+class EmbeddingModelConfig:
+    """EmbeddingModelConfig.
+
+    The representation of the embedding model config. Users input a 1P embedding
+    model as a Publisher model resource, or a 1P fine tuned embedding model
+    as an Endpoint resource.
+
+    Attributes:
+        publisher_model: 1P publisher model resource name. Format:
+            ``publishers/google/models/{model}`` or
+            ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+        endpoint: 1P fine tuned embedding model resource name. Format:
+            ``endpoints/{endpoint}`` or
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+        model:
+            Output only. The resource name of the model that is deployed
+            on the endpoint. Present only when the endpoint is not a
+            publisher model. Pattern:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id:
+            Output only. Version ID of the model that is
+            deployed on the endpoint. Present only when the
+            endpoint is not a publisher model.
+    """
+
+    publisher_model: Optional[str] = None
+    endpoint: Optional[str] = None
+    model: Optional[str] = None
+    model_version_id: Optional[str] = None
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -49,6 +81,7 @@ class RagCorpus:
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
+    embedding_model_config: Optional[EmbeddingModelConfig] = None
 
 
 @dataclasses.dataclass
