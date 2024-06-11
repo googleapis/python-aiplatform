@@ -28,9 +28,9 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform_v1.services import gen_ai_tuning_service
-from google.cloud.aiplatform_v1.types import job_state
-from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
+from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from vertexai.preview import tuning
 from vertexai.preview.tuning import sft as supervised_tuning
 
@@ -131,11 +131,10 @@ class MockGenAiTuningServiceClient(gen_ai_tuning_service.GenAiTuningServiceClien
 
 class MockTuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
     _is_temporary = False
-    _default_version = compat.V1
+    _default_version = compat.V1BETA1
     _version_map = (
         (compat.V1, MockGenAiTuningServiceClient),
-        # v1beta1 version does not exist
-        # (compat.V1BETA1, gen_ai_tuning_service_v1beta1.client.JobServiceClient),
+        (compat.V1BETA1, MockGenAiTuningServiceClient),
     )
 
 

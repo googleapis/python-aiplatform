@@ -29,10 +29,13 @@ from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1.services import (
     gen_ai_tuning_service as gen_ai_tuning_service_v1,
 )
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform_v1beta1.services import (
+    gen_ai_tuning_service as gen_ai_tuning_service_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.types import (
     tuning_job as gca_tuning_job_types,
 )
-from google.cloud.aiplatform_v1 import types as gca_types
+from google.cloud.aiplatform_v1beta1 import types as gca_types
 
 from google.rpc import status_pb2  # type: ignore
 
@@ -42,11 +45,10 @@ _LOGGER = aiplatform_base.Logger(__name__)
 
 class TuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1
+    _default_version = compat.V1BETA1
     _version_map = (
         (compat.V1, gen_ai_tuning_service_v1.client.GenAiTuningServiceClient),
-        # v1beta1 version does not exist
-        # (compat.V1BETA1, gen_ai_tuning_service_v1beta1.client.GenAiTuningServiceClient),
+        (compat.V1BETA1, gen_ai_tuning_service_v1beta1.client.GenAiTuningServiceClient),
     )
 
 
@@ -66,7 +68,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
     client_class = TuningJobClientWithOverride
 
     _gca_resource: gca_tuning_job_types.TuningJob
-    api_client: gen_ai_tuning_service_v1.client.GenAiTuningServiceClient
+    api_client: gen_ai_tuning_service_v1beta1.client.GenAiTuningServiceClient
 
     def __init__(self, tuning_job_name: str):
         super().__init__(resource_name=tuning_job_name)
