@@ -49,7 +49,6 @@ from google.protobuf import json_format
 import warnings
 
 if TYPE_CHECKING:
-    from vertexai.preview import rag
     from vertexai._caching import _caching as caching
 
 try:
@@ -1464,7 +1463,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: Union["grounding.Retrieval", "rag.Retrieval"],
+        retrieval: Union["preview_grounding.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
