@@ -27,7 +27,38 @@ from google.cloud.aiplatform import utils
 
 
 class TimeSeriesDataset(datasets._ColumnNamesDataset):
-    """Managed time series dataset resource for Vertex AI"""
+    """A managed time series dataset resource for Vertex AI.
+
+    Use this class to work with time series datasets. A time series is a dataset
+    that contains data recorded at different time intervals. The dataset
+    includes time and at least one variable that's dependent on time. You use a
+    time series dataset for forecasting predictions. For more information, see
+    [Forecasting overview](https://cloud.google.com/vertex-ai/docs/tabular-data/forecasting/overview).
+
+    You can create a managed time series dataset from CSV files in a Cloud
+    Storage bucket or from a BigQuery table.
+
+    The following code shows you how to create a `TimeSeriesDataset` with a CSV
+    file that has the time series dataset:
+
+    ```py
+    my_dataset = aiplatform.TimeSeriesDataset.create(
+        display_name="my-dataset",
+        gcs_source=['gs://path/to/my/dataset.csv'],
+    )
+    ```
+
+    The following code shows you how to create with a `TimeSeriesDataset` with a
+    BigQuery table file that has the time series dataset:
+
+    ```py
+    my_dataset = aiplatform.TimeSeriesDataset.create(
+        display_name="my-dataset",
+        bq_source=['bq://path/to/my/bigquerydataset.train'],
+    )
+    ```
+
+    """
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.time_series,
@@ -52,62 +83,65 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
+                Optional. The user-defined name of the dataset. The name must
+                contain 128 or fewer UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
-                Google Cloud Storage URI(-s) to the
-                input file(s).
-
-                Examples:
-                    str: "gs://bucket/file.csv"
-                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+                The URI to one or more Google Cloud Storage buckets that contain
+                your datasets. For example, `str: "gs://bucket/file.csv"` or
+                `Sequence[str]: ["gs://bucket/file1.csv",
+                "gs://bucket/file2.csv"]`.
             bq_source (str):
-                BigQuery URI to the input table.
-                example:
-                    "bq://project.dataset.table_name"
+                A BigQuery URI for the input table. For example,
+                `bq://project.dataset.table_name`.
             project (str):
-                Project to upload this dataset to. Overrides project set in
-                aiplatform.init.
+                The name of the Google Cloud project to which this
+                `TimeSeriesDataset` is uploaded. This overrides the project that
+                was set by `aiplatform.init`.
             location (str):
-                Location to upload this dataset to. Overrides location set in
-                aiplatform.init.
+                The Google Cloud region where this dataset is uploaded. This
+                region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this dataset. Overrides
-                credentials set in aiplatform.init.
+                The credentials that are used to upload the `TimeSeriesDataset`.
+                These credentials override the credentials set by
+                `aiplatform.init`.
             request_metadata (Sequence[Tuple[str, str]]):
-                Strings which should be sent along with the request as metadata.
+                Strings that contain metadata that's sent with the request.
             labels (Dict[str, str]):
-                Optional. Labels with user-defined metadata to organize your datasets.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters, numeric
-                characters, underscores and dashes. International characters are allowed.
-                No more than 64 user labels can be associated with one TimeSeriesDataset
-                (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples of labels.
-                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
-                and are immutable.
+                Optional. Labels with user-defined metadata to organize your
+                Vertex AI Tensorboards. The maximum length of a key and of a
+                value is 64 unicode characters. Labels and keys can contain only
+                lowercase letters, numeric characters, underscores, and dashes.
+                International characters are allowed. No more than 64 user
+                labels can be associated with one Tensorboard (system labels are
+                excluded). For more information and examples of using labels, see
+                [Using labels to organize Google Cloud Platform resources](https://goo.gl/xmQnxf).
+                System reserved label keys are prefixed with
+                `aiplatform.googleapis.com/` and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the dataset. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                managed encryption key that's used to protect the dataset. The
+                format of the key is
+                `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If `encryption_spec_key_name` is set, this time series dataset
+                and all of its sub-resources are secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                This `encryption_spec_key_name` overrides the
+                `encryption_spec_key_name` set by `aiplatform.init`.
             create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
+                 Optional. The number of seconds for the timeout of the create
+                request.
+            sync (bool):
+                If `true`, the `create` method creates a time series dataset
+                synchronously. If `false`, the `create` method creates a time
+                series dataset asynchronously.
 
         Returns:
             time_series_dataset (TimeSeriesDataset):
-                Instantiated representation of the managed time series dataset resource.
+                An instantiated representation of the managed
+                `TimeSeriesDataset` resource.
 
         """
         if not display_name:
