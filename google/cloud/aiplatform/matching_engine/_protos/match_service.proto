@@ -20,6 +20,17 @@ service MatchService {
       returns (BatchGetEmbeddingsResponse) {}
 }
 
+// Feature embedding vector for sparse index. An array of numbers whose values
+  // are located in the specified dimensions.
+  message SparseEmbedding {
+
+    // The list of embedding values of the sparse vector.
+    repeated float float_val = 1;
+
+    // The list of indexes for the embedding values of the sparse vector.
+    repeated int64 dimension = 2;
+  }
+
 // Parameters for a match query.
 message MatchRequest {
   // The ID of the DeploydIndex that will serve the request.
@@ -33,17 +44,6 @@ message MatchRequest {
 
   // The embedding values.
   repeated float float_val = 2;
-
-  // Feature embedding vector for sparse index. An array of numbers whose values
-  // are located in the specified dimensions.
-  message SparseEmbedding {
-
-    // The list of embedding values of the sparse vector.
-    repeated float float_val = 1;
-
-    // The list of indexes for the embedding values of the sparse vector.
-    repeated int64 dimension = 2;
-  }
 
   // Feature embedding vector for sparse index.
   SparseEmbedding sparse_embedding = 12;
@@ -116,6 +116,8 @@ message Embedding {
   // The embedding values.
   repeated float float_val = 2;
 
+  // Feature embedding vector for sparse index.
+  SparseEmbedding sparse_embedding = 6;
   // The list of restricts.
   repeated Namespace restricts = 3;
 
