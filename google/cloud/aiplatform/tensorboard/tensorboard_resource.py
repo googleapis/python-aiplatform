@@ -42,6 +42,8 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
+from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import constants
 
 _LOGGER = base.Logger(__name__)
 
@@ -413,7 +415,7 @@ class TensorboardExperiment(_TensorboardServiceResource):
         ```py
         tb_exp = aiplatform.TensorboardExperiment.create(
             tensorboard_experiment_id='my-experiment'
-            tensorboard_id='456'
+            tensorboard_name='projects/{project}/locations/{location}/tensorboards/{tensorboard}'
             display_name='my display name',
             description='my description',
             labels={
@@ -472,11 +474,12 @@ class TensorboardExperiment(_TensorboardServiceResource):
             TensorboardExperiment: The TensorboardExperiment resource.
         """
 
-        if display_name:
-            utils.validate_display_name(display_name)
+        display_name = display_name or tensorboard_experiment_id
+        utils.validate_display_name(display_name)
 
-        if labels:
-            utils.validate_labels(labels)
+        labels = labels or {}
+        labels.update(constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL)
+        utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -497,6 +500,19 @@ class TensorboardExperiment(_TensorboardServiceResource):
 
         _LOGGER.log_create_with_lro(cls)
 
+        metadata._experiment_tracker.reset()
+        metadata._experiment_tracker.set_tensorboard(
+            tensorboard=parent,
+            project=project,
+            location=location,
+        )
+        metadata._experiment_tracker.set_experiment(
+            project=project,
+            location=location,
+            experiment=tensorboard_experiment_id,
+            description=description,
+            backing_tensorboard=parent,
+        )
         tensorboard_experiment = api_client.create_tensorboard_experiment(
             parent=parent,
             tensorboard_experiment=gapic_tensorboard_experiment,

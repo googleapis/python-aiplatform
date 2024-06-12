@@ -42,6 +42,8 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard_service as gca_tensorboard_service,
     tensorboard_time_series as gca_tensorboard_time_series,
 )
+from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import constants
 
 from google.protobuf import field_mask_pb2
 
@@ -705,10 +707,14 @@ class TestTensorboardExperiment:
             name=_TEST_TENSORBOARD_EXPERIMENT_NAME, retry=base._DEFAULT_RETRY
         )
 
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
     def test_create_tensorboard_experiment(
-        self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
+        self,
+        experiment_tracker_mock,
+        create_tensorboard_experiment_mock,
+        get_tensorboard_experiment_mock,
     ):
-
+        experiment_tracker_mock.set_experiment.return_value = _TEST_TENSORBOARD_EXPERIMENT_ID
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -723,6 +729,7 @@ class TestTensorboardExperiment:
         expected_tensorboard_experiment = (
             gca_tensorboard_experiment.TensorboardExperiment(
                 display_name=_TEST_DISPLAY_NAME,
+                labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             )
         )
 
@@ -738,10 +745,15 @@ class TestTensorboardExperiment:
             name=_TEST_TENSORBOARD_EXPERIMENT_NAME, retry=base._DEFAULT_RETRY
         )
 
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
     def test_create_tensorboard_experiment_with_timeout(
-        self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
+        self,
+        experiment_tracker_mock,
+        create_tensorboard_experiment_mock,
+        get_tensorboard_experiment_mock,
     ):
 
+        experiment_tracker_mock.set_experiment.return_value = _TEST_TENSORBOARD_EXPERIMENT_ID
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -756,6 +768,7 @@ class TestTensorboardExperiment:
         expected_tensorboard_experiment = (
             gca_tensorboard_experiment.TensorboardExperiment(
                 display_name=_TEST_DISPLAY_NAME,
+                labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             )
         )
 
@@ -767,10 +780,17 @@ class TestTensorboardExperiment:
             timeout=180.0,
         )
 
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
     def test_create_tensorboard_experiment_with_timeout_not_explicitly_set(
-        self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
+        self,
+        experiment_tracker_mock,
+        create_tensorboard_experiment_mock,
+        get_tensorboard_experiment_mock,
     ):
 
+        experiment_tracker_mock.set_experiment.return_value = (
+            _TEST_TENSORBOARD_EXPERIMENT_ID
+        )
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -784,6 +804,7 @@ class TestTensorboardExperiment:
         expected_tensorboard_experiment = (
             gca_tensorboard_experiment.TensorboardExperiment(
                 display_name=_TEST_DISPLAY_NAME,
+                labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             )
         )
 
