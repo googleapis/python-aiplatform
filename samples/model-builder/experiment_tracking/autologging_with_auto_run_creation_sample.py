@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_autologging_with_auto_run_creation_sample]
 from typing import Optional, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_autologging_with_auto_run_creation_sample]
 def autologging_with_auto_run_creation_sample(
     experiment_name: str,
     project: str,

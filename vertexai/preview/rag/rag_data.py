@@ -43,13 +43,16 @@ from vertexai.preview.rag.utils import (
     _gapic_utils,
 )
 from vertexai.preview.rag.utils.resources import (
+    EmbeddingModelConfig,
     RagCorpus,
     RagFile,
 )
 
 
 def create_corpus(
-    display_name: Optional[str] = None, description: Optional[str] = None
+    display_name: Optional[str] = None,
+    description: Optional[str] = None,
+    embedding_model_config: Optional[EmbeddingModelConfig] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -69,6 +72,7 @@ def create_corpus(
             the RagCorpus. The name can be up to 128 characters long and can
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
+        embedding_model_config: The embedding model config.
     Returns:
         RagCorpus.
     Raises:
@@ -80,6 +84,12 @@ def create_corpus(
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
+    if embedding_model_config:
+        rag_corpus = _gapic_utils.set_embedding_model_config(
+            embedding_model_config,
+            rag_corpus,
+        )
+
     request = CreateRagCorpusRequest(
         parent=parent,
         rag_corpus=rag_corpus,
@@ -264,6 +274,7 @@ def import_files(
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
     timeout: int = 600,
+    max_embedding_requests_per_min: int = 1000,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -299,6 +310,15 @@ def import_files(
             "https://drive.google.com/corp/drive/folders/...").
         chunk_size: The size of the chunks.
         chunk_overlap: The overlap between chunks.
+        max_embedding_requests_per_min:
+            Optional. The max number of queries per
+            minute that this job is allowed to make to the
+            embedding model specified on the corpus. This
+            value is specific to this job and not shared
+            across other import jobs. Consult the Quotas
+            page on the project to set an appropriate value
+            here. If unspecified, a default value of 1,000
+            QPM would be used.
         timeout: Default is 600 seconds.
     Returns:
         ImportRagFilesResponse.
@@ -309,6 +329,7 @@ def import_files(
         paths=paths,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -324,6 +345,7 @@ async def import_files_async(
     paths: Sequence[str],
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    max_embedding_requests_per_min: int = 1000,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -361,6 +383,15 @@ async def import_files_async(
             "https://drive.google.com/corp/drive/folders/...").
         chunk_size: The size of the chunks.
         chunk_overlap: The overlap between chunks.
+        max_embedding_requests_per_min:
+            Optional. The max number of queries per
+            minute that this job is allowed to make to the
+            embedding model specified on the corpus. This
+            value is specific to this job and not shared
+            across other import jobs. Consult the Quotas
+            page on the project to set an appropriate value
+            here. If unspecified, a default value of 1,000
+            QPM would be used.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -370,6 +401,7 @@ async def import_files_async(
         paths=paths,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:

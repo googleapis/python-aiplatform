@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_execution_with_sdk_sample]
 from typing import Any, Dict, List, Optional
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.metadata.schema.system import execution_schema
 
 
-#  [START aiplatform_sdk_create_execution_with_sdk_sample]
 def create_execution_sample(
     display_name: str,
     input_artifacts: List[aiplatform.Artifact],

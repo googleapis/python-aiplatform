@@ -73,16 +73,22 @@ class TestGetJobSubmissionClientClusterInfo:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
-    @pytest.mark.usefixtures("get_persistent_resource_status_running_mock")
+    @pytest.mark.usefixtures(
+        "get_persistent_resource_status_running_mock", "google_auth_mock"
+    )
     def test_job_submission_client_cluster_info_with_full_resource_name(
         self,
         ray_get_job_submission_client_cluster_info_mock,
+        get_bearer_token_mock,
     ):
         vertex_ray.get_job_submission_client_cluster_info(
             tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
+        get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants.TEST_VERTEX_RAY_JOB_CLIENT_IP
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            _use_tls=True,
+            headers=tc.ClusterConstants.TEST_HEADERS,
         )
 
     @pytest.mark.usefixtures(
@@ -92,6 +98,7 @@ class TestGetJobSubmissionClientClusterInfo:
         self,
         ray_get_job_submission_client_cluster_info_mock,
         get_project_number_mock,
+        get_bearer_token_mock,
     ):
         aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
 
@@ -101,8 +108,11 @@ class TestGetJobSubmissionClientClusterInfo:
         get_project_number_mock.assert_called_once_with(
             name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
         )
+        get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants.TEST_VERTEX_RAY_JOB_CLIENT_IP
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            _use_tls=True,
+            headers=tc.ClusterConstants.TEST_HEADERS,
         )
 
     @pytest.mark.usefixtures(

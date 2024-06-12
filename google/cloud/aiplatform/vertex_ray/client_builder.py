@@ -110,7 +110,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                     address,
                     " failed to start Head node properly because custom service"
                     " account isn't supported in peered VPC network. Use public"
-                    " endpoint instead (createa a cluster withought specifying"
+                    " endpoint instead (createa a cluster without specifying"
                     " VPC network).",
                 )
         else:

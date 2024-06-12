@@ -22,9 +22,10 @@ from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.cloud.aiplatform import initializer
 from vertexai.preview.rag.utils import _gapic_utils
 from vertexai.preview.rag.utils.resources import RagResource
+from vertexai.preview import generative_models
 
 
-class Retrieval:
+class Retrieval(generative_models.grounding.Retrieval):
     """Defines a retrieval tool that a model can call to access external knowledge."""
 
     def __init__(

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_get_experiment_model_sample]
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_get_experiment_model_sample]
 def get_experiment_model_sample(
     project: str,
     location: str,

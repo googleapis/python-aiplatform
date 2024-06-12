@@ -23,6 +23,7 @@ from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
 from vertexai.preview.generative_models import grounding
 from vertexai.generative_models import Tool
+from vertexai.reasoning_engines import _utils
 import pytest
 
 
@@ -87,6 +88,48 @@ def langchain_dump_mock():
 def mock_chatvertexai():
     with mock.patch("langchain_google_vertexai.ChatVertexAI") as model_mock:
         yield model_mock
+
+
+@pytest.fixture
+def cloud_trace_exporter_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_cloud_trace_exporter_or_warn",
+    ) as cloud_trace_exporter_mock:
+        yield cloud_trace_exporter_mock
+
+
+@pytest.fixture
+def tracer_provider_mock():
+    with mock.patch("opentelemetry.sdk.trace.TracerProvider") as tracer_provider_mock:
+        yield tracer_provider_mock
+
+
+@pytest.fixture
+def simple_span_processor_mock():
+    with mock.patch(
+        "opentelemetry.sdk.trace.export.SimpleSpanProcessor"
+    ) as simple_span_processor_mock:
+        yield simple_span_processor_mock
+
+
+@pytest.fixture
+def langchain_instrumentor_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_openinference_langchain_or_warn",
+    ) as langchain_instrumentor_mock:
+        yield langchain_instrumentor_mock
+
+
+@pytest.fixture
+def langchain_instrumentor_none_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_openinference_langchain_or_warn",
+    ) as langchain_instrumentor_mock:
+        langchain_instrumentor_mock.return_value = None
+        yield langchain_instrumentor_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -174,6 +217,41 @@ class TestLangchainAgent:
         mocks.assert_has_calls(
             [mock.call.invoke.invoke(input={"input": "test query"}, config=None)]
         )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_enable_tracing(
+        self,
+        caplog,
+        cloud_trace_exporter_mock,
+        tracer_provider_mock,
+        simple_span_processor_mock,
+        langchain_instrumentor_mock,
+    ):
+        agent = reasoning_engines.LangchainAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            output_parser=self.output_parser,
+            enable_tracing=True,
+        )
+        assert agent._instrumentor is None
+        agent.set_up()
+        assert agent._instrumentor is not None
+        assert (
+            "enable_tracing=True but proceeding with tracing disabled"
+            not in caplog.text
+        )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
+        agent = reasoning_engines.LangchainAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            output_parser=self.output_parser,
+            enable_tracing=True,
+        )
+        assert agent._instrumentor is None
+        agent.set_up()
+        assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
 class TestConvertToolsOrRaise:

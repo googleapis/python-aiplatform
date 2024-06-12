@@ -19,18 +19,20 @@
 
 import copy
 import datetime
+import importlib
 from typing import Dict, Iterable
 from unittest import mock
 import uuid
 
+from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform_v1.services import gen_ai_tuning_service
-from google.cloud.aiplatform_v1.types import job_state
-from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
+from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from vertexai.preview import tuning
 from vertexai.preview.tuning import sft as supervised_tuning
 
@@ -131,11 +133,10 @@ class MockGenAiTuningServiceClient(gen_ai_tuning_service.GenAiTuningServiceClien
 
 class MockTuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
     _is_temporary = False
-    _default_version = compat.V1
+    _default_version = compat.V1BETA1
     _version_map = (
         (compat.V1, MockGenAiTuningServiceClient),
-        # v1beta1 version does not exist
-        # (compat.V1BETA1, gen_ai_tuning_service_v1beta1.client.JobServiceClient),
+        (compat.V1BETA1, MockGenAiTuningServiceClient),
     )
 
 
@@ -151,6 +152,10 @@ class TestgenerativeModelTuning:
     """Unit tests for generative model tuning."""
 
     def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(vertexai)
+
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -198,3 +203,18 @@ class TestgenerativeModelTuning:
         assert sft_tuning_job._experiment_name
         assert sft_tuning_job.tuned_model_name
         assert sft_tuning_job.tuned_model_endpoint_name
+
+    @mock.patch.object(
+        target=tuning.TuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
+    def test_genai_tuning_service_encryption_spec(self):
+        """Test that the global encryption spec propagates to the tuning job."""
+        vertexai.init(encryption_spec_key_name="test-key")
+
+        sft_tuning_job = supervised_tuning.train(
+            source_model="gemini-1.0-pro-001",
+            train_dataset="gs://some-bucket/some_dataset.jsonl",
+        )
+        assert sft_tuning_job.encryption_spec.kms_key_name == "test-key"

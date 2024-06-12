@@ -17,6 +17,7 @@
 import re
 from typing import Any, Dict, Sequence, Union
 from google.cloud.aiplatform_v1beta1 import (
+    RagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
@@ -31,6 +32,7 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.preview.rag.utils.resources import (
+    EmbeddingModelConfig,
     RagCorpus,
     RagFile,
 )
@@ -57,12 +59,43 @@ def create_rag_service_client():
     )
 
 
+def convert_gapic_to_embedding_model_config(
+    gapic_embedding_model_config: RagEmbeddingModelConfig,
+) -> EmbeddingModelConfig:
+    """Convert GapicRagEmbeddingModelConfig to EmbeddingModelConfig."""
+    embedding_model_config = EmbeddingModelConfig()
+    path = gapic_embedding_model_config.vertex_prediction_endpoint.endpoint
+    publisher_model = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/publishers/google/models/(?P<model_id>.+?)$",
+        path,
+    )
+    endpoint = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+        path,
+    )
+    if publisher_model:
+        embedding_model_config.publisher_model = path
+    if endpoint:
+        embedding_model_config.endpoint = path
+        embedding_model_config.model = (
+            gapic_embedding_model_config.vertex_prediction_endpoint.model
+        )
+        embedding_model_config.model_version_id = (
+            gapic_embedding_model_config.vertex_prediction_endpoint.model_version_id
+        )
+
+    return embedding_model_config
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     """ "Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
+        embedding_model_config=convert_gapic_to_embedding_model_config(
+            gapic_rag_corpus.rag_embedding_model_config
+        ),
     )
     return rag_corpus
 
@@ -124,6 +157,7 @@ def prepare_import_files_request(
     paths: Sequence[str],
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    max_embedding_requests_per_min: int = 1000,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -135,7 +169,8 @@ def prepare_import_files_request(
         chunk_overlap=chunk_overlap,
     )
     import_rag_files_config = ImportRagFilesConfig(
-        rag_file_chunking_config=rag_file_chunking_config
+        rag_file_chunking_config=rag_file_chunking_config,
+        max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
 
     uris = []
@@ -204,3 +239,65 @@ def get_file_name(
         raise ValueError(
             "name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}` or `{rag_file}`"
         )
+
+
+def set_embedding_model_config(
+    embedding_model_config: EmbeddingModelConfig,
+    rag_corpus: GapicRagCorpus,
+) -> GapicRagCorpus:
+    if embedding_model_config.publisher_model and embedding_model_config.endpoint:
+        raise ValueError("publisher_model and endpoint cannot be set at the same time.")
+    if (
+        not embedding_model_config.publisher_model
+        and not embedding_model_config.endpoint
+    ):
+        raise ValueError("At least one of publisher_model and endpoint must be set.")
+    parent = initializer.global_config.common_location_path(project=None, location=None)
+
+    if embedding_model_config.publisher_model:
+        publisher_model = embedding_model_config.publisher_model
+        full_resource_name = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/publishers/google/models/(?P<model_id>.+?)$",
+            publisher_model,
+        )
+        resource_name = re.match(
+            r"^publishers/google/models/(?P<model_id>.+?)$",
+            publisher_model,
+        )
+        if full_resource_name:
+            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+                publisher_model
+            )
+        elif resource_name:
+            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+                parent + "/" + publisher_model
+            )
+        else:
+            raise ValueError(
+                "publisher_model must be of the format `projects/{project}/locations/{location}/publishers/google/models/{model_id}` or `publishers/google/models/{model_id}`"
+            )
+
+    if embedding_model_config.endpoint:
+        endpoint = embedding_model_config.endpoint
+        full_resource_name = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            endpoint,
+        )
+        resource_name = re.match(
+            r"^endpoints/(?P<endpoint>.+?)$",
+            endpoint,
+        )
+        if full_resource_name:
+            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+                endpoint
+            )
+        elif resource_name:
+            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+                parent + "/" + endpoint
+            )
+        else:
+            raise ValueError(
+                "endpoint must be of the format `projects/{project}/locations/{location}/endpoints/{endpoint}` or `endpoints/{endpoint}`"
+            )
+
+    return rag_corpus

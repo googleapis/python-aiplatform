@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_get_execution_output_artifacts_sample]
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_get_execution_output_artifacts_sample]
 def get_execution_output_artifacts_sample(
     execution: aiplatform.Execution
 ):

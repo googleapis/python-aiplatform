@@ -16,6 +16,7 @@
 #
 
 # pylint: disable=protected-access,bad-continuation
+import io
 import pytest
 from typing import Iterable, MutableSequence, Optional
 from unittest import mock
@@ -40,7 +41,7 @@ from google.cloud.aiplatform_v1beta1.services import (
     gen_ai_cache_service,
 )
 from vertexai.generative_models import _function_calling_utils
-from vertexai._caching import _caching as caching
+from vertexai.preview import caching
 
 
 _TEST_PROJECT = "test-project"
@@ -458,7 +459,7 @@ class TestGenerativeModels:
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel._from_cached_content(
+        model = preview_generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -586,7 +587,7 @@ class TestGenerativeModels:
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel._from_cached_content(
+        model = preview_generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -1140,6 +1141,31 @@ class TestGenerativeModels:
         assert len(chat.history) == 4
         assert chat.history[-3].parts[0].function_call
         assert chat.history[-2].parts[0].function_response
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    @pytest.mark.parametrize(
+        argnames=("image_format", "mime_type"),
+        argvalues=[
+            ("PNG", "image/png"),
+            ("JPEG", "image/jpeg"),
+            ("GIF", "image/gif"),
+        ],
+    )
+    def test_image_mime_types(
+        self, generative_models: generative_models, image_format: str, mime_type: str
+    ):
+        # Importing external library lazily to reduce the scope of import errors.
+        from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
+
+        pil_image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(200, 200))
+        image_bytes_io = io.BytesIO()
+        pil_image.save(image_bytes_io, format=image_format)
+        image = generative_models.Image.from_bytes(image_bytes_io.getvalue())
+        image_part = generative_models.Part.from_image(image)
+        assert image_part.mime_type == mime_type
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {

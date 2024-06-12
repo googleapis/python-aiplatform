@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_log_metrics_sample]
 from typing import Dict
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_metrics_sample]
 def log_metrics_sample(
     experiment_name: str,
     run_name: str,

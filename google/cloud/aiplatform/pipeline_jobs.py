@@ -373,6 +373,27 @@ class PipelineJob(
 
         self._block_until_complete()
 
+        # AutoSxS view model evaluations
+        for details in self.task_details:
+            if details.task_name == "model-evaluation-text-generation-pairwise":
+                model_a_eval = details.execution.metadata[
+                    "output:model_a_evaluation_path"
+                ]
+                model_b_eval = details.execution.metadata[
+                    "output:model_b_evaluation_path"
+                ]
+                if model_a_eval:
+                    _LOGGER.info("Model A")
+                    utils._ipython_utils.display_model_evaluation_button(
+                        aiplatform.ModelEvaluation(model_a_eval),
+                    )
+                if model_b_eval:
+                    _LOGGER.info("Model B")
+                    utils._ipython_utils.display_model_evaluation_button(
+                        aiplatform.ModelEvaluation(model_b_eval),
+                    )
+                break
+
     def submit(
         self,
         service_account: Optional[str] = None,

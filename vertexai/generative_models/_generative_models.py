@@ -49,8 +49,7 @@ from google.protobuf import json_format
 import warnings
 
 if TYPE_CHECKING:
-    from vertexai.preview import rag
-    from vertexai._caching import _caching as caching
+    from vertexai.preview import caching
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -1464,7 +1463,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: Union["grounding.Retrieval", "rag.Retrieval"],
+        retrieval: Union["preview_grounding.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
@@ -2602,7 +2601,7 @@ class _PreviewGenerativeModel(_GenerativeModel):
         )
 
     @classmethod
-    def _from_cached_content(
+    def from_cached_content(
         cls,
         cached_content: "caching.CachedContent",
         *,

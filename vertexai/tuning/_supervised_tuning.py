@@ -15,7 +15,7 @@
 
 from typing import Dict, Literal, Optional, Union
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform_v1beta1.types import (
     tuning_job as gca_tuning_job_types,
 )
 from vertexai import generative_models

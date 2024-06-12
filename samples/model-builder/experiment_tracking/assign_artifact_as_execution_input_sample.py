@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_assign_artifact_as_execution_input_sample]
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_assign_artifact_as_execution_input_sample]
 def assign_artifact_as_execution_input_sample(
     execution: aiplatform.Execution,
     artifact: aiplatform.Artifact,

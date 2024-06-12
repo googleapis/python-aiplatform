@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_update_experiment_run_state_sample]
 from typing import Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_update_experiment_run_state_sample]
 def update_experiment_run_state_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],
