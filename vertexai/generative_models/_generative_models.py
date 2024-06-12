@@ -49,7 +49,7 @@ from google.protobuf import json_format
 import warnings
 
 if TYPE_CHECKING:
-    from vertexai._caching import _caching as caching
+    from vertexai.preview import caching
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -2601,7 +2601,7 @@ class _PreviewGenerativeModel(_GenerativeModel):
         )
 
     @classmethod
-    def _from_cached_content(
+    def from_cached_content(
         cls,
         cached_content: "caching.CachedContent",
         *,
