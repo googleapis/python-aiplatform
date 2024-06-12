@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.55.0](https://github.com/googleapis/python-aiplatform/compare/v1.54.1...v1.55.0) (2024-06-12)
+
+
+### Features
+
+* view model evaluations when AustoSxS pipeline completes ([17c59c4c2](https://github.com/googleapis/python-aiplatform/commit/17c59c4c2))
+* Add support for user-configurable 1P embedding models and quota for RAG ([8b3beb666](https://github.com/googleapis/python-aiplatform/commit/8b3beb666))
+* Add Webpage Browser Extension to Vertex AI Extension SDK ([c222f4bdb](https://github.com/googleapis/python-aiplatform/commit/c222f4bdb))
+* Add enable_tracing to LangchainAgent. ([cad035cb3](https://github.com/googleapis/python-aiplatform/commit/cad035cb3))
+* Implement multithreaded batch inference in Rapid Evaluation SDK for performance improvement ([3c6d1732b](https://github.com/googleapis/python-aiplatform/commit/3c6d1732b))
+
+### Bug Fixes
+
+* support VPC and BYOSA case in Ray on Vertex JobSubmissionClient using cluster resource name ([662d039c9](https://github.com/googleapis/python-aiplatform/commit/662d039c9))
+* Include tensorboard profiler requirements when installing google-cloud-aiplatform[tensorboard] ([4f1b5593b](https://github.com/googleapis/python-aiplatform/commit/4f1b5593b))
+* fix numerical NaN experiment run logging error in EvalTask. ([641faec0b](https://github.com/googleapis/python-aiplatform/commit/641faec0b))
+* Generate uuid run_name when run_name_prefix is not specified. ([4e2d87f9a](https://github.com/googleapis/python-aiplatform/commit/4e2d87f9a))
+
+### Documentation
+
+* Update the documentation for the `image_dataset` class ([583cb9313](https://github.com/googleapis/python-aiplatform/commit/583cb9313))
+* Include imports in experiment_tracking samples directly in cloud.google.com snippets. ([3ffb6cba7](https://github.com/googleapis/python-aiplatform/commit/3ffb6cba7))
+
+
 ## [1.54.1](https://github.com/googleapis/python-aiplatform/compare/v1.54.0...v1.54.1) (2024-06-07)
 
 
