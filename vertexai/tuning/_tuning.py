@@ -195,6 +195,11 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         else:
             raise RuntimeError(f"Unsupported tuning_spec kind: {tuning_spec}")
 
+        if aiplatform_initializer.global_config.encryption_spec_key_name:
+            gca_tuning_job.encryption_spec.kms_key_name = (
+                aiplatform_initializer.global_config.encryption_spec_key_name
+            )
+
         tuning_job: TuningJob = cls._construct_sdk_resource_from_gapic(
             gapic_resource=gca_tuning_job,
             project=project,
