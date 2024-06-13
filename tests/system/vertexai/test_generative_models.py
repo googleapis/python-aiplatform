@@ -34,7 +34,7 @@ from vertexai.preview import caching
 GEMINI_MODEL_NAME = "gemini-1.0-pro-002"
 GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
-GEMINI_15_0514_MODEL_NAME = "gemini-1.5-pro-preview-0514"
+GEMINI_15_PRO_MODEL_NAME = "gemini-1.5-pro-001"
 
 
 # A dummy function for function calling
@@ -102,7 +102,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     def test_generate_content_with_cached_content_from_text(self):
         cached_content = caching.CachedContent.create(
-            model_name=GEMINI_15_0514_MODEL_NAME,
+            model_name=GEMINI_15_PRO_MODEL_NAME,
             system_instruction="Please answer all the questions like a pirate.",
             contents=[
                 Content.from_dict(
