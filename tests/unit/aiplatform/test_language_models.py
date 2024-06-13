@@ -2385,7 +2385,8 @@ class TestLanguageModels:
             model = language_models_module.TextEmbeddingModel.from_pretrained(
                 base_model_version_id
             )
-            tuning_job = model.tune_model(**tune_args)
+            tuning_result = model.tune_model(**tune_args)
+
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = dict(
                 call_kwargs["pipeline_job"].runtime_config.parameter_values
@@ -2402,7 +2403,8 @@ class TestLanguageModels:
             assert pipeline_arguments == expected_pipeline_args
 
             # Testing the tuned model
-            tuned_model = tuning_job.deploy_tuned_model()
+            assert tuning_result.pipeline_job_name.startswith("sample-test-pipeline")
+            tuned_model = tuning_result.deploy_tuned_model()
             assert (
                 tuned_model._endpoint_name
                 == test_constants.EndpointConstants._TEST_ENDPOINT_NAME

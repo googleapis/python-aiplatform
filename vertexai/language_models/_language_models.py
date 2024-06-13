@@ -3933,6 +3933,11 @@ class _TuningJob:
         return vertex_model_name
 
     @property
+    def pipeline_job_name(self) -> str:
+        """Pipeline job name."""
+        return self._job.name
+
+    @property
     def _status(self) -> Optional[aiplatform_types.pipeline_state.PipelineState]:
         """Job status."""
         return self._job.state
