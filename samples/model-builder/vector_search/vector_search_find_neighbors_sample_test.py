@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest.mock import call
+
 import test_constants as constants
 from vector_search import vector_search_find_neighbors_sample
 
@@ -38,8 +40,18 @@ def test_vector_search_find_neighbors_sample(
         index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT)
 
     # Check index_endpoint.find_neighbors is called with right params.
-    mock_index_endpoint_find_neighbors.assert_called_with(
-      deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-      queries=constants.VECTOR_SERACH_INDEX_QUERIES,
-      num_neighbors=10
+    mock_index_endpoint_find_neighbors.assert_has_calls(
+        [
+            call(
+                deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+                queries=constants.VECTOR_SERACH_INDEX_QUERIES,
+                num_neighbors=10,
+            ),
+            call(
+                deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+                queries=constants.VECTOR_SERACH_INDEX_HYBRID_QUERIES,
+                num_neighbors=10,
+            ),
+        ],
+        any_order=False,
     )

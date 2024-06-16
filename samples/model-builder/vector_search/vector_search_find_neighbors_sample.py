@@ -55,5 +55,32 @@ def vector_search_find_neighbors(
     )
     print(resp)
 
+    # Query hybrid datapoints, sparse-only datapoints, and dense-only datapoints.
+    hybrid_queries = [
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3],
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[1.0, 1.0, 1.0],
+            rrf_ranking_alpha=0.5,
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3],
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[0.1, 0.2, 0.3],
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[0.1, 0.2, 0.3],
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3]
+        ),
+    ]
+
+    hybrid_resp = my_index_endpoint.find_neighbors(
+            deployed_index_id=deployed_index_id,
+            queries=hybrid_queries,
+            num_neighbors=num_neighbors,)
+    print(hybrid_resp)
 
 #  [END aiplatform_sdk_vector_search_find_neighbors_sample]
