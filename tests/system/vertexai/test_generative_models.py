@@ -125,13 +125,13 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             ],
         )
 
-        model = generative_models.GenerativeModel.from_cached_content(
+        model = preview_generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
         response = model.generate_content(
             "Why is sky blue?",
-            generation_config=generative_models.GenerationConfig(temperature=0),
+            generation_config=preview_generative_models.GenerationConfig(temperature=0),
         )
         try:
             assert response.text
