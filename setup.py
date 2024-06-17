@@ -142,7 +142,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 reasoning_engine_extra_require = [
-    "cloudpickle >= 2.2.1, < 4.0",
+    "cloudpickle >= 3.0, < 4.0",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
     "pydantic >= 2.6.3, < 3",
@@ -158,6 +158,7 @@ langchain_extra_require = [
     "langchain-core < 0.2",
     "langchain-google-vertexai < 2",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
+    "tenacity <= 8.3",
 ]
 
 langchain_testing_extra_require = list(
