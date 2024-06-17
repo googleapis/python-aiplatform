@@ -26,8 +26,14 @@ import uuid
 from google import auth
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
-from google.cloud.logging import Logger
 from google.cloud import storage
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform.compat.services import (
+    feature_online_store_admin_service_client,
+)
+from google.cloud.aiplatform.compat.services import (
+    feature_registry_service_client,
+)
 from google.cloud.aiplatform.compat.services import job_service_client
 from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job_compat,
@@ -39,34 +45,30 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from pyfakefs import fake_filesystem_unittest
-import pytest
-import tensorflow.saved_model as tf_saved_model
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
     ResourcePool,
     ResourceRuntimeSpec,
     ServiceAccountSpec,
 )
-from google.cloud.aiplatform.compat.services import (
-    feature_online_store_admin_service_client,
-)
-from google.cloud.aiplatform.compat.services import (
-    feature_registry_service_client,
-)
 from feature_store_constants import (
     _TEST_BIGTABLE_FOS1,
     _TEST_EMBEDDING_FV1,
     _TEST_ESF_OPTIMIZED_FOS,
     _TEST_ESF_OPTIMIZED_FOS2,
+    _TEST_FG1,
+    _TEST_FG1_F1,
+    _TEST_FG1_F2,
     _TEST_FV1,
+    _TEST_OPTIMIZED_EMBEDDING_FV,
     _TEST_OPTIMIZED_FV1,
     _TEST_OPTIMIZED_FV2,
     _TEST_PSC_OPTIMIZED_FOS,
-    _TEST_OPTIMIZED_EMBEDDING_FV,
-    _TEST_FG1_F1,
-    _TEST_FG1_F2,
 )
+from google.cloud.logging import Logger
+from pyfakefs import fake_filesystem_unittest
+import pytest
+import tensorflow.saved_model as tf_saved_model
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_NUMBER = "12345678"
@@ -304,6 +306,16 @@ def mock_cloud_logging_list_entries():
 
 
 @pytest.fixture
+def base_logger_mock():
+    with patch.object(
+        base._LOGGER,
+        "info",
+        wraps=base._LOGGER.info,
+    ) as logger_mock:
+        yield logger_mock
+
+
+@pytest.fixture
 def persistent_resource_running_mock():
     with mock.patch.object(
         PersistentResourceServiceClient,
@@ -501,6 +513,16 @@ def get_optimized_fv_no_endpointmock():
     ) as get_optimized_fv_no_endpointmock:
         get_optimized_fv_no_endpointmock.return_value = _TEST_OPTIMIZED_FV2
         yield get_optimized_fv_no_endpointmock
+
+
+@pytest.fixture
+def get_fg_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "get_feature_group",
+    ) as get_fg_mock:
+        get_fg_mock.return_value = _TEST_FG1
+        yield get_fg_mock
 
 
 @pytest.fixture

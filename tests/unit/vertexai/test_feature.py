@@ -17,31 +17,47 @@
 
 import re
 from typing import Dict, Optional
+from unittest import mock
+from unittest.mock import call, patch
 
+from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform.compat.services import (
+    feature_registry_service_client,
+)
+from feature_store_constants import (
+    _TEST_FG1_F1_DESCRIPTION,
+    _TEST_FG1_F1_ID,
+    _TEST_FG1_F1_LABELS,
+    _TEST_FG1_F1_PATH,
+    _TEST_FG1_F1_POINT_OF_CONTACT,
+    _TEST_FG1_F2_DESCRIPTION,
+    _TEST_FG1_F2_ID,
+    _TEST_FG1_F2_LABELS,
+    _TEST_FG1_F2_PATH,
+    _TEST_FG1_F2_POINT_OF_CONTACT,
+    _TEST_FG1_F2_VERSION_COLUMN_NAME,
+    _TEST_FG1_ID,
+    _TEST_LOCATION,
+    _TEST_PROJECT,
+)
 from vertexai.resources.preview import (
     Feature,
+    FeatureGroup,
 )
 import pytest
 
 
-from feature_store_constants import (
-    _TEST_PROJECT,
-    _TEST_LOCATION,
-    _TEST_FG1_ID,
-    _TEST_FG1_F1_ID,
-    _TEST_FG1_F1_PATH,
-    _TEST_FG1_F1_DESCRIPTION,
-    _TEST_FG1_F1_LABELS,
-    _TEST_FG1_F1_POINT_OF_CONTACT,
-    _TEST_FG1_F2_ID,
-    _TEST_FG1_F2_PATH,
-    _TEST_FG1_F2_VERSION_COLUMN_NAME,
-    _TEST_FG1_F2_DESCRIPTION,
-    _TEST_FG1_F2_LABELS,
-    _TEST_FG1_F2_POINT_OF_CONTACT,
-)
+@pytest.fixture
+def delete_feature_mock():
+    with patch.object(
+        feature_registry_service_client.FeatureRegistryServiceClient,
+        "delete_feature",
+    ) as delete_feature_mock:
+        delete_feature_lro_mock = mock.Mock(ga_operation.Operation)
+        delete_feature_mock.return_value = delete_feature_lro_mock
+        yield delete_feature_mock
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
@@ -187,4 +203,39 @@ def test_init_with_feature_path_for_explicit_version_column(
         description=_TEST_FG1_F2_DESCRIPTION,
         labels=_TEST_FG1_F2_LABELS,
         point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+    )
+
+
+@pytest.mark.parametrize("sync", [True])
+def test_delete_feature(
+    get_fg_mock, get_feature_mock, delete_feature_mock, base_logger_mock, sync
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature = FeatureGroup(_TEST_FG1_ID).get_feature(_TEST_FG1_F1_ID)
+    feature.delete(sync=sync)
+
+    if not sync:
+        feature.wait()
+
+    delete_feature_mock.assert_called_once_with(
+        name=_TEST_FG1_F1_PATH,
+    )
+
+    base_logger_mock.assert_has_calls(
+        [
+            call(
+                "Deleting Feature resource:"
+                " projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f1"
+            ),
+            call(
+                "Delete Feature backing LRO:"
+                f" {delete_feature_mock.return_value.operation.name}"
+            ),
+            call(
+                "Feature resource"
+                " projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f1"
+                " deleted."
+            ),
+        ]
     )

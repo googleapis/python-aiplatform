@@ -33,7 +33,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     _resource_noun = "features"
     _getter_method = "get_feature"
     _list_method = "list_features"
-    _delete_method = "delete_features"
+    _delete_method = "delete_feature"
     _parse_resource_name_method = "parse_feature_path"
     _format_resource_name_method = "feature_path"
     _gca_resource: gca_feature.Feature

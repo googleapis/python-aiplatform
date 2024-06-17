@@ -1204,11 +1204,10 @@ class _VertexAiResourceNounPlus(VertexAiResourceNoun):
         )
 
         if possible_lro:
-            _LOGGER.log_action_started_against_resource_with_lro(
-                "Delete", "", self.__class__, possible_lro
-            )
-            possible_lro.result()
             _LOGGER.log_action_completed_against_resource("deleted.", "", self)
+            _LOGGER.log_delete_with_lro(self, possible_lro)
+            possible_lro.result()
+            _LOGGER.log_delete_complete(self)
 
 
 class VertexAiResourceNounWithFutureManager(_VertexAiResourceNounPlus, FutureManager):

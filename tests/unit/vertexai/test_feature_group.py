@@ -92,16 +92,6 @@ def fg_logger_mock():
 
 
 @pytest.fixture
-def get_fg_mock():
-    with patch.object(
-        feature_registry_service_client.FeatureRegistryServiceClient,
-        "get_feature_group",
-    ) as get_fg_mock:
-        get_fg_mock.return_value = _TEST_FG1
-        yield get_fg_mock
-
-
-@pytest.fixture
 def create_fg_mock():
     with patch.object(
         feature_registry_service_client.FeatureRegistryServiceClient,
@@ -356,7 +346,8 @@ def test_list(list_fg_mock):
 
 
 @pytest.mark.parametrize("force", [True, False])
-def test_delete(force, delete_fg_mock, get_fg_mock, fg_logger_mock, sync=True):
+@pytest.mark.parametrize("sync", [True])
+def test_delete(delete_fg_mock, get_fg_mock, fg_logger_mock, force, sync):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     fg = FeatureGroup(_TEST_FG1_ID)
