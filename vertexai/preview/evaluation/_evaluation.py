@@ -579,6 +579,7 @@ async def _compute_metrics(
                         row_dict=row_dict,
                         evaluation_run_config=evaluation_run_config,
                     ),
+                    retry_timeout=evaluation_run_config.retry_timeout,
                 )
             )
             if isinstance(metric, metrics_base.PairwiseMetric):
@@ -618,6 +619,7 @@ def evaluate(
     response_column_name: str = "response",
     context_column_name: str = "context",
     instruction_column_name: str = "instruction",
+    retry_timeout: float = 600.0,
 ) -> evaluation_base.EvalResult:
     """Runs the evaluation for metrics.
 
@@ -644,7 +646,8 @@ def evaluate(
         not set, default to `context`.
       instruction_column_name: The column name of the instruction prompt in the
         dataset. If not set, default to `instruction`.
-
+      retry_timeout: How long to keep retrying the evaluation requests for the
+        whole evaluation dataset, in seconds.
     Returns:
       EvalResult with summary metrics and a metrics table for per-instance
       metrics.
@@ -670,6 +673,7 @@ def evaluate(
             constants.Dataset.INSTRUCTION_COLUMN: instruction_column_name,
         },
         client=utils.create_evaluation_service_async_client(),
+        retry_timeout=retry_timeout,
     )
 
     if set(evaluation_run_config.metrics).intersection(

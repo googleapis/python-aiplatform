@@ -609,12 +609,14 @@ def _handle_response(
 async def evaluate_instances_async(
     client: gapic_evaluation_services.EvaluationServiceAsyncClient,
     request: gapic_eval_service_types.EvaluateInstancesRequest,
+    retry_timeout: float,
 ):
     """Evaluates an instance asynchronously.
 
     Args:
         client: The client to use for evaluation.
         request: An EvaluateInstancesRequest.
+        retry_timeout: How long to keep retrying the evaluation requests, in seconds.
 
     Returns:
         The metric score of the evaluation.
@@ -626,7 +628,7 @@ async def evaluate_instances_async(
             initial=0.250,
             maximum=90.0,
             multiplier=1.45,
-            deadline=600.0,
+            timeout=retry_timeout,
             predicate=api_core.retry.if_exception_type(
                 api_core.exceptions.Aborted,
                 api_core.exceptions.DeadlineExceeded,
