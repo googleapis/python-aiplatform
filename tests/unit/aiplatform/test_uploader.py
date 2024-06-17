@@ -785,7 +785,11 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             with mock.patch.object(
                 uploader, "_logdir_loader_pre_create", mock_logdir_loader_pre_create
             ):
-                uploader.start_uploading()
+                with mock.patch.object(
+                    uploader, "_end_experiment_runs", return_value=None
+                ):
+                    uploader.start_uploading()
+                    uploader._end_experiment_runs.assert_called_once()
 
         self.assertEqual(existing_experiment is None, uploader._is_brand_new_experiment)
         self.assertEqual(2, mock_client.write_tensorboard_experiment_data.call_count)
@@ -797,6 +801,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertLen(mock_tracker.scalars_tracker.call_args[0], 1)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
@@ -814,6 +819,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         uploader.create_experiment()
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
@@ -847,6 +853,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         uploader.create_experiment()
         with self.assertRaises(SuccessError):
             uploader.start_uploading()
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -874,6 +881,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         mock_client.write_tensorboard_experiment_data.side_effect = error
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_called_once()
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -1006,10 +1014,12 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertProtoEquals(expected_request3[1], request3[1])
         self.assertProtoEquals(expected_request4[0], request4[0])
         mock_client.write_tensorboard_experiment_data.reset_mock()
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
         # Empty third round
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -1057,6 +1067,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_constructor.call_count, 1)
         self.assertEqual(mock_constructor.call_args[1], {"verbosity": 0})
         self.assertEqual(mock_tracker.scalars_tracker.call_count, 1)
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -1160,6 +1171,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.scalars_tracker.call_count, 0)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
         self.assertEqual(mock_tracker.blob_tracker.call_count, 12)
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
@@ -1282,6 +1294,27 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             profile_sender = senders["profile"]
             self.assertIn(run_name, profile_sender._run_to_profile_loaders)
             self.assertIn(run_name, profile_sender._run_to_file_request_sender)
+            experiment_tracker_mock.set_experiment.assert_called_once()
+
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
+    @patch.object(experiment_resources, "Experiment", autospec=True)
+    def test_active_experiment_set_experiment_not_called(
+        self, experiment_resources_mock, experiment_tracker_mock
+    ):
+        experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.experiment_name = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_tensorboard.return_value = (
+            _TEST_TENSORBOARD_RESOURCE_NAME
+        )
+        logdir = self.get_temp_dir()
+        mock_client = _create_mock_client()
+
+        uploader = _create_uploader(mock_client, logdir)
+        uploader.create_experiment()
+        uploader._upload_once()
+
+        experiment_tracker_mock.set_experiment.assert_not_called()
 
 
 # TODO(b/276368161)
@@ -1387,6 +1420,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         self.assertEqual(b"12345", request2.plugin_data)
         self.assertEqual("scalars", request3.plugin_name)
         self.assertEqual("profile", request4.plugin_name)
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
         # Check write_tensorboard_experiment_data calls
         self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
@@ -1425,7 +1459,9 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         self.assertProtoEquals(expected_request1[1], request1[1])
         self.assertProtoEquals(expected_request2[0], request2[0])
 
-        uploader._end_uploading()
+        with mock.patch.object(uploader, "_end_experiment_runs", return_value=None):
+            uploader._end_uploading()
+            uploader._end_experiment_runs.assert_called_once()
         time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
         mock_client.write_tensorboard_experiment_data.reset_mock()
@@ -1433,9 +1469,12 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         # Empty directory
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
-        uploader._end_uploading()
+        with mock.patch.object(uploader, "_end_experiment_runs", return_value=None):
+            uploader._end_uploading()
+            uploader._end_experiment_runs.assert_called_once()
         time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
+        experiment_tracker_mock.set_experiment.assert_called_once()
 
 
 @pytest.mark.usefixtures("google_auth_mock")

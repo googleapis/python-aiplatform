@@ -30,10 +30,12 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,
 )
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
 from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.tensorboard import logdir_loader
 from google.cloud.aiplatform.tensorboard import upload_tracker
@@ -164,6 +166,9 @@ class TensorBoardUploader(object):
         self._one_shot = one_shot
         self._dispatcher = None
         self._additional_senders: Dict[str, uploader_utils.RequestSender] = {}
+        self._experiment_runs = []
+        self._project = None
+        self._location = None
         if logdir_poll_rate_limiter is None:
             self._logdir_poll_rate_limiter = uploader_utils.RateLimiter(
                 uploader_constants.MIN_LOGDIR_POLL_INTERVAL_SECS
@@ -221,27 +226,31 @@ class TensorBoardUploader(object):
         Vertex Experiment and associate it with a Tensorboard Experiment.
         """
         m = self._api.parse_tensorboard_path(self._tensorboard_resource_name)
+        self._project = m["project"]
+        self._location = m["location"]
 
         existing_experiment = experiment_resources.Experiment.get(
             experiment_name=self._experiment_name,
-            project=m["project"],
-            location=m["location"],
+            project=self._project,
+            location=self._location,
         )
         if not existing_experiment:
             self._is_brand_new_experiment = True
 
-        metadata._experiment_tracker.reset()
+        if metadata._experiment_tracker.experiment_name != self._experiment_name:
+            logging.info(f"Setting experiment to {self._experiment_name}")
+            metadata._experiment_tracker.reset()
+            metadata._experiment_tracker.set_experiment(
+                project=self._project,
+                location=self._location,
+                experiment=self._experiment_name,
+                description=self._description,
+                backing_tensorboard=self._tensorboard_resource_name,
+            )
         metadata._experiment_tracker.set_tensorboard(
             tensorboard=self._tensorboard_resource_name,
-            project=m["project"],
-            location=m["location"],
-        )
-        metadata._experiment_tracker.set_experiment(
-            project=m["project"],
-            location=m["location"],
-            experiment=self._experiment_name,
-            description=self._description,
-            backing_tensorboard=self._tensorboard_resource_name,
+            project=self._project,
+            location=self._location,
         )
 
         self._tensorboard_experiment_resource_name = (
@@ -309,6 +318,17 @@ class TensorBoardUploader(object):
     def get_experiment_resource_name(self):
         return self._tensorboard_experiment_resource_name
 
+    def _end_experiment_runs(self):
+        # End all runs created by uploader
+        for run_name in self._experiment_runs:
+            if run_name:
+                logging.info("Ending run %s", run_name)
+                run = experiment_run_resource.ExperimentRun.get(
+                    project=self._project, location=self._location, run_name=run_name
+                )
+                if run:
+                    run.update_state(state=gca_execution.Execution.State.COMPLETE)
+
     def start_uploading(self):
         """Blocks forever to continuously upload data from the logdir.
 
@@ -334,6 +354,7 @@ class TensorBoardUploader(object):
             self._logdir_poll_rate_limiter.tick()
             self._upload_once()
             if self._one_shot:
+                self._end_experiment_runs()
                 break
         if self._one_shot and not self._tracker.has_data():
             logger.warning(
@@ -343,6 +364,7 @@ class TensorBoardUploader(object):
 
     def _end_uploading(self):
         self._continue_uploading = False
+        self._end_experiment_runs()
 
     def _pre_create_runs_and_time_series(self):
         """Iterates though the log dir to collect TensorboardRuns and
@@ -409,6 +431,7 @@ class TensorBoardUploader(object):
             run_to_events = {
                 self._run_name_prefix + k: v for k, v in run_to_events.items()
             }
+        self._experiment_runs = run_to_events.keys()
 
         # Add a profile event to trigger send_request in _additional_senders
         if self._should_profile():

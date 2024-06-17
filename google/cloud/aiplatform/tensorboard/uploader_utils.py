@@ -234,7 +234,7 @@ class OnePlatformResourceManager(object):
                 run_name=run_name,
                 experiment=experiment,
                 tensorboard=tensorboard,
-                state=gca_execution.Execution.State.COMPLETE,
+                state=gca_execution.Execution.State.RUNNING,
             )
         tb_run_artifact = experiment_run._backing_tensorboard_run
         tb_run = tb_run_artifact.resource
