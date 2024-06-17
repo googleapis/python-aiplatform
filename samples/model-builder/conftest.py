@@ -716,6 +716,15 @@ def mock_create_optimized_public_online_store(mock_feature_online_store):
         yield mock_create_optimized_store
 
 
+@pytest.fixture
+def mock_create_optimized_private_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "create_optimized_store"
+    ) as mock_create_optimized_store:
+        mock_create_optimized_store.return_value = mock_feature_online_store
+        yield mock_create_optimized_store
+
+
 """
 ----------------------------------------------------------------------------
 Experiment Tracking Fixtures
