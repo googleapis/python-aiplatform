@@ -16,9 +16,12 @@
 #
 
 
+from contextlib import redirect_stdout
 import datetime
-import pytest
+import io
+import json
 import mock
+import pytest
 from vertexai.preview import caching
 from google.cloud.aiplatform import initializer
 import vertexai
@@ -50,6 +53,33 @@ def mock_create_cached_content():
         response = GapicCachedContent(
             name=f"{request.parent}/cachedContents/{_CREATED_CONTENT_ID}",
             model=f"{request.cached_content.model}",
+            create_time=datetime.datetime(
+                year=2024,
+                month=2,
+                day=1,
+                hour=1,
+                minute=1,
+                second=1,
+                tzinfo=datetime.timezone.utc,
+            ),
+            update_time=datetime.datetime(
+                year=2024,
+                month=2,
+                day=1,
+                hour=1,
+                minute=1,
+                second=1,
+                tzinfo=datetime.timezone.utc,
+            ),
+            expire_time=datetime.datetime(
+                year=2024,
+                month=2,
+                day=1,
+                hour=2,
+                minute=1,
+                second=1,
+                tzinfo=datetime.timezone.utc,
+            ),
         )
         return response
 
@@ -207,3 +237,32 @@ class TestCaching:
         for i, cached_content in enumerate(cached_contents):
             assert cached_content.name == f"cached_content{i + 1}_from_list_request"
             assert cached_content.model_name == f"model-name{i + 1}"
+
+    def test_print_a_cached_content(
+        self, mock_create_cached_content, mock_get_cached_content
+    ):
+        cached_content = caching.CachedContent.create(
+            model_name="model-name",
+            system_instruction="Please answer my questions with cool",
+            tools=[],
+            tool_config=GapicToolConfig(),
+            contents=["user content"],
+            ttl=datetime.timedelta(days=1),
+        )
+        f = io.StringIO()
+        with redirect_stdout(f):
+            print(cached_content)
+        output = f.getvalue()
+        assert (
+            json.dumps(
+                {
+                    "name": f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/{_CREATED_CONTENT_ID}",
+                    "model": "projects/test-project/locations/us-central1/publishers/google/models/model-name",
+                    "createTime": "2024-02-01T01:01:01Z",
+                    "updateTime": "2024-02-01T01:01:01Z",
+                    "expireTime": "2024-02-01T02:01:01Z",
+                },
+                indent=2,
+            )
+            in output
+        )

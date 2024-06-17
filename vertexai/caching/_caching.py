@@ -14,7 +14,9 @@
 #
 
 import datetime
-from typing import Optional, List
+import json
+from typing import List, Optional
+from typing_extensions import override
 
 from google.cloud.aiplatform import base as aiplatform_base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
@@ -268,6 +270,10 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
     def delete(self):
         """Deletes the current cached content resource."""
         self._delete()
+
+    @override
+    def __repr__(self) -> str:
+        return f"{object.__repr__(self)}: {json.dumps(self.to_dict(), indent=2)}"
 
     @classmethod
     def list(cls) -> List["CachedContent"]:
