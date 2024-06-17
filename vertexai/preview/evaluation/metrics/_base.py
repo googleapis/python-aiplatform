@@ -17,6 +17,7 @@
 
 from typing import Any, Callable, Dict, Literal, Optional, Union
 from vertexai import generative_models
+from vertexai.preview.evaluation import constants
 
 
 class PairwiseMetric:
@@ -85,9 +86,12 @@ class PairwiseMetric:
     def __init__(
         self,
         *,
-        metric: Literal["summarization_quality", "question_answering_quality"],
-        baseline_model: Union[
-            generative_models.GenerativeModel, Callable[[str], str]
+        metric: Literal[
+            constants.Metric.PAIRWISE_SUMMARIZATION_QUALITY,
+            constants.Metric.PAIRWISE_QUESTION_ANSWERING_QUALITY,
+        ],
+        baseline_model: Optional[
+            Union[generative_models.GenerativeModel, Callable[[str], str]]
         ] = None,
         use_reference: bool = False,
         version: Optional[int] = None,
@@ -97,10 +101,14 @@ class PairwiseMetric:
         Args:
           metric: The Side-by-side(SxS) pairwise evaluation metric name.
           baseline_model: The baseline model for the Side-by-side(SxS) comparison.
+            If not specified, `baseline_model_response` column is required in the dataset.
           use_reference: Whether to use reference to compute the metric. If
             specified, the reference column is required in the dataset.
           version: The metric version to use for evaluation.
         """
+        # TODO(b/311221071): Remove the legacy metric names for GA.
+        if metric in ("summarization_quality", "question_answering_quality"):
+            metric = f"pairwise_{metric}"
         self._metric = metric
         self._baseline_model = baseline_model
         self._use_reference = use_reference
@@ -111,7 +119,7 @@ class PairwiseMetric:
 
     @property
     def pairwise_metric_name(self) -> str:
-        return f"pairwise_{self._metric}"
+        return self._metric
 
     @property
     def baseline_model(

@@ -332,7 +332,7 @@ class TestEvaluation:
         mock_candidate_model._model_name = "publishers/google/model/gemini-pro"
         test_metrics = [
             evaluation.PairwiseMetric(
-                metric="summarization_quality",
+                metric="pairwise_summarization_quality",
                 baseline_model=mock_baseline_model,
                 use_reference=False,
             )
@@ -609,11 +609,11 @@ class TestEvaluationErrors:
         mock_candidate_model._model_name = "publishers/google/model/gemini-1.0-ultra"
         test_metrics = [
             evaluation.PairwiseMetric(
-                metric="summarization_quality",
+                metric="pairwise_summarization_quality",
                 baseline_model=mock_baseline_model_1,
             ),
             evaluation.PairwiseMetric(
-                metric="summarization_quality",
+                metric="pairwise_summarization_quality",
                 baseline_model=mock_baseline_model_2,
             ),
         ]
