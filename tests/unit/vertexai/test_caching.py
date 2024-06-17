@@ -81,6 +81,32 @@ def mock_get_cached_content():
         yield get_cached_content
 
 
+@pytest.fixture
+def mock_list_cached_contents():
+    """Mocks GenAiCacheServiceClient.get_cached_content()."""
+
+    def list_cached_contents(self, request):
+        del self, request
+        response = [
+            GapicCachedContent(
+                name="cached_content1_from_list_request",
+                model="model-name1",
+            ),
+            GapicCachedContent(
+                name="cached_content2_from_list_request",
+                model="model-name2",
+            ),
+        ]
+        return response
+
+    with mock.patch.object(
+        gen_ai_cache_service.client.GenAiCacheServiceClient,
+        "list_cached_contents",
+        new=list_cached_contents,
+    ) as list_cached_contents:
+        yield list_cached_contents
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestCaching:
     """Unit tests for caching.CachedContent."""
@@ -109,6 +135,19 @@ class TestCaching:
         partial_resource_name = "contents-id"
 
         cache = caching.CachedContent(
+            cached_content_name=partial_resource_name,
+        )
+
+        assert cache.name == "contents-id"
+        assert cache.resource_name == (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/contents-id"
+        )
+        assert cache.model_name == "model-name"
+
+    def test_get_with_content_id(self, mock_get_cached_content):
+        partial_resource_name = "contents-id"
+
+        cache = caching.CachedContent.get(
             cached_content_name=partial_resource_name,
         )
 
@@ -162,3 +201,9 @@ class TestCaching:
             == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
         )
         assert cache.name == _CREATED_CONTENT_ID
+
+    def test_list(self, mock_list_cached_contents):
+        cached_contents = caching.CachedContent.list()
+        for i, cached_content in enumerate(cached_contents):
+            assert cached_content.name == f"cached_content{i + 1}_from_list_request"
+            assert cached_content.model_name == f"model-name{i + 1}"

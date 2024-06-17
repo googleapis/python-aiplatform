@@ -135,18 +135,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 "456".
         """
         super().__init__(resource_name=cached_content_name)
-
-        resource_name = aiplatform_utils.full_resource_name(
-            resource_name=cached_content_name,
-            resource_noun=self._resource_noun,
-            parse_resource_name_method=self._parse_resource_name,
-            format_resource_name_method=self._format_resource_name,
-            project=self.project,
-            location=self.location,
-            parent_resource_name_fields=None,
-            resource_id_validator=self._resource_id_validator,
-        )
-        self._gca_resource = gca_cached_content.CachedContent(name=resource_name)
+        self._gca_resource = self._get_gca_resource(cached_content_name)
 
     @property
     def _raw_cached_content(self) -> gca_cached_content.CachedContent:
@@ -154,9 +143,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
 
     @property
     def model_name(self) -> str:
-        if not self._raw_cached_content.model:
-            self._sync_gca_resource()
-        return self._raw_cached_content.model
+        return self._gca_resource.model
 
     @classmethod
     def create(
@@ -235,6 +222,10 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         obj._gca_resource = cached_content_resource
         return obj
 
+    def refresh(self):
+        """Syncs the local cached content with the remote resource."""
+        self._sync_gca_resource()
+
     def update(
         self,
         *,
@@ -265,15 +256,28 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
 
     @property
     def expire_time(self) -> datetime.datetime:
-        """Time this resource was last updated."""
-        self._sync_gca_resource()
+        """Time this resource is considered expired.
+
+        The returned value may be stale. Use refresh() to get the latest value.
+
+        Returns:
+            The expiration time of the cached content resource.
+        """
         return self._gca_resource.expire_time
 
     def delete(self):
+        """Deletes the current cached content resource."""
         self._delete()
 
     @classmethod
-    def list(cls):
+    def list(cls) -> List["CachedContent"]:
+        """Lists the active cached content resources."""
         # TODO(b/345326114): Make list() interface richer after aligning with
         # Google AI SDK
         return cls._list()
+
+    @classmethod
+    def get(cls, cached_content_name: str) -> "CachedContent":
+        """Retrieves an existing cached content resource."""
+        cache = cls(cached_content_name)
+        return cache
