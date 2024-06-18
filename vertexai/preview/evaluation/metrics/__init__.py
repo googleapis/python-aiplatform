@@ -16,16 +16,84 @@
 #
 """Evaluation Metrics Module."""
 
+from vertexai.preview.evaluation.metrics import _base
+from vertexai.preview.evaluation.metrics import _coherence
+from vertexai.preview.evaluation.metrics import _fluency
+from vertexai.preview.evaluation.metrics import _fulfillment
+from vertexai.preview.evaluation.metrics import _groundedness
 from vertexai.preview.evaluation.metrics import (
-    _base,
+    _pairwise_question_answering_quality,
 )
+from vertexai.preview.evaluation.metrics import (
+    _pairwise_summarization_quality,
+)
+from vertexai.preview.evaluation.metrics import (
+    _question_answering_correctness,
+)
+from vertexai.preview.evaluation.metrics import (
+    _question_answering_helpfulness,
+)
+from vertexai.preview.evaluation.metrics import (
+    _question_answering_quality,
+)
+from vertexai.preview.evaluation.metrics import (
+    _question_answering_relevance,
+)
+from vertexai.preview.evaluation.metrics import _safety
+from vertexai.preview.evaluation.metrics import (
+    _summarization_helpfulness,
+)
+from vertexai.preview.evaluation.metrics import (
+    _summarization_quality,
+)
+from vertexai.preview.evaluation.metrics import (
+    _summarization_verbosity,
+)
+
 
 CustomMetric = _base.CustomMetric
 PairwiseMetric = _base.PairwiseMetric
 make_metric = _base.make_metric
 
+Coherence = _coherence.Coherence
+Fluency = _fluency.Fluency
+Safety = _safety.Safety
+Groundedness = _groundedness.Groundedness
+Fulfillment = _fulfillment.Fulfillment
+SummarizationQuality = _summarization_quality.SummarizationQuality
+SummarizationHelpfulness = _summarization_helpfulness.SummarizationHelpfulness
+SummarizationVerbosity = _summarization_verbosity.SummarizationVerbosity
+QuestionAnsweringQuality = _question_answering_quality.QuestionAnsweringQuality
+QuestionAnsweringRelevance = _question_answering_relevance.QuestionAnsweringRelevance
+QuestionAnsweringHelpfulness = (
+    _question_answering_helpfulness.QuestionAnsweringHelpfulness
+)
+QuestionAnsweringCorrectness = (
+    _question_answering_correctness.QuestionAnsweringCorrectness
+)
+PairwiseSummarizationQuality = (
+    _pairwise_summarization_quality.PairwiseSummarizationQuality
+)
+PairwiseQuestionAnsweringQuality = (
+    _pairwise_question_answering_quality.PairwiseQuestionAnsweringQuality
+)
+
 __all__ = [
     "CustomMetric",
     "PairwiseMetric",
     "make_metric",
+    "Coherence",
+    "Fluency",
+    "Safety",
+    "Groundedness",
+    "Fulfillment",
+    "SummarizationQuality",
+    "SummarizationHelpfulness",
+    "SummarizationVerbosity",
+    "QuestionAnsweringQuality",
+    "QuestionAnsweringRelevance",
+    "QuestionAnsweringHelpfulness",
+    "QuestionAnsweringCorrectness",
+    "PairwiseSummarizationQuality",
+    "PairwiseQuestionAnsweringQuality",
 ]

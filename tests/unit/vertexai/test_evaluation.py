@@ -32,6 +32,9 @@ from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import _evaluation
 from vertexai.preview.evaluation import utils
 from vertexai.preview.evaluation.metrics import (
+    _summarization_quality,
+)
+from vertexai.preview.evaluation.metrics import (
     _pairwise_summarization_quality,
 )
 import numpy as np
@@ -314,6 +317,73 @@ class TestEvaluation:
             "explanation",
         ]
         assert list(test_result.metrics_table["fluency/confidence"].values) == [
+            1.0,
+            0.5,
+        ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pointwise_metrics_with_custom_metric_spec(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        eval_dataset = pd.DataFrame(
+            {
+                "context": ["test", "context"],
+                "instruction": ["test", "instruction"],
+                "reference": ["test", "reference"],
+            }
+        )
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        test_metrics = [
+            _summarization_quality.SummarizationQuality(
+                use_reference=True,
+            )
+        ]
+        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate(
+                model=mock_model,
+                prompt_template="{instruction} test prompt template {context}",
+            )
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["summarization_quality/mean"] == 4.5
+        assert test_result.summary_metrics[
+            "summarization_quality/std"
+        ] == pytest.approx(0.7, 0.1)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "context",
+                "instruction",
+                "reference",
+                "completed_prompt",
+                "response",
+                "summarization_quality",
+                "summarization_quality/explanation",
+                "summarization_quality/confidence",
+            ]
+        )
+        assert list(test_result.metrics_table["summarization_quality"].values) == [5, 4]
+        assert list(
+            test_result.metrics_table["summarization_quality/explanation"].values
+        ) == [
+            "explanation",
+            "explanation",
+        ]
+        assert list(
+            test_result.metrics_table["summarization_quality/confidence"].values
+        ) == [
             1.0,
             0.5,
         ]
