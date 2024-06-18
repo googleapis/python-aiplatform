@@ -210,6 +210,7 @@ class EvalTask:
                 ],
                 metrics_base.CustomMetric,
                 metrics_base.PairwiseMetric,
+                metrics_base._ModelBasedMetric,
             ]
         ],
         experiment: Optional[str] = None,

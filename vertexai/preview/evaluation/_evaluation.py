@@ -91,8 +91,22 @@ _SUCCESSFUL_FINISH_REASONS = [
 
 
 def _replace_metric_bundle_with_metrics(
-    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
-) -> List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]]:
+    metrics: List[
+        Union[
+            str,
+            metrics_base.CustomMetric,
+            metrics_base.PairwiseMetric,
+            metrics_base._ModelBasedMetric,
+        ]
+    ],
+) -> List[
+    Union[
+        str,
+        metrics_base.CustomMetric,
+        metrics_base.PairwiseMetric,
+        metrics_base._ModelBasedMetric,
+    ]
+]:
     """Replaces metric bundles with corresponding metrics.
 
     Args:
@@ -147,9 +161,17 @@ def _compute_custom_metrics(
 
 
 def _separate_custom_metrics(
-    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
+    metrics: List[
+        Union[
+            str,
+            metrics_base.CustomMetric,
+            metrics_base.PairwiseMetric,
+            metrics_base._ModelBasedMetric,
+        ]
+    ],
 ) -> Tuple[
-    List[Union[str, metrics_base.PairwiseMetric]], List[metrics_base.CustomMetric]
+    List[Union[str, metrics_base.PairwiseMetric, metrics_base._ModelBasedMetric]],
+    List[metrics_base.CustomMetric],
 ]:
     """Separates the metrics list into API and custom metrics."""
     custom_metrics = []
@@ -180,17 +202,12 @@ def _compute_summary_metrics(
     for metric in evaluation_run_config.metrics:
         try:
             if isinstance(metric, metrics_base.PairwiseMetric):
-                summary_metrics[
-                    f"{metric.pairwise_metric_name}/candidate_model_win_rate"
-                ] = (
-                    metrics_table[f"{metric.pairwise_metric_name}/pairwise_choice"]
+                summary_metrics[f"{metric.metric_name}/candidate_model_win_rate"] = (
+                    metrics_table[f"{metric.metric_name}/pairwise_choice"]
                     == "CANDIDATE"
                 ).mean()
-                summary_metrics[
-                    f"{metric.pairwise_metric_name}/baseline_model_win_rate"
-                ] = (
-                    metrics_table[f"{metric.pairwise_metric_name}/pairwise_choice"]
-                    == "BASELINE"
+                summary_metrics[f"{metric.metric_name}/baseline_model_win_rate"] = (
+                    metrics_table[f"{metric.metric_name}/pairwise_choice"] == "BASELINE"
                 ).mean()
             else:
                 # TODO(b/325078638): implement additional aggregate methods.
@@ -303,11 +320,11 @@ def _generate_response_from_gemini_model(
                         model=model,
                     )
                 )
-    respones = [task.result() for task in tasks]
+    responses = [task.result() for task in tasks]
     if is_baseline_model:
-        evaluation_run_config.dataset = df.assign(baseline_model_response=respones)
+        evaluation_run_config.dataset = df.assign(baseline_model_response=responses)
     else:
-        evaluation_run_config.dataset = df.assign(response=respones)
+        evaluation_run_config.dataset = df.assign(response=responses)
 
     _LOGGER.info(
         f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
@@ -358,11 +375,11 @@ def _generate_response_from_custom_model_fn(
     except (ValueError, IndexError) as e:
         _LOGGER.warning(f"Failed to generate response from model function: {e}")
 
-    respones = [task.result() for task in tasks]
+    responses = [task.result() for task in tasks]
     if is_baseline_model:
-        evaluation_run_config.dataset = df.assign(baseline_model_response=respones)
+        evaluation_run_config.dataset = df.assign(baseline_model_response=responses)
     else:
-        evaluation_run_config.dataset = df.assign(response=respones)
+        evaluation_run_config.dataset = df.assign(response=responses)
 
     _LOGGER.info(
         f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
@@ -582,11 +599,7 @@ async def _compute_metrics(
                     retry_timeout=evaluation_run_config.retry_timeout,
                 )
             )
-            if isinstance(metric, metrics_base.PairwiseMetric):
-                metric_name = metric.pairwise_metric_name
-            else:
-                metric_name = metric
-            tasks_by_metric[metric_name].append(task)
+            tasks_by_metric[str(metric)].append(task)
 
     api_request_count = len(api_metrics) * len(evaluation_run_config.dataset)
     _LOGGER.info(
@@ -608,7 +621,14 @@ async def _compute_metrics(
 
 def evaluate(
     dataset: "pd.DataFrame",
-    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]],
+    metrics: List[
+        Union[
+            str,
+            metrics_base.CustomMetric,
+            metrics_base.PairwiseMetric,
+            metrics_base._ModelBasedMetric,
+        ]
+    ],
     *,
     model: Optional[
         Union[generative_models.GenerativeModel, Callable[[str], str]]

@@ -31,6 +31,9 @@ from vertexai.preview import evaluation
 from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import _evaluation
 from vertexai.preview.evaluation import utils
+from vertexai.preview.evaluation.metrics import (
+    _pairwise_summarization_quality,
+)
 import numpy as np
 import pandas as pd
 import pytest
@@ -107,6 +110,18 @@ _MOCK_FLUENCY_RESULT = (
     ),
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         fluency_result=gapic_evaluation_service_types.FluencyResult(
+            score=4, explanation="explanation", confidence=0.5
+        )
+    ),
+)
+_MOCK_SUMMARIZATION_QUALITY_RESULT = (
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        summarization_quality_result=gapic_evaluation_service_types.SummarizationQualityResult(
+            score=5, explanation="explanation", confidence=1.0
+        )
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        summarization_quality_result=gapic_evaluation_service_types.SummarizationQualityResult(
             score=4, explanation="explanation", confidence=0.5
         )
     ),
@@ -331,8 +346,7 @@ class TestEvaluation:
         )
         mock_candidate_model._model_name = "publishers/google/model/gemini-pro"
         test_metrics = [
-            evaluation.PairwiseMetric(
-                metric="pairwise_summarization_quality",
+            _pairwise_summarization_quality.PairwiseSummarizationQuality(
                 baseline_model=mock_baseline_model,
                 use_reference=False,
             )
@@ -418,8 +432,7 @@ class TestEvaluation:
             }
         )
         test_metrics = [
-            evaluation.PairwiseMetric(
-                metric="summarization_quality",
+            _pairwise_summarization_quality.PairwiseSummarizationQuality(
                 baseline_model=None,
                 use_reference=True,
             )
@@ -608,12 +621,10 @@ class TestEvaluationErrors:
         )
         mock_candidate_model._model_name = "publishers/google/model/gemini-1.0-ultra"
         test_metrics = [
-            evaluation.PairwiseMetric(
-                metric="pairwise_summarization_quality",
+            _pairwise_summarization_quality.PairwiseSummarizationQuality(
                 baseline_model=mock_baseline_model_1,
             ),
-            evaluation.PairwiseMetric(
-                metric="pairwise_summarization_quality",
+            _pairwise_summarization_quality.PairwiseSummarizationQuality(
                 baseline_model=mock_baseline_model_2,
             ),
         ]

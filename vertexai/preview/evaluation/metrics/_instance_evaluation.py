@@ -93,14 +93,14 @@ _METRIC_NAME_TO_METRIC_SPEC = {
 
 
 def build_request(
-    metric: Union[str, metrics_base.PairwiseMetric],
+    metric: Union[str, metrics_base.PairwiseMetric, metrics_base._ModelBasedMetric],
     row_dict: Dict[str, Any],
     evaluation_run_config: eval_base.EvaluationRunConfig,
 ) -> gapic_eval_service_types.EvaluateInstancesRequest:
     """Builds a metric instance and form the request for the evaluation service.
 
     Args:
-        metric_name: The name of the metric to evaluate.
+        metric: The name of the metric to evaluate.
         row_dict: An eval dataset instance in a dictionary.
         evaluation_run_config: Evaluation Run Configurations.
 
@@ -120,15 +120,14 @@ def build_request(
         )
     )
 
-    if isinstance(metric, metrics_base.PairwiseMetric):
-        metric_name = metric.pairwise_metric_name
-    else:
-        metric_name = metric
+    metric_name = str(metric)
     if metric_name not in _METRIC_NAME_TO_METRIC_SPEC:
         raise ValueError(f"Metric name: {metric_name} not supported.")
 
     metric_spec = _METRIC_NAME_TO_METRIC_SPEC[metric_name]
-    if isinstance(metric, metrics_base.PairwiseMetric):
+    if isinstance(metric, metrics_base.PairwiseMetric) or isinstance(
+        metric, metrics_base._ModelBasedMetric
+    ):
         metric_spec.use_reference = metric.use_reference
         metric_spec.version = metric.version
 
@@ -137,7 +136,7 @@ def build_request(
         column_map.get(constants.Dataset.MODEL_RESPONSE_COLUMN), ""
     )
     baseline_prediction = row_dict.get(
-        column_map.get(constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN), ""
+        constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN, ""
     )
     reference = row_dict.get(column_map.get(constants.Dataset.REFERENCE_COLUMN), "")
     context = row_dict.get(column_map.get(constants.Dataset.CONTEXT_COLUMN), "")
@@ -307,7 +306,6 @@ def build_request(
     if metric_name == constants.Metric.RESPONSE_RECALL:
         raise NotImplementedError("Response recall is not implemented.")
     if metric_name == constants.Metric.SUMMARIZATION_QUALITY:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         summarization_quality_input = (
             gapic_eval_service_types.SummarizationQualityInput(
                 metric_spec=metric_spec,
@@ -316,12 +314,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            summarization_quality_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             summarization_quality_input=summarization_quality_input,
         )
     if metric_name == constants.Metric.SUMMARIZATION_HELPFULNESS:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         summarization_helpfulness_input = (
             gapic_eval_service_types.SummarizationHelpfulnessInput(
                 metric_spec=metric_spec,
@@ -330,12 +329,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            summarization_helpfulness_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             summarization_helpfulness_input=summarization_helpfulness_input,
         )
     if metric_name == constants.Metric.SUMMARIZATION_VERBOSITY:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         summarization_verbosity_input = (
             gapic_eval_service_types.SummarizationVerbosityInput(
                 metric_spec=metric_spec,
@@ -344,12 +344,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            summarization_verbosity_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             summarization_verbosity_input=summarization_verbosity_input,
         )
     if metric_name == constants.Metric.QUESTION_ANSWERING_QUALITY:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         question_answering_quality_input = (
             gapic_eval_service_types.QuestionAnsweringQualityInput(
                 metric_spec=metric_spec,
@@ -358,12 +359,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            question_answering_quality_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             question_answering_quality_input=question_answering_quality_input,
         )
     if metric_name == constants.Metric.QUESTION_ANSWERING_HELPFULNESS:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         question_answering_helpfulness_input = (
             gapic_eval_service_types.QuestionAnsweringHelpfulnessInput(
                 metric_spec=metric_spec,
@@ -374,12 +376,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            question_answering_helpfulness_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             question_answering_helpfulness_input=question_answering_helpfulness_input,
         )
     if metric_name == constants.Metric.QUESTION_ANSWERING_RELEVANCE:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         question_answering_relevance_input = (
             gapic_eval_service_types.QuestionAnsweringRelevanceInput(
                 metric_spec=metric_spec,
@@ -390,12 +393,13 @@ def build_request(
                 ),
             )
         )
+        if metric_spec.use_reference:
+            question_answering_relevance_input.instance.reference = reference
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             question_answering_relevance_input=question_answering_relevance_input,
         )
     if metric_name == constants.Metric.QUESTION_ANSWERING_CORRECTNESS:
-        # TODO(b/330807319): allow set reference field after setting metric spec is allowed.
         question_answering_correctness_input = (
             gapic_eval_service_types.QuestionAnsweringCorrectnessInput(
                 metric_spec=metric_spec,
@@ -474,10 +478,10 @@ def _parse_autometric_results(
         }
 
 
-def _parse_pointwise_results(
+def _parse_model_based_pointwise_results(
     metric_result_dict: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Parses the pointwise metric results from the evaluation results.
+    """Parses the model-based pointwise metric results from the evaluation results.
 
     Args:
         metric_result_dict: The metric results dictionary.
@@ -598,7 +602,7 @@ def _handle_response(
     if metric_type in constants.MetricResult.AUTOMATIC_METRIC_RESULTS_LIST:
         result = _parse_autometric_results(metric_result_dict)
     elif metric_type in constants.MetricResult.MODEL_BASED_METRIC_RESULT_LIST:
-        result = _parse_pointwise_results(metric_result_dict)
+        result = _parse_model_based_pointwise_results(metric_result_dict)
     elif metric_type in constants.MetricResult.PAIRWISE_METRIC_RESULT_LIST:
         result = _parse_pairwise_results(metric_result_dict)
     else:
