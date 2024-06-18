@@ -227,4 +227,4 @@ def display_model_evaluation_button(
         + f"{location}/models/{model_id}/versions/{version_id}/evaluations/"
         + f"{evaluation_id}?project={project}"
     )
-    display_link("View Model Evaluation", uri, "model_training")
+    display_link("View Model Evaluation", uri, "lightbulb")
