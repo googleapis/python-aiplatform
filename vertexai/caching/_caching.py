@@ -287,3 +287,11 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         """Retrieves an existing cached content resource."""
         cache = cls(cached_content_name)
         return cache
+
+    @override
+    @property
+    def display_name(self) -> str:
+        """Display name of this resource."""
+        # TODO(b/345335749): remove this override when the feature is available
+        # in the API.
+        raise NotImplementedError("Display name is not available.")
