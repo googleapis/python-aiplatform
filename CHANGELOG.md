@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.56.0](https://github.com/googleapis/python-aiplatform/compare/v1.55.0...v1.56.0) (2024-06-18)
+
+
+### Features
+
+* Add `retry_timeout` to EvalTask in `vertexai.preview.evaluation` ([4d9ee9d](https://github.com/googleapis/python-aiplatform/commit/4d9ee9dc6c046fd71e2f3176981a2a108fbbaeeb))
+* Add hybrid query example to vector search sample. ([510da5e](https://github.com/googleapis/python-aiplatform/commit/510da5ef3bcaa507288571fc7e066f578fde329f))
+* Add metric classes for 2 pairwise metrics for rapid evaluation SDK. ([831c8e4](https://github.com/googleapis/python-aiplatform/commit/831c8e45ee88f70efcdaba7dfed1856837074357))
+* Add pipeline_job_name to allow PipelineJob.get(pipeline_job_name) ([32e3b22](https://github.com/googleapis/python-aiplatform/commit/32e3b22993a83414ee60e52b0c95bd8b63543787))
+* Add sample code show how to create an optimized private online store in Vertex AI Feature Store. ([e352175](https://github.com/googleapis/python-aiplatform/commit/e3521751ecb79d5f711658c39d2dd5b204c191c5))
+* GenAI - Context Caching - add get() classmethod and refresh() instance method ([6be874a](https://github.com/googleapis/python-aiplatform/commit/6be874a7c6c43b7acbf5926e38e56d2ab367f5a1))
+* GenAI - Context Caching - also print model_name and expire_time. ([d548c11](https://github.com/googleapis/python-aiplatform/commit/d548c1128d8b6abc7ed8007436bc868a688fcace))
+* GenAI - Tuning - Added support for CMEK ([eb651bc](https://github.com/googleapis/python-aiplatform/commit/eb651bc2ed60ba12d88998115470c12d858892ef))
+
+
+### Bug Fixes
+
+* Do not reset aiplatform.Experiment or aiplatform.ExperimentRun unnecessarily when running tensorboard uploader. ([28a091a](https://github.com/googleapis/python-aiplatform/commit/28a091ab609ae3c086bb35ee4901c61108a4e75e))
+
+
+### Documentation
+
+* Update the documentation for the `time_series_dataset` and `video_dataset` classes ([d5dc7b5](https://github.com/googleapis/python-aiplatform/commit/d5dc7b5697eb4c7e86ec9e108454a30c8c7028d7))
+
 ## [1.55.0](https://github.com/googleapis/python-aiplatform/compare/v1.54.1...v1.55.0) (2024-06-12)
 
 
