@@ -187,7 +187,9 @@ class MatchNeighbor:
         id (str):
             Required. The id of the neighbor.
         distance (float):
-            Required. The distance to the query embedding.
+            Optional. The distance between the neighbor and the dense embedding query.
+        sparse_distance (float):
+            Optional. The distance between the neighbor and the query sparse_embedding.
         feature_vector (List[float]):
             Optional. The feature vector of the matching datapoint.
         crowding_tag (Optional[str]):
@@ -210,7 +212,8 @@ class MatchNeighbor:
     """
 
     id: str
-    distance: float
+    distance: Optional[float] = None
+    sparse_distance: Optional[float] = None
     feature_vector: Optional[List[float]] = None
     crowding_tag: Optional[str] = None
     restricts: Optional[List[Namespace]] = None
@@ -316,6 +319,9 @@ class MatchNeighbor:
                         name=restrict.name, value_double=restrict.value_double
                     )
                 self.numeric_restricts.append(numeric_namespace)
+        if embedding.sparse_embedding:
+            self.sparse_embedding_values = embedding.sparse_embedding.float_val
+            self.sparse_embedding_dimensions = embedding.sparse_embedding.dimension
         return self
 
 
@@ -1548,7 +1554,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         return [
             [
                 MatchNeighbor(
-                    id=neighbor.datapoint.datapoint_id, distance=neighbor.distance
+                    id=neighbor.datapoint.datapoint_id,
+                    distance=neighbor.distance,
+                    sparse_distance=neighbor.sparse_distance
+                    if neighbor.sparse_distance
+                    else None,
                 ).from_index_datapoint(index_datapoint=neighbor.datapoint)
                 for neighbor in embedding_neighbors.neighbors
             ]
@@ -1662,7 +1672,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def match(
         self,
         deployed_index_id: str,
-        queries: List[List[float]] = None,
+        queries: Union[List[List[float]], List[HybridQuery]] = None,
         num_neighbors: int = 1,
         filter: Optional[List[Namespace]] = None,
         per_crowding_attribute_num_neighbors: Optional[int] = None,
@@ -1677,8 +1687,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Args:
             deployed_index_id (str):
                 Required. The ID of the DeployedIndex to match the queries against.
-            queries (List[List[float]]):
-                Optional. A list of queries. Each query is a list of floats, representing a single embedding.
+            queries (Union[List[List[float]], List[HybridQuery]]):
+                Optional. A list of queries.
+
+                For regular dense-only queries, each query is a list of floats,
+                representing a single embedding.
+
+                For hybrid queries, each query is a hybrid query of type
+                aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery.
             num_neighbors (int):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
@@ -1759,16 +1775,28 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         requests = []
         if queries:
+            query_is_hybrid = isinstance(queries[0], HybridQuery)
             for query in queries:
                 request = match_service_pb2.MatchRequest(
                     deployed_index_id=deployed_index_id,
-                    float_val=query,
+                    float_val=query.dense_embedding if query_is_hybrid else query,
                     num_neighbors=num_neighbors,
                     restricts=restricts,
                     per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
                     approx_num_neighbors=approx_num_neighbors,
                     fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
                     numeric_restricts=numeric_restricts,
+                    sparse_embedding=match_service_pb2.SparseEmbedding(
+                        float_val=query.sparse_embedding_values,
+                        dimension=query.sparse_embedding_dimensions,
+                    )
+                    if query_is_hybrid
+                    else None,
+                    rrf=match_service_pb2.MatchRequest.RRF(
+                        alpha=query.rrf_ranking_alpha,
+                    )
+                    if query_is_hybrid and query.rrf_ranking_alpha
+                    else None,
                 )
                 requests.append(request)
         else:
@@ -1789,7 +1817,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_neighbors_id_map = {}
             for neighbor in resp.neighbor:
                 match_neighbors_id_map[neighbor.id] = MatchNeighbor(
-                    id=neighbor.id, distance=neighbor.distance
+                    id=neighbor.id,
+                    distance=neighbor.distance,
+                    sparse_distance=neighbor.sparse_distance
+                    if neighbor.sparse_distance
+                    else None,
                 )
             for embedding in resp.embeddings:
                 if embedding.id in match_neighbors_id_map:

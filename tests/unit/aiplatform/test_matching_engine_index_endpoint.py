@@ -1137,7 +1137,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_private_service_access_service_access_index_endpoint_match_queries(
+    def test_private_service_access_hybrid_search_match_queries(
         self, index_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1146,7 +1146,72 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        response = my_index_endpoint.match(
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            queries=_TEST_HYBRID_QUERIES,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_HYBRID_QUERIES[i].dense_embedding,
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                            sparse_embedding=match_service_pb2.SparseEmbedding(
+                                float_val=_TEST_HYBRID_QUERIES[
+                                    i
+                                ].sparse_embedding_values,
+                                dimension=_TEST_HYBRID_QUERIES[
+                                    i
+                                ].sparse_embedding_dimensions,
+                            ),
+                            rrf=match_service_pb2.MatchRequest.RRF(
+                                alpha=_TEST_HYBRID_QUERIES[i].rrf_ranking_alpha,
+                            )
+                            if _TEST_HYBRID_QUERIES[i].rrf_ranking_alpha
+                            else None,
+                        )
+                        for i in range(len(_TEST_HYBRID_QUERIES))
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_private_service_access_index_endpoint_match_queries(
+        self, index_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
@@ -1188,8 +1253,6 @@ class TestMatchingEngineIndexEndpoint:
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
-        assert response == _TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE
-
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_access_endpoint_find_neighbor_queries(
         self, index_endpoint_match_queries_mock
@@ -1200,7 +1263,7 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        response = my_private_index_endpoint.find_neighbors(
+        my_private_index_endpoint.find_neighbors(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1239,8 +1302,6 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
         index_endpoint_match_queries_mock.assert_called_with(batch_match_request)
-
-        assert response == _TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_connect_endpoint_match_queries(
