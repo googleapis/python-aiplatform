@@ -197,10 +197,12 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                         aiplatform.Endpoint,
                         aiplatform.Featurestore,
                         aiplatform.MatchingEngineIndexEndpoint,
+                        vertexai.resources.preview.FeatureGroup,
                     ),
                 ):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
+                    # For FeatureGroup, force delete its features with the feature_group
                     resource.delete(force=True)
                 elif isinstance(resource, aiplatform.Experiment):
                     resource.delete(delete_backing_tensorboard_runs=True)

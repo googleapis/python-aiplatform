@@ -72,7 +72,7 @@ pipelines_extra_require = [
     "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 3.0.0; python_version<'3.11'",
     "pyarrow >= 10.0.1; python_version=='3.11'",
     "pyarrow >= 14.0.0; python_version>='3.12'",
 ]
@@ -96,7 +96,7 @@ private_endpoints_extra_require = [
     "requests >= 2.28.1",
 ]
 
-autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
+autologging_extra_require = ["mlflow>=1.27.0,<=2.2.0"]
 
 preview_extra_require = [
     "cloudpickle < 3.0",
@@ -197,7 +197,9 @@ testing_extra_require = (
     + profiler_extra_require
     + tokenization_testing_extra_require
     + [
-        "bigframes; python_version>='3.10'",
+        "bigframes >= 1.7.0; python_version>='3.10'",
+        "numpy >= 1.25.0; python_version>='3.10'",  # bigframes - conversion from pd requires np.dtypes
+        "pandas >= 2.0.1; python_version>='3.10'",  # bigframes - conversion from pd type fixes (arrow)
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
@@ -208,7 +210,8 @@ testing_extra_require = (
         "pytest-xdist",
         "scikit-learn",
         # Lazy import requires > 2.12.0
-        "tensorflow == 2.13.0; python_version<='3.11'",
+        "tensorflow == 2.13.0; python_version<='3.8'",
+        "tensorflow == 2.14.0; python_version>'3.8' and python_version<='3.11'",
         "tensorflow == 2.16.1; python_version>'3.11'",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
