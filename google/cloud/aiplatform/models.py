@@ -23,6 +23,7 @@ import requests
 from typing import (
     Any,
     Dict,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -233,6 +234,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         self.authorized_session = None
         self.raw_predict_request_url = None
+        self.stream_raw_predict_request_url = None
 
     @property
     def _prediction_client(self) -> utils.PredictionClientWithOverride:
@@ -618,6 +620,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         )
         endpoint.authorized_session = None
         endpoint.raw_predict_request_url = None
+        endpoint.stream_raw_predict_request_url = None
 
         return endpoint
 
@@ -1722,14 +1725,380 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
             self.authorized_session = google_auth_requests.AuthorizedSession(
                 self.credentials
             )
 
+        if self.raw_predict_request_url is None:
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+
         return self.authorized_session.post(
             url=self.raw_predict_request_url, data=body, headers=headers
         )
+
+    def stream_raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> Iterator[requests.models.Response]:
+        """Makes a streaming prediction request using arbitrary headers.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            for stream_response in my_endpoint.stream_raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            ):
+                status_code = response.status_code
+                stream_result = json.dumps(response.text)
+            ```
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not
+                exceed 10 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no
+                restrictions on the header.
+
+        Yields:
+            predictions (Iterator[requests.models.Response]):
+                The streaming prediction results.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+
+        if self.stream_raw_predict_request_url is None:
+            self.stream_raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
+
+        with self.authorized_session.post(
+            url=self.stream_raw_predict_request_url,
+            data=body,
+            headers=headers,
+            stream=True,
+        ) as resp:
+            for line in resp.iter_lines():
+                yield line
+
+    def direct_predict(
+        self,
+        inputs: List,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Args:
+            inputs (List):
+                Required. The inputs that are the input to the prediction call.
+                A DeployedModel may have an upper limit on the number of
+                instances it supports per request, and when it is exceeded the
+                prediction call errors in case of AutoML Models, or, in case of
+                customer created Models, the behaviour is as documented by that
+                Model. The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = self._prediction_client.direct_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "inputs": inputs,
+                "parameters": parameters,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.outputs.pb
+            ],
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    async def direct_predict_async(
+        self,
+        inputs: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes an asynchronous direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Example usage:
+            ```
+            response = await my_endpoint.direct_predict_async(inputs=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            inputs (List):
+                Required. The inputs that are the input to the prediction call.
+                A DeployedModel may have an upper limit on the number of
+                instances it supports per request, and when it is exceeded the
+                prediction call errors in case of AutoML Models, or, in case of
+                customer created Models, the behaviour is as documented by that
+                Model. The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.direct_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "inputs": inputs,
+                "parameters": parameters,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.outputs.pb
+            ],
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    def stream_direct_predict(
+        self,
+        inputs_iterator: Iterator[List],
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Iterator[Prediction]:
+        """Makes a streaming direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Args:
+            inputs_iterator (Iterator[List]):
+                Required. An iterator of the inputs that are the input to the
+                prediction call. A DeployedModel may have an upper limit on the
+                number of instances it supports per request, and when it is
+                exceeded the prediction call errors in case of AutoML Models, or,
+                in case of customer created Models, the behaviour is as
+                documented by that Model. The schema of any single instance may
+                be specified via Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Yields:
+            predictions (Iterator[aiplatform.Prediction]):
+                The resulting streamed predictions.
+        """
+        self.wait()
+        for resp in self._prediction_client.stream_direct_predict(
+            requests=(
+                {
+                    "endpoint": self._gca_resource.name,
+                    "inputs": inputs,
+                    "parameters": parameters,
+                }
+                for inputs in inputs_iterator
+            ),
+            timeout=timeout,
+        ):
+            yield Prediction(
+                predictions=[
+                    json_format.MessageToDict(item) for item in resp.outputs.pb
+                ],
+                metadata=None,
+                deployed_model_id=None,
+                model_version_id=None,
+                model_resource_name=None,
+            )
+
+    def direct_raw_predict(
+        self,
+        method_name: str,
+        request: bytes,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction request using arbitrary headers for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = my_endpoint.direct_raw_predict(request=b'...')
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            request (bytes):
+                The body of the prediction request in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = self._prediction_client.direct_raw_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "method_name": method_name,
+                "input": request,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=prediction_response.output,
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    async def direct_raw_predict_async(
+        self,
+        method_name: str,
+        request: bytes,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction request for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = await my_endpoint.direct_raw_predict(request=b'...')
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            request (bytes):
+                The body of the prediction request in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.direct_raw_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "method_name": method_name,
+                "input": request,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=prediction_response.output,
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    def stream_direct_raw_predict(
+        self,
+        method_name: str,
+        requests: Iterator[bytes],
+        timeout: Optional[float] = None,
+    ) -> Iterator[Prediction]:
+        """Makes a direct (gRPC) streaming prediction request for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            for stream_response in my_endpoint.stream_direct_raw_predict(
+                request=b'...'
+            ):
+                yield stream_response
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            requests (Iterator[bytes]):
+                The body of the prediction requests in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Yields:
+            predictions (Iterator[aiplatform.Prediction]):
+                The resulting streamed predictions.
+        """
+        self.wait()
+
+        for resp in self._prediction_client.stream_direct_raw_predict(
+            requests=(
+                {
+                    "endpoint": self._gca_resource.name,
+                    "method_name": method_name,
+                    "input": request,
+                }
+                for request in requests
+            ),
+            timeout=timeout,
+        ):
+            yield Prediction(
+                predictions=resp.output,
+                metadata=None,
+                deployed_model_id=None,
+                model_version_id=None,
+                model_resource_name=None,
+            )
 
     def explain(
         self,

@@ -95,6 +95,11 @@ _TEST_MODEL_ID = test_constants.EndpointConstants._TEST_MODEL_ID
 _TEST_METADATA = {"foo": "bar"}
 _TEST_PREDICTION = test_constants.EndpointConstants._TEST_PREDICTION
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
+_TEST_RAW_INPUTS = b"input bytes"
+_TEST_RAW_OUTPUTS = b"output bytes"
+_TEST_INPUTS = [{"dtype": "BOOL"}]
+_TEST_OUTPUTS = [{"dtype": "STRING"}]
+_TEST_METHOD_NAME = "test-method-name"
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
@@ -520,6 +525,78 @@ def predict_async_client_predict_mock():
         return_value=response,
     ) as predict_mock:
         yield predict_mock
+
+
+@pytest.fixture
+def predict_client_direct_predict_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "direct_predict"
+    ) as direct_predict_mock:
+        direct_predict_mock.return_value = gca_prediction_service.DirectPredictResponse(
+            outputs=_TEST_OUTPUTS
+        )
+        yield direct_predict_mock
+
+
+@pytest.fixture
+def predict_client_direct_predict_async_mock():
+    response = gca_prediction_service.DirectPredictResponse(outputs=_TEST_OUTPUTS)
+    with mock.patch.object(
+        target=prediction_service_async_client.PredictionServiceAsyncClient,
+        attribute="direct_predict",
+        return_value=response,
+    ) as direct_predict_mock:
+        yield direct_predict_mock
+
+
+@pytest.fixture
+def predict_client_direct_raw_predict_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "direct_raw_predict"
+    ) as direct_raw_predict_mock:
+        direct_raw_predict_mock.return_value = (
+            gca_prediction_service.DirectRawPredictResponse(output=_TEST_RAW_OUTPUTS)
+        )
+        yield direct_raw_predict_mock
+
+
+@pytest.fixture
+def predict_client_direct_raw_predict_async_mock():
+    response = gca_prediction_service.DirectRawPredictResponse(output=_TEST_RAW_OUTPUTS)
+    with mock.patch.object(
+        target=prediction_service_async_client.PredictionServiceAsyncClient,
+        attribute="direct_raw_predict",
+        return_value=response,
+    ) as direct_raw_predict_mock:
+        yield direct_raw_predict_mock
+
+
+@pytest.fixture
+def predict_client_stream_direct_predict_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "stream_direct_predict"
+    ) as stream_direct_predict_mock:
+        stream_direct_predict_mock.return_value = (
+            gca_prediction_service.StreamDirectPredictResponse(outputs=_TEST_OUTPUTS),
+            gca_prediction_service.StreamDirectPredictResponse(outputs=_TEST_OUTPUTS),
+        )
+        yield stream_direct_predict_mock
+
+
+@pytest.fixture
+def predict_client_stream_direct_raw_predict_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "stream_direct_raw_predict"
+    ) as stream_direct_raw_predict_mock:
+        stream_direct_raw_predict_mock.return_value = (
+            gca_prediction_service.StreamDirectRawPredictResponse(
+                output=_TEST_RAW_OUTPUTS
+            ),
+            gca_prediction_service.StreamDirectRawPredictResponse(
+                output=_TEST_RAW_OUTPUTS
+            ),
+        )
+        yield stream_direct_raw_predict_mock
 
 
 @pytest.fixture
@@ -2148,6 +2225,394 @@ class TestEndpoint:
             parameters={"param": 3.0},
             timeout=None,
         )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_direct_predict(self, predict_client_direct_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.direct_predict(inputs=_TEST_INPUTS)
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": None,
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_direct_predict_with_parameters(self, predict_client_direct_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.direct_predict(
+            inputs=_TEST_INPUTS, parameters={"param": 3.0}
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": {"param": 3.0},
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_direct_predict_with_timeout(self, predict_client_direct_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.direct_predict(
+            inputs=_TEST_INPUTS, timeout=10.0
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": None,
+            },
+            timeout=10.0,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_direct_predict_async(self, predict_client_direct_predict_async_mock):
+        """Tests the Endpoint.predict_async method."""
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.direct_predict_async(
+            inputs=_TEST_INPUTS, parameters=None
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_async_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": None,
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_direct_predict_async_with_parameters(
+        self, predict_client_direct_predict_async_mock
+    ):
+        """Tests the Endpoint.predict_async method."""
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.direct_predict_async(
+            inputs=_TEST_INPUTS, parameters={"param": 3.0}
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_async_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": {"param": 3.0},
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_direct_predict_async_with_timeout(
+        self, predict_client_direct_predict_async_mock
+    ):
+        """Tests the Endpoint.predict_async method."""
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.direct_predict_async(
+            inputs=_TEST_INPUTS, timeout=10.0
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_predict_async_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "inputs": _TEST_INPUTS,
+                "parameters": None,
+            },
+            timeout=10.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_direct_raw_predict(self, predict_client_direct_raw_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.direct_raw_predict(
+            method_name=_TEST_METHOD_NAME, request=_TEST_RAW_INPUTS
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_RAW_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_raw_predict_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "method_name": _TEST_METHOD_NAME,
+                "input": _TEST_RAW_INPUTS,
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_direct_raw_predict_async(
+        self, predict_client_direct_raw_predict_async_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.direct_raw_predict_async(
+            method_name=_TEST_METHOD_NAME, request=_TEST_RAW_INPUTS
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_RAW_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_raw_predict_async_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "method_name": _TEST_METHOD_NAME,
+                "input": _TEST_RAW_INPUTS,
+            },
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_direct_raw_predict_with_timeout(
+        self, predict_client_direct_raw_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.direct_raw_predict(
+            method_name=_TEST_METHOD_NAME, request=_TEST_RAW_INPUTS, timeout=10.0
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_RAW_OUTPUTS,
+            deployed_model_id=None,
+            metadata=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_direct_raw_predict_mock.assert_called_once_with(
+            request={
+                "endpoint": _TEST_ENDPOINT_NAME,
+                "method_name": _TEST_METHOD_NAME,
+                "input": _TEST_RAW_INPUTS,
+            },
+            timeout=10.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_stream_direct_predict(self, predict_client_stream_direct_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction_iterator = test_endpoint.stream_direct_predict(
+            inputs_iterator=iter([_TEST_INPUTS]), parameters=None
+        )
+        test_prediction = list(test_prediction_iterator)
+
+        true_prediction = [
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+        ]
+
+        assert true_prediction == test_prediction
+        predict_client_stream_direct_predict_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_stream_direct_predict_with_parameters(
+        self, predict_client_stream_direct_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction_iterator = test_endpoint.stream_direct_predict(
+            inputs_iterator=iter([_TEST_INPUTS]), parameters={"param": 3.0}
+        )
+        test_prediction = list(test_prediction_iterator)
+
+        true_prediction = [
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+        ]
+
+        assert true_prediction == test_prediction
+        predict_client_stream_direct_predict_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_stream_direct_predict_with_timeout(
+        self, predict_client_stream_direct_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction_iterator = test_endpoint.stream_direct_predict(
+            inputs_iterator=iter([_TEST_INPUTS]), parameters=None, timeout=10.0
+        )
+        test_prediction = list(test_prediction_iterator)
+
+        true_prediction = [
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+            models.Prediction(
+                predictions=_TEST_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+        ]
+
+        assert true_prediction == test_prediction
+        predict_client_stream_direct_predict_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_stream_direct_raw_predict(
+        self, predict_client_stream_direct_raw_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction_iterator = test_endpoint.stream_direct_raw_predict(
+            method_name=_TEST_METHOD_NAME, requests=iter([_TEST_RAW_INPUTS])
+        )
+        test_prediction = list(test_prediction_iterator)
+
+        true_prediction = [
+            models.Prediction(
+                predictions=_TEST_RAW_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+            models.Prediction(
+                predictions=_TEST_RAW_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+        ]
+
+        assert true_prediction == test_prediction
+        predict_client_stream_direct_raw_predict_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_stream_direct_raw_predict_with_timeout(
+        self, predict_client_stream_direct_raw_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction_iterator = test_endpoint.stream_direct_raw_predict(
+            method_name=_TEST_METHOD_NAME,
+            requests=iter([_TEST_RAW_INPUTS]),
+            timeout=10.0,
+        )
+        test_prediction = list(test_prediction_iterator)
+
+        true_prediction = [
+            models.Prediction(
+                predictions=_TEST_RAW_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+            models.Prediction(
+                predictions=_TEST_RAW_OUTPUTS,
+                deployed_model_id=None,
+                metadata=None,
+                model_version_id=None,
+                model_resource_name=None,
+            ),
+        ]
+
+        assert true_prediction == test_prediction
+        predict_client_stream_direct_raw_predict_mock.assert_called_once()
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_explain_with_timeout(self, predict_client_explain_mock):
