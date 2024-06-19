@@ -260,7 +260,7 @@ def _generate_response_from_gemini(
                     f"Finish reason: {candidate.finish_reason}.\n"
                     f"Finish message: {candidate.finish_message}.\n"
                     f"Safety ratings: {candidate.safety_ratings}.\n"
-                    "Please adjsut the model safety_settings, or try a different prompt."
+                    "Please adjust the model safety_settings, or try a different prompt."
                 )
             return response.candidates[0].content.parts[0].text
     except Exception:
