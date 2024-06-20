@@ -154,6 +154,14 @@ class PredictionServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_stream_raw_predict(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_stream_raw_predict(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
         transport = PredictionServiceRestTransport(interceptor=MyCustomPredictionServiceInterceptor())
         client = PredictionServiceClient(transport=transport)
 
@@ -383,6 +391,29 @@ class PredictionServiceRestInterceptor:
         self, response: rest_streaming.ResponseIterator
     ) -> rest_streaming.ResponseIterator:
         """Post-rpc interceptor for stream_generate_content
+
+        Override in a subclass to manipulate the response
+        after it is returned by the PredictionService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_stream_raw_predict(
+        self,
+        request: prediction_service.StreamRawPredictRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[prediction_service.StreamRawPredictRequest, Sequence[Tuple[str, str]]]:
+        """Pre-rpc interceptor for stream_raw_predict
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the PredictionService server.
+        """
+        return request, metadata
+
+    def post_stream_raw_predict(
+        self, response: rest_streaming.ResponseIterator
+    ) -> rest_streaming.ResponseIterator:
+        """Post-rpc interceptor for stream_raw_predict
 
         Override in a subclass to manipulate the response
         after it is returned by the PredictionService server but before
@@ -1841,6 +1872,150 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 "Method StreamingRawPredict is not available over REST transport"
             )
 
+    class _StreamRawPredict(PredictionServiceRestStub):
+        def __hash__(self):
+            return hash("StreamRawPredict")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        def __call__(
+            self,
+            request: prediction_service.StreamRawPredictRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> rest_streaming.ResponseIterator:
+            r"""Call the stream raw predict method over HTTP.
+
+            Args:
+                request (~.prediction_service.StreamRawPredictRequest):
+                    The request object. Request message for
+                [PredictionService.StreamRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamRawPredict].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.httpbody_pb2.HttpBody:
+                    Message that represents an arbitrary HTTP body. It
+                should only be used for payload formats that can't be
+                represented as JSON, such as raw binary or an HTML page.
+
+                This message can be used both in streaming and
+                non-streaming API methods in the request as well as the
+                response.
+
+                It can be used as a top-level request field, which is
+                convenient if one wants to extract parameters from
+                either the URL or HTTP template into the request fields
+                and also want access to the raw HTTP body.
+
+                Example:
+
+                ::
+
+                    message GetResourceRequest {
+                      // A unique request id.
+                      string request_id = 1;
+
+                      // The raw HTTP body is bound to this field.
+                      google.api.HttpBody http_body = 2;
+
+                    }
+
+                    service ResourceService {
+                      rpc GetResource(GetResourceRequest)
+                        returns (google.api.HttpBody);
+                      rpc UpdateResource(google.api.HttpBody)
+                        returns (google.protobuf.Empty);
+
+                    }
+
+                Example with streaming methods:
+
+                ::
+
+                    service CaldavService {
+                      rpc GetCalendar(stream google.api.HttpBody)
+                        returns (stream google.api.HttpBody);
+                      rpc UpdateCalendar(stream google.api.HttpBody)
+                        returns (stream google.api.HttpBody);
+
+                    }
+
+                Use of this type only changes how the request and
+                response bodies are handled, all other features will
+                continue to work unchanged.
+
+            """
+
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{endpoint=projects/*/locations/*/endpoints/*}:streamRawPredict",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{endpoint=projects/*/locations/*/publishers/*/models/*}:streamRawPredict",
+                    "body": "*",
+                },
+            ]
+            request, metadata = self._interceptor.pre_stream_raw_predict(
+                request, metadata
+            )
+            pb_request = prediction_service.StreamRawPredictRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=False
+            )
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+
+            # Jsonify the query params
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=False,
+                )
+            )
+            query_params.update(self._get_unset_required_fields(query_params))
+
+            # Send the request
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(self._session, method)(
+                "{host}{uri}".format(host=self._host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = rest_streaming.ResponseIterator(response, httpbody_pb2.HttpBody)
+            resp = self._interceptor.post_stream_raw_predict(resp)
+            return resp
+
     @property
     def chat_completions(
         self,
@@ -1985,6 +2160,14 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._StreamingRawPredict(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def stream_raw_predict(
+        self,
+    ) -> Callable[[prediction_service.StreamRawPredictRequest], httpbody_pb2.HttpBody]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._StreamRawPredict(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_location(self):

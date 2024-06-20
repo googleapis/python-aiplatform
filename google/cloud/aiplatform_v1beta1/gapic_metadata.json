@@ -4314,6 +4314,11 @@
                 "stream_generate_content"
               ]
             },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
+              ]
+            },
             "StreamingPredict": {
               "methods": [
                 "streaming_predict"
@@ -4389,6 +4394,11 @@
                 "stream_generate_content"
               ]
             },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
+              ]
+            },
             "StreamingPredict": {
               "methods": [
                 "streaming_predict"
@@ -4462,6 +4472,11 @@
             "StreamGenerateContent": {
               "methods": [
                 "stream_generate_content"
+              ]
+            },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
               ]
             },
             "StreamingPredict": {
