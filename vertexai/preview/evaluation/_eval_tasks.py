@@ -211,6 +211,7 @@ class EvalTask:
                 metrics_base.CustomMetric,
                 metrics_base.PairwiseMetric,
                 metrics_base._ModelBasedMetric,
+                metrics_base._AutomaticMetric,
             ]
         ],
         experiment: Optional[str] = None,
@@ -232,8 +233,7 @@ class EvalTask:
                     * BigQuery table URI: Loaded from Google Cloud BigQuery
                         (e.g., 'bq://project-id.dataset.table_name').
             metrics: The list of metric names, or metric bundle names, or
-                CustomMetric instances, or PairwiseMetric instances to evaluate.
-                Prompt template is required for PairwiseMetric.
+              Metric instances to evaluate. Prompt template is required for PairwiseMetric.
             experiment: The name of the experiment to log the evaluations to.
             content_column_name: The column name of content in the dataset to send to
                 the model. If not set, default to `content`.

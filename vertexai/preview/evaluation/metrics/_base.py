@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from abc import ABC
 from typing import Any, Callable, Dict, Literal, Optional, Union
 import warnings
 
@@ -30,7 +31,21 @@ _DEPRECATION_WARNING_MESSAGE = (
 )
 
 
-class PairwiseMetric:
+class _Metric(ABC):
+    """The abstract class for evaluation metric."""
+
+    def __init__(self, metric: str):
+        self._metric = metric
+
+    def __str__(self):
+        return self.metric_name
+
+    @property
+    def metric_name(self) -> str:
+        return self._metric
+
+
+class PairwiseMetric(_Metric):
     """The Side-by-side(SxS) Pairwise Metric.
 
     A model-based evaluation metric that compares two generative models
@@ -38,7 +53,8 @@ class PairwiseMetric:
     determine which model is performing better on the given evaluation task.
 
     For more details on when to use pairwise metrics, see
-    [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#pointwise_versus_pairwise).
+    [Evaluation methods and
+    metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#pointwise_versus_pairwise).
 
     Result Details:
 
@@ -61,7 +77,8 @@ class PairwiseMetric:
               the AutoRater was with its verdict. A score closer to 1 means higher
               confidence.
 
-        See [documentation page](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#understand-results)
+        See [documentation
+        page](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#understand-results)
         for more details on understanding the metric results.
 
     Usages:
@@ -127,13 +144,6 @@ class PairwiseMetric:
         self._use_reference = use_reference
         self._version = version
 
-    def __str__(self):
-        return self.metric_name
-
-    @property
-    def metric_name(self) -> str:
-        return self._metric
-
     @property
     def baseline_model(
         self,
@@ -149,13 +159,13 @@ class PairwiseMetric:
         return self._version
 
 
-class _ModelBasedMetric:
+class _ModelBasedMetric(_Metric):
     """The Model-based Metric.
 
     A model-based evaluation metric that evaluate a generative model's response
-    on the given evaluation task.
+    on the given evaluation task. It is a type of pointwise evaluation metric.
 
-    For more details on when to use model-based metrics, see
+    For more details on when to use model-based pointwise metrics, see
     [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
     """
 
@@ -191,13 +201,6 @@ class _ModelBasedMetric:
         self._use_reference = use_reference
         self._version = version
 
-    def __str__(self):
-        return self.metric_name
-
-    @property
-    def metric_name(self) -> str:
-        return self._metric
-
     @property
     def use_reference(self) -> bool:
         return self._use_reference
@@ -207,7 +210,55 @@ class _ModelBasedMetric:
         return self._version
 
 
-class CustomMetric:
+class _AutomaticMetric(_Metric):
+    """The automatic metric that computes deterministic score based on reference.
+
+    An lexicon-based evaluation metric that evaluate a generative model's
+    response on the given evaluation task with reference ground truth answers.
+    It is a type of pointwise evaluation metric.
+
+    For more details on when to use automatic pointwise metrics, see
+    [Evaluation methods and
+    metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
+    """
+
+    def __init__(
+        self,
+        metric: Literal[constants.Metric.ROUGE],
+        rouge_type: Optional[str] = None,
+        use_stemmer: bool = False,
+        split_summaries: bool = False,
+    ):
+        """Initializes the automatic evaluation metric.
+
+        Args:
+          metric: The automatic evaluation metric name.
+          rouge_type: Supported rouge types are rougen[1-9], rougeL, and rougeLsum.
+          use_stemmer: Whether to use stemmer to compute rouge score.
+          split_summaries: Whether to split summaries while using 'rougeLsum' to
+            compute rouge score.
+        """
+        self._metric = metric
+
+        if metric == constants.Metric.ROUGE:
+            self._rouge_type = rouge_type
+            self._use_stemmer = use_stemmer
+            self._split_summaries = split_summaries
+
+    @property
+    def rouge_type(self) -> str:
+        return self._rouge_type
+
+    @property
+    def use_stemmer(self) -> bool:
+        return self._use_stemmer
+
+    @property
+    def split_summaries(self) -> bool:
+        return self._split_summaries
+
+
+class CustomMetric(_Metric):
     """The custom evaluation metric.
 
     Attributes:
@@ -226,11 +277,9 @@ class CustomMetric:
         ],
     ):
         """Initializes the evaluation metric."""
+        super().__init__(name)
         self.name = name
         self.metric_function = metric_function
-
-    def __str__(self):
-        return self.name
 
 
 def make_metric(

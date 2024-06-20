@@ -49,12 +49,16 @@ from vertexai.preview.evaluation.metrics import (
 from vertexai.preview.evaluation.metrics import (
     _summarization_verbosity,
 )
+from vertexai.preview.evaluation.metrics import (
+    _rouge,
+)
 
 
 CustomMetric = _base.CustomMetric
 PairwiseMetric = _base.PairwiseMetric
 make_metric = _base.make_metric
 
+Rouge = _rouge.Rouge
 Coherence = _coherence.Coherence
 Fluency = _fluency.Fluency
 Safety = _safety.Safety
@@ -82,6 +86,7 @@ __all__ = [
     "CustomMetric",
     "PairwiseMetric",
     "make_metric",
+    "Rouge",
     "Coherence",
     "Fluency",
     "Safety",
