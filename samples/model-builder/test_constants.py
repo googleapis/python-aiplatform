@@ -18,6 +18,7 @@ from uuid import uuid4
 from google.protobuf import timestamp_pb2
 from google.auth import credentials
 from google.cloud import aiplatform
+import vertexai
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -254,6 +255,15 @@ WORKER_COUNT = 1
 
 # Feature online store constants
 FEATURE_ONLINE_STORE_ID = "sample_feature_online_store"
+FEATURE_VIEW_ID = "sample_feature_view"
+FEATURE_VIEW_BQ_URI = "bq://my_proj.my_dataset.my_table"
+FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS = ["id"]
+FEATURE_VIEW_BQ_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureViewBigQuerySource(
+        uri=FEATURE_VIEW_BQ_URI,
+        entity_id_columns=FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS,
+    )
+)
 FEATURE_GROUP_ID = "sample_feature_group"
 PROJECT_ALLOWLISTED = ["test-project"]
 
