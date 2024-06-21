@@ -835,7 +835,7 @@ def _validate_response(
     if not response.candidates:
         message += (
             f"The model response was blocked due to {response._raw_response.prompt_feedback.block_reason}.\n"
-            f"Blocke reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
+            f"Block reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
         )
     else:
         candidate = response.candidates[0]

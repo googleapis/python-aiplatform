@@ -25,6 +25,7 @@ class Metric:
     # Automatic Metrics.
     EXACT_MATCH = "exact_match"
     BLEU = "bleu"
+    ROUGE = "rouge"
     ROUGE_1 = "rouge_1"
     ROUGE_2 = "rouge_2"
     ROUGE_L = "rouge_l"
@@ -55,6 +56,7 @@ class Metric:
     AUTOMATIC_METRIC_LIST = (
         EXACT_MATCH,
         BLEU,
+        ROUGE,
         ROUGE_1,
         ROUGE_2,
         ROUGE_L,
