@@ -611,6 +611,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -752,6 +764,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -921,6 +945,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -1074,6 +1110,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1267,6 +1315,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -1424,6 +1484,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1613,6 +1685,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -1770,6 +1854,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
                     },
                     {
                         "method": "get",
@@ -1959,6 +2055,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                     },
                     {
@@ -2112,6 +2220,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3038,6 +3158,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
@@ -3179,6 +3311,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -3405,6 +3549,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -3558,6 +3714,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -3811,6 +3979,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -3968,6 +4148,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4218,6 +4410,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -4375,6 +4579,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
                 },
                 {
                     "method": "get",
@@ -4625,6 +4841,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                 },
                 {
@@ -4778,6 +5006,18 @@ class MigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

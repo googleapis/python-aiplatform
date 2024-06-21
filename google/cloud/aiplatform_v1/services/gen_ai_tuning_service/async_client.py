@@ -45,6 +45,7 @@ except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import pagers
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import genai_tuning_service
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import tuning_job

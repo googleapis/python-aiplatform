@@ -3421,6 +3421,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
         response = client.create_pipeline_job(request)
 
@@ -3440,6 +3441,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_create_pipeline_job_empty_call():
@@ -3558,6 +3560,7 @@ async def test_create_pipeline_job_empty_call_async():
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.create_pipeline_job()
@@ -3641,6 +3644,7 @@ async def test_create_pipeline_job_async(
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.create_pipeline_job(request)
@@ -3661,6 +3665,7 @@ async def test_create_pipeline_job_async(
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 @pytest.mark.asyncio
@@ -3868,6 +3873,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
         response = client.get_pipeline_job(request)
 
@@ -3887,6 +3893,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_get_pipeline_job_empty_call():
@@ -3995,6 +4002,7 @@ async def test_get_pipeline_job_empty_call_async():
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.get_pipeline_job()
@@ -4075,6 +4083,7 @@ async def test_get_pipeline_job_async(
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.get_pipeline_job(request)
@@ -4095,6 +4104,7 @@ async def test_get_pipeline_job_async(
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 @pytest.mark.asyncio
@@ -8427,6 +8437,7 @@ def test_create_pipeline_job_rest(request_type):
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
+        "preflight_validations": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8509,6 +8520,7 @@ def test_create_pipeline_job_rest(request_type):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -8532,6 +8544,7 @@ def test_create_pipeline_job_rest(request_type):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_create_pipeline_job_rest_use_cached_wrapped_rpc():
@@ -8845,6 +8858,7 @@ def test_get_pipeline_job_rest(request_type):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -8868,6 +8882,7 @@ def test_get_pipeline_job_rest(request_type):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_get_pipeline_job_rest_use_cached_wrapped_rpc():

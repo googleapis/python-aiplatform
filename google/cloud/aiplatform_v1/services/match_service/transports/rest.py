@@ -1309,6 +1309,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
@@ -1450,6 +1462,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1676,6 +1700,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -1829,6 +1865,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2082,6 +2130,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -2239,6 +2299,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2489,6 +2561,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -2646,6 +2730,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
                 },
                 {
                     "method": "get",
@@ -2896,6 +2992,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                 },
                 {
@@ -3049,6 +3157,18 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

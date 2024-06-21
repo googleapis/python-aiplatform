@@ -57,8 +57,8 @@ class CachedContent(proto.Message):
 
             This field is a member of `oneof`_ ``expiration``.
         name (str):
-            Immutable. Identifier. The resource name of the cached
-            content Format:
+            Immutable. Identifier. The server-generated resource name of
+            the cached content Format:
             projects/{project}/locations/{location}/cachedContents/{cached_content}
         model (str):
             Immutable. The name of the publisher model to

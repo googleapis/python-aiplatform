@@ -103,8 +103,8 @@ class ModelMonitoringStatsDataPoint(proto.Message):
 
             Attributes:
                 distribution (google.protobuf.struct_pb2.Value):
-                    tensorflow.metadata.v0.DatasetFeatureStatistics
-                    format.
+                    Predictive monitoring drift distribution in
+                    ``tensorflow.metadata.v0.DatasetFeatureStatistics`` format.
                 distribution_deviation (float):
                     Distribution distance deviation from the current dataset's
                     statistics to baseline dataset's statistics.

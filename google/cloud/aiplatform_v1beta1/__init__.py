@@ -120,7 +120,9 @@ from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
 from .types.content import GroundingAttribution
+from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
+from .types.content import GroundingSupport
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
@@ -848,6 +850,7 @@ from .types.prediction_service import StreamingPredictRequest
 from .types.prediction_service import StreamingPredictResponse
 from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
+from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineSpec
@@ -1455,7 +1458,9 @@ __all__ = (
     "GroundednessResult",
     "GroundednessSpec",
     "GroundingAttribution",
+    "GroundingChunk",
     "GroundingMetadata",
+    "GroundingSupport",
     "HarmCategory",
     "HttpElementLocation",
     "HyperparameterTuningJob",
@@ -1840,6 +1845,7 @@ __all__ = (
     "StreamDirectPredictResponse",
     "StreamDirectRawPredictRequest",
     "StreamDirectRawPredictResponse",
+    "StreamRawPredictRequest",
     "StreamingFetchFeatureValuesRequest",
     "StreamingFetchFeatureValuesResponse",
     "StreamingPredictRequest",

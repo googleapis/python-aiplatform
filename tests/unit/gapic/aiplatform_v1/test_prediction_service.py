@@ -6360,25 +6360,25 @@ def test_direct_raw_predict_rest_error():
     )
 
 
-def test_stream_direct_predict_rest_unimplemented():
+def test_stream_direct_predict_rest_no_http_options():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = prediction_service.StreamDirectPredictRequest()
     requests = [request]
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         client.stream_direct_predict(requests)
 
 
-def test_stream_direct_raw_predict_rest_unimplemented():
+def test_stream_direct_raw_predict_rest_no_http_options():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = prediction_service.StreamDirectRawPredictRequest()
     requests = [request]
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         client.stream_direct_raw_predict(requests)
 
 
@@ -7626,6 +7626,32 @@ def test_stream_generate_content_rest_flattened_error(transport: str = "rest"):
 def test_stream_generate_content_rest_error():
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+def test_stream_direct_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.stream_direct_predict({})
+    assert "Method StreamDirectPredict is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
+def test_stream_direct_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.stream_direct_raw_predict({})
+    assert "Method StreamDirectRawPredict is not available over REST transport" in str(
+        not_implemented_error.value
     )
 
 

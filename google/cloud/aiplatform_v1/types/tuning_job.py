@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -111,6 +112,11 @@ class TuningJob(proto.Message):
         tuning_data_stats (google.cloud.aiplatform_v1.types.TuningDataStats):
             Output only. The tuning data statistics associated with this
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Customer-managed encryption key options for a
+            TuningJob. If this is set, then all resources
+            created by the TuningJob will be encrypted with
+            the provided encryption key.
     """
 
     base_model: str = proto.Field(
@@ -184,6 +190,11 @@ class TuningJob(proto.Message):
         proto.MESSAGE,
         number=15,
         message="TuningDataStats",
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

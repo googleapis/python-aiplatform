@@ -145,6 +145,11 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.stream_raw_predict: gapic_v1.method.wrap_method(
+                self.stream_raw_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.direct_predict: gapic_v1.method.wrap_method(
                 self.direct_predict,
                 default_timeout=None,
@@ -233,6 +238,15 @@ class PredictionServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [prediction_service.RawPredictRequest],
+        Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamRawPredictRequest],
         Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
     ]:
         raise NotImplementedError()
