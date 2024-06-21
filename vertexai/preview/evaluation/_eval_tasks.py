@@ -255,6 +255,7 @@ class EvalTask:
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         response_column_name: Optional[str] = None,
+        retry_timeout: float = 600.0,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -270,6 +271,8 @@ class EvalTask:
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
             provided, this will override the `response_column_name` of the `EvalTask`.
+          retry_timeout: How long to keep retrying the evaluation requests for
+            the whole evaluation dataset, in seconds.
 
         Returns:
           The evaluation result.
@@ -285,6 +288,7 @@ class EvalTask:
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
                 response_column_name=response_column_name,
+                retry_timeout=retry_timeout,
             )
 
             eval_result.summary_metrics = {
@@ -342,7 +346,11 @@ class EvalTask:
                 experiment=self.experiment, backing_tensorboard=False
             )
             eval_result = self._evaluate_with_experiment(
-                model, prompt_template, experiment_run_name, response_column_name
+                model,
+                prompt_template,
+                experiment_run_name,
+                response_column_name,
+                retry_timeout,
             )
             metadata._experiment_tracker.set_experiment(
                 experiment=global_experiment_name, backing_tensorboard=False
@@ -352,12 +360,20 @@ class EvalTask:
                 experiment=self.experiment, backing_tensorboard=False
             )
             eval_result = self._evaluate_with_experiment(
-                model, prompt_template, experiment_run_name, response_column_name
+                model,
+                prompt_template,
+                experiment_run_name,
+                response_column_name,
+                retry_timeout,
             )
             metadata._experiment_tracker.reset()
         elif not self.experiment and global_experiment_name:
             eval_result = self._evaluate_with_experiment(
-                model, prompt_template, experiment_run_name, response_column_name
+                model,
+                prompt_template,
+                experiment_run_name,
+                response_column_name,
+                retry_timeout,
             )
         else:
             eval_result = _evaluation.evaluate(
