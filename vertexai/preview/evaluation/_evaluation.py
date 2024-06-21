@@ -90,23 +90,36 @@ _SUCCESSFUL_FINISH_REASONS = [
 ]
 
 
+def _validate_metrics(metrics: List[Union[str, metrics_base._Metric]]) -> None:
+    """Validates the metrics list.
+
+    Args:
+      metrics: The list of metric names, or metric bundle names, or Metric instances to
+        evaluate.
+
+    Raises:
+      ValueError: If multiple metrics of the same metric name are found.
+    """
+    seen_strings = set()
+    seen_metric_names = set()
+
+    for metric in metrics:
+        if isinstance(metric, str):
+            if metric in seen_strings:
+                raise ValueError(f"Duplicate string metric name found: '{metric}'")
+            seen_strings.add(metric)
+        elif isinstance(metric, metrics_base._Metric):
+            if metric.metric_name in seen_metric_names:
+                raise ValueError(
+                    "Duplicate Metric instances of the same metric name found: "
+                    f"'{metric.metric_name}'"
+                )
+            seen_metric_names.add(metric.metric_name)
+
+
 def _replace_metric_bundle_with_metrics(
-    metrics: List[
-        Union[
-            str,
-            metrics_base.CustomMetric,
-            metrics_base.PairwiseMetric,
-            metrics_base._ModelBasedMetric,
-        ]
-    ],
-) -> List[
-    Union[
-        str,
-        metrics_base.CustomMetric,
-        metrics_base.PairwiseMetric,
-        metrics_base._ModelBasedMetric,
-    ]
-]:
+    metrics: List[Union[str, metrics_base._Metric]],
+) -> List[Union[str, metrics_base._Metric]]:
     """Replaces metric bundles with corresponding metrics.
 
     Args:
@@ -161,18 +174,8 @@ def _compute_custom_metrics(
 
 
 def _separate_custom_metrics(
-    metrics: List[
-        Union[
-            str,
-            metrics_base.CustomMetric,
-            metrics_base.PairwiseMetric,
-            metrics_base._ModelBasedMetric,
-        ]
-    ],
-) -> Tuple[
-    List[Union[str, metrics_base.PairwiseMetric, metrics_base._ModelBasedMetric]],
-    List[metrics_base.CustomMetric],
-]:
+    metrics: List[Union[str, metrics_base._Metric]],
+) -> Tuple[List[Union[str, metrics_base._Metric]], List[metrics_base.CustomMetric],]:
     """Separates the metrics list into API and custom metrics."""
     custom_metrics = []
     api_metrics = []
@@ -621,14 +624,7 @@ async def _compute_metrics(
 
 def evaluate(
     dataset: "pd.DataFrame",
-    metrics: List[
-        Union[
-            str,
-            metrics_base.CustomMetric,
-            metrics_base.PairwiseMetric,
-            metrics_base._ModelBasedMetric,
-        ]
-    ],
+    metrics: List[Union[str, metrics_base._Metric]],
     *,
     model: Optional[
         Union[generative_models.GenerativeModel, Callable[[str], str]]
@@ -645,9 +641,8 @@ def evaluate(
 
     Args:
       dataset: The dataset to evaluate.
-      metrics: The list of metric names, or metric bundle names, or CustomMetric
-        instances, or PairwiseMetric instances to evaluate. Prompt template is
-        required for PairwiseMetric.
+      metrics: The list of metric names, or metric bundle names, or Metric instances to
+        evaluate. Prompt template is required for PairwiseMetric.
       model: The GenerativeModel instance or a custom model function to generate
         responses to evaluate. If not provided, the evaluation is computed with
         the `response` column in the `dataset`.
@@ -681,10 +676,12 @@ def evaluate(
 
     if not metrics:
         raise ValueError("Metrics cannot be empty.")
+    metrics = _replace_metric_bundle_with_metrics(metrics)
+    _validate_metrics(metrics)
 
     evaluation_run_config = evaluation_base.EvaluationRunConfig(
         dataset=dataset.copy(deep=True),
-        metrics=_replace_metric_bundle_with_metrics(metrics),
+        metrics=metrics,
         column_map={
             constants.Dataset.CONTENT_COLUMN: content_column_name,
             constants.Dataset.REFERENCE_COLUMN: reference_column_name,

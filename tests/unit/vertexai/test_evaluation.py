@@ -37,6 +37,12 @@ from vertexai.preview.evaluation.metrics import (
 from vertexai.preview.evaluation.metrics import (
     _pairwise_summarization_quality,
 )
+from vertexai.preview.evaluation.metrics import (
+    _pairwise_question_answering_quality,
+)
+from vertexai.preview.evaluation.metrics import (
+    _rouge,
+)
 import numpy as np
 import pandas as pd
 import pytest
@@ -104,7 +110,50 @@ _MOCK_EXACT_MATCH_RESULT = (
         )
     ),
 )
-
+_EXPECTED_ROUGE_REQUESTS = (
+    gapic_evaluation_service_types.EvaluateInstancesRequest(
+        location=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+        rouge_input=gapic_evaluation_service_types.RougeInput(
+            metric_spec=gapic_evaluation_service_types.RougeSpec(
+                rouge_type="rougeLsum", use_stemmer=True, split_summaries=True
+            ),
+            instances=[
+                gapic_evaluation_service_types.RougeInstance(
+                    prediction="test_response", reference="test"
+                ),
+            ],
+        ),
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesRequest(
+        location=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+        rouge_input=gapic_evaluation_service_types.RougeInput(
+            metric_spec=gapic_evaluation_service_types.RougeSpec(
+                rouge_type="rougeLsum", use_stemmer=True, split_summaries=True
+            ),
+            instances=[
+                gapic_evaluation_service_types.RougeInstance(
+                    prediction="test_response", reference="reference"
+                ),
+            ],
+        ),
+    ),
+)
+_MOCK_ROUGE_RESULT = (
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        rouge_results=gapic_evaluation_service_types.RougeResults(
+            rouge_metric_values=[
+                gapic_evaluation_service_types.RougeMetricValue(score=1.0)
+            ]
+        )
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        rouge_results=gapic_evaluation_service_types.RougeResults(
+            rouge_metric_values=[
+                gapic_evaluation_service_types.RougeMetricValue(score=0.5)
+            ]
+        )
+    ),
+)
 _MOCK_FLUENCY_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         fluency_result=gapic_evaluation_service_types.FluencyResult(
@@ -129,6 +178,7 @@ _MOCK_SUMMARIZATION_QUALITY_RESULT = (
         )
     ),
 )
+
 
 _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
@@ -389,6 +439,59 @@ class TestEvaluation:
         ]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_automatic_metrics_with_custom_metric_spec(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        eval_dataset = pd.DataFrame(
+            {
+                "content": ["test", "content"],
+                "reference": ["test", "reference"],
+            }
+        )
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        test_metrics = [
+            _rouge.Rouge(
+                rouge_type="rougeLsum",
+                use_stemmer=True,
+                split_summaries=True,
+            )
+        ]
+        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            attribute="evaluate_instances",
+            side_effect=_MOCK_ROUGE_RESULT,
+        ) as mock_evaluate_instances:
+            test_result = test_eval_task.evaluate(
+                model=mock_model,
+            )
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["rouge/mean"] == 0.75
+        assert test_result.summary_metrics["rouge/std"] == pytest.approx(0.35, 0.1)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "content",
+                "reference",
+                "response",
+                "rouge",
+            ]
+        )
+        assert list(test_result.metrics_table["rouge"].values) == [1, 0.5]
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests == list(_EXPECTED_ROUGE_REQUESTS)
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_pairwise_metrics_with_model_inference(self, api_transport):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -633,6 +736,42 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate()
 
+    def test_evaluate_duplicate_string_metric(self):
+        metrics = ["summarization_quality", "summarization_quality"]
+        test_eval_task = evaluation.EvalTask(
+            dataset=_TEST_EVAL_DATASET, metrics=metrics
+        )
+        with pytest.raises(
+            ValueError,
+            match="Duplicate string metric name found: 'summarization_quality'",
+        ):
+            test_eval_task.evaluate()
+
+    def test_evaluate_duplicate_string_metric_with_metric_bundle(self):
+        metrics = ["summarization_quality", "summarization_pointwise_reference_free"]
+        test_eval_task = evaluation.EvalTask(
+            dataset=_TEST_EVAL_DATASET, metrics=metrics
+        )
+        with pytest.raises(
+            ValueError,
+            match="Duplicate string metric name found: 'summarization_quality'",
+        ):
+            test_eval_task.evaluate()
+
+    def test_evaluate_duplicate_metric_instances(self):
+        metrics = [
+            _rouge.Rouge(rouge_type="rouge6"),
+            _rouge.Rouge(rouge_type="rougeLsum"),
+        ]
+        test_eval_task = evaluation.EvalTask(
+            dataset=_TEST_EVAL_DATASET, metrics=metrics
+        )
+        with pytest.raises(
+            ValueError,
+            match="Duplicate Metric instances of the same metric name found: 'rouge'",
+        ):
+            test_eval_task.evaluate()
+
     def test_evaluate_invalid_experiment_run_name(self):
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET, metrics=_TEST_METRICS
@@ -694,7 +833,7 @@ class TestEvaluationErrors:
             _pairwise_summarization_quality.PairwiseSummarizationQuality(
                 baseline_model=mock_baseline_model_1,
             ),
-            _pairwise_summarization_quality.PairwiseSummarizationQuality(
+            _pairwise_question_answering_quality.PairwiseQuestionAnsweringQuality(
                 baseline_model=mock_baseline_model_2,
             ),
         ]

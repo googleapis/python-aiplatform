@@ -37,15 +37,14 @@ class EvaluationRunConfig:
 
     Attributes:
       dataset: The dataset to evaluate.
-      metrics: The list of metric names, or metric bundle names, or
-        CustomMetric instances, or PairwiseMetric instances to evaluate.
+      metrics: The list of metric names, or metric bundle names, or Metric instances to evaluate.
       column_map: The dictionary of column name overrides in the dataset.
       client: The asynchronous evaluation client.
       retry_timeout: How long to keep retrying the evaluation requests, in seconds.
     """
 
     dataset: "pd.DataFrame"
-    metrics: List[Union[str, metrics_base.CustomMetric, metrics_base.PairwiseMetric]]
+    metrics: List[Union[str, metrics_base._Metric]]
     column_map: Dict[str, str]
     client: gapic_evaluation_services.EvaluationServiceAsyncClient
     retry_timeout: float

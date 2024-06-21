@@ -254,6 +254,7 @@ WORKER_COUNT = 1
 
 # Feature online store constants
 FEATURE_ONLINE_STORE_ID = "sample_feature_online_store"
+FEATURE_GROUP_ID = "sample_feature_group"
 PROJECT_ALLOWLISTED = ["test-project"]
 
 TABULAR_TARGET_COLUMN = "target_column"

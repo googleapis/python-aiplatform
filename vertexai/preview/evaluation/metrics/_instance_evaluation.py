@@ -32,7 +32,7 @@ from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import (
     _base as metrics_base,
 )
-
+from vertexai.preview.evaluation.metrics import _rouge
 from google.protobuf import json_format
 
 
@@ -41,6 +41,7 @@ _METRIC_NAME_TO_METRIC_SPEC = {
     # Automatic Metrics.
     constants.Metric.EXACT_MATCH: (gapic_eval_service_types.ExactMatchSpec()),
     constants.Metric.BLEU: gapic_eval_service_types.BleuSpec(),
+    constants.Metric.ROUGE: gapic_eval_service_types.RougeSpec(),
     constants.Metric.ROUGE_1: gapic_eval_service_types.RougeSpec(rouge_type="rouge1"),
     constants.Metric.ROUGE_2: gapic_eval_service_types.RougeSpec(rouge_type="rouge2"),
     constants.Metric.ROUGE_L: gapic_eval_service_types.RougeSpec(rouge_type="rougeL"),
@@ -93,7 +94,7 @@ _METRIC_NAME_TO_METRIC_SPEC = {
 
 
 def build_request(
-    metric: Union[str, metrics_base.PairwiseMetric, metrics_base._ModelBasedMetric],
+    metric: Union[str, metrics_base._Metric],
     row_dict: Dict[str, Any],
     evaluation_run_config: eval_base.EvaluationRunConfig,
 ) -> gapic_eval_service_types.EvaluateInstancesRequest:
@@ -130,6 +131,10 @@ def build_request(
     ):
         metric_spec.use_reference = metric.use_reference
         metric_spec.version = metric.version
+    if isinstance(metric, _rouge.Rouge):
+        metric_spec.rouge_type = metric.rouge_type
+        metric_spec.use_stemmer = metric.use_stemmer
+        metric_spec.split_summaries = metric.split_summaries
 
     column_map = evaluation_run_config.column_map
     prediction = row_dict.get(
@@ -179,6 +184,7 @@ def build_request(
             bleu_input=instance,
         )
     if metric_name in (
+        constants.Metric.ROUGE,
         constants.Metric.ROUGE_1,
         constants.Metric.ROUGE_2,
         constants.Metric.ROUGE_L,
