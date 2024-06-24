@@ -115,6 +115,7 @@ _TEST_ONE_PLATFORM_TIME_SERIES_NAME = "{}/timeSeries/{}".format(
     _TEST_ONE_PLATFORM_RUN_NAME, _TEST_TIME_SERIES_NAME
 )
 _TEST_BLOB_STORAGE_FOLDER = "test_folder"
+_DEFAULT_RUN_NAME = "default"
 
 
 def _create_example_graph_bytes(large_attr_size):
@@ -820,6 +821,52 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
         experiment_tracker_mock.set_experiment.assert_called_once()
+
+    @parameterized.parameters(
+        {"run_name_prefix": None},
+        {"run_name_prefix": "run-prefix-"},
+    )
+    @patch.object(
+        uploader_utils.OnePlatformResourceManager,
+        "get_run_resource_name",
+        autospec=True,
+    )
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
+    @patch.object(experiment_resources, "Experiment", autospec=True)
+    def test_default_run_name(
+        self,
+        experiment_resources_mock,
+        experiment_tracker_mock,
+        run_resource_mock,
+        run_name_prefix,
+    ):
+        run_resource_mock.return_value = "."
+        experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_tensorboard.return_value = (
+            _TEST_TENSORBOARD_RESOURCE_NAME
+        )
+        logdir = self.get_temp_dir()
+        with FileWriter(logdir) as writer:
+            writer.add_test_summary("foo")
+
+        uploader = _create_uploader(
+            logdir=logdir,
+            run_name_prefix=run_name_prefix,
+        )
+        uploader.create_experiment()
+        mock_dispatcher = mock.create_autospec(uploader_lib._Dispatcher)
+        uploader._dispatcher = mock_dispatcher
+        mock_logdir_loader = mock.create_autospec(logdir_loader.LogdirLoader)
+        mock.patch.object(uploader, "_logdir_loader", mock_logdir_loader)
+        expected_run_name = _DEFAULT_RUN_NAME
+        if run_name_prefix:
+            expected_run_name = run_name_prefix + _DEFAULT_RUN_NAME
+
+        uploader._upload_once()
+
+        run_to_events = mock_dispatcher.dispatch_requests.call_args[0][0]
+        self.assertIn(expected_run_name, run_to_events)
 
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)

@@ -67,6 +67,7 @@ from tensorboard.util import tb_logging
 from tensorboard.util import tensor_util
 
 _LOGGER = base.Logger(__name__)
+_DEFAULT_RUN_NAME = "default"
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
@@ -381,6 +382,7 @@ class TensorBoardUploader(object):
         run_names = []
         run_tag_name_to_time_series_proto = {}
         for (run_name, events) in run_to_events.items():
+            run_name = run_name if (run_name and run_name != ".") else _DEFAULT_RUN_NAME
             run_names.append(run_name)
             for event in events:
                 _filter_graph_defs(event)
@@ -427,6 +429,11 @@ class TensorBoardUploader(object):
         logger.info("Logdir sync took %.3f seconds", sync_duration_secs)
 
         run_to_events = self._logdir_loader.get_run_events()
+        run_to_events = {
+            k if (k and k != ".") else _DEFAULT_RUN_NAME: v
+            for k, v in run_to_events.items()
+            if v
+        }
         if self._run_name_prefix:
             run_to_events = {
                 self._run_name_prefix + k: v for k, v in run_to_events.items()
