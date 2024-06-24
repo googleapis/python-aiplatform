@@ -22,6 +22,7 @@ from typing import List, Optional, Union
 from google.cloud.aiplatform import base as aiplatform_base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform_v1 import types as gca_types
 from vertexai import generative_models
@@ -32,6 +33,7 @@ from google.rpc import status_pb2
 _LOGGER = aiplatform_base.Logger(__name__)
 
 _GEMINI_MODEL_PATTERN = r"publishers/google/models/gemini"
+_GEMINI_TUNED_MODEL_PATTERN = r"^projects/[0-9]+?/locations/[0-9a-z-]+?/models/[0-9]+?$"
 
 
 class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
@@ -64,8 +66,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         self._gca_resource = self._get_gca_resource(
             resource_name=batch_prediction_job_name
         )
-        # TODO(b/338452508) Support tuned GenAI models.
-        if not re.search(_GEMINI_MODEL_PATTERN, self.model_name):
+        if not self._is_genai_model(self.model_name):
             raise ValueError(
                 f"BatchPredictionJob '{batch_prediction_job_name}' "
                 f"runs with the model '{self.model_name}', "
@@ -117,9 +118,12 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
         Args:
             source_model (Union[str, generative_models.GenerativeModel]):
-                Model name or a GenerativeModel instance for batch prediction.
-                Supported formats: "gemini-1.0-pro", "models/gemini-1.0-pro",
-                and "publishers/google/models/gemini-1.0-pro"
+                A GenAI model name or a tuned model name or a GenerativeModel instance
+                for batch prediction.
+                Supported formats for model name: "gemini-1.0-pro",
+                "models/gemini-1.0-pro", and "publishers/google/models/gemini-1.0-pro"
+                Supported formats for tuned model name: "789" and
+                "projects/123/locations/456/models/789"
             input_dataset (Union[str,List[str]]):
                 GCS URI(-s) or Bigquery URI to your input data to run batch
                 prediction on. Example: "gs://path/to/input/data.jsonl" or
@@ -142,12 +146,13 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             set in vertexai.init().
         """
         # Handle model name
-        # TODO(b/338452508) Support tuned GenAI models.
         model_name = cls._reconcile_model_name(
             source_model._model_name
             if isinstance(source_model, generative_models.GenerativeModel)
             else source_model
         )
+        if not cls._is_genai_model(model_name):
+            raise ValueError(f"Model '{model_name}' is not a Generative AI model.")
 
         # Handle input URI
         gcs_source = None
@@ -244,9 +249,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
     def list(cls, filter=None) -> List["BatchPredictionJob"]:
         """Lists all BatchPredictionJob instances that run with GenAI models."""
         return cls._list(
-            cls_filter=lambda gca_resource: re.search(
-                _GEMINI_MODEL_PATTERN, gca_resource.model
-            ),
+            cls_filter=lambda gca_resource: cls._is_genai_model(gca_resource.model),
             filter=filter,
         )
 
@@ -263,22 +266,43 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
     @classmethod
     def _reconcile_model_name(cls, model_name: str) -> str:
-        """Reconciles model name to a publisher model resource name."""
+        """Reconciles model name to a publisher model resource name or a tuned model resource name."""
         if not model_name:
             raise ValueError("model_name must not be empty")
+
         if "/" not in model_name:
+            # model name (e.g., gemini-1.0-pro)
             model_name = "publishers/google/models/" + model_name
         elif model_name.startswith("models/"):
+            # publisher model name (e.g., models/gemini-1.0-pro)
             model_name = "publishers/google/" + model_name
-        elif not model_name.startswith("publishers/google/models/") and not re.search(
-            r"^projects/.*?/locations/.*?/publishers/google/models/.*$", model_name
+        elif (
+            # publisher model full name
+            not model_name.startswith("publishers/google/models/")
+            # tuned model full resource name
+            and not re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
             raise ValueError(f"Invalid format for model name: {model_name}.")
 
-        if not re.search(_GEMINI_MODEL_PATTERN, model_name):
-            raise ValueError(f"Model '{model_name}' is not a GenAI model.")
-
         return model_name
+
+    @classmethod
+    def _is_genai_model(cls, model_name: str) -> bool:
+        """Validates if a given model_name represents a GenAI model."""
+        if re.search(_GEMINI_MODEL_PATTERN, model_name):
+            # Model is a Gemini model.
+            return True
+
+        if re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name):
+            model = models.Model(model_name)
+            if (
+                model.gca_resource.model_source_info.source_type
+                == gca_types.model.ModelSourceInfo.ModelSourceType.GENIE
+            ):
+                # Model is a tuned Gemini model.
+                return True
+
+        return False
 
     @classmethod
     def _complete_bq_uri(cls, uri: Optional[str] = None):

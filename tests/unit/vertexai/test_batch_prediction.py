@@ -25,11 +25,15 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import base as aiplatform_base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-from google.cloud.aiplatform.compat.services import job_service_client
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+    model_service_client,
+)
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job_compat,
     io as gca_io_compat,
     job_state as gca_job_state_compat,
+    model as gca_model,
 )
 from vertexai.preview import batch_prediction
 from vertexai.generative_models import GenerativeModel
@@ -43,6 +47,7 @@ _TEST_DISPLAY_NAME = "test-display-name"
 
 _TEST_GEMINI_MODEL_NAME = "gemini-1.0-pro"
 _TEST_GEMINI_MODEL_RESOURCE_NAME = f"publishers/google/models/{_TEST_GEMINI_MODEL_NAME}"
+_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME = "projects/123/locations/us-central1/models/456"
 _TEST_PALM_MODEL_NAME = "text-bison"
 _TEST_PALM_MODEL_RESOURCE_NAME = f"publishers/google/models/{_TEST_PALM_MODEL_NAME}"
 
@@ -120,6 +125,48 @@ def get_batch_prediction_job_with_gcs_output_mock():
             ),
         )
         yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_tuned_gemini_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_gemini_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            name=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+            model_source_info=gca_model.ModelSourceInfo(
+                source_type=gca_model.ModelSourceInfo.ModelSourceType.GENIE
+            ),
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_non_gemini_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            name=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+        )
+        yield get_model_mock
 
 
 @pytest.fixture
@@ -205,6 +252,21 @@ class TestBatchPredictionJob:
             name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
         )
 
+    def test_init_batch_prediction_job_with_tuned_gemini_model(
+        self,
+        get_batch_prediction_job_with_tuned_gemini_model_mock,
+        get_gemini_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_tuned_gemini_model_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+        get_gemini_model_mock.assert_called_once_with(
+            name=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+            retry=aiplatform_base._DEFAULT_RETRY,
+        )
+
     @pytest.mark.usefixtures("get_batch_prediction_job_invalid_model_mock")
     def test_init_batch_prediction_job_invalid_model(self):
         with pytest.raises(
@@ -212,6 +274,23 @@ class TestBatchPredictionJob:
             match=(
                 f"BatchPredictionJob '{_TEST_BATCH_PREDICTION_JOB_ID}' "
                 f"runs with the model '{_TEST_PALM_MODEL_RESOURCE_NAME}', "
+                "which is not a GenAI model."
+            ),
+        ):
+            batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+    @pytest.mark.usefixtures(
+        "get_batch_prediction_job_with_tuned_gemini_model_mock",
+        "get_non_gemini_model_mock",
+    )
+    def test_init_batch_prediction_job_with_invalid_tuned_model(
+        self,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                f"BatchPredictionJob '{_TEST_BATCH_PREDICTION_JOB_ID}' "
+                f"runs with the model '{_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME}', "
                 "which is not a GenAI model."
             ),
         ):
@@ -368,13 +447,56 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("create_batch_prediction_job_mock")
+    def test_submit_batch_prediction_job_with_tuned_model(
+        self,
+        get_gemini_model_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+        get_gemini_model_mock.assert_called_once_with(
+            name=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+            retry=aiplatform_base._DEFAULT_RETRY,
+        )
+
     def test_submit_batch_prediction_job_with_invalid_source_model(self):
         with pytest.raises(
             ValueError,
-            match=(f"Model '{_TEST_PALM_MODEL_RESOURCE_NAME}' is not a GenAI model."),
+            match=(
+                f"Model '{_TEST_PALM_MODEL_RESOURCE_NAME}' is not a Generative AI model."
+            ),
         ):
             batch_prediction.BatchPredictionJob.submit(
                 source_model=_TEST_PALM_MODEL_NAME,
+                input_dataset=_TEST_GCS_INPUT_URI,
+            )
+
+    @pytest.mark.usefixtures("get_non_gemini_model_mock")
+    def test_submit_batch_prediction_job_with_non_gemini_tuned_model(self):
+        with pytest.raises(
+            ValueError,
+            match=(
+                f"Model '{_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME}' "
+                "is not a Generative AI model."
+            ),
+        ):
+            batch_prediction.BatchPredictionJob.submit(
+                source_model=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
+                input_dataset=_TEST_GCS_INPUT_URI,
+            )
+
+    def test_submit_batch_prediction_job_with_invalid_model_name(self):
+        invalid_model_name = "invalid/model/name"
+        with pytest.raises(
+            ValueError,
+            match=(f"Invalid format for model name: {invalid_model_name}."),
+        ):
+            batch_prediction.BatchPredictionJob.submit(
+                source_model=invalid_model_name,
                 input_dataset=_TEST_GCS_INPUT_URI,
             )
 
