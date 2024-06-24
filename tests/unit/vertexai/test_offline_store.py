@@ -292,6 +292,7 @@ def expected_sql_for_one_feature(
     SELECT *, ROW_NUMBER() OVER() AS row_num,
     FROM entity_df_without_row_num
   ),
+
   # Features
   fake__my_feature AS (
     SELECT
@@ -299,20 +300,31 @@ def expected_sql_for_one_feature(
       {bq_column_name} AS {feature_name},
       feature_timestamp
     FROM my.table
+  ),
+
+  # Features with PITL
+  fake__my_feature_pitl AS (
+    SELECT
+      entity_df.row_num,
+      fake__my_feature.my_feature,
+    FROM entity_df
+    LEFT JOIN fake__my_feature
+    ON (
+      entity_df.customer_id = fake__my_feature.customer_id AND
+      CAST(fake__my_feature.feature_timestamp AS TIMESTAMP) <= CAST(entity_df.timestamp AS TIMESTAMP)
+    )
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_df.row_num ORDER BY fake__my_feature.feature_timestamp DESC) = 1
   )
+
 
 SELECT
   entity_df.customer_id, entity_df.feature_1,
-  fake__my_feature.my_feature,
+  fake__my_feature_pitl.my_feature,
   entity_df.timestamp
 
 FROM entity_df
-LEFT OUTER JOIN fake__my_feature ON
-  (
-   entity_df.customer_id = fake__my_feature.customer_id AND
-   CAST(fake__my_feature.feature_timestamp AS TIMESTAMP) <= CAST(entity_df.timestamp AS TIMESTAMP)
-  )
-QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_df.row_num ORDER BY timestamp DESC) = 1"""
+JOIN fake__my_feature_pitl USING (row_num)
+"""
 
 
 @pytest.mark.parametrize(
