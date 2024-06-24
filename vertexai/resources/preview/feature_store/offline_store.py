@@ -23,6 +23,7 @@ from vertexai.resources.preview.feature_store import (
     FeatureGroup,
     Feature,
 )
+from google.cloud.aiplatform import initializer
 
 from . import _offline_store_impl as impl
 
@@ -134,9 +135,11 @@ def _feature_to_data_source(
 
 class _DataFrameToBigQueryDataFramesConverter:
     @classmethod
-    def to_bigquery_dataframe(cls, df: "pd.DataFrame") -> "bigframes.pandas.DataFrame":
+    def to_bigquery_dataframe(
+        cls, df: "pd.DataFrame", session: "Optional[bigframes.session.Session]" = None
+    ) -> "bigframes.pandas.DataFrame":
         bigframes = _try_import_bigframes()
-        return bigframes.pandas.DataFrame(data=df)
+        return bigframes.pandas.DataFrame(data=df, session=session)
 
 
 def fetch_historical_feature_values(
@@ -146,15 +149,16 @@ def fetch_historical_feature_values(
     # TODO: Add support for feature_age_threshold
     feature_age_threshold: Optional[datetime.timedelta] = None,
     dry_run: bool = False,
+    session: "Optional[bigframes.session.Session]" = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
 ) -> "Union[bigframes.pandas.DataFrame, None]":
     """Fetch historical data at the timestamp specified for each entity.
 
-    Feature data will be joined by matching their entity_id_column(s) with
-    corresponding columns in the entity data frame.
-
-    If feature names need to be remapped use the `name_remapper` argument.
-
-    ... some explanation/examples here...
+    This runs a Point-In-Time Lookup (PITL) query in BigQuery across all
+    features and returns the historical feature values. Feature data will be
+    joined by matching their entity_id_column(s) with corresponding columns in
+    the entity data frame.
 
     Args:
       entity_df:
@@ -176,6 +180,19 @@ def fetch_historical_feature_values(
       dry_run:
         Build the Point-In-Time Lookup (PITL) query but don't run it. The PITL
         query will be printed to stdout.
+      session:
+        The bigframes session to use for converting `pd.DataFrame` to
+        `bigframes.pandas.DataFrame` (if necessary) and running the
+        Point-In-Time Lookup (PITL) query in Bigframes/BigQuery. If unset, a new
+        session will be created based on `project` and `location`.
+      project:
+        The project to use for feature lookup and running the Point-In-Time
+        Lookup (PITL) query in BigQuery. If unset, the project set in
+        aiplatform.init will be used. Unused if `session` is provided.
+      location:
+        The location to use for feature lookup and running the Point-In-Time
+        Lookup (PITL) query in BigQuery. If unset, the project set in
+        aiplatform.init will be used. Unused if `session` is provided.
 
     Returns:
       A `bigframes.pandas.DataFrame` with the historical feature values. `None`
@@ -183,6 +200,11 @@ def fetch_historical_feature_values(
     """
 
     bigframes = _try_import_bigframes()
+    project = project or initializer.global_config.project
+    location = location or initializer.global_config.location
+    if session is None:
+        session_options = bigframes.BigQueryOptions(project=project, location=location)
+        session = bigframes.connect(session_options)
 
     if feature_age_threshold is not None:
         raise NotImplementedError("feature_age_threshold is not yet supported.")
@@ -193,7 +215,8 @@ def fetch_historical_feature_values(
     # Convert to bigframe if needed.
     if not isinstance(entity_df, bigframes.pandas.DataFrame):
         entity_df = _DataFrameToBigQueryDataFramesConverter.to_bigquery_dataframe(
-            entity_df
+            df=entity_df,
+            session=session,
         )
 
     # Ensure one timestamp column is present in the entity DataFrame.
@@ -247,7 +270,7 @@ def fetch_historical_feature_values(
         print("--- Dry run mode: PITL QUERY END ---")
         return None
 
-    return bigframes.pandas.read_gbq_query(
+    return session.read_gbq_query(
         query,
         index_col=bigframes.enums.DefaultIndexKind.NULL,
     )
