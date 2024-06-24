@@ -2268,7 +2268,7 @@ class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
         ```
         tuning_job = model.tune_model(...)
         ... do some other work
-        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        tuned_model = tuning_job.deploy_tuned_model()  # Blocks until tuning is complete
 
         Args:
             training_data: URI pointing to training data in TSV format.
@@ -2414,83 +2414,7 @@ class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
 
 
 class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
-    def tune_model(
-        self,
-        *,
-        training_data: Optional[str] = None,
-        corpus_data: Optional[str] = None,
-        queries_data: Optional[str] = None,
-        test_data: Optional[str] = None,
-        validation_data: Optional[str] = None,
-        batch_size: Optional[int] = None,
-        train_steps: Optional[int] = None,
-        tuned_model_location: Optional[str] = None,
-        model_display_name: Optional[str] = None,
-        task_type: Optional[str] = None,
-        machine_type: Optional[str] = None,
-        accelerator: Optional[str] = None,
-        accelerator_count: Optional[int] = None,
-    ) -> "_TextEmbeddingModelTuningJob":
-        """Tunes a model based on training data.
-
-        This method launches and returns an asynchronous model tuning job.
-        Usage:
-        ```
-        tuning_job = model.tune_model(...)
-        ... do some other work
-        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
-
-        Args:
-            training_data: URI pointing to training data in TSV format.
-            corpus_data: URI pointing to data in JSON lines format.
-            queries_data: URI pointing to data in JSON lines format.
-            test_data: URI pointing to data in TSV format.
-            validation_data: URI pointing to data in TSV format.
-            batch_size: The training batch size.
-            train_steps: The number of steps to perform model tuning. Must
-                be greater than 30.
-            tuned_model_location: GCP location where the tuned model should be deployed.
-            model_display_name: Custom display name for the tuned model.
-            task_type: The task type expected to be used during inference.
-                Valid values are `DEFAULT`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`,
-                `SEMANTIC_SIMILARITY`, `CLASSIFICATION`, `CLUSTERING`,
-                `FACT_VERIFICATION`, and `QUESTION_ANSWERING`.
-            machine_type: The machine type to use for training. For information
-                about selecting the machine type that matches the accelerator
-                type and count you have selected, see
-                https://cloud.google.com/compute/docs/gpus.
-            accelerator: The accelerator type to use for tuning, for example
-                `NVIDIA_TESLA_V100`. For possible values, see
-                https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-embeddings#using-accelerators.
-            accelerator_count: The number of accelerators to use when training.
-                Using a greater number of accelerators may make training faster,
-                but has no effect on quality.
-        Returns:
-            A `LanguageModelTuningJob` object that represents the tuning job.
-            Calling `job.result()` blocks until the tuning is complete and
-            returns a `LanguageModel` object.
-
-        Raises:
-            ValueError: If the provided parameter combinations or values are not
-                supported.
-            RuntimeError: If the model does not support tuning
-        """
-
-        return super().tune_model(
-            training_data=training_data,
-            corpus_data=corpus_data,
-            queries_data=queries_data,
-            test_data=test_data,
-            validation_data=validation_data,
-            task_type=task_type,
-            batch_size=batch_size,
-            train_steps=train_steps,
-            tuned_model_location=tuned_model_location,
-            model_display_name=model_display_name,
-            machine_type=machine_type,
-            accelerator=accelerator,
-            accelerator_count=accelerator_count,
-        )
+    pass
 
 
 class TextEmbeddingModel(_TextEmbeddingModel, _TunableTextEmbeddingModelMixin):

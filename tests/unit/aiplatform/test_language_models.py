@@ -2290,11 +2290,10 @@ class TestLanguageModels:
         indirect=True,
     )
     @pytest.mark.parametrize(
-        "base_model_version_id,use_preview_module,tune_args,expected_pipeline_args",
+        "base_model_version_id,tune_args,expected_pipeline_args",
         [  # Do not pass any optional parameters.
             (
                 "textembedding-gecko@003",
-                False,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2311,7 +2310,6 @@ class TestLanguageModels:
             # Pass all optional parameters.
             (
                 "text-multilingual-embedding-002",
-                True,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2364,7 +2362,6 @@ class TestLanguageModels:
         tune_args,
         expected_pipeline_args,
         base_model_version_id,
-        use_preview_module,
     ):
         """Tests tuning the text embedding model."""
         aiplatform.init(
@@ -2379,10 +2376,7 @@ class TestLanguageModels:
                 _TEXT_GECKO_PUBLISHER_MODEL_DICT
             ),
         ):
-            language_models_module = (
-                preview_language_models if use_preview_module else language_models
-            )
-            model = language_models_module.TextEmbeddingModel.from_pretrained(
+            model = language_models.TextEmbeddingModel.from_pretrained(
                 base_model_version_id
             )
             tuning_result = model.tune_model(**tune_args)
