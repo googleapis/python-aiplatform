@@ -274,6 +274,7 @@ FEATURE_VIEW_BQ_INDEX_CONFIG = (
     )
 )
 FEATURE_GROUP_ID = "sample_feature_group"
+REGISTRY_FEATURE_ID = "sample_feature"
 PROJECT_ALLOWLISTED = ["test-project"]
 
 TABULAR_TARGET_COLUMN = "target_column"

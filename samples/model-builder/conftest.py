@@ -732,6 +732,21 @@ def mock_create_feature_group(mock_feature_group):
 
 
 @pytest.fixture
+def mock_registry_feature():
+    mock = MagicMock(preview_resources.Feature)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_registry_feature(mock_feature_group, mock_registry_feature):
+    with patch.object(
+        mock_feature_group, "create_feature"
+    ) as mock_create_registry_feature:
+        mock_create_registry_feature.return_value = mock_registry_feature
+        yield mock_create_registry_feature
+
+
+@pytest.fixture
 def mock_create_optimized_private_online_store(mock_feature_online_store):
     with patch.object(
         preview_resources.FeatureOnlineStore, "create_optimized_store"
