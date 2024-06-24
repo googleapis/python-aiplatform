@@ -264,6 +264,15 @@ FEATURE_VIEW_BQ_SOURCE = (
         entity_id_columns=FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS,
     )
 )
+FEATURE_VIEW_BQ_EMBEDDING_COLUMN = "embedding"
+FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS = 10
+FEATURE_VIEW_BQ_INDEX_CONFIG = (
+    vertexai.resources.preview.feature_store.utils.IndexConfig(
+        embedding_column=FEATURE_VIEW_BQ_EMBEDDING_COLUMN,
+        dimensions=FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS,
+        algorithm_config=vertexai.resources.preview.feature_store.utils.TreeAhConfig(),
+    )
+)
 FEATURE_GROUP_ID = "sample_feature_group"
 PROJECT_ALLOWLISTED = ["test-project"]
 
