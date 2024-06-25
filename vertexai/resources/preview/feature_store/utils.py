@@ -170,5 +170,7 @@ class IndexConfig:
 class FeatureGroupBigQuerySource:
     """BigQuery source for the Feature Group."""
 
+    # The URI for the BigQuery table/view.
     uri: str
-    entity_id_columns: List[str]
+    # The entity ID columns. If not specified, defaults to ['entity_id'].
+    entity_id_columns: Optional[List[str]] = None

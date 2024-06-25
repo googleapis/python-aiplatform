@@ -92,7 +92,6 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         cls,
         name: str,
         source: FeatureGroupBigQuerySource = None,
-        entity_id_columns: Optional[List[str]] = None,
         labels: Optional[Dict[str, str]] = None,
         description: Optional[str] = None,
         project: Optional[str] = None,
@@ -107,9 +106,6 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         Args:
             name: The name of the feature group.
             source: The BigQuery source of the feature group.
-            entity_id_columns:
-                The entity ID columns. If not specified, defaults to
-                ['entity_id'].
             labels:
                 The labels with user-defined metadata to organize your
                 FeatureGroup.
