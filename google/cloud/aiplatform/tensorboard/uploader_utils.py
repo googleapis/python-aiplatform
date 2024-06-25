@@ -41,6 +41,8 @@ import grpc
 from tensorboard.util import tb_logging
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
+DEFAULT_RUN_NAME = "default"
+DEFAULT_PROFILE_RUN_NAME = "profile"
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)

@@ -153,7 +153,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         Returns:
             Full path for run name.
         """
-        if run_name is None:
+        if run_name is None or run_name == uploader_utils.DEFAULT_PROFILE_RUN_NAME:
             return os.path.join(self._logdir, self.PROFILE_PATH)
         return os.path.join(self._logdir, run_name, self.PROFILE_PATH)
 
@@ -176,10 +176,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
                 self._profile_dir(run_name)
             )
 
-        tensorboard_run_name = run_name if run_name else "profile"
-        tb_run = self._one_platform_resource_manager.get_run_resource_name(
-            tensorboard_run_name
-        )
+        tb_run = self._one_platform_resource_manager.get_run_resource_name(run_name)
 
         if run_name not in self._run_to_file_request_sender:
             self._run_to_file_request_sender[
