@@ -313,7 +313,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         chat = model.start_chat()
         response1 = chat.send_message(
-            "I really like fantasy books.",
+            "I really like fantasy movies.",
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response1.text
