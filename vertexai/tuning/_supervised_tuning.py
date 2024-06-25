@@ -15,6 +15,7 @@
 
 from typing import Dict, Literal, Optional, Union
 
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1beta1.types import (
     tuning_job as gca_tuning_job_types,
 )
@@ -87,12 +88,17 @@ def train(
     if isinstance(source_model, generative_models.GenerativeModel):
         source_model = source_model._prediction_resource_name.rpartition("/")[-1]
 
-    return SupervisedTuningJob._create(  # pylint: disable=protected-access
-        base_model=source_model,
-        tuning_spec=supervised_tuning_spec,
-        tuned_model_display_name=tuned_model_display_name,
-        labels=labels,
+    supervised_tuning_job = (
+        SupervisedTuningJob._create(  # pylint: disable=protected-access
+            base_model=source_model,
+            tuning_spec=supervised_tuning_spec,
+            tuned_model_display_name=tuned_model_display_name,
+            labels=labels,
+        )
     )
+    _ipython_utils.display_model_tuning_button(supervised_tuning_job)
+
+    return supervised_tuning_job
 
 
 class SupervisedTuningJob(_tuning.TuningJob):

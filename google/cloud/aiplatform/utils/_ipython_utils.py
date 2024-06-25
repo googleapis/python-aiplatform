@@ -26,6 +26,7 @@ if typing.TYPE_CHECKING:
     from google.cloud.aiplatform.metadata import experiment_resources
     from google.cloud.aiplatform.metadata import experiment_run_resource
     from google.cloud.aiplatform import model_evaluation
+    from vertexai.preview.tuning import sft
 
 _LOGGER = base.Logger(__name__)
 
@@ -228,3 +229,26 @@ def display_model_evaluation_button(
         + f"{evaluation_id}?project={project}"
     )
     display_link("View Model Evaluation", uri, "lightbulb")
+
+
+def display_model_tuning_button(tuning_job: "sft.SupervisedTuningJob") -> None:
+    """Function to generate a link bound to the Vertex model tuning job."""
+    if not is_ipython_available():
+        return
+
+    try:
+        resource_name = tuning_job.resource_name
+        fields = tuning_job._parse_resource_name(resource_name)
+        project = fields["project"]
+        location = fields["location"]
+        tuning_job_id = fields["tuning_job"]
+    except AttributeError:
+        _LOGGER.warning("Unable to parse tuning job metadata")
+        return
+
+    uri = (
+        "https://console.cloud.google.com/vertex-ai/generative/language/"
+        + f"locations/{location}/tuning/tuningJob/{tuning_job_id}"
+        + f"?project={project}"
+    )
+    display_link("View Tuning Job", uri, "tune")
