@@ -14,14 +14,29 @@
 #
 """The vertexai module."""
 
+import importlib
+
 from google.cloud.aiplatform import version as aiplatform_version
 
 __version__ = aiplatform_version.__version__
 
 from google.cloud.aiplatform import init
-from vertexai import preview
 
 __all__ = [
     "init",
     "preview",
 ]
+
+
+def __getattr__(name):
+    # Lazy importing the preview submodule
+    # See https://peps.python.org/pep-0562/
+    if name == "preview":
+        # We need to import carefully to avoid `RecursionError`.
+        # This won't work since it causes `RecursionError`:
+        # `from vertexai import preview`
+        # This won't work due to Copybara lacking a transform:
+        # `import google.cloud.aiplatform.vertexai.preview as vertexai_preview`
+        return importlib.import_module(".preview", __name__)
+
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
