@@ -274,7 +274,16 @@ FEATURE_VIEW_BQ_INDEX_CONFIG = (
     )
 )
 FEATURE_GROUP_ID = "sample_feature_group"
+FEATURE_GROUP_BQ_URI = "bq://my_proj.my_dataset.my_table"
+FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS = ["id"]
+FEATURE_GROUP_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureGroupBigQuerySource(
+        uri=FEATURE_GROUP_BQ_URI,
+        entity_id_columns=FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS,
+    )
+)
 REGISTRY_FEATURE_ID = "sample_feature"
+VERSION_COLUMN_NAME = "feature_column"
 PROJECT_ALLOWLISTED = ["test-project"]
 
 TABULAR_TARGET_COLUMN = "target_column"

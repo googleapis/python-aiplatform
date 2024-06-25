@@ -732,18 +732,12 @@ def mock_create_feature_group(mock_feature_group):
 
 
 @pytest.fixture
-def mock_registry_feature():
-    mock = MagicMock(preview_resources.Feature)
-    yield mock
-
-
-@pytest.fixture
-def mock_create_registry_feature(mock_feature_group, mock_registry_feature):
+def mock_get_feature_group(mock_feature_group):
     with patch.object(
-        mock_feature_group, "create_feature"
-    ) as mock_create_registry_feature:
-        mock_create_registry_feature.return_value = mock_registry_feature
-        yield mock_create_registry_feature
+        preview_resources.FeatureGroup, "__new__"
+    ) as mock_get_feature_group:
+        mock_get_feature_group.return_value = mock_feature_group
+        yield mock_get_feature_group
 
 
 @pytest.fixture

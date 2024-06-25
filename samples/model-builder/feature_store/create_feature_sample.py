@@ -21,14 +21,15 @@ from vertexai.resources.preview import feature_store
 def create_feature_sample(
     project: str,
     location: str,
-    feature_group_id: str,
+    existing_feature_group_id: str,
     feature_id: str,
+    version_column_name: str,
 ):
     aiplatform.init(project=project, location=location)
-    feature_group = feature_store.FeatureGroup.create(
-        feature_group_id
+    feature_group = feature_store.FeatureGroup(existing_feature_group_id)
+    feature = feature_group.create_feature(
+        name=feature_id, version_column_name=version_column_name
     )
-    feature = feature_group.create_feature(feature_id)
     return feature
 
 

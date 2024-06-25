@@ -18,23 +18,23 @@ import test_constants as constants
 
 
 def test_create_feature_sample(
-    mock_sdk_init, mock_create_registry_feature, mock_create_feature_group
+    mock_sdk_init, mock_get_feature_group
 ):
     create_feature_sample.create_feature_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        feature_group_id=constants.FEATURE_GROUP_ID,
+        existing_feature_group_id=constants.FEATURE_GROUP_ID,
         feature_id=constants.REGISTRY_FEATURE_ID,
+        version_column_name=constants.VERSION_COLUMN_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_create_feature_group.assert_called_once_with(
-        constants.FEATURE_GROUP_ID
-    )
+    mock_get_feature_group.assert_called_once()
 
-    mock_create_registry_feature.assert_called_once_with(
-        constants.REGISTRY_FEATURE_ID
+    mock_get_feature_group.return_value.create_feature.assert_called_once_with(
+        name=constants.REGISTRY_FEATURE_ID,
+        version_column_name=constants.VERSION_COLUMN_NAME
     )
