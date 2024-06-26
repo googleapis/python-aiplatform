@@ -170,6 +170,7 @@ langchain_testing_extra_require = list(
 )
 
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
+tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
 full_extra_require = list(
     set(
@@ -193,7 +194,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + tokenization_extra_require
+    + tokenization_testing_extra_require
     + [
         "bigframes; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
