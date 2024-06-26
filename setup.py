@@ -169,6 +169,8 @@ langchain_testing_extra_require = list(
     )
 )
 
+tokenization_extra_require = ["sentencepiece >= 0.2.0"]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -191,6 +193,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
+    + tokenization_extra_require
     + [
         "bigframes; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
@@ -273,6 +276,7 @@ setuptools.setup(
         "rapid_evaluation": rapid_evaluation_extra_require,
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
+        "tokenization": tokenization_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[
