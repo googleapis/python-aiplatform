@@ -140,7 +140,7 @@ def _validate_generate_content_parameters(
     safety_settings: Optional[SafetySettingsType] = None,
     tools: Optional[List["Tool"]] = None,
     tool_config: Optional["ToolConfig"] = None,
-    system_instruction: Optional[PartsType] = None,
+    system_instruction: Optional[Union["Content", PartsType]] = None,
     cached_content: Optional["caching.CachedContent"] = None,
 ) -> None:
     """Validates the parameters for a generate_content call."""
@@ -304,7 +304,7 @@ class _GenerativeModel:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
-        system_instruction: Optional[PartsType] = None,
+        system_instruction: Optional[Union["Content", PartsType]] = None,
     ):
         r"""Initializes GenerativeModel.
 
@@ -393,7 +393,7 @@ class _GenerativeModel:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
-        system_instruction: Optional[PartsType] = None,
+        system_instruction: Optional[Union["Content", PartsType]] = None,
     ) -> gapic_prediction_service_types.GenerateContentRequest:
         """Prepares a GAPIC GenerateContentRequest."""
         if not contents:
@@ -888,7 +888,7 @@ class ChatSession:
 
     def send_message(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -899,8 +899,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
@@ -932,7 +932,7 @@ class ChatSession:
 
     def send_message_async(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -946,8 +946,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
@@ -979,7 +979,7 @@ class ChatSession:
 
     def _send_message(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -989,8 +989,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
@@ -1055,7 +1055,7 @@ class ChatSession:
 
     async def _send_message_async(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -1065,8 +1065,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
@@ -1111,7 +1111,7 @@ class ChatSession:
 
     def _send_message_streaming(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -1121,8 +1121,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
@@ -1177,7 +1177,7 @@ class ChatSession:
 
     async def _send_message_streaming_async(
         self,
-        content: PartsType,
+        content: Union["Content", PartsType],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
@@ -1187,8 +1187,8 @@ class ChatSession:
 
         Args:
             content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
+                Supports a Content object or a value that can be converted to a Part
+                or a list of such values. Supports:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
             generation_config: Parameters for the generation.
