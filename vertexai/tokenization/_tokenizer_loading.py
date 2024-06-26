@@ -22,7 +22,6 @@ import dataclasses
 
 import sentencepiece as spm
 import functools
-import logging
 
 
 @dataclasses.dataclass(frozen=True)
@@ -30,8 +29,6 @@ class _TokenizerConfig:
     model_url: str
     model_hash: str
 
-
-_LOGGER = logging.getLogger(__name__)
 
 _GEMMA_TOKENIZER = "google/gemma"
 
@@ -162,23 +159,12 @@ def _load_model_proto(tokenizer_name: str) -> bytes:
 
 def get_tokenizer_name(model_name: str):
     """Gets the tokenizer name for the given model name."""
-
     if model_name in _GEMINI_MODEL_NAMES:
-        _LOGGER.warning(
-            f"[WARNING] {model_name} is the auto update version of Gemini model."
-            " https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#auto-updated-version.\n"  # pylint: disable=line-too-long
-            "The local tokenizer may produce outdated tokenization results"
-            " when the server's underlying stable version changes but the local tokenizer hasn't synced with it.\n"
-            "To ensure up-to-date tokenization results, please use a stable model version.\n"
-            f"Supported stable versions are {', '.join(_GEMINI_STABLE_MODEL_NAMES)}.\n"
-            f"You can upgrade the SDK to get the latest model versions supported in local tokenizer.\n"
-        )
         return _GEMMA_TOKENIZER
     if model_name in _GEMINI_STABLE_MODEL_NAMES:
         return _GEMMA_TOKENIZER
     raise ValueError(
         f"Model {model_name} is not supported. Supported models: {', '.join(_GEMINI_STABLE_MODEL_NAMES)}.\n"  # pylint: disable=line-too-long
-        "You can upgrade the SDK to get latest model versions supported in local tokenizer."
     )
 
 
