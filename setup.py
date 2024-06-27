@@ -48,7 +48,7 @@ packages += [
 
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
-    "werkzeug >= 2.0.0, <2.1.0dev",
+    "werkzeug >= 2.2.3, <2.1.0dev",
     "tensorflow >=2.4.0, <3.0.0dev",
 ]
 tensorboard_extra_require = [
