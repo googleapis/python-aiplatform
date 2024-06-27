@@ -102,4 +102,6 @@ def train(
 
 
 class SupervisedTuningJob(_tuning.TuningJob):
-    pass
+    def __init__(self, tuning_job_name: str):
+        super().__init__(tuning_job_name=tuning_job_name)
+        _ipython_utils.display_model_tuning_button(self)
