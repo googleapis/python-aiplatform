@@ -17,13 +17,14 @@
 
 import abc
 from dataclasses import dataclass
+from dataclasses import field
 import enum
-import proto
-from typing_extensions import override
 from typing import Any, Dict, List, Optional
 from google.cloud.aiplatform.compat.types import (
     feature_online_store_service as fos_service,
 )
+import proto
+from typing_extensions import override
 
 
 def get_feature_online_store_name(online_store_name: str) -> str:
@@ -31,7 +32,7 @@ def get_feature_online_store_name(online_store_name: str) -> str:
 
     Args:
         online_store_name: Full resource name is projects/project_number/
-        locations/us-central1/featureOnlineStores/fos_name/featureViews/fv_name
+          locations/us-central1/featureOnlineStores/fos_name/featureViews/fv_name
 
     Returns:
         str: feature online store name.
@@ -105,11 +106,12 @@ class AlgorithmConfig(abc.ABC):
 @dataclass
 class TreeAhConfig(AlgorithmConfig):
     """Configuration options for using the tree-AH algorithm (Shallow tree + Asymmetric Hashing).
+
     Please refer to this paper for more details: https://arxiv.org/abs/1908.10396
 
     Args:
-        leaf_node_embedding_count (int):
-            Optional. Number of embeddings on each leaf node. The default value is 1000 if not set.
+        leaf_node_embedding_count (int): Optional. Number of embeddings on each
+          leaf node. The default value is 1000 if not set.
     """
 
     leaf_node_embedding_count: Optional[int] = None
@@ -122,8 +124,9 @@ class TreeAhConfig(AlgorithmConfig):
 @dataclass
 class BruteForceConfig(AlgorithmConfig):
     """Configuration options for using brute force search.
-    It simply implements the standard linear search in the database for
-    each query.
+
+    It simply implements the standard linear search in the database for each
+    query.
     """
 
     @override
@@ -137,7 +140,7 @@ class IndexConfig:
 
     embedding_column: str
     dimensions: int
-    algorithm_config: AlgorithmConfig
+    algorithm_config: AlgorithmConfig = field(default_factory=TreeAhConfig())
     filter_columns: Optional[List[str]] = None
     crowding_column: Optional[str] = None
     distance_measure_type: Optional[DistanceMeasureType] = None
