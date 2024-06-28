@@ -338,6 +338,11 @@
               "methods": [
                 "query_deployed_models"
               ]
+            },
+            "UpdateDeploymentResourcePool": {
+              "methods": [
+                "update_deployment_resource_pool"
+              ]
             }
           }
         },
@@ -368,6 +373,11 @@
               "methods": [
                 "query_deployed_models"
               ]
+            },
+            "UpdateDeploymentResourcePool": {
+              "methods": [
+                "update_deployment_resource_pool"
+              ]
             }
           }
         },
@@ -397,6 +407,11 @@
             "QueryDeployedModels": {
               "methods": [
                 "query_deployed_models"
+              ]
+            },
+            "UpdateDeploymentResourcePool": {
+              "methods": [
+                "update_deployment_resource_pool"
               ]
             }
           }

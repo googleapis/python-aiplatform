@@ -170,6 +170,7 @@ from .types.deployment_resource_pool_service import QueryDeployedModelsResponse
 from .types.deployment_resource_pool_service import (
     UpdateDeploymentResourcePoolOperationMetadata,
 )
+from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
@@ -1488,6 +1489,7 @@ __all__ = (
     "UpdateDatasetRequest",
     "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
+    "UpdateDeploymentResourcePoolRequest",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
