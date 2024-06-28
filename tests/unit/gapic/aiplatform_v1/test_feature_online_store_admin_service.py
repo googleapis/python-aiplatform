@@ -71,6 +71,7 @@ from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -7247,7 +7248,15 @@ def test_create_feature_online_store_rest(request_type):
         "labels": {},
         "state": 1,
         "dedicated_serving_endpoint": {
-            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value",
+            "private_service_connect_config": {
+                "enable_private_service_connect": True,
+                "project_allowlist": [
+                    "project_allowlist_value1",
+                    "project_allowlist_value2",
+                ],
+            },
+            "service_attachment": "service_attachment_value",
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
@@ -8431,7 +8440,15 @@ def test_update_feature_online_store_rest(request_type):
         "labels": {},
         "state": 1,
         "dedicated_serving_endpoint": {
-            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value",
+            "private_service_connect_config": {
+                "enable_private_service_connect": True,
+                "project_allowlist": [
+                    "project_allowlist_value1",
+                    "project_allowlist_value2",
+                ],
+            },
+            "service_attachment": "service_attachment_value",
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }

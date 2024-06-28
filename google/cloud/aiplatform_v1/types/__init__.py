@@ -131,6 +131,7 @@ from .deployment_resource_pool_service import (
     QueryDeployedModelsRequest,
     QueryDeployedModelsResponse,
     UpdateDeploymentResourcePoolOperationMetadata,
+    UpdateDeploymentResourcePoolRequest,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -1005,6 +1006,7 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
+    "UpdateDeploymentResourcePoolRequest",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",

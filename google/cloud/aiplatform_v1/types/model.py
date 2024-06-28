@@ -316,6 +316,10 @@ class Model(proto.Message):
             base model source. Currently it only supports
             specifing the Model Garden models and Genie
             models.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -662,6 +666,14 @@ class Model(proto.Message):
         proto.MESSAGE,
         number=50,
         message=BaseModelSource,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=51,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=52,
     )
 
 
