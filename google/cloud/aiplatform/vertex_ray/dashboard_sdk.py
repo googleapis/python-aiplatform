@@ -46,33 +46,55 @@ def get_job_submission_client_cluster_info(
     Raises:
         RuntimeError if head_address is None.
     """
+    # If passing the dashboard uri, programmatically get headers
     if _validation_utils.valid_dashboard_address(address):
-        dashboard_address = address
-    else:
-        address = _validation_utils.maybe_reconstruct_resource_name(address)
-        _validation_utils.valid_resource_name(address)
+        bearer_token = _validation_utils.get_bearer_token()
+        if kwargs.get("headers", None) is None:
+            kwargs["headers"] = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {}".format(bearer_token),
+            }
+        return oss_dashboard_sdk.get_job_submission_client_cluster_info(
+            address=address,
+            _use_tls=True,
+            *args,
+            **kwargs,
+        )
+    address = _validation_utils.maybe_reconstruct_resource_name(address)
+    _validation_utils.valid_resource_name(address)
 
-        resource_name = address
-        response = _gapic_utils.get_persistent_resource(resource_name)
-
+    resource_name = address
+    response = _gapic_utils.get_persistent_resource(resource_name)
+    head_address = response.resource_runtime.access_uris.get(
+        "RAY_HEAD_NODE_INTERNAL_IP", None
+    )
+    if head_address is None:
+        # No peering. Try to get the dashboard address.
         dashboard_address = response.resource_runtime.access_uris.get(
             "RAY_DASHBOARD_URI", None
         )
-
         if dashboard_address is None:
             raise RuntimeError(
                 "[Ray on Vertex AI]: Unable to obtain a response from the backend."
             )
-    # If passing the dashboard uri, programmatically get headers
-    bearer_token = _validation_utils.get_bearer_token()
-    if kwargs.get("headers", None) is None:
-        kwargs["headers"] = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {}".format(bearer_token),
-        }
+        if _validation_utils.valid_dashboard_address(dashboard_address):
+            bearer_token = _validation_utils.get_bearer_token()
+            if kwargs.get("headers", None) is None:
+                kwargs["headers"] = {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {}".format(bearer_token),
+                }
+            return oss_dashboard_sdk.get_job_submission_client_cluster_info(
+                address=dashboard_address,
+                _use_tls=True,
+                *args,
+                **kwargs,
+            )
+    # Assume that head node internal IP in a form of xxx.xxx.xxx.xxx:10001.
+    # Ray-on-Vertex cluster serves the Dashboard at port 8888 instead of
+    # the default 8251.
+    head_address = ":".join([head_address.split(":")[0], "8888"])
+
     return oss_dashboard_sdk.get_job_submission_client_cluster_info(
-        address=dashboard_address,
-        _use_tls=True,
-        *args,
-        **kwargs,
+        address=head_address, *args, **kwargs
     )
