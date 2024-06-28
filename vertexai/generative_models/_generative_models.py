@@ -737,7 +737,11 @@ class _GenerativeModel:
         return async_generator()
 
     def count_tokens(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        system_instruction: Optional[PartsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens.
 
@@ -749,6 +753,11 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            system_instruction: System instruction to send to the model. The
+                expected format is a list of parts. Each part must have only text.
+                Each part will be added as a new paragraph in the system instruction.
+            tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Returns:
             A CountTokensResponse object that has the following attributes:
@@ -759,12 +768,21 @@ class _GenerativeModel:
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=self._prepare_request(
+                    contents=contents,
+                    system_instruction=system_instruction,
+                    tools=tools,
+                    tool_config=tool_config,
+                ).contents,
             )
         )
 
     async def count_tokens_async(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        system_instruction: Optional[PartsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens asynchronously.
 
@@ -776,6 +794,11 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            system_instruction: System instruction to send to the model. The
+                expected format is a list of parts. Each part must have only text.
+                Each part will be added as a new paragraph in the system instruction.
+            tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Returns:
             And awaitable for a CountTokensResponse object that has the following attributes:
@@ -786,7 +809,12 @@ class _GenerativeModel:
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=self._prepare_request(
+                    contents=contents,
+                    system_instruction=system_instruction,
+                    tools=tools,
+                    tool_config=tool_config,
+                ).contents,
             )
         )
 
