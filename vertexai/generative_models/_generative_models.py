@@ -647,6 +647,7 @@ class _GenerativeModel:
             tools=tools,
             tool_config=tool_config,
         )
+        print("calling self._prediction_async_client.generate_content")
         gapic_response = await self._prediction_async_client.generate_content(
             request=request
         )
@@ -970,6 +971,7 @@ class ChatSession:
                 tools=tools,
             )
         else:
+            print("call self._send_message_async")
             return self._send_message_async(
                 content=content,
                 generation_config=generation_config,
@@ -1087,6 +1089,7 @@ class ChatSession:
         request_history = list(self._history)
         request_history.append(request_message)
 
+        print("call self._model._generate_content_async")
         response = await self._model._generate_content_async(
             contents=request_history,
             generation_config=generation_config,
