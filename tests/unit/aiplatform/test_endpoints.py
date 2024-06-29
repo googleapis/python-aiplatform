@@ -2114,6 +2114,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+            retry=base._DEFAULT_RETRY,
         )
 
     @pytest.mark.asyncio
@@ -2208,6 +2209,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=10.0,
+            retry=base._DEFAULT_RETRY,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -2224,6 +2226,7 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+            retry=base._DEFAULT_RETRY,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
