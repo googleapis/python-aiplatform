@@ -52,7 +52,7 @@ profiler_extra_require = [
     "tensorflow >=2.4.0, <3.0.0dev",
 ]
 tensorboard_extra_require = [
-    "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"
+    "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'; numpy < 2.0.0",
 ] + profiler_extra_require
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
