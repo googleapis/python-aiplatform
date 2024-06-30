@@ -79,7 +79,7 @@ print(model.generate_content("Why is sky blue?"))
 #### Function calling
 
 ```
-# First, create tools that the model is can use to answer your questions.
+# First, create tools that the model can use to answer your questions.
 # Describe a function by specifying it's schema (JsonSchema format)
 get_current_weather_func = generative_models.FunctionDeclaration(
     name="get_current_weather",
