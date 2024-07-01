@@ -80,6 +80,9 @@ if DEFAULT_VERSION == V1BETA1:
     types.dataset_service = types.dataset_service_v1beta1
     types.deployed_model_ref = types.deployed_model_ref_v1beta1
     types.deployment_resource_pool = types.deployment_resource_pool_v1beta1
+    types.deployment_resource_pool_service = (
+        types.deployment_resource_pool_service_v1beta1
+    )
     types.encryption_spec = types.encryption_spec_v1beta1
     types.endpoint = types.endpoint_v1beta1
     types.endpoint_service = types.endpoint_service_v1beta1
@@ -159,6 +162,9 @@ if DEFAULT_VERSION == V1BETA1:
 if DEFAULT_VERSION == V1:
 
     services.dataset_service_client = services.dataset_service_client_v1
+    services.deployment_resource_pool_service_client = (
+        services.deployment_resource_pool_service_client_v1
+    )
     services.endpoint_service_client = services.endpoint_service_client_v1
     services.feature_online_store_admin_service_client = (
         services.feature_online_store_admin_service_client_v1
@@ -205,6 +211,8 @@ if DEFAULT_VERSION == V1:
     types.dataset = types.dataset_v1
     types.dataset_service = types.dataset_service_v1
     types.deployed_model_ref = types.deployed_model_ref_v1
+    types.deployment_resource_pool = types.deployment_resource_pool_v1
+    types.deployment_resource_pool_service = types.deployment_resource_pool_service_v1
     types.encryption_spec = types.encryption_spec_v1
     types.endpoint = types.endpoint_v1
     types.endpoint_service = types.endpoint_service_v1
