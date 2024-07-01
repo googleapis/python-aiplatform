@@ -116,6 +116,9 @@ from google.cloud.aiplatform_v1beta1.services.vizier_service import (
 from google.cloud.aiplatform_v1.services.dataset_service import (
     client as dataset_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
+    client as deployment_resource_pool_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.endpoint_service import (
     client as endpoint_service_client_v1,
 )
@@ -180,6 +183,7 @@ from google.cloud.aiplatform_v1.services.vizier_service import (
 __all__ = (
     # v1
     dataset_service_client_v1,
+    deployment_resource_pool_service_client_v1,
     endpoint_service_client_v1,
     feature_online_store_service_client_v1,
     feature_online_store_admin_service_client_v1,

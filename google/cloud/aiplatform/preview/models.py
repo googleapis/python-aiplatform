@@ -23,6 +23,7 @@ import proto
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
@@ -115,7 +116,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
         )
-
+        self.api_client = self.api_client.select_version(compat.V1BETA1)
         self._gca_resource = self._get_gca_resource(
             resource_name=deployment_resource_pool_name
         )
@@ -979,7 +980,6 @@ class Endpoint(aiplatform.Endpoint):
             enable_container_logging=not disable_container_logging,
         )
 
-        _LOGGER.info(model.supported_deployment_resources_types)
         supports_shared_resources = (
             gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
             in model.supported_deployment_resources_types

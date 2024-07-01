@@ -30,6 +30,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.services import (
+    deployment_resource_pool_service_client_v1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client,
     endpoint_service_client_v1beta1,
@@ -40,6 +41,7 @@ from google.cloud.aiplatform.compat.services import (
     prediction_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.types import (
+    deployment_resource_pool_v1 as gca_deployment_resource_pool_v1,
     deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
     encryption_spec as gca_encryption_spec,
     endpoint_service_v1beta1 as gca_endpoint_service_v1beta1,
@@ -670,7 +672,7 @@ def predict_async_client_explain_mock():
 
 
 @pytest.fixture
-def get_drp_mock():
+def preview_get_drp_mock():
     with mock.patch.object(
         deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
         "get_deployment_resource_pool",
@@ -699,6 +701,43 @@ def get_drp_mock():
 
         get_drp_mock.return_value = (
             gca_deployment_resource_pool_v1beta1.DeploymentResourcePool(
+                name=_TEST_DRP_NAME,
+                dedicated_resources=dedicated_resources,
+            )
+        )
+        yield get_drp_mock
+
+
+@pytest.fixture
+def get_drp_mock():
+    with mock.patch.object(
+        deployment_resource_pool_service_client_v1.DeploymentResourcePoolServiceClient,
+        "get_deployment_resource_pool",
+    ) as get_drp_mock:
+        machine_spec = gca_machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+
+        autoscaling_metric_specs = [
+            gca_machine_resources.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION, target=70
+            ),
+            gca_machine_resources.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION, target=70
+            ),
+        ]
+
+        dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=machine_spec,
+            min_replica_count=10,
+            max_replica_count=20,
+            autoscaling_metric_specs=autoscaling_metric_specs,
+        )
+
+        get_drp_mock.return_value = (
+            gca_deployment_resource_pool_v1.DeploymentResourcePool(
                 name=_TEST_DRP_NAME,
                 dedicated_resources=dedicated_resources,
             )
@@ -1860,7 +1899,9 @@ class TestEndpoint:
             timeout=None,
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock", "get_drp_mock")
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "preview_get_drp_mock"
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_preview_deploy_with_deployment_resource_pool(
         self, preview_deploy_model_mock, sync
@@ -1888,6 +1929,38 @@ class TestEndpoint:
             enable_container_logging=True,
         )
         preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock", "get_drp_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_deployment_resource_pool(self, deploy_model_mock, sync):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.SHARED_RESOURCES,
+        )
+        test_drp = models.DeploymentResourcePool(_TEST_DRP_NAME)
+
+        test_endpoint.deploy(
+            model=test_model,
+            deployment_resource_pool=test_drp,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        deployed_model = gca_endpoint.DeployedModel(
+            shared_resources=_TEST_DRP_NAME,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},

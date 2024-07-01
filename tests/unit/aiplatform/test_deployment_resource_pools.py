@@ -26,18 +26,18 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.preview import models
+from google.cloud.aiplatform import models
 
 from google.cloud.aiplatform.compat.services import (
-    deployment_resource_pool_service_client_v1beta1 as deployment_resource_pool_service_client,
+    deployment_resource_pool_service_client,
 )
 
 from google.cloud.aiplatform.compat.types import (
-    deployed_model_ref_v1beta1 as gca_deployed_model_ref,
-    deployment_resource_pool_v1beta1 as gca_deployment_resource_pool,
-    deployment_resource_pool_service_v1beta1 as gca_deployment_resource_pool_service,
+    deployed_model_ref as gca_deployed_model_ref,
+    deployment_resource_pool as gca_deployment_resource_pool,
+    deployment_resource_pool_service as gca_deployment_resource_pool_service,
     endpoint as gca_endpoint,
-    machine_resources_v1beta1 as gca_machine_resources,
+    machine_resources as gca_machine_resources,
 )
 
 
