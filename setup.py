@@ -149,8 +149,8 @@ reasoning_engine_extra_require = [
 ]
 
 rapid_evaluation_extra_require = [
-    "nest_asyncio >= 1.0.0, < 1.6.0",
     "pandas >= 1.0.0, < 2.2.0",
+    "tqdm>=4.23.0",
 ]
 
 langchain_extra_require = [

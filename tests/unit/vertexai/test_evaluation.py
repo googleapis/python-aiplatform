@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import threading
+import time
 from unittest import mock
 
 from google.cloud import aiplatform
@@ -32,20 +35,19 @@ from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import _evaluation
 from vertexai.preview.evaluation import utils
 from vertexai.preview.evaluation.metrics import (
-    _summarization_quality,
+    _pairwise_question_answering_quality,
 )
 from vertexai.preview.evaluation.metrics import (
     _pairwise_summarization_quality,
 )
+from vertexai.preview.evaluation.metrics import _rouge
 from vertexai.preview.evaluation.metrics import (
-    _pairwise_question_answering_quality,
-)
-from vertexai.preview.evaluation.metrics import (
-    _rouge,
+    _summarization_quality,
 )
 import numpy as np
 import pandas as pd
 import pytest
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -222,12 +224,6 @@ MOCK_EVAL_RESULT = eval_base.EvalResult(
 
 
 @pytest.fixture
-def mock_async_event_loop():
-    with mock.patch("asyncio.get_event_loop") as mock_async_event_loop:
-        yield mock_async_event_loop
-
-
-@pytest.fixture
 def mock_experiment_tracker():
     with mock.patch.object(
         metadata, "_experiment_tracker", autospec=True
@@ -267,32 +263,6 @@ class TestEvaluation:
         assert test_eval_task.reference_column_name == test_reference_column_name
         assert test_eval_task.response_column_name == test_response_column_name
 
-    def test_evaluate_saved_response(self, mock_async_event_loop):
-        eval_dataset = _TEST_EVAL_DATASET
-        test_metrics = _TEST_METRICS
-        mock_summary_metrics = {
-            "row_count": 2,
-            "mock_metric/mean": 0.5,
-            "mock_metric/std": 0.5,
-        }
-        mock_metrics_table = pd.DataFrame(
-            {
-                "response": ["test", "text"],
-                "reference": ["test", "ref"],
-                "mock_metric": [1.0, 0.0],
-            }
-        )
-        mock_async_event_loop.return_value.run_until_complete.return_value = (
-            mock_summary_metrics,
-            mock_metrics_table,
-        )
-
-        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        test_result = test_eval_task.evaluate()
-
-        assert test_result.summary_metrics == mock_summary_metrics
-        assert test_result.metrics_table.equals(mock_metrics_table)
-
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_automatic_metrics(self, api_transport):
         aiplatform.init(
@@ -310,7 +280,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         mock_metric_results = _MOCK_EXACT_MATCH_RESULT
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=mock_metric_results,
         ):
@@ -343,7 +313,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         mock_metric_results = _MOCK_FLUENCY_RESULT
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=mock_metric_results,
         ):
@@ -398,7 +368,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=mock_metric_results,
         ):
@@ -465,7 +435,7 @@ class TestEvaluation:
         ]
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=_MOCK_ROUGE_RESULT,
         ) as mock_evaluate_instances:
@@ -527,7 +497,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=mock_metric_results,
         ):
@@ -613,7 +583,7 @@ class TestEvaluation:
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
         mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
         with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceAsyncClient,
+            target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
             side_effect=mock_metric_results,
         ):
@@ -869,9 +839,9 @@ class TestEvaluationUtils:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_create_evaluation_service_async_client(self):
-        client = utils.create_evaluation_service_async_client()
-        assert isinstance(client, utils._EvaluationServiceAsyncClientWithOverride)
+    def test_create_evaluation_service_client(self):
+        client = utils.create_evaluation_service_client()
+        assert isinstance(client, utils._EvaluationServiceClientWithOverride)
 
     def test_load_dataset_from_dataframe(self):
         data = {"col1": [1, 2], "col2": ["a", "b"]}
@@ -923,6 +893,57 @@ class TestEvaluationUtils:
 
         assert isinstance(loaded_df, pd.DataFrame)
         assert loaded_df.equals(_TEST_EVAL_DATASET)
+
+    def test_initialization(self):
+        limiter = utils.RateLimiter(rate=2)
+        assert limiter.seconds_per_event == 0.5
+
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            utils.RateLimiter(-1)
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            utils.RateLimiter(0)
+
+    def test_admit(self):
+        rate_limiter = utils.RateLimiter(rate=2)
+
+        assert rate_limiter._admit() == 0
+
+        time.sleep(0.1)
+        delay = rate_limiter._admit()
+        assert delay == pytest.approx(0.4, 0.01)
+
+        time.sleep(0.5)
+        delay = rate_limiter._admit()
+        assert delay == 0
+
+    def test_sleep_and_advance(self):
+        rate_limiter = utils.RateLimiter(rate=2)
+
+        start_time = time.time()
+        rate_limiter.sleep_and_advance()
+        assert (time.time() - start_time) < 0.1
+
+        start_time = time.time()
+        rate_limiter.sleep_and_advance()
+        assert (time.time() - start_time) >= 0.5
+
+    def test_thread_safety(self):
+        rate_limiter = utils.RateLimiter(rate=2)
+        start_time = time.time()
+
+        def target():
+            rate_limiter.sleep_and_advance()
+
+        threads = [threading.Thread(target=target) for _ in range(10)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        # Verify that the total minimum time should be 4.5 seconds
+        # (9 intervals of 0.5 seconds each).
+        total_time = time.time() - start_time
+        assert total_time >= 4.5
 
 
 class TestPromptTemplate:

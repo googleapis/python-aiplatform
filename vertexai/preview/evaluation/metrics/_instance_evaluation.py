@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Library for Metrics Computation with Evaluation Service Async Client."""
+"""Library for Metrics Computation with Evaluation Service Client."""
 
 from typing import Any, Dict, Union
 
@@ -29,6 +29,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import constants
+from vertexai.preview.evaluation import utils
 from vertexai.preview.evaluation.metrics import (
     _base as metrics_base,
 )
@@ -116,7 +117,7 @@ def build_request(
             " provide these parameters."
         )
     location_path = (
-        gapic_evaluation_services.EvaluationServiceAsyncClient.common_location_path(
+        gapic_evaluation_services.EvaluationServiceClient.common_location_path(
             project, location
         )
     )
@@ -534,17 +535,20 @@ def _parse_pairwise_results(
     }
 
 
-def _handle_response(
-    response: gapic_eval_service_types.EvaluateInstancesResponse,
-) -> Dict[str, Any]:
+def handle_response(
+    response: Union[str, gapic_eval_service_types.EvaluateInstancesResponse],
+) -> Union[str, Dict[str, Any]]:
     """Handles the response from the evaluation service.
 
     Args:
         response: The response from the evaluation service.
 
     Returns:
-        The metric score of the evaluation.
+        A parsed metric result dictionary, or an error message string.
     """
+    if isinstance(response, str):
+        return response
+
     metric_type = response._pb.WhichOneof("evaluation_results")
 
     # Automatic Metrics.
@@ -616,12 +620,14 @@ def _handle_response(
     return result
 
 
-async def evaluate_instances_async(
-    client: gapic_evaluation_services.EvaluationServiceAsyncClient,
+# TODO(b/346659152): Add interface to customize rate limit.
+@utils.rate_limit(constants.QuotaLimit.EVAL_SERVICE_QPS)
+def evaluate_instances(
+    client: gapic_evaluation_services.EvaluationServiceClient,
     request: gapic_eval_service_types.EvaluateInstancesRequest,
     retry_timeout: float,
-):
-    """Evaluates an instance asynchronously.
+) -> gapic_eval_service_types.EvaluateInstancesResponse:
+    """Evaluates an instance.
 
     Args:
         client: The client to use for evaluation.
@@ -629,12 +635,12 @@ async def evaluate_instances_async(
         retry_timeout: How long to keep retrying the evaluation requests, in seconds.
 
     Returns:
-        The metric score of the evaluation.
+        A response from the evaluation service.
     """
 
-    response = await client.evaluate_instances(
+    return client.evaluate_instances(
         request=request,
-        retry=api_core.retry_async.AsyncRetry(
+        retry=api_core.retry.Retry(
             initial=0.250,
             maximum=90.0,
             multiplier=1.45,
@@ -648,4 +654,3 @@ async def evaluate_instances_async(
             ),
         ),
     )
-    return _handle_response(response)

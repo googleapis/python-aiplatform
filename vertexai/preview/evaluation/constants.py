@@ -192,3 +192,5 @@ class QuotaLimit:
 
     # Default queries per minute (QPM) quota for `gemini-1.0-pro` base model.
     GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE = 300
+
+    EVAL_SERVICE_QPS = 10
