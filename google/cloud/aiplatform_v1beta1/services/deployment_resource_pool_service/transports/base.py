@@ -148,6 +148,11 @@ class DeploymentResourcePoolServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_deployment_resource_pool: gapic_v1.method.wrap_method(
+                self.update_deployment_resource_pool,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_deployment_resource_pool: gapic_v1.method.wrap_method(
                 self.delete_deployment_resource_pool,
                 default_timeout=None,
@@ -206,6 +211,15 @@ class DeploymentResourcePoolServiceTransport(abc.ABC):
                 deployment_resource_pool_service.ListDeploymentResourcePoolsResponse
             ],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_deployment_resource_pool(
+        self,
+    ) -> Callable[
+        [deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
