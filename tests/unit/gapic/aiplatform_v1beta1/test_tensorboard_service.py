@@ -1622,6 +1622,8 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
             run_count=989,
             etag="etag_value",
             is_default=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_tensorboard(request)
 
@@ -1640,6 +1642,8 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
     assert response.run_count == 989
     assert response.etag == "etag_value"
     assert response.is_default is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_tensorboard_empty_call():
@@ -1745,6 +1749,8 @@ async def test_get_tensorboard_empty_call_async():
                 run_count=989,
                 etag="etag_value",
                 is_default=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_tensorboard()
@@ -1825,6 +1831,8 @@ async def test_get_tensorboard_async(
                 run_count=989,
                 etag="etag_value",
                 is_default=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_tensorboard(request)
@@ -1844,6 +1852,8 @@ async def test_get_tensorboard_async(
     assert response.run_count == 989
     assert response.etag == "etag_value"
     assert response.is_default is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -14494,6 +14504,8 @@ def test_create_tensorboard_rest(request_type):
         "labels": {},
         "etag": "etag_value",
         "is_default": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -14889,6 +14901,8 @@ def test_get_tensorboard_rest(request_type):
             run_count=989,
             etag="etag_value",
             is_default=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -14911,6 +14925,8 @@ def test_get_tensorboard_rest(request_type):
     assert response.run_count == 989
     assert response.etag == "etag_value"
     assert response.is_default is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_tensorboard_rest_use_cached_wrapped_rpc():
@@ -15209,6 +15225,8 @@ def test_update_tensorboard_rest(request_type):
         "labels": {},
         "etag": "etag_value",
         "is_default": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

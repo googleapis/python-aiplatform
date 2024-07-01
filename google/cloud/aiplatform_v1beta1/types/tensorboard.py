@@ -92,6 +92,10 @@ class Tensorboard(proto.Message):
             updating an existing TensorBoard instance to be
             default will mark all other TensorBoard
             instances (if any) as non default.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -141,6 +145,14 @@ class Tensorboard(proto.Message):
     is_default: bool = proto.Field(
         proto.BOOL,
         number=12,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=14,
     )
 
 

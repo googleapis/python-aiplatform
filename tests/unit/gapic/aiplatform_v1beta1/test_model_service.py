@@ -1550,6 +1550,8 @@ def test_get_model(request_type, transport: str = "grpc"):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_model(request)
 
@@ -1581,6 +1583,8 @@ def test_get_model(request_type, transport: str = "grpc"):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_empty_call():
@@ -1699,6 +1703,8 @@ async def test_get_model_empty_call_async():
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model()
@@ -1789,6 +1795,8 @@ async def test_get_model_async(
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model(request)
@@ -1821,6 +1829,8 @@ async def test_get_model_async(
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -3162,6 +3172,8 @@ def test_update_model(request_type, transport: str = "grpc"):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_model(request)
 
@@ -3193,6 +3205,8 @@ def test_update_model(request_type, transport: str = "grpc"):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_model_empty_call():
@@ -3307,6 +3321,8 @@ async def test_update_model_empty_call_async():
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_model()
@@ -3399,6 +3415,8 @@ async def test_update_model_async(
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_model(request)
@@ -3431,6 +3449,8 @@ async def test_update_model_async(
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4780,6 +4800,8 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.merge_version_aliases(request)
 
@@ -4811,6 +4833,8 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_merge_version_aliases_empty_call():
@@ -4940,6 +4964,8 @@ async def test_merge_version_aliases_empty_call_async():
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.merge_version_aliases()
@@ -5035,6 +5061,8 @@ async def test_merge_version_aliases_async(
                 ],
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.merge_version_aliases(request)
@@ -5067,6 +5095,8 @@ async def test_merge_version_aliases_async(
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -9616,6 +9646,8 @@ def test_get_model_rest(request_type):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9651,6 +9683,8 @@ def test_get_model_rest(request_type):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_rest_use_cached_wrapped_rpc():
@@ -10797,6 +10831,8 @@ def test_update_model_rest(request_type):
             "model_garden_source": {"public_model_name": "public_model_name_value"},
             "genie_source": {"base_model_uri": "base_model_uri_value"},
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10887,6 +10923,8 @@ def test_update_model_rest(request_type):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -10922,6 +10960,8 @@ def test_update_model_rest(request_type):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_model_rest_use_cached_wrapped_rpc():
@@ -12141,6 +12181,8 @@ def test_merge_version_aliases_rest(request_type):
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -12176,6 +12218,8 @@ def test_merge_version_aliases_rest(request_type):
     ]
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_merge_version_aliases_rest_use_cached_wrapped_rpc():

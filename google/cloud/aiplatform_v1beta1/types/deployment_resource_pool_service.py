@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import operation
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -35,6 +36,7 @@ __protobuf__ = proto.module(
         "GetDeploymentResourcePoolRequest",
         "ListDeploymentResourcePoolsRequest",
         "ListDeploymentResourcePoolsResponse",
+        "UpdateDeploymentResourcePoolRequest",
         "UpdateDeploymentResourcePoolOperationMetadata",
         "DeleteDeploymentResourcePoolRequest",
         "QueryDeployedModelsRequest",
@@ -175,6 +177,34 @@ class ListDeploymentResourcePoolsResponse(proto.Message):
     next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class UpdateDeploymentResourcePoolRequest(proto.Message):
+    r"""Request message for UpdateDeploymentResourcePool method.
+
+    Attributes:
+        deployment_resource_pool (google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool):
+            Required. The DeploymentResourcePool to update.
+
+            The DeploymentResourcePool's ``name`` field is used to
+            identify the DeploymentResourcePool to update. Format:
+            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The list of fields to update.
+    """
+
+    deployment_resource_pool: gca_deployment_resource_pool.DeploymentResourcePool = (
+        proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=gca_deployment_resource_pool.DeploymentResourcePool,
+        )
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
     )
 
 
