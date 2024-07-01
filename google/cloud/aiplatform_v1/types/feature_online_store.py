@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -190,11 +191,33 @@ class FeatureOnlineStore(proto.Message):
                 Output only. This field will be populated
                 with the domain name to use for this
                 FeatureOnlineStore
+            private_service_connect_config (google.cloud.aiplatform_v1.types.PrivateServiceConnectConfig):
+                Optional. Private service connect config. The private
+                service connection is available only for Optimized storage
+                type, not for embedding management now. If
+                [PrivateServiceConnectConfig.enable_private_service_connect][google.cloud.aiplatform.v1.PrivateServiceConnectConfig.enable_private_service_connect]
+                set to true, customers will use private service connection
+                to send request. Otherwise, the connection will set to
+                public endpoint.
+            service_attachment (str):
+                Output only. The name of the service
+                attachment resource. Populated if private
+                service connect is enabled and after
+                FeatureViewSync is created.
         """
 
         public_endpoint_domain_name: str = proto.Field(
             proto.STRING,
             number=2,
+        )
+        private_service_connect_config: service_networking.PrivateServiceConnectConfig = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
+        service_attachment: str = proto.Field(
+            proto.STRING,
+            number=4,
         )
 
     bigtable: Bigtable = proto.Field(

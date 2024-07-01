@@ -356,6 +356,38 @@ class DeploymentResourcePoolServiceGrpcAsyncIOTransport(
         return self._stubs["list_deployment_resource_pools"]
 
     @property
+    def update_deployment_resource_pool(
+        self,
+    ) -> Callable[
+        [deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update deployment resource
+        pool method over gRPC.
+
+        Update a DeploymentResourcePool.
+
+        Returns:
+            Callable[[~.UpdateDeploymentResourcePoolRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_deployment_resource_pool" not in self._stubs:
+            self._stubs[
+                "update_deployment_resource_pool"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DeploymentResourcePoolService/UpdateDeploymentResourcePool",
+                request_serializer=deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_deployment_resource_pool"]
+
+    @property
     def delete_deployment_resource_pool(
         self,
     ) -> Callable[
@@ -432,6 +464,11 @@ class DeploymentResourcePoolServiceGrpcAsyncIOTransport(
             ),
             self.list_deployment_resource_pools: gapic_v1.method_async.wrap_method(
                 self.list_deployment_resource_pools,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_deployment_resource_pool: gapic_v1.method_async.wrap_method(
+                self.update_deployment_resource_pool,
                 default_timeout=None,
                 client_info=client_info,
             ),
