@@ -187,6 +187,15 @@ def default(session):
         *session.posargs,
     )
 
+    # Run tests that require isolation.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
+        os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
+        *session.posargs,
+    )
+
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
