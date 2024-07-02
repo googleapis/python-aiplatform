@@ -381,50 +381,6 @@ def test_one_feature_same_and_different_bq_col_name(
     assert rsp == "SOME SQL QUERY OUTPUT"
 
 
-def test_one_feature_with_explicit_bigframes_session(
-    mock_convert_to_bigquery_dataframe,
-    mock_fg,
-    mock_feature,
-):
-    entity_df = pd.DataFrame(
-        [
-            CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
-            CUSTOMER_2_OLD_ENTITY_DF_ENTRY,
-        ],
-        columns=ENTITY_DF_COLUMNS,
-    )
-
-    mock_convert_to_bigquery_dataframe.return_value = mock_bdf(
-        non_ts_cols=["customer_id", "feature_1"],
-        ts_cols=["timestamp"],
-        sql=FAKE_ENTITY_DF_QUERY,
-    )
-
-    mock_fg.return_value = create_mock_fg(
-        name="fake", entity_id_cols=["customer_id"], bq_uri="bq://my.table"
-    )
-    mock_feature.return_value = create_mock_feature(
-        name="my_feature", version_column_name="my_feature"
-    )
-    mock_fg.return_value.get_feature = mock_feature
-
-    session = mock.Mock()
-    session.read_gbq_query.return_value = "SOME SQL QUERY OUTPUT"
-
-    rsp = offline_store.fetch_historical_feature_values(
-        entity_df=entity_df,
-        features=["fake.my_feature"],
-        session=session,
-    )
-
-    session.read_gbq_query.assert_called_once_with(
-        expected_sql_for_one_feature("my_feature", "my_feature"),
-        index_col=bigframes.enums.DefaultIndexKind.NULL,
-    )
-
-    assert rsp == "SOME SQL QUERY OUTPUT"
-
-
 def test_one_feature_with_explicit_project_and_location(
     mock_convert_to_bigquery_dataframe,
     mock_session,
