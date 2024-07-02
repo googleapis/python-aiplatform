@@ -1033,11 +1033,12 @@ class ChatSession:
                     response_chunks=[response],
                 )
 
-            # Adding the request and the first response candidate to history
-            response_message = response.candidates[0].content
-            # Response role is NOT set by the model.
-            response_message.role = self._MODEL_ROLE
-            history_delta.append(response_message)
+            if len(response.candidates) > 0:
+                # Adding the request and the first response candidate to history
+                response_message = response.candidates[0].content
+                # Response role is NOT set by the model.
+                response_message.role = self._MODEL_ROLE
+                history_delta.append(response_message)
 
             auto_responder_content = (
                 message_responder.respond_to_model_response(response=response)
@@ -1101,12 +1102,14 @@ class ChatSession:
                 response_chunks=[response],
             )
 
-        # Adding the request and the first response candidate to history
-        response_message = response.candidates[0].content
-        # Response role is NOT set by the model.
-        response_message.role = self._MODEL_ROLE
-        self._history.append(request_message)
-        self._history.append(response_message)
+        if len(response.candidates) > 0:
+            # Adding the request and the first response candidate to history
+            response_message = response.candidates[0].content
+            # Response role is NOT set by the model.
+            response_message.role = self._MODEL_ROLE
+            self._history.append(request_message)
+            self._history.append(response_message)
+        
         return response
 
     def _send_message_streaming(
@@ -1168,12 +1171,13 @@ class ChatSession:
         if not full_response:
             return
 
-        # Adding the request and the first response candidate to history
-        response_message = full_response.candidates[0].content
-        # Response role is NOT set by the model.
-        response_message.role = self._MODEL_ROLE
-        self._history.append(request_message)
-        self._history.append(response_message)
+        if len(full_response.candidates) > 0:
+            # Adding the request and the first response candidate to history
+            response_message = full_response.candidates[0].content
+            # Response role is NOT set by the model.
+            response_message.role = self._MODEL_ROLE
+            self._history.append(request_message)
+            self._history.append(response_message)
 
     async def _send_message_streaming_async(
         self,
@@ -1234,12 +1238,14 @@ class ChatSession:
                 yield chunk
             if not full_response:
                 return
-            # Adding the request and the first response candidate to history
-            response_message = full_response.candidates[0].content
-            # Response role is NOT set by the model.
-            response_message.role = self._MODEL_ROLE
-            self._history.append(request_message)
-            self._history.append(response_message)
+
+            if len(full_response.candidates) > 0:
+                # Adding the request and the first response candidate to history
+                response_message = full_response.candidates[0].content
+                # Response role is NOT set by the model.
+                response_message.role = self._MODEL_ROLE
+                self._history.append(request_message)
+                self._history.append(response_message)
 
         return async_generator()
 
