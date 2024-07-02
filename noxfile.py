@@ -183,7 +183,17 @@ def default(session):
         "--cov-fail-under=0",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_langchain",
+        "--ignore=tests/unit/architecture",
         os.path.join("tests", "unit"),
+        *session.posargs,
+    )
+
+    # Run tests that require isolation.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
+        os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
         *session.posargs,
     )
 
