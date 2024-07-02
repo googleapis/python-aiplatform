@@ -55,7 +55,7 @@ tensorboard_extra_require = [
     "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"
 ] + profiler_extra_require
 
-metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
+metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0, <2.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0dev",
@@ -89,7 +89,10 @@ prediction_extra_require = [
     "uvicorn[standard] >= 0.16.0",
 ]
 
-endpoint_extra_require = ["requests >= 2.28.1"]
+endpoint_extra_require = [
+    "requests >= 2.28.1",
+    "httpx >=0.23.0, <0.25.0",
+]
 
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
@@ -256,6 +259,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 3.0.0dev",
+        "httpx >=0.23.0, <0.25.0",
     )
     + genai_requires,
     extras_require={
