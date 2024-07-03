@@ -22384,12 +22384,12 @@
       "regionTag": "aiplatform_v1_generated_LlmUtilityService_ComputeTokens_async",
       "segments": [
         {
-          "end": 55,
+          "end": 51,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 55,
+          "end": 51,
           "start": 27,
           "type": "SHORT"
         },
@@ -22399,18 +22399,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 49,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 52,
-          "start": 50,
+          "end": 48,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 56,
-          "start": 53,
+          "end": 52,
+          "start": 49,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -22468,12 +22468,12 @@
       "regionTag": "aiplatform_v1_generated_LlmUtilityService_ComputeTokens_sync",
       "segments": [
         {
-          "end": 55,
+          "end": 51,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 55,
+          "end": 51,
           "start": 27,
           "type": "SHORT"
         },
@@ -22483,18 +22483,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 49,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 52,
-          "start": 50,
+          "end": 48,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 56,
-          "start": 53,
+          "end": 52,
+          "start": 49,
           "type": "RESPONSE_HANDLING"
         }
       ],
