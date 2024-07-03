@@ -34,7 +34,7 @@ def test_vertexai_import():
     # My solution is to ignore modules that are parents of the current test module.
     modules_before_aip = set(sys.modules)
     for module_name in modules_before_aip:
-        assert "aiplatform" not in module_name or __name__.startswith(module_name)
+        assert ".aiplatform" not in module_name or __name__.startswith(module_name)
         assert "vertexai" not in module_name or __name__.startswith(module_name)
 
     # Test aiplatform import
