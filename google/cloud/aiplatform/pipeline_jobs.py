@@ -558,6 +558,9 @@ class PipelineJob(
         pipeline_job_schedule = aiplatform.PipelineJobSchedule(
             pipeline_job=self,
             display_name=display_name,
+            credentials=self.credentials,
+            location=self.location,
+            project=self.project
         )
 
         pipeline_job_schedule.create(
