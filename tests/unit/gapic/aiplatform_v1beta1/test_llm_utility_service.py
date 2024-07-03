@@ -52,13 +52,16 @@ from google.cloud.aiplatform_v1beta1.services.llm_utility_service import (
     LlmUtilityServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.llm_utility_service import transports
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import llm_utility_service
+from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
@@ -1231,6 +1234,7 @@ def test_compute_tokens_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = llm_utility_service.ComputeTokensRequest(
         endpoint="endpoint_value",
+        model="model_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1243,6 +1247,7 @@ def test_compute_tokens_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == llm_utility_service.ComputeTokensRequest(
             endpoint="endpoint_value",
+            model="model_value",
         )
 
 
@@ -1692,15 +1697,7 @@ def test_compute_tokens_rest_unset_required_fields():
     )
 
     unset_fields = transport.compute_tokens._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "endpoint",
-                "instances",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
