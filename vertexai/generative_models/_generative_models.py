@@ -2955,7 +2955,7 @@ def _proto_to_dict(message) -> Dict[str, Any]:
     """Converts a proto-plus protobuf message to a dictionary."""
     return type(message).to_dict(
         message,
-        including_default_value_fields=False,
+        always_print_fields_with_no_presence=False,
         use_integers_for_enums=False,
     )
 
