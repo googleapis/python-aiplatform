@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import content
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -40,11 +41,17 @@ class ComputeTokensRequest(proto.Message):
             Required. The name of the Endpoint requested
             to get lists of tokens and token ids.
         instances (MutableSequence[google.protobuf.struct_pb2.Value]):
-            Required. The instances that are the input to
+            Optional. The instances that are the input to
             token computing API call. Schema is identical to
             the prediction schema of the text model, even
             for the non-text models, like chat models, or
             Codey models.
+        model (str):
+            Optional. The name of the publisher model requested to serve
+            the prediction. Format:
+            projects/{project}/locations/{location}/publishers/\ */models/*
+        contents (MutableSequence[google.cloud.aiplatform_v1.types.Content]):
+            Optional. Input content.
     """
 
     endpoint: str = proto.Field(
@@ -55,6 +62,15 @@ class ComputeTokensRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Value,
+    )
+    model: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    contents: MutableSequence[content.Content] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=content.Content,
     )
 
 
@@ -67,6 +83,9 @@ class TokensInfo(proto.Message):
             A list of tokens from the input.
         token_ids (MutableSequence[int]):
             A list of token ids from the input.
+        role (str):
+            Optional. Optional fields for the role from
+            the corresponding Content.
     """
 
     tokens: MutableSequence[bytes] = proto.RepeatedField(
@@ -76,6 +95,10 @@ class TokensInfo(proto.Message):
     token_ids: MutableSequence[int] = proto.RepeatedField(
         proto.INT64,
         number=2,
+    )
+    role: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
