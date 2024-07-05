@@ -560,7 +560,7 @@ class PipelineJob(
             display_name=display_name,
             credentials=self.credentials,
             location=self.location,
-            project=self.project
+            project=self.project,
         )
 
         pipeline_job_schedule.create(
