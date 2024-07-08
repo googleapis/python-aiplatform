@@ -70,6 +70,7 @@ from google.cloud.aiplatform.compat.services import (
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
+    deployment_resource_pool_service_client_v1,
     endpoint_service_client_v1,
     feature_online_store_admin_service_client_v1,
     feature_online_store_service_client_v1,
@@ -549,11 +550,15 @@ class DatasetClientWithOverride(ClientWithOverride):
 
 class DeploymentResourcePoolClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
         (
             compat.V1BETA1,
             deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        ),
+        (
+            compat.V1,
+            deployment_resource_pool_service_client_v1.DeploymentResourcePoolServiceClient,
         ),
     )
 

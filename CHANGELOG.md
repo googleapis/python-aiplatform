@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.58.0](https://github.com/googleapis/python-aiplatform/compare/v1.57.0...v1.58.0) (2024-07-03)
+
+
+### Features
+
+* Add deploy_metadata to PublisherModel.Deploy v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Add deploy_metadata to PublisherModel.Deploy v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* Add display tuning job button for Ipython environments when getting an existing job ([872b455](https://github.com/googleapis/python-aiplatform/commit/872b455bcdda59d73d7060aaaa20a0b0e86e8cbb))
+* Add private_service_connect_config and service_attachment fields to DedicatedServingEndpoint v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Add satisfies_pzs and satisfies_pzi fields to Model v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Add satisfies_pzs and satisfies_pzi fields to Model v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* Add satisfies_pzs and satisfies_pzi fields to Tensorboard v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Add satisfies_pzs and satisfies_pzi fields to Tensorboard v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* Add UpdateDeploymentResourcePool method to DeploymentResourcePoolService v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Add UpdateDeploymentResourcePool method to DeploymentResourcePoolService v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* Add use_effective_order field to BleuSpec v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* GenAI - Evaluation - Add a progress bar for evaluation service requests ([bbffb0d](https://github.com/googleapis/python-aiplatform/commit/bbffb0d5bfe0509399c801d849311a6201caa633))
+* GenAI - Evaluation - Implement rate limiter and refactor parallelization for online evaluation service requests ([bbffb0d](https://github.com/googleapis/python-aiplatform/commit/bbffb0d5bfe0509399c801d849311a6201caa633))
+* GenAI - Evaluation - Return partial evaluation results with error logging ([bbffb0d](https://github.com/googleapis/python-aiplatform/commit/bbffb0d5bfe0509399c801d849311a6201caa633))
+* Migrate DeploymentResourcePool and associated functionality to V1 namespace for GA launch of model co-hosting. ([1474d98](https://github.com/googleapis/python-aiplatform/commit/1474d988fa63cbbb3b200634719bc245cab6a448))
+
+
+### Bug Fixes
+
+* `IndexConfig` - use TreeAhConfig as default `algorithm_config`. ([341d287](https://github.com/googleapis/python-aiplatform/commit/341d287719cabdaa1041cdefe9b65b77f1e4bc3b))
+* LVM - Update `Video.load_from_file()` to support storage.googleapis.com links ([b63f960](https://github.com/googleapis/python-aiplatform/commit/b63f9600f743067ae97103dfd43f4392b9f6de56))
+
+
+### Documentation
+
+* Update comments of AutoscalingSpec v1 ([71e41c8](https://github.com/googleapis/python-aiplatform/commit/71e41c8eeb0e081d67660161a31f6a228d7b0502))
+* Update comments of AutoscalingSpec v1beta1 ([b5c3cdd](https://github.com/googleapis/python-aiplatform/commit/b5c3cdd737acd695301c9a564d8f91371288f9f1))
+* Update import paths for Gemini README ([46b3042](https://github.com/googleapis/python-aiplatform/commit/46b30425e8c86588256bf75f857078caeb9d7dee))
+
 ## [1.57.0](https://github.com/googleapis/python-aiplatform/compare/v1.56.0...v1.57.0) (2024-06-26)
 
 

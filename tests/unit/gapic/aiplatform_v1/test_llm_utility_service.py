@@ -1621,6 +1621,7 @@ def test_compute_tokens_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = llm_utility_service.ComputeTokensRequest(
         endpoint="endpoint_value",
+        model="model_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1633,6 +1634,7 @@ def test_compute_tokens_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == llm_utility_service.ComputeTokensRequest(
             endpoint="endpoint_value",
+            model="model_value",
         )
 
 
@@ -2406,15 +2408,7 @@ def test_compute_tokens_rest_unset_required_fields():
     )
 
     unset_fields = transport.compute_tokens._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "endpoint",
-                "instances",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])

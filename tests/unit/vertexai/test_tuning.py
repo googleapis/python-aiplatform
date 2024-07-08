@@ -34,7 +34,10 @@ from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from vertexai.preview import tuning
-from vertexai.preview.tuning import sft as supervised_tuning
+from vertexai.preview.tuning import (
+    sft as preview_supervised_tuning,
+)
+from vertexai.tuning import sft as supervised_tuning
 
 import pytest
 
@@ -169,7 +172,13 @@ class TestgenerativeModelTuning:
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
-    def test_genai_tuning_service_supervised_tuning_tune_model(self):
+    @pytest.mark.parametrize(
+        "supervised_tuning",
+        [supervised_tuning, preview_supervised_tuning],
+    )
+    def test_genai_tuning_service_supervised_tuning_tune_model(
+        self, supervised_tuning: supervised_tuning
+    ):
         sft_tuning_job = supervised_tuning.train(
             source_model="gemini-1.0-pro-001",
             train_dataset="gs://some-bucket/some_dataset.jsonl",
@@ -209,7 +218,13 @@ class TestgenerativeModelTuning:
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
-    def test_genai_tuning_service_encryption_spec(self):
+    @pytest.mark.parametrize(
+        "supervised_tuning",
+        [supervised_tuning, preview_supervised_tuning],
+    )
+    def test_genai_tuning_service_encryption_spec(
+        self, supervised_tuning: supervised_tuning
+    ):
         """Test that the global encryption spec propagates to the tuning job."""
         vertexai.init(encryption_spec_key_name="test-key")
 

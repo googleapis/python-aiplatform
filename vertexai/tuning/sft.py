@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,5 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Classes for supervised tuning."""
 
-__version__ = "1.58.0"
+# We just want to re-export certain classes
+# pylint: disable=g-multiple-import,g-importing-member
+from vertexai.tuning._supervised_tuning import (
+    train,
+    SupervisedTuningJob,
+)
+
+__all__ = [
+    "train",
+    "SupervisedTuningJob",
+]
