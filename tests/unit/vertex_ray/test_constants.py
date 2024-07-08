@@ -152,7 +152,7 @@ class ClusterConstants:
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
-        network=ProjectConstants.TEST_VPC_NETWORK,
+        network=None,
     )
     TEST_REQUEST_RUNNING_1_POOL_BYOSA = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_0],
@@ -197,11 +197,10 @@ class ClusterConstants:
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
-        network=ProjectConstants.TEST_VPC_NETWORK,
+        network=None,
         resource_runtime=ResourceRuntime(
             access_uris={
                 "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
-                "RAY_HEAD_NODE_INTERNAL_IP": TEST_VERTEX_RAY_HEAD_NODE_IP,
             }
         ),
         state="RUNNING",
@@ -239,6 +238,24 @@ class ClusterConstants:
             service_account_spec=ServiceAccountSpec(
                 enable_custom_service_account=True,
                 service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
+            ),
+        ),
+        network=ProjectConstants.TEST_VPC_NETWORK,
+        resource_runtime=ResourceRuntime(
+            access_uris={
+                "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+                "RAY_CLIENT_ENDPOINT": TEST_VERTEX_RAY_CLIENT_ENDPOINT,
+            }
+        ),
+        state="RUNNING",
+    )
+    TEST_RESPONSE_1_POOL_PRIVATE_NO_INTERNAL_IP = PersistentResource(
+        name=TEST_VERTEX_RAY_PR_ADDRESS,
+        resource_pools=[TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,

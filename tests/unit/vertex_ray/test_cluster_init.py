@@ -330,7 +330,6 @@ class TestClusterManagement:
         cluster_name = vertex_ray.create_ray_cluster(
             head_node_type=tc.ClusterConstants.TEST_HEAD_NODE_TYPE_1_POOL,
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_1_POOL,
-            network=tc.ProjectConstants.TEST_VPC_NETWORK,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             custom_images=custom_images,
         )

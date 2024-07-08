@@ -44,6 +44,7 @@ def get_job_submission_client_cluster_info(
         metadata for SubmissionClient to use.
 
     Raises:
+        RuntimeError if head_address is None in VPC peering mode.
         RuntimeError if head_address is None.
     """
     if _validation_utils.valid_dashboard_address(address):
@@ -54,6 +55,22 @@ def get_job_submission_client_cluster_info(
 
         resource_name = address
         response = _gapic_utils.get_persistent_resource(resource_name)
+        is_default = (
+            not response.resource_runtime_spec.service_account_spec.enable_custom_service_account
+        )
+        if is_default and response.network:
+            # Default service account, VPC peering
+            internal_ip = response.resource_runtime.access_uris.get(
+                "RAY_HEAD_NODE_INTERNAL_IP", None
+            )
+            if internal_ip:
+                return oss_dashboard_sdk.get_job_submission_client_cluster_info(
+                    address=internal_ip, *args, **kwargs
+                )
+            else:
+                raise RuntimeError(
+                    "[Ray on Vertex AI]: Unable to obtain a response from the backend."
+                )
 
         dashboard_address = response.resource_runtime.access_uris.get(
             "RAY_DASHBOARD_URI", None

@@ -45,6 +45,17 @@ def get_persistent_resource_status_running_mock():
 
 
 @pytest.fixture
+def get_persistent_resource_status_running_no_vpc_mock():
+    with mock.patch.object(
+        vertex_ray.util._gapic_utils, "get_persistent_resource"
+    ) as get_persistent_resource:
+        get_persistent_resource.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL_CUSTOM_IMAGES
+        )
+        yield get_persistent_resource
+
+
+@pytest.fixture
 def get_persistent_resource_status_running_byosa_public_mock():
     # Cluster with BYOSA and no peering
     with mock.patch.object(
@@ -52,6 +63,18 @@ def get_persistent_resource_status_running_byosa_public_mock():
     ) as get_persistent_resource:
         get_persistent_resource.return_value = (
             tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL_BYOSA
+        )
+        yield get_persistent_resource
+
+
+@pytest.fixture
+def get_persistent_resource_status_error_no_internal_ip_mock():
+    # Cluster with VPC peering but no internal IP
+    with mock.patch.object(
+        vertex_ray.util._gapic_utils, "get_persistent_resource"
+    ) as get_persistent_resource:
+        get_persistent_resource.return_value = (
+            tc.ClusterConstants.TEST_RESPONSE_1_POOL_PRIVATE_NO_INTERNAL_IP
         )
         yield get_persistent_resource
 
@@ -74,9 +97,9 @@ class TestGetJobSubmissionClientClusterInfo:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_no_vpc_mock", "google_auth_mock"
     )
-    def test_job_submission_client_cluster_info_with_full_resource_name(
+    def test_job_submission_client_cluster_info_with_full_resource_name_no_vpc(
         self,
         ray_get_job_submission_client_cluster_info_mock,
         get_bearer_token_mock,
@@ -84,6 +107,7 @@ class TestGetJobSubmissionClientClusterInfo:
         vertex_ray.get_job_submission_client_cluster_info(
             tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
+        # With no VPC peering, we should use the dashboard address
         get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
             address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
@@ -98,7 +122,6 @@ class TestGetJobSubmissionClientClusterInfo:
         self,
         ray_get_job_submission_client_cluster_info_mock,
         get_project_number_mock,
-        get_bearer_token_mock,
     ):
         aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
 
@@ -108,11 +131,9 @@ class TestGetJobSubmissionClientClusterInfo:
         get_project_number_mock.assert_called_once_with(
             name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
         )
-        get_bearer_token_mock.assert_called_once_with()
+        # With VPC peering, we should use the head node IP
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
-            _use_tls=True,
-            headers=tc.ClusterConstants.TEST_HEADERS,
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_HEAD_NODE_IP,
         )
 
     @pytest.mark.usefixtures(
@@ -158,3 +179,21 @@ class TestGetJobSubmissionClientClusterInfo:
             _use_tls=True,
             headers=tc.ClusterConstants.TEST_HEADERS,
         )
+
+    @pytest.mark.usefixtures(
+        "get_persistent_resource_status_error_no_internal_ip_mock", "google_auth_mock"
+    )
+    def test_job_submission_client_cluster_info_vpc_no_internal_ip_error(
+        self,
+        get_project_number_mock,
+    ):
+        aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
+
+        with pytest.raises(RuntimeError) as e:
+            vertex_ray.get_job_submission_client_cluster_info(
+                tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID
+            )
+            get_project_number_mock.assert_called_once_with(
+                name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
+            )
+        e.match(regexp=r"Unable to obtain a response from the backend")
