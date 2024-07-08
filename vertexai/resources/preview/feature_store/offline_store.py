@@ -23,7 +23,7 @@ from vertexai.resources.preview.feature_store import (
     FeatureGroup,
     Feature,
 )
-from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import initializer, __version__
 
 from . import _offline_store_impl as impl
 
@@ -149,7 +149,6 @@ def fetch_historical_feature_values(
     # TODO: Add support for feature_age_threshold
     feature_age_threshold: Optional[datetime.timedelta] = None,
     dry_run: bool = False,
-    session: "Optional[bigframes.session.Session]" = None,
     project: Optional[str] = None,
     location: Optional[str] = None,
 ) -> "Union[bigframes.pandas.DataFrame, None]":
@@ -180,19 +179,14 @@ def fetch_historical_feature_values(
       dry_run:
         Build the Point-In-Time Lookup (PITL) query but don't run it. The PITL
         query will be printed to stdout.
-      session:
-        The bigframes session to use for converting `pd.DataFrame` to
-        `bigframes.pandas.DataFrame` (if necessary) and running the
-        Point-In-Time Lookup (PITL) query in Bigframes/BigQuery. If unset, a new
-        session will be created based on `project` and `location`.
       project:
         The project to use for feature lookup and running the Point-In-Time
         Lookup (PITL) query in BigQuery. If unset, the project set in
-        aiplatform.init will be used. Unused if `session` is provided.
+        aiplatform.init will be used.
       location:
         The location to use for feature lookup and running the Point-In-Time
         Lookup (PITL) query in BigQuery. If unset, the project set in
-        aiplatform.init will be used. Unused if `session` is provided.
+        aiplatform.init will be used.
 
     Returns:
       A `bigframes.pandas.DataFrame` with the historical feature values. `None`
@@ -202,9 +196,15 @@ def fetch_historical_feature_values(
     bigframes = _try_import_bigframes()
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
-    if session is None:
-        session_options = bigframes.BigQueryOptions(project=project, location=location)
-        session = bigframes.connect(session_options)
+    application_name = (
+        f"vertexai-offline-store/{__version__}+fetch-historical-feature-values"
+    )
+    session_options = bigframes.BigQueryOptions(
+        project=project,
+        location=location,
+        application_name=application_name,
+    )
+    session = bigframes.connect(session_options)
 
     if feature_age_threshold is not None:
         raise NotImplementedError("feature_age_threshold is not yet supported.")
