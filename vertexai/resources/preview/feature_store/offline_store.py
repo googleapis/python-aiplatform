@@ -19,6 +19,7 @@ import datetime
 import re
 
 from typing import Optional, List, Tuple, Union, TYPE_CHECKING
+from google.auth import credentials as auth_credentials
 from vertexai.resources.preview.feature_store import (
     FeatureGroup,
     Feature,
@@ -151,6 +152,7 @@ def fetch_historical_feature_values(
     dry_run: bool = False,
     project: Optional[str] = None,
     location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
 ) -> "Union[bigframes.pandas.DataFrame, None]":
     """Fetch historical data at the timestamp specified for each entity.
 
@@ -187,6 +189,9 @@ def fetch_historical_feature_values(
         The location to use for feature lookup and running the Point-In-Time
         Lookup (PITL) query in BigQuery. If unset, the project set in
         aiplatform.init will be used.
+      credentials:
+        Custom credentials to use for running the Point-In-Time Lookup (PITL)
+        query in BigQuery. Overrides credentials set in aiplatform.init.
 
     Returns:
       A `bigframes.pandas.DataFrame` with the historical feature values. `None`
@@ -196,10 +201,12 @@ def fetch_historical_feature_values(
     bigframes = _try_import_bigframes()
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
+    credentials = credentials or initializer.global_config.credentials
     application_name = (
         f"vertexai-offline-store/{__version__}+fetch-historical-feature-values"
     )
     session_options = bigframes.BigQueryOptions(
+        credentials=credentials,
         project=project,
         location=location,
         application_name=application_name,
