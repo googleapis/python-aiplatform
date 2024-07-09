@@ -1,7 +1,7 @@
 ray==2.9.3
 # Below constraints are inherited from constraints-3.10.txt
 google-api-core
-proto-plus==1.22.0
+proto-plus==1.22.3
 protobuf
 mock==4.0.2
 google-cloud-storage==2.2.1 # Increased for kfp 2.0 compatibility

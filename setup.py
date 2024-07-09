@@ -246,7 +246,7 @@ setuptools.setup(
             " <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
         "google-auth >= 2.14.1, <3.0.0dev",
-        "proto-plus >= 1.22.0, <2.0.0dev",
+        "proto-plus >= 1.22.3, <2.0.0dev",
         "protobuf>=4.25.3,<5.0.0dev",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
