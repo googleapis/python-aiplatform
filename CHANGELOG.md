@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.59.0](https://github.com/googleapis/python-aiplatform/compare/v1.58.0...v1.59.0) (2024-07-09)
+
+
+### Features
+
+* Add model and contents fields to ComputeTokensRequest v1 ([f6e7b9c](https://github.com/googleapis/python-aiplatform/commit/f6e7b9c0f1656edba0c69d02475c2a7337fefb99))
+* Add model and contents fields to ComputeTokensRequest v1beta1 ([f6e7b9c](https://github.com/googleapis/python-aiplatform/commit/f6e7b9c0f1656edba0c69d02475c2a7337fefb99))
+* Add role field to TokensInfo v1 ([f6e7b9c](https://github.com/googleapis/python-aiplatform/commit/f6e7b9c0f1656edba0c69d02475c2a7337fefb99))
+* Add role field to TokensInfo v1beta1 ([f6e7b9c](https://github.com/googleapis/python-aiplatform/commit/f6e7b9c0f1656edba0c69d02475c2a7337fefb99))
+* GenAI - Tuning - Released the Supervised Fine Tuning feature o GA ([ae47639](https://github.com/googleapis/python-aiplatform/commit/ae47639c1dc03a89d83c8de1609aaa25af9a1368))
+
+
+### Bug Fixes
+
+* **deps:** Require proto-plus 1.22.3 ([4131e65](https://github.com/googleapis/python-aiplatform/commit/4131e6583799d16b5032fecd73d4539fb05f0cd1))
+* Offline store - set application name + remove session param ([7395665](https://github.com/googleapis/python-aiplatform/commit/7395665bcd847a62b25392d98848a6fb130f5286))
+
 ## [1.58.0](https://github.com/googleapis/python-aiplatform/compare/v1.57.0...v1.58.0) (2024-07-03)
 
 
