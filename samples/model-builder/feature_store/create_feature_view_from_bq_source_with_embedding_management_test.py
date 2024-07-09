@@ -31,6 +31,8 @@ def test_create_feature_view_from_bq_source_with_embedding_management(
         embedding_dimensions=constants.FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS,
     )
 
+    assert False
+
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )

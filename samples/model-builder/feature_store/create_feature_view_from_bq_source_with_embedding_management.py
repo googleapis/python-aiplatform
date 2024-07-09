@@ -42,6 +42,12 @@ def create_feature_view_from_bq_source_with_embedding_management(
         dimensions=embedding_dimensions,
         algorithm_config=feature_store.utils.TreeAhConfig(),
     )
+    if embedding_column:
+        index_config = feature_store.utils.IndexConfig(
+            embedding_column=embedding_column,
+            dimensions=embedding_dimensions,
+            algorithm_config=feature_store.utils.TreeAhConfig(),
+        )
     fv = fos.create_feature_view(
         name=feature_view_id,
         source=bigquery_source,
