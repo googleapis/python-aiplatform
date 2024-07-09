@@ -16,8 +16,8 @@
 import hashlib
 import io
 import os
-import tempfile
 import shutil
+import tempfile
 from typing import List
 from unittest import mock
 from vertexai.generative_models import Content, Image, Part
@@ -27,8 +27,11 @@ from vertexai.tokenization._tokenizers import (
     get_tokenizer_for_model,
 )
 import pytest
-from sentencepiece import sentencepiece_model_pb2
 import sentencepiece as spm
+from sentencepiece import sentencepiece_model_pb2
+from google.cloud.aiplatform_v1beta1.types import (
+    content as gapic_content_types,
+)
 
 _TOKENIZER_NAME = "google/gemma"
 _MODEL_NAME = "gemini-1.5-pro"
@@ -63,9 +66,14 @@ _VALID_CONTENTS_TYPE = [
         [
             Part.from_text(_SENTENCE_1),
             Part.from_text(_SENTENCE_2),
+            Part.from_text(_EMPTY_SENTENCE),
         ],
-        [_SENTENCE_1, _SENTENCE_2],
-        [_TOKENS_MAP[_SENTENCE_1]["ids"], _TOKENS_MAP[_SENTENCE_2]["ids"]],
+        [_SENTENCE_1, _SENTENCE_2, _EMPTY_SENTENCE],
+        [
+            _TOKENS_MAP[_SENTENCE_1]["ids"],
+            _TOKENS_MAP[_SENTENCE_2]["ids"],
+            _TOKENS_MAP[_EMPTY_SENTENCE]["ids"],
+        ],
     ),
     (
         Content(role="user", parts=[Part.from_text(_SENTENCE_1)]),
@@ -78,10 +86,15 @@ _VALID_CONTENTS_TYPE = [
             parts=[
                 Part.from_text(_SENTENCE_1),
                 Part.from_text(_SENTENCE_2),
+                Part.from_text(_EMPTY_SENTENCE),
             ],
         ),
-        [_SENTENCE_1, _SENTENCE_2],
-        [_TOKENS_MAP[_SENTENCE_1]["ids"], _TOKENS_MAP[_SENTENCE_2]["ids"]],
+        [_SENTENCE_1, _SENTENCE_2, _EMPTY_SENTENCE],
+        [
+            _TOKENS_MAP[_SENTENCE_1]["ids"],
+            _TOKENS_MAP[_SENTENCE_2]["ids"],
+            _TOKENS_MAP[_EMPTY_SENTENCE]["ids"],
+        ],
     ),
     (
         [
@@ -128,6 +141,9 @@ _VALID_CONTENTS_TYPE = [
 
 
 _LIST_OF_UNSUPPORTED_CONTENTS = [
+    gapic_content_types.Part(
+        video_metadata=gapic_content_types.VideoMetadata(start_offset="10s")
+    ),
     Part.from_uri("gs://bucket/object", mime_type="mime_type"),
     Part.from_data(b"inline_data_bytes", mime_type="mime_type"),
     Part.from_dict({"function_call": {"name": "test_function_call"}}),

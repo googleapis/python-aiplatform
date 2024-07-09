@@ -33,6 +33,7 @@ from vertexai.tokenization._tokenizer_loading import (
 )
 from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
+    tool as gapic_tool_types,
 )
 
 
@@ -120,7 +121,13 @@ def _assert_text_only_content_types_sequence(
 
 def _assert_text_only_gapic_part(value: gapic_content_types.Part):
     """Asserts that the gapic content part is a text content type."""
-    if not value.text:
+    if (
+        gapic_content_types.FileData() != value.file_data
+        or gapic_content_types.Blob() != value.inline_data
+        or gapic_tool_types.FunctionCall() != value.function_call
+        or gapic_tool_types.FunctionResponse() != value.function_response
+        or gapic_content_types.VideoMetadata() != value.video_metadata
+    ):
         raise ValueError("Tokenizers do not support non-text content types.")
 
 
