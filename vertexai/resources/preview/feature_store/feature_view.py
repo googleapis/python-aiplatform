@@ -289,6 +289,9 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         string_filters: Optional[
             List[fos_service.NearestNeighborQuery.StringFilter]
         ] = None,
+        numeric_filters: Optional[
+            List[fos_service.NearestNeighborQuery.NumericFilter]
+        ] = None,
         per_crowding_attribute_neighbor_count: Optional[int] = None,
         return_full_entity: bool = False,
         approximate_neighbor_candidates: Optional[int] = None,
@@ -312,6 +315,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             neighbor_count: The number of similar entities to be retrieved
               from feature view for each query.
             string_filters: The list of string filters.
+            numeric_filters: The list of numeric filters.
             per_crowding_attribute_neighbor_count: Crowding is a constraint on a
             neighbor list produced by nearest neighbor search requiring that
               no more than sper_crowding_attribute_neighbor_count of the k
@@ -351,6 +355,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
                     embedding=embedding,
                     neighbor_count=neighbor_count,
                     string_filters=string_filters,
+                    numeric_filters=numeric_filters,
                     per_crowding_attribute_neighbor_count=per_crowding_attribute_neighbor_count,  # pylint: disable=line-too-long
                     parameters=fos_service.NearestNeighborQuery.Parameters(
                         approximate_neighbor_candidates=approximate_neighbor_candidates,
