@@ -165,9 +165,8 @@ if has_generator_updates:
     # Update publish-docs to include gemini docs workflow.
     s.replace(
         ".kokoro/publish-docs.sh",
-        "\"${V2_STAGING_BUCKET}\"",
-        """"${V2_STAGING_BUCKET}"
-
+        "# build docs",
+        """
 # build Gemini docs
 nox -s gemini_docs
 
@@ -205,7 +204,8 @@ cat docs.metadata
 
 # upload docs
 python3 -m docuploader upload gemini_docs/_build/html/docfx_yaml --metadata-file docs.metadata --destination-prefix docfx --staging-bucket "${V2_STAGING_BUCKET}"
-        """,
+
+        # build docs""",
     )
 
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)
