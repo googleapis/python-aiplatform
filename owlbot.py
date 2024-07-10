@@ -166,7 +166,7 @@ if has_generator_updates:
     s.replace(
         ".kokoro/publish-docs.sh",
         "# build docs",
-        """
+        """\
 # build Gemini docs
 nox -s gemini_docs
 
@@ -205,8 +205,7 @@ cat docs.metadata
 # upload docs
 python3 -m docuploader upload gemini_docs/_build/html/docfx_yaml --metadata-file docs.metadata --destination-prefix docfx --staging-bucket "${V2_STAGING_BUCKET}"
 
-# build docs
-        """,
+# build docs""",
     )
 
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)
