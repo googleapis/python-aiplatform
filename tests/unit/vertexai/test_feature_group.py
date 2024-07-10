@@ -20,6 +20,7 @@ from typing import Dict, List
 from unittest import mock
 from unittest.mock import call, patch
 
+from google.auth import credentials as auth_credentials
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -156,6 +157,16 @@ def list_features_mock():
     ) as list_features_mock:
         list_features_mock.return_value = _TEST_FG1_FEATURE_LIST
         yield list_features_mock
+
+
+@pytest.fixture()
+def mock_base_instantiate_client():
+    with patch.object(
+        aiplatform.base.VertexAiResourceNoun,
+        "_instantiate_client",
+    ) as base_instantiate_client_mock:
+        base_instantiate_client_mock.return_value = mock.MagicMock()
+        yield base_instantiate_client_mock
 
 
 def fg_eq(
@@ -385,6 +396,260 @@ def test_get_feature(get_fg_mock, get_feature_mock):
     get_feature_mock.assert_called_once_with(
         name=_TEST_FG1_F1_PATH,
         retry=base._DEFAULT_RETRY,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_credentials_set_in_init(mock_base_instantiate_client):
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    aiplatform.init(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=credentials
+    )
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature = fg.get_feature(_TEST_FG1_F1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_from_feature_group_with_explicit_credentials(
+    mock_base_instantiate_client,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    fg = FeatureGroup(_TEST_FG1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature = fg.get_feature(_TEST_FG1_F1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_from_feature_group_with_explicit_credentials_overrides_init_credentials(
+    mock_base_instantiate_client,
+):
+    init_credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    aiplatform.init(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=init_credentials
+    )
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    fg = FeatureGroup(_TEST_FG1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature = fg.get_feature(_TEST_FG1_F1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_with_explicit_credentials(mock_base_instantiate_client):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=mock.ANY,
+        appended_user_agent=None,
+    )
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    feature = fg.get_feature(_TEST_FG1_F1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_with_explicit_credentials_overrides_init_credentials(
+    mock_base_instantiate_client,
+):
+    init_credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    aiplatform.init(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=init_credentials
+    )
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=init_credentials,
+        appended_user_agent=None,
+    )
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    feature = fg.get_feature(_TEST_FG1_F1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_with_explicit_credentials_overrides_feature_group_credentials(
+    mock_base_instantiate_client,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    feature_group_credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    fg = FeatureGroup(_TEST_FG1_ID, credentials=feature_group_credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=feature_group_credentials,
+        appended_user_agent=None,
+    )
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    feature = fg.get_feature(_TEST_FG1_F1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_with_explicit_credentials_overrides_init_and_feature_group_credentials(
+    mock_base_instantiate_client,
+):
+    init_credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    aiplatform.init(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=init_credentials
+    )
+
+    mock_base_instantiate_client.return_value.get_feature_group.return_value = _TEST_FG1
+    mock_base_instantiate_client.return_value.get_feature.return_value = _TEST_FG1_F1
+
+    feature_group_credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    fg = FeatureGroup(_TEST_FG1_ID, credentials=feature_group_credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=feature_group_credentials,
+        appended_user_agent=None,
+    )
+
+    credentials = mock.MagicMock(spec=auth_credentials.Credentials)
+    feature = fg.get_feature(_TEST_FG1_F1_ID, credentials=credentials)
+    mock_base_instantiate_client.assert_called_with(
+        location=_TEST_LOCATION,
+        credentials=credentials,
+        appended_user_agent=None,
     )
 
     feature_eq(

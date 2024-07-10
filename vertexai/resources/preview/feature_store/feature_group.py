@@ -238,16 +238,30 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         lro.result()
         _LOGGER.log_delete_complete(self)
 
-    def get_feature(self, feature_id: str) -> Feature:
+    def get_feature(
+        self,
+        feature_id: str,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Feature:
         """Retrieves an existing managed feature.
 
         Args:
             feature_id: The ID of the feature.
+            credentials:
+                Custom credentials to use to retrieve the feature under this
+                feature group. The order of which credentials are used is as
+                follows: (1) this parameter (2) credentials passed to FeatureGroup
+                constructor (3) credentials set in aiplatform.init.
 
         Returns:
             Feature - the Feature resource object under this feature group.
         """
-        return Feature(f"{self.resource_name}/features/{feature_id}")
+        credentials = (
+            credentials or self.credentials or initializer.global_config.credentials
+        )
+        return Feature(
+            f"{self.resource_name}/features/{feature_id}", credentials=credentials
+        )
 
     def create_feature(
         self,

@@ -478,4 +478,16 @@ def test_one_feature_with_explicit_credentials(
         index_col=bigframes.enums.DefaultIndexKind.NULL,
     )
 
+    # Ensure when getting the FeatureGroup and Feature, the credentials are
+    # passed through.
+    mock_fg.assert_called_once_with(
+        FeatureGroup,
+        "fake",
+        project=None,
+        credentials=credentials,
+    )
+    mock_fg.return_value.get_feature.assert_called_once_with(
+        "my_feature",
+    )
+
     assert rsp == "SOME SQL QUERY OUTPUT"

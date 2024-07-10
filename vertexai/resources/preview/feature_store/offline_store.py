@@ -54,10 +54,12 @@ def _try_import_bigframes():
         ) from exc
 
 
-def _get_feature_group_from_feature(feature: Feature):
+def _get_feature_group_from_feature(
+    feature: Feature, credentials: auth_credentials.Credentials
+):
     """Given a feature, return the feature group resource."""
     result = re.fullmatch(
-        r"projects/.+/locations/.+/featureGroups/(?P<feature_group>.+)/features/.+",
+        r"projects/(?P<project>.+)/locations/(?P<location>.+)/featureGroups/(?P<feature_group>.+)/features/.+",
         feature.resource_name,
     )
 
@@ -65,12 +67,17 @@ def _get_feature_group_from_feature(feature: Feature):
         raise ValueError("Couldn't find feature group in feature.")
 
     project = feature.project
+    location = feature.location
     feature_group = result.group("feature_group")
 
-    return FeatureGroup(feature_group, project=project)
+    return FeatureGroup(
+        feature_group, project=project, location=location, credentials=credentials
+    )
 
 
-def _extract_feature_from_str_repr(str_feature: str) -> Tuple[FeatureGroup, Feature]:
+def _extract_feature_from_str_repr(
+    str_feature: str, credentials: auth_credentials.Credentials
+) -> Tuple[FeatureGroup, Feature]:
     """Given a feature in string representation, return the feature and feature group."""
     # TODO: compile expr + place it in a constant
     result = re.fullmatch(
@@ -82,14 +89,12 @@ def _extract_feature_from_str_repr(str_feature: str) -> Tuple[FeatureGroup, Feat
             f"Feature '{str_feature}' is a string but not in expected format 'feature_group.feature' or 'project.feature_group.feature'."
         )
 
-    if result.group("project"):
-        feature_group = FeatureGroup(
-            result.group("feature_group"), project=result.group("project")
-        )
-        feature = feature_group.get_feature(result.group("feature"))
-    else:
-        feature_group = FeatureGroup(result.group("feature_group"))
-        feature = feature_group.get_feature(result.group("feature"))
+    feature_group = FeatureGroup(
+        result.group("feature_group"),
+        project=result.group("project"),  # None if no match.
+        credentials=credentials,
+    )
+    feature = feature_group.get_feature(result.group("feature"))
 
     return (feature_group, feature)
 
@@ -190,8 +195,9 @@ def fetch_historical_feature_values(
         Lookup (PITL) query in BigQuery. If unset, the project set in
         aiplatform.init will be used.
       credentials:
-        Custom credentials to use for running the Point-In-Time Lookup (PITL)
-        query in BigQuery. Overrides credentials set in aiplatform.init.
+        Custom credentials to use for feature lookup and running the
+        Point-In-Time Lookup (PITL) query in BigQuery. Overrides credentials
+        set in aiplatform.init.
 
     Returns:
       A `bigframes.pandas.DataFrame` with the historical feature values. `None`
@@ -251,10 +257,12 @@ def fetch_historical_feature_values(
     feature_data: List[impl.DataSource] = []
     for feature in features:
         if isinstance(feature, Feature):
-            feature_group = _get_feature_group_from_feature(feature)
+            feature_group = _get_feature_group_from_feature(feature, credentials)
             feature_data.append(_feature_to_data_source(feature_group, feature))
         elif isinstance(feature, str):
-            feature_group, feature = _extract_feature_from_str_repr(feature)
+            feature_group, feature = _extract_feature_from_str_repr(
+                feature, credentials
+            )
             feature_data.append(_feature_to_data_source(feature_group, feature))
         else:
             raise ValueError(
