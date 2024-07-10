@@ -27,7 +27,7 @@ def create_feature_view_from_bq_source_with_embedding_management(
     bq_table_uri: str,
     entity_id_columns: List[str],
     embedding_column: str,
-    embedding_dimensions: str,
+    embedding_dimensions: int,
 ):
     aiplatform.init(project=project, location=location)
 
