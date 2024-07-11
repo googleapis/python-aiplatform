@@ -683,6 +683,7 @@ def get_experiment_model_artifact_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestMetadata:
     def setup_method(self):
         reload(initializer)

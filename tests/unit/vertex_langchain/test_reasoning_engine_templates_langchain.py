@@ -25,6 +25,7 @@ from vertexai.preview.generative_models import grounding
 from vertexai.generative_models import Tool
 from vertexai.reasoning_engines import _utils
 import pytest
+import requests
 
 
 from langchain_core import prompts
@@ -39,6 +40,7 @@ _DEFAULT_PLACE_PHOTO_MAXWIDTH = 400
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
 _TEST_MODEL = "gemini-1.0-pro"
+_TEST_ENVIRONMENT = "GOOGLE_MANAGED"
 
 
 def place_tool_query(
@@ -70,6 +72,13 @@ def google_auth_mock():
             _TEST_PROJECT,
         )
         yield google_auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = _TEST_ENVIRONMENT
+        yield request_session_mock
 
 
 @pytest.fixture

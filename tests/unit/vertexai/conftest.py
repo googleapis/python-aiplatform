@@ -68,6 +68,7 @@ from feature_store_constants import (
 from google.cloud.logging import Logger
 from pyfakefs import fake_filesystem_unittest
 import pytest
+import requests
 import tensorflow.saved_model as tf_saved_model
 
 _TEST_PROJECT = "test-project"
@@ -78,6 +79,7 @@ _TEST_DISPLAY_NAME = f"{_TEST_PARENT}/customJobs/12345"
 _TEST_BUCKET_NAME = "gs://test_bucket"
 _TEST_BASE_OUTPUT_DIR = f"{_TEST_BUCKET_NAME}/test_base_output_dir"
 _TEST_SERVICE_ACCOUNT = f"{_TEST_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+_TEST_ENVIRONMENT = "GOOGLE_MANAGED"
 
 _TEST_INPUTS = [
     "--arg_0=string_val_0",
@@ -140,6 +142,13 @@ def google_auth_mock():
             "test-project",
         )
         yield auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = _TEST_ENVIRONMENT
+        yield request_session_mock
 
 
 @pytest.fixture

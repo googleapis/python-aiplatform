@@ -150,7 +150,9 @@ def experiment_init_mock():
         yield experiment_mock
 
 
-@pytest.mark.usefixtures("google_auth_mock", "experiment_init_mock")
+@pytest.mark.usefixtures(
+    "google_auth_mock", "experiment_init_mock", "request_session_mock"
+)
 class TestgenerativeModelTuning:
     """Unit tests for generative model tuning."""
 

@@ -487,6 +487,7 @@ def mock_get_backing_custom_job_with_persistent_resource_id():
     sys.executable is None, reason="requires python path to invoke subprocess"
 )
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         importlib.reload(initializer)
@@ -1136,6 +1137,7 @@ def mock_nontabular_dataset():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -3442,6 +3444,7 @@ class TestCustomTrainingJob:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestCustomContainerTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -5775,6 +5778,7 @@ class Test_DistributedTrainingSpec:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestCustomPythonPackageTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)

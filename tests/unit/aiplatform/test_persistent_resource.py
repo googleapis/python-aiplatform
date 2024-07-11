@@ -168,6 +168,7 @@ def reboot_persistent_resource_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestPersistentResource:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)

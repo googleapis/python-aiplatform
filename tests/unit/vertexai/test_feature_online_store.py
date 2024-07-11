@@ -121,7 +121,7 @@ def fos_eq(
     assert fos_to_check.feature_online_store_type == type
 
 
-pytestmark = pytest.mark.usefixtures("google_auth_mock")
+pytestmark = pytest.mark.usefixtures("google_auth_mock", "request_session_mock")
 
 
 @pytest.mark.parametrize(

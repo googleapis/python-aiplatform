@@ -27,6 +27,7 @@ from google.cloud.aiplatform_v1beta1 import (
 import test_rag_constants as tc
 import mock
 import pytest
+import requests
 
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
@@ -40,6 +41,13 @@ def google_auth_mock():
             tc.TEST_PROJECT,
         )
         yield auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = tc.TEST_ENVIRONMENT
+        yield request_session_mock
 
 
 @pytest.fixture

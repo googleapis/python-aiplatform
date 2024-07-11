@@ -104,6 +104,7 @@ def make_training_pipeline(state, add_training_task_metadata=True):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestEndToEnd:
     def setup_method(self):
         reload(initializer)

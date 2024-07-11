@@ -128,7 +128,9 @@ class TestClientBuilder:
 
     @tc.rovminversion
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_mock",
+        "google_auth_mock",
+        "request_session_mock",
     )
     def test_init_with_cluster_name(
         self,

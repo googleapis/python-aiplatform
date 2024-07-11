@@ -191,6 +191,7 @@ def generate_video_from_storage_url(
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestImageGenerationModels:
     """Unit tests for the image generation models."""
 
@@ -769,6 +770,7 @@ class TestImageGenerationModels:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class ImageCaptioningModelTests:
     """Unit tests for the image captioning models."""
 
@@ -817,6 +819,7 @@ class ImageCaptioningModelTests:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class ImageQnAModelTests:
     """Unit tests for the image to text models."""
 
@@ -870,6 +873,7 @@ class ImageQnAModelTests:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class ImageVerificationModelTests:
     """Unit tests for the image verification models."""
 
@@ -915,6 +919,7 @@ class ImageVerificationModelTests:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestMultiModalEmbeddingModels:
     """Unit tests for the image generation models."""
 
@@ -1429,6 +1434,7 @@ class TestMultiModalEmbeddingModels:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class ImageTextModelTests:
     """Unit tests for the image to text models."""
 

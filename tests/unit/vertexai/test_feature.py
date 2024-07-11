@@ -60,7 +60,7 @@ def delete_feature_mock():
         yield delete_feature_mock
 
 
-pytestmark = pytest.mark.usefixtures("google_auth_mock")
+pytestmark = pytest.mark.usefixtures("google_auth_mock", "request_session_mock")
 
 
 def feature_eq(

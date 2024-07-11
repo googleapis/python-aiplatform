@@ -387,6 +387,7 @@ def create_hyperparameter_tuning_job_mock_with_tensorboard():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestHyperparameterTuningJob:
     def setup_method(self):
         reload(aiplatform.initializer)

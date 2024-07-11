@@ -53,6 +53,7 @@ _TEST_TENSORBOARD_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/t
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestInit:
     def setup_method(self):
         importlib.reload(initializer)

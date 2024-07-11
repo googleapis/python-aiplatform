@@ -773,6 +773,7 @@ def batch_create_features_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
         "resource_id",

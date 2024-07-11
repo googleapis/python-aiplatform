@@ -206,7 +206,9 @@ def mock_hashlib_sha256():
         yield sha256_mock
 
 
-@pytest.mark.usefixtures("mock_requests_get", "mock_hashlib_sha256")
+@pytest.mark.usefixtures(
+    "mock_requests_get", "mock_hashlib_sha256", "request_session_mock"
+)
 class TestTokenizers:
     """Unit tests for the tokenizers."""
 

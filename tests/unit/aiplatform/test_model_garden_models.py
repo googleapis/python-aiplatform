@@ -62,6 +62,7 @@ _EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestModelGardenModels:
     """Unit tests for the _ModelGardenModel base class."""
 

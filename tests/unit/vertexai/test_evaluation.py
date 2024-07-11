@@ -232,6 +232,7 @@ def mock_experiment_tracker():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestEvaluation:
     def setup_method(self):
         vertexai.init(
@@ -681,6 +682,7 @@ class TestEvaluation:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestEvaluationErrors:
     def setup_method(self):
         vertexai.init(
@@ -829,6 +831,7 @@ class TestEvaluationErrors:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestEvaluationUtils:
     def setup_method(self):
         vertexai.init(

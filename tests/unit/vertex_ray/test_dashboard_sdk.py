@@ -74,7 +74,9 @@ class TestGetJobSubmissionClientClusterInfo:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_mock",
+        "google_auth_mock",
+        "request_session_mock",
     )
     def test_job_submission_client_cluster_info_with_full_resource_name(
         self,
@@ -92,7 +94,9 @@ class TestGetJobSubmissionClientClusterInfo:
         )
 
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_mock",
+        "google_auth_mock",
+        "request_session_mock",
     )
     def test_job_submission_client_cluster_info_with_cluster_name(
         self,
@@ -116,7 +120,9 @@ class TestGetJobSubmissionClientClusterInfo:
         )
 
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_mock",
+        "google_auth_mock",
+        "request_session_mock",
     )
     def test_job_submission_client_cluster_info_with_dashboard_address(
         self,
@@ -136,7 +142,9 @@ class TestGetJobSubmissionClientClusterInfo:
         )
 
     @pytest.mark.usefixtures(
-        "get_persistent_resource_status_running_byosa_public_mock", "google_auth_mock"
+        "get_persistent_resource_status_running_byosa_public_mock",
+        "google_auth_mock",
+        "request_session_mock",
     )
     def test_job_submission_client_cluster_info_with_cluster_name_byosa_public(
         self,

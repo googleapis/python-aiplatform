@@ -79,7 +79,7 @@ from feature_store_constants import (
 from test_feature import feature_eq
 
 
-pytestmark = pytest.mark.usefixtures("google_auth_mock")
+pytestmark = pytest.mark.usefixtures("google_auth_mock", "request_session_mock")
 
 
 @pytest.fixture

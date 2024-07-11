@@ -260,6 +260,7 @@ def add_measurement_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestStudy:
     def setup_method(self):
         reload(initializer)

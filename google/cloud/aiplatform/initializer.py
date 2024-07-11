@@ -17,10 +17,12 @@
 
 
 from concurrent import futures
+import enum
 import functools
 import inspect
 import logging
 import os
+import requests
 import types
 from typing import Iterator, List, Optional, Sequence, Tuple, Type, TypeVar, Union
 
@@ -44,6 +46,8 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
+from urllib3.util import retry
+
 
 _TVertexAiServiceClientWithOverride = TypeVar(
     "_TVertexAiServiceClientWithOverride",
@@ -51,6 +55,22 @@ _TVertexAiServiceClientWithOverride = TypeVar(
 )
 
 _TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG = "top_google_constructor_method"
+
+_MAX_RETRIES = 5
+_METADATA_GOOGLE_MANAGED_RESOURCE = "instance/attributes/runtime-resource-name"
+_METADATA_NOTEBOOKS_API_VERSION = "instance/attributes/notebooks-api-version"
+_METADATA_URL = "http://metadata/computeMetadata/v1"
+_METADATA_FLAVOR = {"Metadata-Flavor": "Google"}
+
+
+class _Product(enum.Enum):
+    """Notebook product types."""
+
+    USER_MANAGED = "USER_MANAGED"
+    GOOGLE_MANAGED = "GOOGLE_MANAGED"
+    WORKBENCH_INSTANCE = "WORKBENCH_INSTANCE"
+    COLAB_ENTERPRISE = "COLAB_ENTERPRISE"
+    WORKBENCH_CUSTOM_CONTAINER = "WORKBENCH_CUSTOM_CONTAINER"
 
 
 class _Config:
@@ -110,6 +130,7 @@ class _Config:
         self._api_endpoint = None
         self._api_transport = None
         self._request_metadata = None
+        self._resource_type = None
 
     def init(
         self,
@@ -242,6 +263,7 @@ class _Config:
             self._service_account = service_account
         if request_metadata is not None:
             self._request_metadata = request_metadata
+        self._resource_type = None
 
         # Finally, perform secondary state updates
         if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
@@ -370,6 +392,25 @@ class _Config:
         """Default experiment name, if provided."""
         return metadata._experiment_tracker.experiment_name
 
+    def get_resource_type(self) -> _Product:
+        """Returns the resource type from environment or metadata."""
+        if not self._resource_type:
+            vertex_product = os.getenv("VERTEX_PRODUCT")
+            if vertex_product == "COLAB_ENTERPRISE":
+                self._resource_type = _Product.COLAB_ENTERPRISE
+            if vertex_product == "WORKBENCH_CUSTOM_CONTAINER":
+                self._resource_type = _Product.WORKBENCH_CUSTOM_CONTAINER
+            if vertex_product == "WORKBENCH_INSTANCE":
+                self._resource_type = _Product.WORKBENCH_INSTANCE
+
+            # Deprecated types, need to check metadata
+            if not vertex_product:
+                if self._get_metadata_value(_METADATA_GOOGLE_MANAGED_RESOURCE):
+                    self._resource_type = _Product.GOOGLE_MANAGED
+                else:
+                    self._resource_type = _Product.USER_MANAGED
+        return self._resource_type
+
     def get_client_options(
         self,
         location_override: Optional[str] = None,
@@ -489,6 +530,9 @@ class _Config:
         except Exception:  # pylint: disable=broad-exception-caught
             pass
 
+        resource_type = self.get_resource_type()
+        gapic_version += f"+environment+{resource_type.value}"
+
         if telemetry._tool_names_to_append:
             # Must append to gapic_version due to b/259738581.
             gapic_version = f"{gapic_version}+tools+{'+'.join(telemetry._tool_names_to_append[::-1])}"
@@ -529,6 +573,55 @@ class _Config:
         if self._request_metadata:
             client = _ClientWrapperThatAddsDefaultMetadata(client)
         return client
+
+    def _get_session(
+        self, max_retries: Optional[int] = _MAX_RETRIES
+    ) -> requests.Session:
+        """Return an HTTP Session.
+
+        Args:
+            max_retries(int, optional): The maximum number of retries for HTTP requests.
+            Defaults to MAX_RETRIES.
+
+        Returns:
+            A requests.Session()
+        """
+        retry_strategy = retry.Retry(
+            total=max_retries,
+            backoff_factor=1,
+            status_forcelist=[409, 429],
+            allowed_methods=["GET", "POST"],
+        )
+        session = requests.Session()
+        session.mount(
+            "http://", requests.adapters.HTTPAdapter(max_retries=retry_strategy)
+        )
+        return session
+
+    def _get_metadata_value(self, key: str) -> Optional[str]:
+        r"""Get Metadata value.
+
+        Args:
+            key(str): Metadata value to look for. curl --retry 5 \ -s \ -f \
+                -H "Metadata-Flavor: Google "http://metadata/computeMetadata/v1/$1"
+
+        Returns:
+            A Metadata value or None.
+        """
+        if key is None:
+            raise ValueError("Invalid metadata key")
+        # Get Metadata information
+        url = f"{_METADATA_URL}/{key}"
+        try:
+            session = self._get_session(max_retries=_MAX_RETRIES)
+            response = session.get(url, headers=_METADATA_FLAVOR)
+            response.raise_for_status()
+            return response.text
+        except requests.exceptions.HTTPError as err:
+            http_code = err.response.status_code
+            if http_code == 404:
+                logging.info("%s:%s", url, http_code)
+        return None
 
     def _get_default_project_and_location(self) -> Tuple[str, str]:
         return (
