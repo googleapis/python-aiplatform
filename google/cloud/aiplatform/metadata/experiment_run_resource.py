@@ -617,21 +617,30 @@ class ExperimentRun(
         Returns:
             Dictionary mapping time series metric key to the latest step of that metric.
         """
+        time_series_metric_values = {}
         if self._backing_tensorboard_run:
             time_series_metrics = (
                 self._backing_tensorboard_run.resource.read_time_series_data()
             )
 
-            return {
-                display_name: data.values[-1].scalar.value
-                for display_name, data in time_series_metrics.items()
+            for display_name, data in time_series_metrics.items():
                 if (
                     data.values
                     and data.value_type
                     == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
-                )
-            }
-        return {}
+                ):
+                    time_series_metric_values[display_name] = (
+                        data.values[-1].scalar.value
+                    )
+                elif (
+                    data.values
+                    and data.value_type
+                    == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR
+                ):
+                    time_series_metric_values[display_name] = (
+                        data.values[-1].tensor.value
+                    )
+        return time_series_metric_values
 
     def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
         """Associate this PipelineJob's Context to the current ExperimentRun Context as a child context.
