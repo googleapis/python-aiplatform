@@ -171,13 +171,13 @@ if has_generator_updates:
 nox -s gemini_docs
 
 # create metadata
-python3 -m docuploader create-metadata \
-  --name="vertexai" \
-  --version=$(python3 setup.py --version) \
-  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \
-  --distribution-name="google-cloud-vertexai" \
-  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \
-  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \
+python3 -m docuploader create-metadata \\
+  --name="vertexai" \\
+  --version=$(python3 setup.py --version) \\
+  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
+  --distribution-name="google-cloud-vertexai" \\
+  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
+  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
   --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json)
 
 cat docs.metadata
@@ -190,14 +190,14 @@ python3 -m docuploader upload gemini_docs/_build/html --metadata-file docs.metad
 nox -s gemini_docfx
 
 # create metadata.
-python3 -m docuploader create-metadata \
-  --name="vertexai" \
-  --version=$(python3 setup.py --version) \
-  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \
-  --distribution-name="google-cloud-vertexai" \
-  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \
-  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \
-  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json) \
+python3 -m docuploader create-metadata \\
+  --name="vertexai" \\
+  --version=$(python3 setup.py --version) \\
+  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
+  --distribution-name="google-cloud-vertexai" \\
+  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
+  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
+  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json) \\
   --stem="/vertex-ai/generative-ai/docs/reference/python"
 
 cat docs.metadata
