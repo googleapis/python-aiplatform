@@ -38,11 +38,13 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
+from google.cloud.aiplatform_v1beta1.services import llm_utility_service
 from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
 )
 from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as gapic_prediction_service_types,
+    llm_utility_service as gapic_llm_utility_service_types,
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
@@ -384,6 +386,34 @@ class _GenerativeModel:
                 )
             )
         return self._prediction_async_client_value
+
+    @property
+    def _llm_utility_client(self) -> llm_utility_service.LlmUtilityServiceClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_llm_utility_client_value", None):
+            self._llm_utility_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=llm_utility_service.LlmUtilityServiceClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._llm_utility_client_value
+
+    @property
+    def _llm_utility_async_client(
+        self,
+    ) -> llm_utility_service.LlmUtilityServiceAsyncClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_llm_utility_async_client_value", None):
+            self._llm_utility_async_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._llm_utility_async_client_value
 
     def _prepare_request(
         self,
@@ -784,6 +814,60 @@ class _GenerativeModel:
         """
         return await self._prediction_async_client.count_tokens(
             request=gapic_prediction_service_types.CountTokensRequest(
+                endpoint=self._prediction_resource_name,
+                model=self._prediction_resource_name,
+                contents=self._prepare_request(contents=contents).contents,
+            )
+        )
+
+    def compute_tokens(
+        self, contents: ContentsType
+    ) -> gapic_llm_utility_service_types.ComputeTokensResponse:
+        """Counts tokens.
+
+        Args:
+            contents: Contents to send to the model.
+                Supports either a list of Content objects (passing a multi-turn conversation)
+                or a value that can be converted to a single Content object (passing a single message).
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+                * List[Content]
+
+        Returns:
+            A CountTokensResponse object that has the following attributes:
+                total_tokens: The total number of tokens counted across all instances from the request.
+                total_billable_characters: The total number of billable characters counted across all instances from the request.
+        """
+        return self._llm_utility_client.compute_tokens(
+            request=gapic_llm_utility_service_types.ComputeTokensRequest(
+                endpoint=self._prediction_resource_name,
+                model=self._prediction_resource_name,
+                contents=self._prepare_request(contents=contents).contents,
+            )
+        )
+
+    async def compute_tokens_async(
+        self, contents: ContentsType
+    ) -> gapic_llm_utility_service_types.ComputeTokensResponse:
+        """Counts tokens asynchronously.
+
+        Args:
+            contents: Contents to send to the model.
+                Supports either a list of Content objects (passing a multi-turn conversation)
+                or a value that can be converted to a single Content object (passing a single message).
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+                * List[Content]
+
+        Returns:
+            And awaitable for a CountTokensResponse object that has the following attributes:
+                total_tokens: The total number of tokens counted across all instances from the request.
+                total_billable_characters: The total number of billable characters counted across all instances from the request.
+        """
+        return await self._llm_utility_async_client.compute_tokens(
+            request=gapic_llm_utility_service_types.ComputeTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
                 contents=self._prepare_request(contents=contents).contents,
