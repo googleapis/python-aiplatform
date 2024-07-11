@@ -1,4 +1,5 @@
 # Vertex Generative AI SDK for Python
+
 The Vertex Generative AI SDK helps developers use Google's generative AI
 [Gemini models](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/overview)
 and [PaLM language models](http://cloud.google.com/vertex-ai/docs/generative-ai/language-model-overview)
@@ -23,19 +24,22 @@ pip3 install --upgrade --user "google-cloud-aiplatform>=1.38"
 
 For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal) and [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
 
-#### Imports:
+### Imports
+
 ```python
 from vertexai.generative_models import GenerativeModel, Image, Content, Part, Tool, FunctionDeclaration, GenerationConfig
 ```
 
-#### Basic generation:
+### Basic generation
+
 ```python
 from vertexai.generative_models import GenerativeModel
 model = GenerativeModel("gemini-pro")
 print(model.generate_content("Why is sky blue?"))
 ```
 
-#### Using images and videos
+### Using images and videos
+
 ```python
 from vertexai.generative_models import GenerativeModel, Image
 vision_model = GenerativeModel("gemini-pro-vision")
@@ -53,7 +57,8 @@ video_part = Part.from_uri("gs://cloud-samples-data/video/animals.mp4", mime_typ
 print(vision_model.generate_content(["What is in the video? ", video_part]))
 ```
 
-#### Chat
+### Chat
+
 ```
 from vertexai.generative_models import GenerativeModel, Image
 vision_model = GenerativeModel("gemini-ultra-vision")
@@ -63,7 +68,8 @@ print(vision_chat.send_message(["I like this image.", image]))
 print(vision_chat.send_message("What things do I like?."))
 ```
 
-#### System instructions
+### System instructions
+
 ```
 from vertexai.generative_models import GenerativeModel
 model = GenerativeModel(
@@ -76,7 +82,7 @@ model = GenerativeModel(
 print(model.generate_content("Why is sky blue?"))
 ```
 
-#### Function calling
+### Function calling
 
 ```
 # First, create tools that the model is can use to answer your questions.
@@ -130,7 +136,7 @@ print(chat.send_message(
 ```
 
 
-#### Automatic Function calling
+### Automatic Function calling
 
 ```
 from vertexai.preview.generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
