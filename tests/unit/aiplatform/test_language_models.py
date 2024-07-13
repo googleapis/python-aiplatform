@@ -177,6 +177,19 @@ _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
     },
 }
 
+_TEXT_EMBEDDING_MODEL_VERSIONS = [
+    "textembedding-gecko",
+    "textembedding-gecko@001",
+    "textembedding-gecko@002",
+    "textembedding-gecko@003",
+    "textembedding-gecko@latest",
+    "textembedding-gecko-multilingual",
+    "textembedding-gecko-multilingual@001",
+    "textembedding-gecko-multilingual@latest",
+    "text-embedding-preview-0409",
+    "text-multilingual-embedding-preview-0409",
+]
+
 _TEST_GROUNDING_WEB_SEARCH = GroundingSource.WebSearch()
 
 _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE = GroundingSource.VertexAISearch(
@@ -4448,7 +4461,11 @@ class TestLanguageModels:
             ):
                 assert len(response.text) > 10
 
-    def test_text_embedding(self):
+    @pytest.mark.parametrize(
+        "model_id",
+        _TEXT_EMBEDDING_MODEL_VERSIONS,
+    )
+    def test_text_embedding(self, model_id):
         """Tests the text embedding model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -4462,11 +4479,11 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = preview_language_models.TextEmbeddingModel.from_pretrained(
-                "textembedding-gecko@001"
+                model_id
             )
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/textembedding-gecko@001",
+            name=f"publishers/google/models/{model_id}",
             retry=base._DEFAULT_RETRY,
         )
 
@@ -4526,7 +4543,11 @@ class TestLanguageModels:
                     == expected_embedding["statistics"]["truncated"]
                 )
 
-    def test_text_embedding_preview_count_tokens(self):
+    @pytest.mark.parametrize(
+        "model_id",
+        _TEXT_EMBEDDING_MODEL_VERSIONS,
+    )
+    def test_text_embedding_preview_count_tokens(self, model_id):
         """Tests the text embedding model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -4540,7 +4561,7 @@ class TestLanguageModels:
             ),
         ):
             model = preview_language_models.TextEmbeddingModel.from_pretrained(
-                "textembedding-gecko@001"
+                model_id
             )
 
             gca_count_tokens_response = (
@@ -4567,7 +4588,11 @@ class TestLanguageModels:
                     == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
                 )
 
-    def test_text_embedding_ga(self):
+    @pytest.mark.parametrize(
+        "model_id",
+        _TEXT_EMBEDDING_MODEL_VERSIONS,
+    )
+    def test_text_embedding_ga(self, model_id):
         """Tests the text embedding model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -4581,11 +4606,11 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = language_models.TextEmbeddingModel.from_pretrained(
-                "textembedding-gecko@001"
+                model_id
             )
 
         mock_get_publisher_model.assert_called_once_with(
-            name="publishers/google/models/textembedding-gecko@001",
+            name=f"publishers/google/models/{model_id}",
             retry=base._DEFAULT_RETRY,
         )
 
