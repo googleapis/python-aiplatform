@@ -26,7 +26,6 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import models
 
 from google.cloud.aiplatform.compat.services import (
     deployment_resource_pool_service_client,
@@ -232,7 +231,7 @@ class TestDeploymentResourcePool:
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
         )
-        models.DeploymentResourcePool(_TEST_DRP_NAME)
+        aiplatform.DeploymentResourcePool(_TEST_DRP_NAME)
         get_drp_mock.assert_called_once_with(
             name=_TEST_DRP_NAME, retry=base._DEFAULT_RETRY
         )
@@ -242,7 +241,7 @@ class TestDeploymentResourcePool:
         """Passing a full resource name with `_TEST_LOCATION` and providing `_TEST_LOCATION_2` as location"""
 
         with pytest.raises(RuntimeError) as err:
-            models.DeploymentResourcePool(_TEST_DRP_NAME, location=_TEST_LOCATION_2)
+            aiplatform.DeploymentResourcePool(_TEST_DRP_NAME, location=_TEST_LOCATION_2)
 
         assert err.match(
             regexp=r"is provided, but different from the resource location"
@@ -251,7 +250,7 @@ class TestDeploymentResourcePool:
     @pytest.mark.usefixtures("create_drp_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create(self, create_drp_mock, sync):
-        test_drp = models.DeploymentResourcePool.create(
+        test_drp = aiplatform.DeploymentResourcePool.create(
             deployment_resource_pool_id=_TEST_ID,
             machine_type=_TEST_MACHINE_TYPE,
             min_replica_count=10,
@@ -285,7 +284,7 @@ class TestDeploymentResourcePool:
     @pytest.mark.usefixtures("create_drp_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_with_timeout(self, create_drp_mock, sync):
-        test_drp = models.DeploymentResourcePool.create(
+        test_drp = aiplatform.DeploymentResourcePool.create(
             deployment_resource_pool_id=_TEST_ID,
             machine_type=_TEST_MACHINE_TYPE,
             min_replica_count=10,
@@ -319,17 +318,17 @@ class TestDeploymentResourcePool:
 
     @pytest.mark.usefixtures("list_drp_mock")
     def test_list(self, list_drp_mock):
-        drp_list = models.DeploymentResourcePool.list()
+        drp_list = aiplatform.DeploymentResourcePool.list()
 
         list_drp_mock.assert_called_once()
 
         for drp in drp_list:
-            assert isinstance(drp, models.DeploymentResourcePool)
+            assert isinstance(drp, aiplatform.DeploymentResourcePool)
 
     @pytest.mark.usefixtures("delete_drp_mock", "get_drp_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete(self, delete_drp_mock, get_drp_mock, sync):
-        test_drp = models.DeploymentResourcePool(
+        test_drp = aiplatform.DeploymentResourcePool(
             deployment_resource_pool_name=_TEST_DRP_NAME
         )
         test_drp.delete(sync=sync)
@@ -341,7 +340,7 @@ class TestDeploymentResourcePool:
 
     @pytest.mark.usefixtures("query_deployed_models_mock", "get_drp_mock")
     def test_query_deployed_models(self, query_deployed_models_mock, get_drp_mock):
-        test_drp = models.DeploymentResourcePool(
+        test_drp = aiplatform.DeploymentResourcePool(
             deployment_resource_pool_name=_TEST_DRP_NAME
         )
         dm_refs = test_drp.query_deployed_models()
