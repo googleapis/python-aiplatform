@@ -397,30 +397,38 @@ class LangchainAgent:
             from vertexai.reasoning_engines import _utils
 
             cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
+            cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
             openinference_langchain = _utils._import_openinference_langchain_or_warn()
             opentelemetry = _utils._import_opentelemetry_or_warn()
             opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
             if all(
                 (
                     cloud_trace_exporter,
+                    cloud_trace_v2,
                     openinference_langchain,
                     opentelemetry,
                     opentelemetry_sdk_trace,
                 )
             ):
+                import google.auth
+
+                credentials, _ = google.auth.default()
+                span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
+                    project_id=self._project,
+                    client=cloud_trace_v2.TraceServiceClient(
+                        credentials=credentials.with_quota_project(self._project),
+                    ),
+                )
+                span_processor = opentelemetry_sdk_trace.export.SimpleSpanProcessor(
+                    span_exporter=span_exporter,
+                )
                 tracer_provider = opentelemetry.trace.get_tracer_provider()
                 if tracer_provider and _utils._is_noop_tracer_provider(tracer_provider):
-                    # Set a trace provider if it has not been set.
-                    span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-                        project_id=self._project,
-                    )
-                    span_processor = opentelemetry_sdk_trace.export.SimpleSpanProcessor(
-                        span_exporter=span_exporter,
-                    )
-                    tracer_provider = opentelemetry_sdk_trace.TracerProvider(
-                        active_span_processor=span_processor,
-                    )
+                    # Avoids AttributeError: 'ProxyTracerProvider' object has no
+                    # attribute 'add_span_processor'
+                    tracer_provider = opentelemetry_sdk_trace.TracerProvider()
                 opentelemetry.trace.set_tracer_provider(tracer_provider)
+                tracer_provider.add_span_processor(span_processor)
                 self._instrumentor = openinference_langchain.LangChainInstrumentor()
                 self._instrumentor.instrument()
             else:
