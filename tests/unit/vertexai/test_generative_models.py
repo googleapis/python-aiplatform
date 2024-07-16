@@ -483,6 +483,37 @@ class TestGenerativeModels:
             == "cached-content-id-in-from-cached-content-test"
         )
 
+    def test_generative_model_from_cached_content_with_resource_name(
+        self, mock_get_cached_content_fixture
+    ):
+        project_location_prefix = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+        )
+
+        model = preview_generative_models.GenerativeModel.from_cached_content(
+            cached_content="cached-content-id-in-from-cached-content-test"
+        )
+
+        assert (
+            model._prediction_resource_name
+            == project_location_prefix
+            + "publishers/google/models/"
+            + "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.model_name
+            == "gemini-pro-from-mock-get-cached-content"
+        )
+        assert (
+            model._cached_content.resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+            "cachedContents/cached-content-id-in-from-cached-content-test"
+        )
+        assert (
+            model._cached_content.name
+            == "cached-content-id-in-from-cached-content-test"
+        )
+
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
         attribute="generate_content",

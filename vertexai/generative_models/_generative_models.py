@@ -2687,11 +2687,29 @@ class _PreviewGenerativeModel(_GenerativeModel):
     @classmethod
     def from_cached_content(
         cls,
-        cached_content: "caching.CachedContent",
+        cached_content: Union[str, "caching.CachedContent"],
         *,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
     ) -> "_GenerativeModel":
+        """Creates a model from cached content.
+
+        Creates a model instance with an existing cached content. The cached
+        content becomes the prefix of the requesting contents.
+
+        Args:
+            cached_content: The cached content resource name or object.
+            generation_config: The generation config to use for this model.
+            safety_settings: The safety settings to use for this model.
+
+        Returns:
+            A model instance with the cached content wtih cached content as
+            prefix of all its requests.
+        """
+        if isinstance(cached_content, str):
+            from vertexai.preview import caching
+
+            cached_content = caching.CachedContent.get(cached_content)
         model_name = cached_content.model_name
         model = cls(
             model_name=model_name,
