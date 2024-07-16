@@ -1769,6 +1769,7 @@ def mock_storage_blob_upload_from_filename():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestLanguageModels:
     """Unit tests for the language models."""
 

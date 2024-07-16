@@ -389,6 +389,7 @@ def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestGenerativeModels:
     """Unit tests for the generative models."""
 

@@ -17,6 +17,8 @@
 
 import pytest
 
+import requests
+
 from google import auth
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -67,6 +69,15 @@ def google_auth_mock():
             "test-project",
         )
         yield google_auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = (
+            test_constants.ProjectConstants._TEST_ENVIRONMENT
+        )
+        yield request_session_mock
 
 
 # Training job fixtures

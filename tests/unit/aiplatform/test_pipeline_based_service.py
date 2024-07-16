@@ -323,6 +323,7 @@ def mock_pipeline_bucket_exists():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestPipelineBasedService:
     class FakePipelineBasedService(
         pipeline_based_service._VertexAiPipelineBasedService

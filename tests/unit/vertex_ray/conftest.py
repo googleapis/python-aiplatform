@@ -34,6 +34,7 @@ from google.cloud.aiplatform_v1.types.persistent_resource_service import (
 import test_constants as tc
 import mock
 import pytest
+import requests
 
 
 # -*- coding: utf-8 -*-
@@ -61,6 +62,13 @@ def google_auth_mock():
             tc.ProjectConstants.TEST_GCP_PROJECT_ID,
         )
         yield auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = tc.ProjectConstants.TEST_ENVIRONMENT
+        yield request_session_mock
 
 
 @pytest.fixture

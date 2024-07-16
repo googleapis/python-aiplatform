@@ -504,6 +504,7 @@ def get_tensorboard_run_artifact_not_found_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)

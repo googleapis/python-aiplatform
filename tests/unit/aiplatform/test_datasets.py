@@ -574,6 +574,7 @@ def bigquery_table_schema_mock():
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestDataset:
     def setup_method(self):
         reload(initializer)

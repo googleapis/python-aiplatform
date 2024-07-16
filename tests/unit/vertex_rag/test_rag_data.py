@@ -161,6 +161,7 @@ def import_files_request_eq(returned_request, expected_request):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestRagDataManagement:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)

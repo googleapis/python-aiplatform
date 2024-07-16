@@ -583,6 +583,7 @@ def delete_model_monitoring_job_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestModelMonitor:
     def setup_method(self):
         importlib.reload(initializer)

@@ -60,6 +60,7 @@ def retrieve_contexts_eq(response, expected_response):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestRagRetrieval:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)

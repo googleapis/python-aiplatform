@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1beta1 import (
 TEST_PROJECT = "test-project"
 TEST_PROJECT_NUMBER = "12345678"
 TEST_REGION = "us-central1"
+TEST_ENVIRONMENT = "GOOGLE_MANAGED"
 TEST_CORPUS_DISPLAY_NAME = "my-corpus-1"
 TEST_CORPUS_DISCRIPTION = "My first corpus."
 TEST_RAG_CORPUS_ID = "generate-123"

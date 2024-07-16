@@ -16,6 +16,11 @@
 #
 
 import sys
+from unittest import mock
+
+import pytest
+import requests
+
 
 collect_ignore = []
 
@@ -38,3 +43,10 @@ if sys.version_info > (3, 11):
         "vertexai/test_serializers.py",
         "vertexai/test_vizier_hyperparameter_tuner.py",
     ]
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = "GOOGLE_MANAGED"
+        yield request_session_mock

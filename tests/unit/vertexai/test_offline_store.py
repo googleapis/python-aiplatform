@@ -127,7 +127,7 @@ import bigframes  # noqa: E402
 import bigframes.pandas as bpd  # noqa: E402
 
 
-pytestmark = pytest.mark.usefixtures("google_auth_mock")
+pytestmark = pytest.mark.usefixtures("google_auth_mock", "request_session_mock")
 
 
 @pytest.fixture()

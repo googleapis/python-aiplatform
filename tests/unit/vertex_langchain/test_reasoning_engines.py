@@ -34,6 +34,7 @@ from vertexai.preview import reasoning_engines
 from vertexai.reasoning_engines import _utils
 from vertexai.reasoning_engines import _reasoning_engines
 import pytest
+import requests
 
 
 class CapitalizeEngine:
@@ -55,6 +56,7 @@ _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_STAGING_BUCKET = "gs://test-bucket"
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
+_TEST_ENVIRONMENT = "GOOGLE_MANAGED"
 _TEST_RESOURCE_ID = "1028944691210842416"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_REASONING_ENGINE_RESOURCE_NAME = (
@@ -141,6 +143,13 @@ def google_auth_mock():
             _TEST_PROJECT,
         )
         yield google_auth_mock
+
+
+@pytest.fixture(scope="module")
+def request_session_mock():
+    with mock.patch.object(requests, "Session") as request_session_mock:
+        request_session_mock.return_value.text = _TEST_ENVIRONMENT
+        yield request_session_mock
 
 
 @pytest.fixture(scope="module")
@@ -285,6 +294,7 @@ class InvalidCapitalizeEngineWithNoncallableQuery:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestReasoningEngine:
     def setup_method(self):
         importlib.reload(initializer)
@@ -479,6 +489,7 @@ class TestReasoningEngine:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestReasoningEngineErrors:
     def setup_method(self):
         importlib.reload(initializer)

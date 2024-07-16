@@ -21,6 +21,7 @@ import test_rag_constants as tc
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestRagStoreValidations:
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:

@@ -284,7 +284,9 @@ def cluster_eq(returned_cluster, expected_cluster):
     assert returned_cluster.state == expected_cluster.state
 
 
-@pytest.mark.usefixtures("google_auth_mock", "get_project_number_mock")
+@pytest.mark.usefixtures(
+    "google_auth_mock", "get_project_number_mock", "request_session_mock"
+)
 class TestClusterManagement:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)

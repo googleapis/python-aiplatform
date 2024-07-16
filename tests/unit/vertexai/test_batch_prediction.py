@@ -226,7 +226,10 @@ def list_batch_prediction_jobs_mock():
 
 
 @pytest.mark.usefixtures(
-    "google_auth_mock", "generate_display_name_mock", "complete_bq_uri_mock"
+    "google_auth_mock",
+    "generate_display_name_mock",
+    "complete_bq_uri_mock",
+    "request_session_mock",
 )
 class TestBatchPredictionJob:
     """Unit tests for BatchPredictionJob."""

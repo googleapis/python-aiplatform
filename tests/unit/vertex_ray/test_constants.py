@@ -63,6 +63,7 @@ class ProjectConstants:
     TEST_GCP_REGION = "us-central1"
     TEST_GCP_REGION_OVERRIDE = "asia-east1"
     TEST_GCP_PROJECT_NUMBER = "12345"
+    TEST_ENVIRONMENT = "GOOGLE_MANAGED"
     TEST_PARENT = f"projects/{TEST_GCP_PROJECT_NUMBER}/locations/{TEST_GCP_REGION}"
     TEST_ARTIFACT_URI = "gs://path/to/artifact/uri"
     TEST_BAD_ARTIFACT_URI = "/path/to/artifact/uri"

@@ -331,6 +331,7 @@ def get_metadata_store_mock():
         yield get_metadata_store_mock
 
 
+@pytest.mark.usefixtures("request_session_mock")
 class TestModels:
     def setup_method(self):
         reload(initializer)

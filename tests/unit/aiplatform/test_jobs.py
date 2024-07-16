@@ -343,6 +343,7 @@ def fake_job_cancel_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestJob:
     class FakeJob(jobs._Job):
         _job_type = "custom-job"
@@ -605,6 +606,7 @@ def bq_list_rows_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestBatchPredictionJob:
     def setup_method(self):
         reload(initializer)
@@ -1348,6 +1350,7 @@ def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestModelDeploymentMonitoringJob:
     def setup_method(self):
         reload(initializer)

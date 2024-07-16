@@ -138,6 +138,7 @@ def mock_list_cached_contents():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestCaching:
     """Unit tests for caching.CachedContent."""
 

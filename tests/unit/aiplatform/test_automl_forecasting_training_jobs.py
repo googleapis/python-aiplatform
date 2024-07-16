@@ -299,6 +299,7 @@ def mock_dataset_nontimeseries():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestForecastingTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)

@@ -237,6 +237,7 @@ def get_hyperparameter_tuning_job_mock():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("request_session_mock")
 class TestHyperparameterTuningJobPersistentResource:
     def setup_method(self):
         reload(aiplatform.initializer)
