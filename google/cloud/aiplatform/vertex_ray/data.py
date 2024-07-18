@@ -57,6 +57,7 @@ def write_bigquery(
     dataset: Optional[str] = None,
     max_retry_cnt: int = 10,
     ray_remote_args: Dict[str, Any] = None,
+    overwrite_table: Optional[bool] = True
 ) -> Any:
     if ray.__version__ == "2.4.0":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
@@ -76,7 +77,10 @@ def write_bigquery(
             ray_remote_args["max_retries"] = 0
 
         datasink = _BigQueryDatasink(
-            project_id=project_id, dataset=dataset, max_retry_cnt=max_retry_cnt
+            project_id=project_id,
+            dataset=dataset,
+            max_retry_cnt=max_retry_cnt, 
+            overwrite_table=overwrite_table
         )
         return ds.write_datasink(datasink, ray_remote_args=ray_remote_args)
     else:
