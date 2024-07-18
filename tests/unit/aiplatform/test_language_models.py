@@ -4539,7 +4539,7 @@ class TestLanguageModels:
                 _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.TextEmbeddingModel.from_pretrained(
+            model = language_models.TextEmbeddingModel.from_pretrained(
                 "textembedding-gecko@001"
             )
 

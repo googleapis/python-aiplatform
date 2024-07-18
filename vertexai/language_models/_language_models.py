@@ -2072,7 +2072,7 @@ class _ChatSession:
 
 @dataclasses.dataclass
 class TextEmbeddingInput:
-    """Structural text embedding input.
+  """Structural text embedding input.
 
     Attributes:
         text: The main text content to embed.
@@ -2095,15 +2095,15 @@ class TextEmbeddingInput:
         title: Optional identifier of the text content.
     """
 
-    __module__ = "vertexai.language_models"
+  __module__ = "vertexai.language_models"
 
-    text: str
-    task_type: Optional[str] = None
-    title: Optional[str] = None
+  text: str
+  task_type: Optional[str] = None
+  title: Optional[str] = None
 
 
 class _TextEmbeddingModel(_LanguageModel):
-    """TextEmbeddingModel class calculates embeddings for the given texts.
+  """TextEmbeddingModel class calculates embeddings for the given texts.
 
     Examples::
 
@@ -2115,20 +2115,20 @@ class _TextEmbeddingModel(_LanguageModel):
             print(len(vector))
     """
 
-    __module__ = "vertexai.language_models"
+  __module__ = "vertexai.language_models"
 
-    _INSTANCE_SCHEMA_URI = (
+  _INSTANCE_SCHEMA_URI = (
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
 
-    def _prepare_text_embedding_request(
+  def _prepare_text_embedding_request(
         self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
         output_dimensionality: Optional[int] = None,
     ) -> _MultiInstancePredictionRequest:
-        """Asynchronously calculates embeddings for the given texts.
+    """Asynchronously calculates embeddings for the given texts.
 
         Args:
             texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
@@ -2138,37 +2138,37 @@ class _TextEmbeddingModel(_LanguageModel):
         Returns:
             A `_MultiInstancePredictionRequest` object.
         """
-        if isinstance(texts, str) or not isinstance(texts, Sequence):
-            raise TypeError("The `texts` argument must be a list, not a single string.")
-        instances = []
-        for text in texts:
-            if isinstance(text, TextEmbeddingInput):
-                instance = {"content": text.text}
-                if text.task_type:
-                    instance["task_type"] = text.task_type
-                if text.title:
-                    instance["title"] = text.title
-            elif isinstance(text, str):
-                instance = {"content": text}
-            else:
-                raise TypeError(f"Unsupported text embedding input type: {text}.")
-            instances.append(instance)
-        parameters = {"autoTruncate": auto_truncate}
-        if output_dimensionality is not None:
-            parameters["outputDimensionality"] = output_dimensionality
-        return _MultiInstancePredictionRequest(
+    if isinstance(texts, str) or not isinstance(texts, Sequence):
+      raise TypeError("The `texts` argument must be a list, not a single string.")
+    instances = []
+    for text in texts:
+      if isinstance(text, TextEmbeddingInput):
+        instance = {"content": text.text}
+        if text.task_type:
+          instance["task_type"] = text.task_type
+        if text.title:
+          instance["title"] = text.title
+      elif isinstance(text, str):
+        instance = {"content": text}
+      else:
+        raise TypeError(f"Unsupported text embedding input type: {text}.")
+      instances.append(instance)
+    parameters = {"autoTruncate": auto_truncate}
+    if output_dimensionality is not None:
+      parameters["outputDimensionality"] = output_dimensionality
+    return _MultiInstancePredictionRequest(
             instances=instances,
             parameters=parameters,
         )
 
-    def get_embeddings(
+  def get_embeddings(
         self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
         output_dimensionality: Optional[int] = None,
     ) -> List["TextEmbedding"]:
-        """Calculates embeddings for the given texts.
+    """Calculates embeddings for the given texts.
 
         Args:
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
@@ -2178,32 +2178,32 @@ class _TextEmbeddingModel(_LanguageModel):
         Returns:
             A list of `TextEmbedding` objects.
         """
-        prediction_request = self._prepare_text_embedding_request(
+    prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
             output_dimensionality=output_dimensionality,
         )
 
-        prediction_response = self._endpoint.predict(
+    prediction_response = self._endpoint.predict(
             instances=prediction_request.instances,
             parameters=prediction_request.parameters,
         )
 
-        return [
+    return [
             TextEmbedding._parse_text_embedding_response(
                 prediction_response, i_prediction
             )
             for i_prediction, _ in enumerate(prediction_response.predictions)
         ]
 
-    async def get_embeddings_async(
+  async def get_embeddings_async(
         self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
         output_dimensionality: Optional[int] = None,
     ) -> List["TextEmbedding"]:
-        """Asynchronously calculates embeddings for the given texts.
+    """Asynchronously calculates embeddings for the given texts.
 
         Args:
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
@@ -2213,18 +2213,18 @@ class _TextEmbeddingModel(_LanguageModel):
         Returns:
             A list of `TextEmbedding` objects.
         """
-        prediction_request = self._prepare_text_embedding_request(
+    prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
             output_dimensionality=output_dimensionality,
         )
 
-        prediction_response = await self._endpoint.predict_async(
+    prediction_response = await self._endpoint.predict_async(
             instances=prediction_request.instances,
             parameters=prediction_request.parameters,
         )
 
-        return [
+    return [
             TextEmbedding._parse_text_embedding_response(
                 prediction_response, i_prediction
             )
@@ -2417,14 +2417,15 @@ class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
     pass
 
 
-class TextEmbeddingModel(_TextEmbeddingModel, _TunableTextEmbeddingModelMixin):
+class TextEmbeddingModel(
+    _TextEmbeddingModel, _TunableTextEmbeddingModelMixin, _CountTokensMixin
+):
     __module__ = "vertexai.language_models"
 
 
 class _PreviewTextEmbeddingModel(
     _TextEmbeddingModel,
     _ModelWithBatchPredict,
-    _CountTokensMixin,
     _PreviewTunableTextEmbeddingModelMixin,
 ):
     __name__ = "TextEmbeddingModel"
