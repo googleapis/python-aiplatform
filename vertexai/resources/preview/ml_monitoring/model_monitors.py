@@ -1119,7 +1119,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
         target_dataset: objective.MonitoringInput,
         display_name: Optional[str] = None,
         model_monitoring_job_id: Optional[str] = None,
-        sync: Optional[bool] = True,
+        sync: Optional[bool] = False,
         tabular_objective_spec: Optional[objective.TabularObjective] = None,
         baseline_dataset: Optional[objective.MonitoringInput] = None,
         output_spec: Optional[output.OutputSpec] = None,
@@ -1146,7 +1146,7 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this
                 method will be executed in concurrent Future and any downstream
                 object will be immediately returned and synced when the Future
-                has completed. Default is True.
+                has completed. Default is False.
             tabular_objective_spec (objective.TabularObjective):
                 Optional. The tabular monitoring objective spec for the model
                 monitoring job.
@@ -1730,7 +1730,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         output_spec: Optional[output.OutputSpec] = None,
         notification_spec: Optional[notification.NotificationSpec] = None,
         explanation_spec: Optional[explanation.ExplanationSpec] = None,
-        sync: bool = True,
+        sync: bool = False,
     ) -> "ModelMonitoringJob":
         """Creates a new ModelMonitoringJob.
 
@@ -1780,7 +1780,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
                 Required. Whether to execute this method synchronously. If False, this
                 method will be executed in concurrent Future and any downstream
                 object will be immediately returned and synced when the Future
-                has completed. Default is True.
+                has completed. Default is False.
         Returns:
             ModelMonitoringJob: The model monitoring job that was created.
         """
@@ -1846,7 +1846,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         model_monitor_name: str,
         empty_model_monitoring_job: "ModelMonitoringJob",
         gca_model_monitoring_job: gca_model_monitoring_job_compat.ModelMonitoringJob,
-        sync: bool = True,
+        sync: bool = False,
         model_monitoring_job_id: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -1866,7 +1866,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
                 Required. Whether to execute this method synchronously. If False, this
                 method will be executed in concurrent Future and any downstream
                 object will be immediately returned and synced when the Future
-                has completed. Default is True.
+                has completed. Default is False.
             model_monitoring_job_id (str):
                 Optional. The unique ID of the model monitoring job run, which
                 will become the final component of the model monitoring job
@@ -1891,6 +1891,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
             credentials=credentials,
             location_override=location,
         )
+        _LOGGER.log_create_with_lro(cls)
         created_model_monitoring_job = api_client.create_model_monitoring_job(
             request=model_monitoring_service.CreateModelMonitoringJobRequest(
                 parent=model_monitor_name,

@@ -972,6 +972,7 @@ class TestModelMonitor:
                 parameters=explanation.ExplanationParameters(top_k=10)
             ),
             model_monitoring_job_id=_TEST_MODEL_MONITORING_JOB_USER_ID,
+            sync=True,
         )
         create_model_monitoring_job_mock.assert_called_once_with(
             request=gca_model_monitoring_service.CreateModelMonitoringJobRequest(
@@ -1016,6 +1017,7 @@ class TestModelMonitor:
             target_dataset=ml_monitoring.spec.MonitoringInput(
                 vertex_dataset=_TEST_TARGET_RESOURCE
             ),
+            sync=True,
         )
         test_model_monitor.search_metrics(
             model_monitoring_job_name=_TEST_MODEL_MONITORING_JOB_RESOURCE_NAME
@@ -1057,6 +1059,7 @@ class TestModelMonitor:
             target_dataset=ml_monitoring.spec.MonitoringInput(
                 vertex_dataset=_TEST_TARGET_RESOURCE
             ),
+            sync=True,
         )
         test_model_monitor.search_alerts(
             model_monitoring_job_name=_TEST_MODEL_MONITORING_JOB_RESOURCE_NAME
@@ -1172,6 +1175,7 @@ class TestModelMonitor:
             notification_spec=ml_monitoring.spec.NotificationSpec(
                 user_emails=[_TEST_NOTIFICATION_EMAIL]
             ),
+            sync=True,
         )
         test_job.delete()
         delete_model_monitoring_job_mock.assert_called_once_with(
@@ -1212,6 +1216,7 @@ class TestModelMonitor:
             target_dataset=ml_monitoring.spec.MonitoringInput(
                 vertex_dataset=_TEST_TARGET_RESOURCE
             ),
+            sync=True,
         )
         test_model_monitoring_job = test_model_monitor.get_model_monitoring_job(
             model_monitoring_job_name=_TEST_MODEL_MONITORING_JOB_RESOURCE_NAME
