@@ -139,7 +139,9 @@ def main(argv):
 def get_experiment_display_name_with_override(
     experiment_name, experiment_display_name, project_id, region
 ):
+    print("Getting experiment display name with override")
     if experiment_name.isdecimal() and not experiment_display_name:
+        print("Getting from custom job")
         try:
             return jobs.CustomJob.get(
                 resource_name=experiment_name,
@@ -147,6 +149,7 @@ def get_experiment_display_name_with_override(
                 location=region,
             ).display_name
         except exceptions.NotFound:
+            print("Getting from experiment")
             return experiment_display_name
     return experiment_display_name
 
