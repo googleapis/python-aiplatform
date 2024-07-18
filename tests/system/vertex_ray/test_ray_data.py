@@ -51,6 +51,7 @@ ds.materialize()
 vertex_ray.data.write_bigquery(
     ds,
     dataset="bugbashbq1.system_test_ray29_write",
+    overwrite_table=True
 )
 """
 
