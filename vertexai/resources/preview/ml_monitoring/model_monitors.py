@@ -19,6 +19,7 @@ import copy
 import dataclasses
 import json
 import re
+import time
 from typing import Any, Dict, List, Optional
 
 from google.auth import credentials as auth_credentials
@@ -41,11 +42,12 @@ from vertexai.resources.preview.ml_monitoring.spec import (
     output,
     schema,
 )
+import proto
 
-from google.protobuf import text_format
 from google.protobuf import field_mask_pb2
 from google.protobuf import timestamp_pb2
 from google.type import interval_pb2
+from google.protobuf import text_format
 
 try:
     import tensorflow as tf
@@ -69,6 +71,14 @@ _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_PARTIALLY_SUCCEEDED,
 )
+
+_JOB_ERROR_STATES = (gca_job_state.JobState.JOB_STATE_FAILED,)
+
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
 
 def _visualize_stats(baseline_stats_output: str, target_stats_output: str) -> None:
@@ -290,7 +300,8 @@ class MetricsSearchResponse:
     Attributes:
         monitoring_stats (List[model_monitoring_stats.ModelMonitoringStats]):
             Stats retrieved for requested objectives.
-        next_page_token (str): The page token that can be used by the next call.
+        next_page_token (str):
+            The page token that can be used by the next call.
     """
 
     next_page_token: str
@@ -313,7 +324,8 @@ class AlertsSearchResponse:
     """AlertsSearchResponse represents a response of the search alerts request.
 
     Attributes:
-        next_page_token (str): The page token that can be used by the next call.
+        next_page_token (str):
+            The page token that can be used by the next call.
         model_monitoring_alerts (List[model_monitoring_alert.ModelMonitoringAlert]):
             Alerts retrieved for requested objectives.
         total_alerts (int):
@@ -342,7 +354,8 @@ class ListJobsResponse:
     Attributes:
         list_jobs (List[model_monitoring_job.ModelMonitoringJob]):
             Jobs retrieved for request.
-        next_page_token (str): The page token that can be used by the next call.
+        next_page_token (str):
+            The page token that can be used by the next call.
     """
 
     next_page_token: str
@@ -366,7 +379,8 @@ class ListSchedulesResponse:
     Attributes:
         list_schedules (List[schedule.Schedule]):
             Jobs retrieved for request.
-        next_page_token (str): The page token that can be used by the next call.
+        next_page_token (str):
+            The page token that can be used by the next call.
     """
 
     next_page_token: str
@@ -1100,7 +1114,6 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             _list_schedules_response=list_schedules_response,
         ).list_schedules
 
-    @base.optional_sync()
     def run(
         self,
         target_dataset: objective.MonitoringInput,
@@ -1158,16 +1171,6 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
         Returns:
             ModelMonitoringJob: The model monitoring job that was created.
         """
-        api_client = initializer.global_config.create_client(
-            client_class=utils.ModelMonitoringClientWithOverride,
-            credentials=self.credentials,
-            location_override=self.location,
-        )
-
-        if not display_name:
-            display_name = self.__class__._generate_display_name()
-        utils.validate_display_name(display_name)
-
         model_monitor_name = utils.full_resource_name(
             resource_name=self._gca_resource.name,
             resource_noun=self._resource_noun,
@@ -1177,49 +1180,21 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
         )
 
-        created_model_monitoring_job = api_client.create_model_monitoring_job(
-            request=model_monitoring_service.CreateModelMonitoringJobRequest(
-                parent=model_monitor_name,
-                model_monitoring_job=gca_model_monitoring_job_compat.ModelMonitoringJob(
-                    display_name=display_name,
-                    model_monitoring_spec=model_monitoring_spec.ModelMonitoringSpec(
-                        objective_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec(
-                            tabular_objective=(
-                                tabular_objective_spec._as_proto()
-                                if tabular_objective_spec
-                                else self._gca_resource.tabular_objective
-                            ),
-                            target_dataset=target_dataset._as_proto(),
-                            baseline_dataset=(
-                                baseline_dataset._as_proto()
-                                if baseline_dataset
-                                else self._gca_resource.training_dataset
-                            ),
-                            explanation_spec=(
-                                explanation_spec
-                                if explanation_spec
-                                else self._gca_resource.explanation_spec
-                            ),
-                        ),
-                        output_spec=(
-                            output_spec._as_proto()
-                            if output_spec
-                            else self._gca_resource.output_spec
-                        ),
-                        notification_spec=(
-                            notification_spec._as_proto()
-                            if notification_spec
-                            else self._gca_resource.notification_spec
-                        ),
-                    ),
-                ),
-                model_monitoring_job_id=model_monitoring_job_id,
-            ),
+        return ModelMonitoringJob.create(
+            model_monitor_name=model_monitor_name,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+            display_name=display_name,
+            target_dataset=target_dataset,
+            baseline_dataset=baseline_dataset,
+            model_monitoring_job_id=model_monitoring_job_id,
+            tabular_objective_spec=tabular_objective_spec,
+            output_spec=output_spec,
+            notification_spec=notification_spec,
+            explanation_spec=explanation_spec,
+            sync=sync,
         )
-        _LOGGER.log_create_complete(
-            ModelMonitoringJob, created_model_monitoring_job, "model_monitoring_job"
-        )
-        return created_model_monitoring_job
 
     def search_metrics(
         self,
@@ -1666,10 +1641,85 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         return self._gca_resource.state
 
     @classmethod
+    def _construct_sdk_resource_from_gapic(
+        cls,
+        gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "ModelMonitoringJob":
+        """Given a GAPIC ModelMonitoringJob object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of a ModelMonitoringJob resource, usually retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct ModelMonitoringJob object from. If not set, project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct ModelMonitoringJob object from. If not set, location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct ModelMonitoringJob. Overrides credentials set in aiplatform.init.
+
+        Returns:
+            ModelMonitoringJob: The model monitoring job that was created.
+        """
+        model_monitoring_job = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return model_monitoring_job
+
+    def _block_until_complete(self) -> None:
+        """Helper method to block and check on job until complete."""
+        # Used these numbers so failures surface fast
+        wait = _JOB_WAIT_TIME  # start at five seconds
+        log_wait = _LOG_WAIT_TIME
+        max_wait = _MAX_WAIT_TIME  # 5 minute wait
+        multiplier = _WAIT_TIME_MULTIPLIER  # scale wait by 2 every iteration
+
+        previous_time = time.time()
+        while not self.done():
+            current_time = time.time()
+            if current_time - previous_time >= log_wait:
+                _LOGGER.info(
+                    "%s %s current state:\n%s"
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        self._gca_resource.state,
+                    )
+                )
+                log_wait = min(log_wait * multiplier, max_wait)
+                previous_time = current_time
+            time.sleep(wait)
+
+        # Error is only populated when the job state is JOB_STATE_FAILED.
+        if self._gca_resource.state in _JOB_ERROR_STATES:
+            raise RuntimeError(
+                "Job failed with:\n%s" % self._gca_resource.job_execution_detail.error
+            )
+        elif (
+            self._gca_resource.state
+            == gca_job_state.JobState.JOB_STATE_PARTIALLY_SUCCEEDED
+        ):
+            obj_status_msg = ""
+            for (
+                obj,
+                status,
+            ) in self._gca_resource.job_execution_detail.objective_status.items():
+                obj_status_msg += f"{obj}: {status}\n"
+            _LOGGER.warning("Job partially succeeded:\n%s" % obj_status_msg)
+        else:
+            _LOGGER.log_action_completed_against_resource("run", "completed", self)
+
+    @classmethod
     def create(
         cls,
         model_monitor_name: str = None,
-        target_dataset: Optional[objective.MonitoringInput] = None,
+        target_dataset: objective.MonitoringInput = None,
         display_name: Optional[str] = None,
         model_monitoring_job_id: Optional[str] = None,
         project: Optional[str] = None,
@@ -1680,6 +1730,7 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         output_spec: Optional[output.OutputSpec] = None,
         notification_spec: Optional[notification.NotificationSpec] = None,
         explanation_spec: Optional[explanation.ExplanationSpec] = None,
+        sync: bool = True,
     ) -> "ModelMonitoringJob":
         """Creates a new ModelMonitoringJob.
 
@@ -1700,10 +1751,10 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
                 characters are /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/.
                 If not specified, it will be generated by Vertex AI.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set,
+                Optional. Location to retrieve endpoint from. If not set,
                 location set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create model monitoring job.
@@ -1725,16 +1776,14 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
                 monitoring.
                 If not set, will use the default explanation_spec defined in
                 ModelMonitor.
-
+            sync (bool):
+                Required. Whether to execute this method synchronously. If False, this
+                method will be executed in concurrent Future and any downstream
+                object will be immediately returned and synced when the Future
+                has completed. Default is True.
         Returns:
             ModelMonitoringJob: The model monitoring job that was created.
         """
-        api_client = initializer.global_config.create_client(
-            client_class=cls.client_class,
-            credentials=credentials,
-            location_override=location,
-        )
-
         if not display_name:
             display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
@@ -1751,36 +1800,106 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
             location=location,
         )
 
+        gca_model_monitoring_job = gca_model_monitoring_job_compat.ModelMonitoringJob(
+            display_name=display_name,
+            model_monitoring_spec=model_monitoring_spec.ModelMonitoringSpec(
+                objective_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec(
+                    tabular_objective=(
+                        tabular_objective_spec._as_proto()
+                        if tabular_objective_spec
+                        else None
+                    ),
+                    baseline_dataset=(
+                        baseline_dataset._as_proto() if baseline_dataset else None
+                    ),
+                    target_dataset=(
+                        target_dataset._as_proto() if target_dataset else None
+                    ),
+                    explanation_spec=explanation_spec,
+                ),
+                output_spec=(output_spec._as_proto() if output_spec else None),
+                notification_spec=(
+                    notification_spec._as_proto() if notification_spec else None
+                ),
+            ),
+        )
+        empty_model_monitoring_job = cls._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        return cls._submit_job(
+            model_monitor_name=parent,
+            empty_model_monitoring_job=empty_model_monitoring_job,
+            gca_model_monitoring_job=gca_model_monitoring_job,
+            model_monitoring_job_id=model_monitoring_job_id,
+            sync=sync,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+    @classmethod
+    @base.optional_sync(return_input_arg="empty_model_monitoring_job")
+    def _submit_job(
+        cls,
+        model_monitor_name: str,
+        empty_model_monitoring_job: "ModelMonitoringJob",
+        gca_model_monitoring_job: gca_model_monitoring_job_compat.ModelMonitoringJob,
+        sync: bool = True,
+        model_monitoring_job_id: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "ModelMonitoringJob":
+        """Submits a new ModelMonitoringJob.
+
+        Args:
+            model_monitor_name (str):
+                Required. The parent model monitor resource name. Format:
+                ``projects/{project}/locations/{location}/modelMonitors/{model_monitor}``
+            empty_model_monitoring_job (ModelMonitoringJob):
+                Required. ModelMonitoringJob without _gca_resource populated.
+            gca_model_monitoring_job (gca_model_monitoring_job_compat.ModelMonitoringJob):
+                Required. a model monitoring job proto for creating a model monitoring job on Vertex AI.
+            sync (bool):
+                Required. Whether to execute this method synchronously. If False, this
+                method will be executed in concurrent Future and any downstream
+                object will be immediately returned and synced when the Future
+                has completed. Default is True.
+            model_monitoring_job_id (str):
+                Optional. The unique ID of the model monitoring job run, which
+                will become the final component of the model monitoring job
+                resource name. The maximum length is 63 characters, and valid
+                characters are /^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/.
+                If not specified, it will be generated by Vertex AI.
+            project (str):
+                Optional. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve endpoint from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create model monitoring job.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            ModelMonitoringJob: The model monitoring job that was created.
+        """
+        api_client = initializer.global_config.create_client(
+            client_class=cls.client_class,
+            credentials=credentials,
+            location_override=location,
+        )
         created_model_monitoring_job = api_client.create_model_monitoring_job(
             request=model_monitoring_service.CreateModelMonitoringJobRequest(
-                parent=parent,
-                model_monitoring_job=gca_model_monitoring_job_compat.ModelMonitoringJob(
-                    display_name=display_name,
-                    model_monitoring_spec=model_monitoring_spec.ModelMonitoringSpec(
-                        objective_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec(
-                            tabular_objective=(
-                                tabular_objective_spec._as_proto()
-                                if tabular_objective_spec
-                                else None
-                            ),
-                            baseline_dataset=(
-                                baseline_dataset._as_proto()
-                                if baseline_dataset
-                                else None
-                            ),
-                            target_dataset=target_dataset._as_proto(),
-                            explanation_spec=explanation_spec,
-                        ),
-                        output_spec=(output_spec._as_proto() if output_spec else None),
-                        notification_spec=(
-                            notification_spec._as_proto() if notification_spec else None
-                        ),
-                    ),
-                ),
+                parent=model_monitor_name,
+                model_monitoring_job=gca_model_monitoring_job,
                 model_monitoring_job_id=model_monitoring_job_id,
             ),
         )
-        self = cls._construct_sdk_resource_from_gapic(
+        empty_model_monitoring_job._gca_resource = created_model_monitoring_job
+        model_monitoring_job = cls._construct_sdk_resource_from_gapic(
             gapic_resource=created_model_monitoring_job,
             project=project,
             location=location,
@@ -1789,7 +1908,8 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         _LOGGER.log_create_complete(
             cls, created_model_monitoring_job, "model_monitoring_job"
         )
-        return self
+        model_monitoring_job._block_until_complete()
+        return model_monitoring_job
 
     def delete(self) -> None:
         """Deletes an Model Monitoring Job."""

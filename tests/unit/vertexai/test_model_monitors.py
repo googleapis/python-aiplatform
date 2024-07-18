@@ -36,6 +36,7 @@ from google.cloud.aiplatform.compat.types import (
     model_monitoring_stats_v1beta1 as gca_model_monitoring_stats,
     schedule_service_v1beta1 as gca_schedule_service,
     schedule_v1beta1 as gca_schedule,
+    job_state_v1beta1 as gca_job_state,
     explanation_v1beta1 as explanation,
 )
 from vertexai.resources.preview import (
@@ -51,7 +52,10 @@ from google.protobuf import field_mask_pb2  # type: ignore
 
 # -*- coding: utf-8 -*-
 
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = mock.Mock(
+    spec=auth_credentials.AnonymousCredentials(),
+    universe_domain="googleapis.com",
+)
 _TEST_DESCRIPTION = "test description"
 _TEST_JSON_CONTENT_TYPE = "application/json"
 _TEST_LOCATION = "us-central1"
@@ -178,6 +182,9 @@ _TEST_MODEL_MONITOR_OBJ = gca_model_monitor.ModelMonitor(
             user_emails=[_TEST_NOTIFICATION_EMAIL]
         ),
     ),
+    explanation_spec=explanation.ExplanationSpec(
+        parameters=explanation.ExplanationParameters(top_k=10)
+    ),
 )
 _TEST_UPDATED_MODEL_MONITOR_OBJ = gca_model_monitor.ModelMonitor(
     name=_TEST_MODEL_MONITOR_RESOURCE_NAME,
@@ -222,6 +229,9 @@ _TEST_UPDATED_MODEL_MONITOR_OBJ = gca_model_monitor.ModelMonitor(
             user_emails=[_TEST_NOTIFICATION_EMAIL, "456@test.com"]
         ),
     ),
+    explanation_spec=explanation.ExplanationSpec(
+        parameters=explanation.ExplanationParameters(top_k=10)
+    ),
 )
 _TEST_CREATE_MODEL_MONITORING_JOB_OBJ = gca_model_monitoring_job.ModelMonitoringJob(
     display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
@@ -249,7 +259,9 @@ _TEST_CREATE_MODEL_MONITORING_JOB_OBJ = gca_model_monitoring_job.ModelMonitoring
                     vertex_dataset=_TEST_TARGET_RESOURCE
                 )
             ),
-            explanation_spec=explanation.ExplanationSpec(),
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
+            ),
         ),
         output_spec=gca_model_monitoring_spec.ModelMonitoringOutputSpec(
             gcs_base_directory=io.GcsDestination(output_uri_prefix=_TEST_OUTPUT_PATH)
@@ -288,7 +300,9 @@ _TEST_MODEL_MONITORING_JOB_OBJ = gca_model_monitoring_job.ModelMonitoringJob(
                     vertex_dataset=_TEST_TARGET_RESOURCE
                 )
             ),
-            explanation_spec=explanation.ExplanationSpec(),
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
+            ),
         ),
         output_spec=gca_model_monitoring_spec.ModelMonitoringOutputSpec(
             gcs_base_directory=io.GcsDestination(output_uri_prefix=_TEST_OUTPUT_PATH)
@@ -299,6 +313,7 @@ _TEST_MODEL_MONITORING_JOB_OBJ = gca_model_monitoring_job.ModelMonitoringJob(
             )
         ),
     ),
+    state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
 )
 _TEST_CRON = r"America/New_York 1 \* \* \* \*"
 _TEST_SCHEDULE_OBJ = gca_schedule.Schedule(
@@ -336,7 +351,9 @@ _TEST_UPDATED_MODEL_MONITORING_JOB_OBJ = gca_model_monitoring_job.ModelMonitorin
                     vertex_dataset=_TEST_TARGET_RESOURCE
                 )
             ),
-            explanation_spec=explanation.ExplanationSpec(),
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
+            ),
         ),
         output_spec=gca_model_monitoring_spec.ModelMonitoringOutputSpec(
             gcs_base_directory=io.GcsDestination(output_uri_prefix=_TEST_OUTPUT_PATH)
@@ -564,7 +581,12 @@ def get_model_monitoring_job_mock():
         model_monitoring_service_client.ModelMonitoringServiceClient,
         "get_model_monitoring_job",
     ) as get_model_monitoring_job_mock:
-        get_model_monitor_mock.return_value = _TEST_MODEL_MONITORING_JOB_OBJ
+        model_monitoring_job_mock = mock.Mock(
+            spec=gca_model_monitoring_job.ModelMonitoringJob
+        )
+        model_monitoring_job_mock.state = gca_job_state.JobState.JOB_STATE_SUCCEEDED
+        model_monitoring_job_mock.name = _TEST_MODEL_MONITORING_JOB_RESOURCE_NAME
+        get_model_monitoring_job_mock.return_value = model_monitoring_job_mock
         yield get_model_monitoring_job_mock
 
 
@@ -762,6 +784,9 @@ class TestModelMonitor:
             notification_spec=ml_monitoring.spec.NotificationSpec(
                 user_emails=[_TEST_NOTIFICATION_EMAIL]
             ),
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
+            ),
         )
         test_model_monitor.create_schedule(
             display_name=_TEST_SCHEDULE_NAME,
@@ -851,9 +876,12 @@ class TestModelMonitor:
         assert get_schedule_mock.call_count == 1
 
     @pytest.mark.usefixtures(
-        "create_model_monitoring_job_mock", "create_model_monitor_mock"
+        "create_model_monitoring_job_mock",
+        "create_model_monitor_mock",
+        "get_model_monitoring_job_mock",
     )
-    def test_run_model_monitoring_job(self, create_model_monitoring_job_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_model_monitoring_job(self, create_model_monitoring_job_mock, sync):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -866,6 +894,15 @@ class TestModelMonitor:
             model_name=_TEST_MODEL_NAME,
             display_name=_TEST_MODEL_MONITOR_DISPLAY_NAME,
             model_version_id=_TEST_MODEL_VERSION_ID,
+        )
+        test_model_monitoring_job = test_model_monitor.run(
+            display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
+            baseline_dataset=ml_monitoring.spec.MonitoringInput(
+                vertex_dataset=_TEST_BASELINE_RESOURCE
+            ),
+            target_dataset=ml_monitoring.spec.MonitoringInput(
+                vertex_dataset=_TEST_TARGET_RESOURCE
+            ),
             tabular_objective_spec=ml_monitoring.spec.TabularObjective(
                 feature_drift_spec=ml_monitoring.spec.DataDriftSpec(
                     default_categorical_alert_threshold=0.1,
@@ -876,13 +913,15 @@ class TestModelMonitor:
             notification_spec=ml_monitoring.spec.NotificationSpec(
                 user_emails=[_TEST_NOTIFICATION_EMAIL]
             ),
-        )
-        test_model_monitor.run(
-            display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
-            target_dataset=ml_monitoring.spec.MonitoringInput(
-                vertex_dataset=_TEST_TARGET_RESOURCE
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
             ),
+            sync=sync,
         )
+
+        if not sync:
+            test_model_monitoring_job.wait()
+
         create_model_monitoring_job_mock.assert_called_once_with(
             request=gca_model_monitoring_service.CreateModelMonitoringJobRequest(
                 parent=_TEST_MODEL_MONITOR_RESOURCE_NAME,
@@ -891,7 +930,9 @@ class TestModelMonitor:
         )
 
     @pytest.mark.usefixtures(
-        "create_model_monitoring_job_mock", "create_model_monitor_mock"
+        "create_model_monitoring_job_mock",
+        "create_model_monitor_mock",
+        "get_model_monitoring_job_mock",
     )
     def test_run_model_monitoring_job_with_user_id(
         self, create_model_monitoring_job_mock
@@ -908,6 +949,15 @@ class TestModelMonitor:
             model_name=_TEST_MODEL_NAME,
             display_name=_TEST_MODEL_MONITOR_DISPLAY_NAME,
             model_version_id=_TEST_MODEL_VERSION_ID,
+        )
+        test_model_monitor.run(
+            display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
+            baseline_dataset=ml_monitoring.spec.MonitoringInput(
+                vertex_dataset=_TEST_BASELINE_RESOURCE
+            ),
+            target_dataset=ml_monitoring.spec.MonitoringInput(
+                vertex_dataset=_TEST_TARGET_RESOURCE
+            ),
             tabular_objective_spec=ml_monitoring.spec.TabularObjective(
                 feature_drift_spec=ml_monitoring.spec.DataDriftSpec(
                     default_categorical_alert_threshold=0.1,
@@ -918,11 +968,8 @@ class TestModelMonitor:
             notification_spec=ml_monitoring.spec.NotificationSpec(
                 user_emails=[_TEST_NOTIFICATION_EMAIL]
             ),
-        )
-        test_model_monitor.run(
-            display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
-            target_dataset=ml_monitoring.spec.MonitoringInput(
-                vertex_dataset=_TEST_TARGET_RESOURCE
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
             ),
             model_monitoring_job_id=_TEST_MODEL_MONITORING_JOB_USER_ID,
         )
@@ -938,6 +985,7 @@ class TestModelMonitor:
         "create_model_monitoring_job_mock",
         "create_model_monitor_mock",
         "search_metrics_mock",
+        "get_model_monitoring_job_mock",
     )
     def test_search_metrics(self, search_metrics_mock):
         aiplatform.init(
@@ -978,6 +1026,7 @@ class TestModelMonitor:
         "create_model_monitoring_job_mock",
         "create_model_monitor_mock",
         "search_alerts_mock",
+        "get_model_monitoring_job_mock",
     )
     def test_search_alerts(self, search_alerts_mock):
         aiplatform.init(
@@ -1047,14 +1096,17 @@ class TestModelMonitor:
             )
         )
 
-    @pytest.mark.usefixtures("create_model_monitoring_job_mock")
-    def test_create_model_monitoring_job(self, create_model_monitoring_job_mock):
+    @pytest.mark.usefixtures(
+        "create_model_monitoring_job_mock", "get_model_monitoring_job_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_model_monitoring_job(self, create_model_monitoring_job_mock, sync):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
         )
-        ModelMonitoringJob.create(
+        test_model_monitoring_job = ModelMonitoringJob.create(
             display_name=_TEST_MODEL_MONITORING_JOB_DISPLAY_NAME,
             model_monitor_name=_TEST_MODEL_MONITOR_RESOURCE_NAME,
             tabular_objective_spec=ml_monitoring.spec.TabularObjective(
@@ -1073,8 +1125,15 @@ class TestModelMonitor:
             notification_spec=ml_monitoring.spec.NotificationSpec(
                 user_emails=[_TEST_NOTIFICATION_EMAIL]
             ),
-            explanation_spec=explanation.ExplanationSpec(),
+            explanation_spec=explanation.ExplanationSpec(
+                parameters=explanation.ExplanationParameters(top_k=10)
+            ),
+            sync=sync,
         )
+
+        if not sync:
+            test_model_monitoring_job.wait()
+
         create_model_monitoring_job_mock.assert_called_once_with(
             request=gca_model_monitoring_service.CreateModelMonitoringJobRequest(
                 parent=_TEST_MODEL_MONITOR_RESOURCE_NAME,
@@ -1086,6 +1145,7 @@ class TestModelMonitor:
         "create_model_monitor_mock",
         "create_model_monitoring_job_mock",
         "delete_model_monitoring_job_mock",
+        "get_model_monitoring_job_mock",
     )
     def test_delete_model_monitoring_job(self, delete_model_monitoring_job_mock):
         aiplatform.init(
