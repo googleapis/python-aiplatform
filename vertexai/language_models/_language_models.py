@@ -2417,7 +2417,11 @@ class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
     pass
 
 
-class TextEmbeddingModel(_TextEmbeddingModel, _TunableTextEmbeddingModelMixin):
+class TextEmbeddingModel(
+    _TextEmbeddingModel,
+    _TunableTextEmbeddingModelMixin,
+    _CountTokensMixin,
+):
     __module__ = "vertexai.language_models"
 
 
