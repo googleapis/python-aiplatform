@@ -17,7 +17,7 @@
 
 import ray.data
 from ray.data.dataset import Dataset
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from google.cloud.aiplatform.vertex_ray.bigquery_datasource import (
     BigQueryDatasource,
@@ -38,6 +38,8 @@ from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
 def read_bigquery(
     project_id: Optional[str] = None,
     dataset: Optional[str] = None,
+    selected_fields: Optional[List[str]] = None,
+    row_restriction: Optional[str] = None,
     query: Optional[str] = None,
     *,
     parallelism: int = -1,
@@ -46,6 +48,8 @@ def read_bigquery(
         BigQueryDatasource(),
         project_id=project_id,
         dataset=dataset,
+        selected_fields=selected_fields,
+        row_restriction=row_restriction,
         query=query,
         parallelism=parallelism,
     )

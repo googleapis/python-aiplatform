@@ -59,12 +59,16 @@ class _BigQueryDatasourceReader(Reader):
         self,
         project_id: Optional[str] = None,
         dataset: Optional[str] = None,
+        selected_fields: Optional[List[str]] = None,
+        row_restriction: Optional[str] = None,
         query: Optional[str] = None,
         parallelism: Optional[int] = -1,
         **kwargs: Optional[Dict[str, Any]],
     ):
         self._project_id = project_id or initializer.global_config.project
         self._dataset = dataset
+        self._selected_fields = selected_fields
+        self._row_restriction = row_restriction
         self._query = query
         self._kwargs = kwargs
 
@@ -102,6 +106,10 @@ class _BigQueryDatasourceReader(Reader):
         requested_session = types.ReadSession(
             table=table,
             data_format=types.DataFormat.ARROW,
+            read_options=bigquery_storage.types.ReadSession.TableReadOptions(
+                selected_fields=self._selected_fields,
+                row_restriction=self._row_restriction,
+            ),
         )
         read_session = bqs_client.create_read_session(
             parent=f"projects/{self._project_id}",
