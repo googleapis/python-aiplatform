@@ -198,7 +198,7 @@ def generate_schema(
     return schema
 
 
-def _is_noop_tracer_provider(tracer_provider) -> bool:
+def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
     """Returns True if the tracer_provider is Proxy or NoOp."""
     opentelemetry = _import_opentelemetry_or_warn()
     ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
