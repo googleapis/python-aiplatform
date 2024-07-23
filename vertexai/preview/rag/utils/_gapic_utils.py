@@ -115,6 +115,7 @@ def convert_json_to_rag_file(upload_rag_file_response: Dict[str, Any]) -> RagFil
     rag_file = RagFile(
         name=upload_rag_file_response.get("ragFile").get("name"),
         display_name=upload_rag_file_response.get("ragFile").get("displayName"),
+        description=upload_rag_file_response.get("ragFile").get("description"),
     )
     return rag_file
 
