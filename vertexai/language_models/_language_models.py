@@ -1354,7 +1354,7 @@ class _TextGenerationModel(_LanguageModel):
         logprobs: Optional[int] = None,
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[int, float]] = None,
+        logit_bias: Optional[Dict[str, float]] = None,
         seed: Optional[int] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
@@ -1443,7 +1443,7 @@ class _TextGenerationModel(_LanguageModel):
         logprobs: Optional[int] = None,
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[int, float]] = None,
+        logit_bias: Optional[Dict[str, float]] = None,
         seed: Optional[int] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
@@ -1524,7 +1524,7 @@ class _TextGenerationModel(_LanguageModel):
         logprobs: Optional[int] = None,
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[int, float]] = None,
+        logit_bias: Optional[Dict[str, float]] = None,
         seed: Optional[int] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Gets a streaming model response for a single prompt.
@@ -1610,7 +1610,7 @@ class _TextGenerationModel(_LanguageModel):
         logprobs: Optional[int] = None,
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[int, float]] = None,
+        logit_bias: Optional[Dict[str, float]] = None,
         seed: Optional[int] = None,
     ) -> AsyncIterator[TextGenerationResponse]:
         """Asynchronously gets a streaming model response for a single prompt.
@@ -1702,7 +1702,7 @@ def _create_text_generation_prediction_request(
     logprobs: Optional[int] = None,
     presence_penalty: Optional[float] = None,
     frequency_penalty: Optional[float] = None,
-    logit_bias: Optional[Dict[int, int]] = None,
+    logit_bias: Optional[Dict[str, float]] = None,
     seed: Optional[int] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
