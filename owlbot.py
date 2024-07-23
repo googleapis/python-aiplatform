@@ -160,4 +160,41 @@ if has_generator_updates:
         "python3",
     )
 
+    # Update publish-docs to include gemini docs workflow.
+    s.replace(
+        ".kokoro/publish-docs.sh",
+        "# build docs",
+        """\
+# build Gemini docs
+nox -s gemini_docs
+# create metadata
+python3 -m docuploader create-metadata \\
+  --name="vertexai" \\
+  --version=$(python3 setup.py --version) \\
+  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
+  --distribution-name="google-cloud-vertexai" \\
+  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
+  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
+  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json)
+cat docs.metadata
+# upload docs
+python3 -m docuploader upload gemini_docs/_build/html --metadata-file docs.metadata --staging-bucket "${STAGING_BUCKET}"
+# Gemini docfx yaml files
+nox -s gemini_docfx
+# create metadata.
+python3 -m docuploader create-metadata \\
+  --name="vertexai" \\
+  --version=$(python3 setup.py --version) \\
+  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
+  --distribution-name="google-cloud-vertexai" \\
+  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
+  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
+  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json) \\
+  --stem="/vertex-ai/generative-ai/docs/reference/python"
+cat docs.metadata
+# upload docs
+python3 -m docuploader upload gemini_docs/_build/html/docfx_yaml --metadata-file docs.metadata --destination-prefix docfx --staging-bucket "${V2_STAGING_BUCKET}"
+# build docs""",
+    )
+
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)
