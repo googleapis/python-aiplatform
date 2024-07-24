@@ -22,6 +22,7 @@ import dataclasses
 
 import sentencepiece as spm
 import functools
+from sentencepiece import sentencepiece_model_pb2
 
 
 @dataclasses.dataclass(frozen=True)
@@ -144,7 +145,7 @@ def _load(*, file_url: str, expected_hash: str) -> bytes:
     return model_data
 
 
-def _load_model_proto(tokenizer_name: str) -> bytes:
+def _load_model_proto_bytes(tokenizer_name: str) -> bytes:
     """Loads model proto bytes from the given tokenizer name."""
     if tokenizer_name not in _TOKENIZERS:
         raise ValueError(
@@ -155,6 +156,14 @@ def _load_model_proto(tokenizer_name: str) -> bytes:
         file_url=_TOKENIZERS[tokenizer_name].model_url,
         expected_hash=_TOKENIZERS[tokenizer_name].model_hash,
     )
+
+
+@functools.lru_cache()
+def load_model_proto(tokenizer_name) -> sentencepiece_model_pb2.ModelProto:
+    """Loads model proto from the given tokenizer name."""
+    model_proto = sentencepiece_model_pb2.ModelProto()
+    model_proto.ParseFromString(_load_model_proto_bytes(tokenizer_name))
+    return model_proto
 
 
 def get_tokenizer_name(model_name: str):
@@ -172,5 +181,5 @@ def get_tokenizer_name(model_name: str):
 def get_sentencepiece(tokenizer_name: str) -> spm.SentencePieceProcessor:
     """Loads sentencepiece tokenizer from the given tokenizer name."""
     processor = spm.SentencePieceProcessor()
-    processor.LoadFromSerializedProto(_load_model_proto(tokenizer_name))
+    processor.LoadFromSerializedProto(_load_model_proto_bytes(tokenizer_name))
     return processor

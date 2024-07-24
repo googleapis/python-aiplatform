@@ -67,3 +67,21 @@ class TestTokenization(e2e_base.TestEndToEnd):
             service_result = model.count_tokens(text)
             local_result = tokenizer.count_tokens(text)
             assert service_result.total_tokens == local_result.total_tokens
+
+    @pytest.mark.parametrize(
+        "model_name, corpus_name, corpus_lib",
+        _MODEL_CORPUS_PARAMS,
+    )
+    def test_compute_tokens(self, model_name, corpus_name, corpus_lib):
+        tokenizer = get_tokenizer_for_model(model_name)
+        model = GenerativeModel(model_name)
+        nltk.download(corpus_name, quiet=True)
+        for id, book in enumerate(corpus_lib.fileids()):
+            text = corpus_lib.raw(book)
+            response = model.compute_tokens(text)
+            local_result = tokenizer.compute_tokens(text)
+            for local, service in zip(
+                local_result.token_info_list, response.tokens_info
+            ):
+                assert local.tokens == service.tokens
+                assert local.token_ids == service.token_ids
