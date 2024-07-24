@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.60.0](https://github.com/googleapis/python-aiplatform/compare/v1.59.0...v1.60.0) (2024-07-24)
+
+
+### Features
+
+* Add preflight validations to PipelineJob submit and run methods. ([c5a3535](https://github.com/googleapis/python-aiplatform/commit/c5a35354485a577dd5477449bc4bdcd7866a8df4))
+* Add support for langchain v0.2+ package versions in default installation ([259b638](https://github.com/googleapis/python-aiplatform/commit/259b638300054e13b2dfe1d3f32d7126bbb18b15))
+* GenAI - Added tokenization support via `GenerativeModel.compute_tokens` ([cfe0cc6](https://github.com/googleapis/python-aiplatform/commit/cfe0cc62cbf8dc12b4b021377ddd613d1072fe95))
+* GenAI - ContextCaching - allow from_cached_content to take the cached_content resource name ([8f53902](https://github.com/googleapis/python-aiplatform/commit/8f53902b933f3abf0c9a222f45c2fa7ada727505))
+* Make count_tokens generally-available at TextEmbeddingModel. ([efb8413](https://github.com/googleapis/python-aiplatform/commit/efb84134094ab87d6a2fac48a1f2f1b2199c1818))
+
+
+### Bug Fixes
+
+* Avoid throw error when Part.text is empty in modality content checks ([bbd4a49](https://github.com/googleapis/python-aiplatform/commit/bbd4a49d398052ba2c20e09f8f052e6f766d8fca))
+* Correct logit_bias type annotation to accept keys as strings ([2676d25](https://github.com/googleapis/python-aiplatform/commit/2676d25e62d1bda68b0fbef274d0e669a6670415))
+* Create FV embedding dimensions sample - dimensions should be an int ([2aa221e](https://github.com/googleapis/python-aiplatform/commit/2aa221ec994fea63bd73e2cfe760a314b990e4b0))
+* Fix the sync option for Model Monitor job creation ([22151e2](https://github.com/googleapis/python-aiplatform/commit/22151e29e752dd8f27188046f8c8866c004ca196))
+* Include DeploymentResourcePool class in aiplatform top-level sdk module ([ecc4f09](https://github.com/googleapis/python-aiplatform/commit/ecc4f09054b3e314b51ebf622b7241a5ab4ff072))
+* Overriding the current TracerProvider when enabling tracing ([1476c10](https://github.com/googleapis/python-aiplatform/commit/1476c10f2fd91c02cd98799564a33ede742bc6e0))
+* Pass the project ID from vertexai.init to CloudTraceSpanExporter when enable_tracing=True for LangchainAgent ([3ec043e](https://github.com/googleapis/python-aiplatform/commit/3ec043eefb053739f767d5199b1941bbc3c49120))
+
+
+### Documentation
+
+* GenAI - Update README.md for Vertex Generative AI SDK for Python to add subsections to the right nav. ([42af742](https://github.com/googleapis/python-aiplatform/commit/42af742d808abdca56b84b3381388a36c8454f1b))
+
 ## [1.59.0](https://github.com/googleapis/python-aiplatform/compare/v1.58.0...v1.59.0) (2024-07-09)
 
 
