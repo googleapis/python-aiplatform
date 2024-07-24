@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from typing import (
     Any,
     AsyncIterator,
@@ -22,7 +24,15 @@ from typing import (
     Tuple,
     Optional,
     Iterator,
+    Union,
 )
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+    OptionalAsyncRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
+    OptionalAsyncRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1.types import tensorboard
 from google.cloud.aiplatform_v1.types import tensorboard_data
@@ -56,6 +66,8 @@ class ListTensorboardsPager:
         request: tensorboard_service.ListTensorboardsRequest,
         response: tensorboard_service.ListTensorboardsResponse,
         *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -67,12 +79,17 @@ class ListTensorboardsPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardsResponse):
                 The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -83,7 +100,12 @@ class ListTensorboardsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __iter__(self) -> Iterator[tensorboard.Tensorboard]:
@@ -118,6 +140,8 @@ class ListTensorboardsAsyncPager:
         request: tensorboard_service.ListTensorboardsRequest,
         response: tensorboard_service.ListTensorboardsResponse,
         *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -129,12 +153,17 @@ class ListTensorboardsAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardsResponse):
                 The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -147,7 +176,12 @@ class ListTensorboardsAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[tensorboard.Tensorboard]:
@@ -186,6 +220,8 @@ class ListTensorboardExperimentsPager:
         request: tensorboard_service.ListTensorboardExperimentsRequest,
         response: tensorboard_service.ListTensorboardExperimentsResponse,
         *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -197,12 +233,17 @@ class ListTensorboardExperimentsPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardExperimentsResponse):
                 The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardExperimentsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -213,7 +254,12 @@ class ListTensorboardExperimentsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __iter__(self) -> Iterator[tensorboard_experiment.TensorboardExperiment]:
@@ -250,6 +296,8 @@ class ListTensorboardExperimentsAsyncPager:
         request: tensorboard_service.ListTensorboardExperimentsRequest,
         response: tensorboard_service.ListTensorboardExperimentsResponse,
         *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -261,12 +309,17 @@ class ListTensorboardExperimentsAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardExperimentsResponse):
                 The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardExperimentsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -279,7 +332,12 @@ class ListTensorboardExperimentsAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[tensorboard_experiment.TensorboardExperiment]:
@@ -318,6 +376,8 @@ class ListTensorboardRunsPager:
         request: tensorboard_service.ListTensorboardRunsRequest,
         response: tensorboard_service.ListTensorboardRunsResponse,
         *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -329,12 +389,17 @@ class ListTensorboardRunsPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardRunsResponse):
                 The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardRunsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -345,7 +410,12 @@ class ListTensorboardRunsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __iter__(self) -> Iterator[tensorboard_run.TensorboardRun]:
@@ -382,6 +452,8 @@ class ListTensorboardRunsAsyncPager:
         request: tensorboard_service.ListTensorboardRunsRequest,
         response: tensorboard_service.ListTensorboardRunsResponse,
         *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -393,12 +465,17 @@ class ListTensorboardRunsAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardRunsResponse):
                 The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardRunsRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -411,7 +488,12 @@ class ListTensorboardRunsAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[tensorboard_run.TensorboardRun]:
@@ -450,6 +532,8 @@ class ListTensorboardTimeSeriesPager:
         request: tensorboard_service.ListTensorboardTimeSeriesRequest,
         response: tensorboard_service.ListTensorboardTimeSeriesResponse,
         *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -461,12 +545,17 @@ class ListTensorboardTimeSeriesPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardTimeSeriesResponse):
                 The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -477,7 +566,12 @@ class ListTensorboardTimeSeriesPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __iter__(self) -> Iterator[tensorboard_time_series.TensorboardTimeSeries]:
@@ -514,6 +608,8 @@ class ListTensorboardTimeSeriesAsyncPager:
         request: tensorboard_service.ListTensorboardTimeSeriesRequest,
         response: tensorboard_service.ListTensorboardTimeSeriesResponse,
         *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -525,12 +621,17 @@ class ListTensorboardTimeSeriesAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListTensorboardTimeSeriesResponse):
                 The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -543,7 +644,12 @@ class ListTensorboardTimeSeriesAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[tensorboard_time_series.TensorboardTimeSeries]:
@@ -584,6 +690,8 @@ class ExportTensorboardTimeSeriesDataPager:
         request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
         response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
         *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -595,6 +703,9 @@ class ExportTensorboardTimeSeriesDataPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ExportTensorboardTimeSeriesDataResponse):
                 The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
@@ -603,6 +714,8 @@ class ExportTensorboardTimeSeriesDataPager:
             request
         )
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -615,7 +728,12 @@ class ExportTensorboardTimeSeriesDataPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __iter__(self) -> Iterator[tensorboard_data.TimeSeriesDataPoint]:
@@ -652,6 +770,8 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
         request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
         response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
         *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -663,6 +783,9 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ExportTensorboardTimeSeriesDataResponse):
                 The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
@@ -671,6 +794,8 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
             request
         )
         self._response = response
+        self._retry = retry
+        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -683,7 +808,12 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[tensorboard_data.TimeSeriesDataPoint]:

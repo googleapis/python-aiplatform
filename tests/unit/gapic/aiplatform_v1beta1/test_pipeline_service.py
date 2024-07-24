@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
@@ -1375,12 +1376,7 @@ async def test_create_training_pipeline_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_training_pipeline
         ] = mock_object
@@ -1803,12 +1799,7 @@ async def test_get_training_pipeline_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_training_pipeline
         ] = mock_object
@@ -2210,12 +2201,7 @@ async def test_list_training_pipelines_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_training_pipelines
         ] = mock_object
@@ -2466,12 +2452,16 @@ def test_list_training_pipelines_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_training_pipelines(request={})
+        pager = client.list_training_pipelines(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -2800,12 +2790,7 @@ async def test_delete_training_pipeline_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_training_pipeline
         ] = mock_object
@@ -3187,12 +3172,7 @@ async def test_cancel_training_pipeline_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_training_pipeline
         ] = mock_object
@@ -3596,12 +3576,7 @@ async def test_create_pipeline_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_pipeline_job
         ] = mock_object
@@ -4038,12 +4013,7 @@ async def test_get_pipeline_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_pipeline_job
         ] = mock_object
@@ -4441,12 +4411,7 @@ async def test_list_pipeline_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_pipeline_jobs
         ] = mock_object
@@ -4697,12 +4662,16 @@ def test_list_pipeline_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_pipeline_jobs(request={})
+        pager = client.list_pipeline_jobs(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -5030,12 +4999,7 @@ async def test_delete_pipeline_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_pipeline_job
         ] = mock_object
@@ -5423,12 +5387,7 @@ async def test_batch_delete_pipeline_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.batch_delete_pipeline_jobs
         ] = mock_object
@@ -5819,12 +5778,7 @@ async def test_cancel_pipeline_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_pipeline_job
         ] = mock_object
@@ -6202,12 +6156,7 @@ async def test_batch_cancel_pipeline_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.batch_cancel_pipeline_jobs
         ] = mock_object
@@ -6832,7 +6781,7 @@ def test_create_training_pipeline_rest_required_fields(
 
             response = client.create_training_pipeline(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7162,7 +7111,7 @@ def test_get_training_pipeline_rest_required_fields(
 
             response = client.get_training_pipeline(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7485,7 +7434,7 @@ def test_list_training_pipelines_rest_required_fields(
 
             response = client.list_training_pipelines(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7860,7 +7809,7 @@ def test_delete_training_pipeline_rest_required_fields(
 
             response = client.delete_training_pipeline(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8167,7 +8116,7 @@ def test_cancel_training_pipeline_rest_required_fields(
 
             response = client.cancel_training_pipeline(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8657,7 +8606,7 @@ def test_create_pipeline_job_rest_required_fields(
 
             response = client.create_pipeline_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8990,7 +8939,7 @@ def test_get_pipeline_job_rest_required_fields(
 
             response = client.get_pipeline_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -9309,7 +9258,7 @@ def test_list_pipeline_jobs_rest_required_fields(
 
             response = client.list_pipeline_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -9680,7 +9629,7 @@ def test_delete_pipeline_job_rest_required_fields(
 
             response = client.delete_pipeline_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -9991,7 +9940,7 @@ def test_batch_delete_pipeline_jobs_rest_required_fields(
 
             response = client.batch_delete_pipeline_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10302,7 +10251,7 @@ def test_cancel_pipeline_job_rest_required_fields(
 
             response = client.cancel_pipeline_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10603,7 +10552,7 @@ def test_batch_cancel_pipeline_jobs_rest_required_fields(
 
             response = client.batch_cancel_pipeline_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 

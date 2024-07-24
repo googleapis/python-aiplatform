@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.job_service import JobServiceAsyncClient
@@ -1315,12 +1316,7 @@ async def test_create_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_custom_job
         ] = mock_object
@@ -1714,12 +1710,7 @@ async def test_get_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_custom_job
         ] = mock_object
@@ -2093,12 +2084,7 @@ async def test_list_custom_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_custom_jobs
         ] = mock_object
@@ -2336,12 +2322,16 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_custom_jobs(request={})
+        pager = client.list_custom_jobs(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -2661,12 +2651,7 @@ async def test_delete_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_custom_job
         ] = mock_object
@@ -3044,12 +3029,7 @@ async def test_cancel_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_custom_job
         ] = mock_object
@@ -3451,12 +3431,7 @@ async def test_create_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_data_labeling_job
         ] = mock_object
@@ -3894,12 +3869,7 @@ async def test_get_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_data_labeling_job
         ] = mock_object
@@ -4308,12 +4278,7 @@ async def test_list_data_labeling_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_data_labeling_jobs
         ] = mock_object
@@ -4564,12 +4529,16 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_data_labeling_jobs(request={})
+        pager = client.list_data_labeling_jobs(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -4898,12 +4867,7 @@ async def test_delete_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_data_labeling_job
         ] = mock_object
@@ -5285,12 +5249,7 @@ async def test_cancel_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_data_labeling_job
         ] = mock_object
@@ -5684,12 +5643,7 @@ async def test_create_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_hyperparameter_tuning_job
         ] = mock_object
@@ -6124,12 +6078,7 @@ async def test_get_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_hyperparameter_tuning_job
         ] = mock_object
@@ -6531,12 +6480,7 @@ async def test_list_hyperparameter_tuning_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_hyperparameter_tuning_jobs
         ] = mock_object
@@ -6787,12 +6731,18 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_hyperparameter_tuning_jobs(request={})
+        pager = client.list_hyperparameter_tuning_jobs(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -7127,12 +7077,7 @@ async def test_delete_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_hyperparameter_tuning_job
         ] = mock_object
@@ -7514,12 +7459,7 @@ async def test_cancel_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_hyperparameter_tuning_job
         ] = mock_object
@@ -7894,12 +7834,7 @@ async def test_create_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_nas_job
         ] = mock_object
@@ -8284,12 +8219,7 @@ async def test_get_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_nas_job
         ] = mock_object
@@ -8659,12 +8589,7 @@ async def test_list_nas_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_nas_jobs
         ] = mock_object
@@ -8902,12 +8827,16 @@ def test_list_nas_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_nas_jobs(request={})
+        pager = client.list_nas_jobs(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -9217,12 +9146,7 @@ async def test_delete_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_nas_job
         ] = mock_object
@@ -9580,12 +9504,7 @@ async def test_cancel_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_nas_job
         ] = mock_object
@@ -9955,12 +9874,7 @@ async def test_get_nas_trial_detail_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_nas_trial_detail
         ] = mock_object
@@ -10351,12 +10265,7 @@ async def test_list_nas_trial_details_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_nas_trial_details
         ] = mock_object
@@ -10606,12 +10515,16 @@ def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_nas_trial_details(request={})
+        pager = client.list_nas_trial_details(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -10962,12 +10875,7 @@ async def test_create_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_batch_prediction_job
         ] = mock_object
@@ -11408,12 +11316,7 @@ async def test_get_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_batch_prediction_job
         ] = mock_object
@@ -11819,12 +11722,7 @@ async def test_list_batch_prediction_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_batch_prediction_jobs
         ] = mock_object
@@ -12075,12 +11973,18 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_batch_prediction_jobs(request={})
+        pager = client.list_batch_prediction_jobs(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -12413,12 +12317,7 @@ async def test_delete_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_batch_prediction_job
         ] = mock_object
@@ -12800,12 +12699,7 @@ async def test_cancel_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_batch_prediction_job
         ] = mock_object
@@ -13210,12 +13104,7 @@ async def test_create_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_model_deployment_monitoring_job
         ] = mock_object
@@ -13674,12 +13563,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_use_cach
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_model_deployment_monitoring_stats_anomalies
         ] = mock_object
@@ -13960,14 +13844,20 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata(
                 (("model_deployment_monitoring_job", ""),)
             ),
         )
-        pager = client.search_model_deployment_monitoring_stats_anomalies(request={})
+        pager = client.search_model_deployment_monitoring_stats_anomalies(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -14338,12 +14228,7 @@ async def test_get_model_deployment_monitoring_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_model_deployment_monitoring_job
         ] = mock_object
@@ -14760,12 +14645,7 @@ async def test_list_model_deployment_monitoring_jobs_async_use_cached_wrapped_rp
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_model_deployment_monitoring_jobs
         ] = mock_object
@@ -15016,12 +14896,18 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_model_deployment_monitoring_jobs(request={})
+        pager = client.list_model_deployment_monitoring_jobs(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -15352,12 +15238,7 @@ async def test_update_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_model_deployment_monitoring_job
         ] = mock_object
@@ -15767,12 +15648,7 @@ async def test_delete_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_model_deployment_monitoring_job
         ] = mock_object
@@ -16154,12 +16030,7 @@ async def test_pause_model_deployment_monitoring_job_async_use_cached_wrapped_rp
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.pause_model_deployment_monitoring_job
         ] = mock_object
@@ -16531,12 +16402,7 @@ async def test_resume_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.resume_model_deployment_monitoring_job
         ] = mock_object
@@ -17036,7 +16902,7 @@ def test_create_custom_job_rest_required_fields(
 
             response = client.create_custom_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -17353,7 +17219,7 @@ def test_get_custom_job_rest_required_fields(
 
             response = client.get_custom_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -17667,7 +17533,7 @@ def test_list_custom_jobs_rest_required_fields(
 
             response = client.list_custom_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -18035,7 +17901,7 @@ def test_delete_custom_job_rest_required_fields(
 
             response = client.delete_custom_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -18335,7 +18201,7 @@ def test_cancel_custom_job_rest_required_fields(
 
             response = client.cancel_custom_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -18770,7 +18636,7 @@ def test_create_data_labeling_job_rest_required_fields(
 
             response = client.create_data_labeling_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -19106,7 +18972,7 @@ def test_get_data_labeling_job_rest_required_fields(
 
             response = client.get_data_labeling_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -19428,7 +19294,7 @@ def test_list_data_labeling_jobs_rest_required_fields(
 
             response = client.list_data_labeling_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -19802,7 +19668,7 @@ def test_delete_data_labeling_job_rest_required_fields(
 
             response = client.delete_data_labeling_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -20109,7 +19975,7 @@ def test_cancel_data_labeling_job_rest_required_fields(
 
             response = client.cancel_data_labeling_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -20697,7 +20563,7 @@ def test_create_hyperparameter_tuning_job_rest_required_fields(
 
             response = client.create_hyperparameter_tuning_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -21042,7 +20908,7 @@ def test_get_hyperparameter_tuning_job_rest_required_fields(
 
             response = client.get_hyperparameter_tuning_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -21371,7 +21237,7 @@ def test_list_hyperparameter_tuning_jobs_rest_required_fields(
 
             response = client.list_hyperparameter_tuning_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -21755,7 +21621,7 @@ def test_delete_hyperparameter_tuning_job_rest_required_fields(
 
             response = client.delete_hyperparameter_tuning_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -22065,7 +21931,7 @@ def test_cancel_hyperparameter_tuning_job_rest_required_fields(
 
             response = client.cancel_hyperparameter_tuning_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -22563,7 +22429,7 @@ def test_create_nas_job_rest_required_fields(
 
             response = client.create_nas_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -22878,7 +22744,7 @@ def test_get_nas_job_rest_required_fields(request_type=job_service.GetNasJobRequ
 
             response = client.get_nas_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -23186,7 +23052,7 @@ def test_list_nas_jobs_rest_required_fields(
 
             response = client.list_nas_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -23548,7 +23414,7 @@ def test_delete_nas_job_rest_required_fields(
 
             response = client.delete_nas_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -23844,7 +23710,7 @@ def test_cancel_nas_job_rest_required_fields(
 
             response = client.cancel_nas_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -24145,7 +24011,7 @@ def test_get_nas_trial_detail_rest_required_fields(
 
             response = client.get_nas_trial_detail(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -24464,7 +24330,7 @@ def test_list_nas_trial_details_rest_required_fields(
 
             response = client.list_nas_trial_details(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -25133,7 +24999,7 @@ def test_create_batch_prediction_job_rest_required_fields(
 
             response = client.create_batch_prediction_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -25471,7 +25337,7 @@ def test_get_batch_prediction_job_rest_required_fields(
 
             response = client.get_batch_prediction_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -25792,7 +25658,7 @@ def test_list_batch_prediction_jobs_rest_required_fields(
 
             response = client.list_batch_prediction_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -26167,7 +26033,7 @@ def test_delete_batch_prediction_job_rest_required_fields(
 
             response = client.delete_batch_prediction_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -26474,7 +26340,7 @@ def test_cancel_batch_prediction_job_rest_required_fields(
 
             response = client.cancel_batch_prediction_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -26980,7 +26846,7 @@ def test_create_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.create_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -27349,7 +27215,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_required_fields
                 request
             )
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -27793,7 +27659,7 @@ def test_get_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.get_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -28133,7 +27999,7 @@ def test_list_model_deployment_monitoring_jobs_rest_required_fields(
 
             response = client.list_model_deployment_monitoring_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -28699,7 +28565,7 @@ def test_update_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.update_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -29038,7 +28904,7 @@ def test_delete_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.delete_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -29356,7 +29222,7 @@ def test_pause_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.pause_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -29663,7 +29529,7 @@ def test_resume_model_deployment_monitoring_job_rest_required_fields(
 
             response = client.resume_model_deployment_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 

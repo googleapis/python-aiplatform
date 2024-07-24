@@ -227,9 +227,6 @@ class ModelGardenServiceAsyncClient:
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the ModelGardenServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -495,6 +492,8 @@ class ModelGardenServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

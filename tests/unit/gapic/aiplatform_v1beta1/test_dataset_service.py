@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -1310,12 +1311,7 @@ async def test_create_dataset_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_dataset
         ] = mock_object
@@ -1711,12 +1707,7 @@ async def test_get_dataset_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_dataset
         ] = mock_object
@@ -2107,12 +2098,7 @@ async def test_update_dataset_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_dataset
         ] = mock_object
@@ -2502,12 +2488,7 @@ async def test_list_datasets_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_datasets
         ] = mock_object
@@ -2745,12 +2726,16 @@ def test_list_datasets_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_datasets(request={})
+        pager = client.list_datasets(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -3060,12 +3045,7 @@ async def test_delete_dataset_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_dataset
         ] = mock_object
@@ -3429,12 +3409,7 @@ async def test_import_data_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.import_data
         ] = mock_object
@@ -3820,12 +3795,7 @@ async def test_export_data_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.export_data
         ] = mock_object
@@ -4236,12 +4206,7 @@ async def test_create_dataset_version_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_dataset_version
         ] = mock_object
@@ -4648,12 +4613,7 @@ async def test_update_dataset_version_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_dataset_version
         ] = mock_object
@@ -5058,12 +5018,7 @@ async def test_delete_dataset_version_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_dataset_version
         ] = mock_object
@@ -5463,12 +5418,7 @@ async def test_get_dataset_version_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_dataset_version
         ] = mock_object
@@ -5870,12 +5820,7 @@ async def test_list_dataset_versions_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_dataset_versions
         ] = mock_object
@@ -6126,12 +6071,16 @@ def test_list_dataset_versions_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_dataset_versions(request={})
+        pager = client.list_dataset_versions(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -6460,12 +6409,7 @@ async def test_restore_dataset_version_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.restore_dataset_version
         ] = mock_object
@@ -6847,12 +6791,7 @@ async def test_list_data_items_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_data_items
         ] = mock_object
@@ -7090,12 +7029,16 @@ def test_list_data_items_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_data_items(request={})
+        pager = client.list_data_items(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -7430,12 +7373,7 @@ async def test_search_data_items_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_data_items
         ] = mock_object
@@ -7599,12 +7537,16 @@ def test_search_data_items_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("dataset", ""),)),
         )
-        pager = client.search_data_items(request={})
+        pager = client.search_data_items(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -7939,12 +7881,7 @@ async def test_list_saved_queries_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_saved_queries
         ] = mock_object
@@ -8195,12 +8132,16 @@ def test_list_saved_queries_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_saved_queries(request={})
+        pager = client.list_saved_queries(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -8528,12 +8469,7 @@ async def test_delete_saved_query_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_saved_query
         ] = mock_object
@@ -8927,12 +8863,7 @@ async def test_get_annotation_spec_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_annotation_spec
         ] = mock_object
@@ -9319,12 +9250,7 @@ async def test_list_annotations_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_annotations
         ] = mock_object
@@ -9562,12 +9488,16 @@ def test_list_annotations_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_annotations(request={})
+        pager = client.list_annotations(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -9959,7 +9889,7 @@ def test_create_dataset_rest_required_fields(
 
             response = client.create_dataset(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10288,7 +10218,7 @@ def test_get_dataset_rest_required_fields(
 
             response = client.get_dataset(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10706,7 +10636,7 @@ def test_update_dataset_rest_required_fields(
 
             response = client.update_dataset(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -11031,7 +10961,7 @@ def test_list_datasets_rest_required_fields(
 
             response = client.list_datasets(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -11398,7 +11328,7 @@ def test_delete_dataset_rest_required_fields(
 
             response = client.delete_dataset(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -11698,7 +11628,7 @@ def test_import_data_rest_required_fields(
 
             response = client.import_data(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -12012,7 +11942,7 @@ def test_export_data_rest_required_fields(
 
             response = client.export_data(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -12421,7 +12351,7 @@ def test_create_dataset_version_rest_required_fields(
 
             response = client.create_dataset_version(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -12837,7 +12767,7 @@ def test_update_dataset_version_rest_required_fields(
 
             response = client.update_dataset_version(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -13161,7 +13091,7 @@ def test_delete_dataset_version_rest_required_fields(
 
             response = client.delete_dataset_version(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -13484,7 +13414,7 @@ def test_get_dataset_version_rest_required_fields(
 
             response = client.get_dataset_version(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -13806,7 +13736,7 @@ def test_list_dataset_versions_rest_required_fields(
 
             response = client.list_dataset_versions(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -14184,7 +14114,7 @@ def test_restore_dataset_version_rest_required_fields(
 
             response = client.restore_dataset_version(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -14501,7 +14431,7 @@ def test_list_data_items_rest_required_fields(
 
             response = client.list_data_items(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -14895,7 +14825,7 @@ def test_search_data_items_rest_required_fields(
 
             response = client.search_data_items(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -15232,7 +15162,7 @@ def test_list_saved_queries_rest_required_fields(
 
             response = client.list_saved_queries(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -15609,7 +15539,7 @@ def test_delete_saved_query_rest_required_fields(
 
             response = client.delete_saved_query(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -15928,7 +15858,7 @@ def test_get_annotation_spec_rest_required_fields(
 
             response = client.get_annotation_spec(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -16249,7 +16179,7 @@ def test_list_annotations_rest_required_fields(
 
             response = client.list_annotations(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
