@@ -198,7 +198,7 @@ def generate_schema(
     return schema
 
 
-def _is_noop_tracer_provider(tracer_provider) -> bool:
+def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
     """Returns True if the tracer_provider is Proxy or NoOp."""
     opentelemetry = _import_opentelemetry_or_warn()
     ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
@@ -269,6 +269,20 @@ def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
     except ImportError:
         _LOGGER.warning(
             "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[reasoningengine]'."
+        )
+    return None
+
+
+def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the google.cloud.trace_v2 module."""
+    try:
+        import google.cloud.trace_v2
+
+        return google.cloud.trace_v2
+    except ImportError:
+        _LOGGER.warning(
+            "google-cloud-trace is not installed. Please call "
             "'pip install google-cloud-aiplatform[reasoningengine]'."
         )
     return None

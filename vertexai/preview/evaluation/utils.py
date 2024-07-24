@@ -15,9 +15,12 @@
 # limitations under the License.
 #
 
+import functools
 import io
 import os
-from typing import Any, Dict, Optional, Union, TYPE_CHECKING
+import threading
+import time
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union, Callable
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -28,6 +31,7 @@ from google.cloud.aiplatform_v1beta1.services import (
     evaluation_service as gapic_evaluation_services,
 )
 
+
 if TYPE_CHECKING:
     import pandas as pd
 
@@ -35,48 +39,113 @@ _BQ_PREFIX = "bq://"
 _GCS_PREFIX = "gs://"
 
 
-class _EvaluationServiceAsyncClientWithOverride(utils.ClientWithOverride):
+class _EvaluationServiceClientWithOverride(utils.ClientWithOverride):
     _is_temporary = False
     _default_version = compat.V1BETA1
     _version_map = (
         (
             compat.V1BETA1,
-            gapic_evaluation_services.EvaluationServiceAsyncClient,
+            gapic_evaluation_services.EvaluationServiceClient,
         ),
     )
 
 
-def create_evaluation_service_async_client(
+class RateLimiter:
+    """Helper class for rate-limiting requests to Vertex AI to improve QoS.
+
+    Attributes:
+        seconds_per_event: The time interval (in seconds) between events to
+            maintain the desired rate.
+        last: The timestamp of the last event.
+        _lock: A lock to ensure thread safety.
+    """
+
+    def __init__(self, rate: Optional[float] = None):
+        """Initializes the rate limiter.
+
+        A simple rate limiter for controlling the frequency of API calls. This class
+        implements a token bucket algorithm to limit the rate at which events
+        can occur. It's designed for cases where the batch size (number of events
+        per call) is always 1 for traffic shaping and rate limiting.
+
+        Args:
+            rate: The number of queries allowed per second.
+        Raises:
+            ValueError: If the rate is not positive.
+        """
+        if rate <= 0:
+            raise ValueError("Rate must be a positive number")
+        self.seconds_per_event = 1.0 / rate
+        self.last = time.time() - self.seconds_per_event
+        self._lock = threading.Lock()
+
+    def _admit(self) -> float:
+        """Checks if an event can be admitted or calculates the remaining delay."""
+        now = time.time()
+        time_since_last = now - self.last
+        if time_since_last >= self.seconds_per_event:
+            self.last = now
+            return 0
+        else:
+            return self.seconds_per_event - time_since_last
+
+    def sleep_and_advance(self):
+        """Blocks the current thread until the next event can be admitted."""
+        with self._lock:
+            delay = self._admit()
+            if delay > 0:
+                time.sleep(delay)
+                self.last = time.time()
+
+
+def rate_limit(rate: Optional[float] = None) -> Callable[[Any], Any]:
+    """Decorator version of rate limiter."""
+
+    def _rate_limit(method):
+        limiter = RateLimiter(rate)
+
+        @functools.wraps(method)
+        def wrapper(*args, **kwargs):
+            limiter.sleep_and_advance()
+            return method(*args, **kwargs)
+
+        return wrapper
+
+    return _rate_limit
+
+
+def create_evaluation_service_client(
     api_base_path_override: Optional[str] = None,
-) -> _EvaluationServiceAsyncClientWithOverride:
-    """Creates an aync client for the evaluation service.
+) -> _EvaluationServiceClientWithOverride:
+    """Creates a client for the evaluation service.
 
     Args:
       api_base_path_override: Optional. Override default api base path.
 
     Returns:
-      Instantiated Vertex AI EvaluationService async client with optional overrides.
+      Instantiated Vertex AI EvaluationServiceClient with optional
+      overrides.
     """
     return initializer.global_config.create_client(
-        client_class=_EvaluationServiceAsyncClientWithOverride,
+        client_class=_EvaluationServiceClientWithOverride,
         location_override=initializer.global_config.location,
         api_base_path_override=api_base_path_override,
     )
 
 
-def load_dataset(source: Union[str, "pd.DataFrame", Dict[str, Any]]) -> "pd.DataFrame":
+def load_dataset(
+    source: Union[str, "pd.DataFrame", Dict[str, Any]],
+) -> "pd.DataFrame":
     """Loads dataset from various sources into a DataFrame.
 
     Args:
-        source: The data source. Can be the following formats:
-          - pd.DataFrame: Used directly for evaluation.
-          - dict: Converted to a pandas DataFrame before evaluation.
-          - str: Interpreted as a file path or URI. Supported formats include:
-              * Local JSONL or CSV files:  Loaded from the local filesystem.
-              * GCS JSONL or CSV files: Loaded from Google Cloud Storage
-                  (e.g., 'gs://bucket/data.csv').
-              * BigQuery table URI: Loaded from Google Cloud BigQuery
-                  (e.g., 'bq://project-id.dataset.table_name').
+        source: The data source. Can be the following formats: - pd.DataFrame:
+          Used directly for evaluation. - dict: Converted to a pandas DataFrame
+          before evaluation. - str: Interpreted as a file path or URI. Supported
+          formats include: * Local JSONL or CSV files:  Loaded from the local
+          filesystem. * GCS JSONL or CSV files: Loaded from Google Cloud Storage
+          (e.g., 'gs://bucket/data.csv'). * BigQuery table URI: Loaded from Google
+          Cloud BigQuery (e.g., 'bq://project-id.dataset.table_name').
 
     Returns:
         The dataset in pandas DataFrame format.
@@ -108,7 +177,7 @@ def load_dataset(source: Union[str, "pd.DataFrame", Dict[str, Any]]) -> "pd.Data
             raise ValueError(f"Unsupported file type: {file_type}")
     else:
         raise TypeError(
-            "Unsupported dataset type. Must be DataFrame, dictionary, or" " filepath."
+            "Unsupported dataset type. Must be DataFrame, dictionary, or filepath."
         )
 
 
@@ -123,7 +192,7 @@ def _load_jsonl(filepath: str) -> "pd.DataFrame":
         )
     if filepath.startswith(_GCS_PREFIX):
         file_contents = _read_gcs_file_contents(filepath)
-        return pd.read_json(file_contents, lines=True)
+        return pd.read_json(io.StringIO(file_contents), lines=True)
     else:
         with open(filepath, "r") as f:
             return pd.read_json(f, lines=True)

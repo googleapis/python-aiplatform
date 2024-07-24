@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
+        "StreamRawPredictRequest",
         "DirectPredictRequest",
         "DirectPredictResponse",
         "DirectRawPredictRequest",
@@ -194,6 +195,31 @@ class RawPredictRequest(proto.Message):
             applies when you deploy the ``Model`` as a ``DeployedModel``
             to an [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint]
             and use the ``RawPredict`` method.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    http_body: httpbody_pb2.HttpBody = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=httpbody_pb2.HttpBody,
+    )
+
+
+class StreamRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamRawPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        http_body (google.api.httpbody_pb2.HttpBody):
+            The prediction input. Supports HTTP headers
+            and arbitrary data payload.
     """
 
     endpoint: str = proto.Field(

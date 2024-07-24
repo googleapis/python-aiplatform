@@ -305,6 +305,7 @@ class PipelineJob(
         reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -325,6 +326,8 @@ class PipelineJob(
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         network = network or initializer.global_config.network
 
@@ -334,6 +337,7 @@ class PipelineJob(
             reserved_ip_ranges=reserved_ip_ranges,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            enable_preflight_validations=enable_preflight_validations,
         )
 
     @base.optional_sync()
@@ -344,6 +348,7 @@ class PipelineJob(
         reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Helper method to ensure network synchronization and to run
         the configured PipelineJob and monitor the job until completion.
@@ -363,12 +368,15 @@ class PipelineJob(
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         self.submit(
             service_account=service_account,
             network=network,
             reserved_ip_ranges=reserved_ip_ranges,
             create_request_timeout=create_request_timeout,
+            enable_preflight_validations=enable_preflight_validations,
         )
 
         self._block_until_complete()
@@ -402,6 +410,7 @@ class PipelineJob(
         create_request_timeout: Optional[float] = None,
         *,
         experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -432,6 +441,8 @@ class PipelineJob(
 
                 Pipeline parameters will be associated as parameters to the
                 current Experiment Run.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -471,12 +482,47 @@ class PipelineJob(
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.create_pipeline_job(
-            parent=self._parent,
-            pipeline_job=self._gca_resource,
-            pipeline_job_id=self.job_id,
-            timeout=create_request_timeout,
-        )
+        if enable_preflight_validations:
+            self._gca_resource.preflight_validations = True
+
+        def extract_error_messages(error_string):
+            """
+            Extracts error messages from a string containing structured errors.
+
+            Args:
+                error_string: The string containing the error data.
+
+            Returns:
+                A list of formatted error messages.
+            """
+
+            message_pattern = (
+                r"CreatePipelineJobApiErrorDetail\"\n.*message=(.*),\ cause=null"
+            )
+
+            matches = re.findall(message_pattern, error_string)
+
+            formatted_errors = [
+                f"{i+1}. {message}" for i, message in enumerate(matches)
+            ]
+
+            return formatted_errors
+
+        try:
+            self._gca_resource = self.api_client.create_pipeline_job(
+                parent=self._parent,
+                pipeline_job=self._gca_resource,
+                pipeline_job_id=self.job_id,
+                timeout=create_request_timeout,
+            )
+        except Exception as e:
+            preflight_validations_error_messages = extract_error_messages(str(e))
+            if preflight_validations_error_messages:
+                raise Exception(
+                    "PipelineJob Preflight validations failed with the following errors:\n"
+                    + "\n".join(preflight_validations_error_messages)
+                ) from e
+            raise
 
         _LOGGER.log_create_complete_with_getter(
             self.__class__, self._gca_resource, "pipeline_job"

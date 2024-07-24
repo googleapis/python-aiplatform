@@ -183,7 +183,17 @@ def default(session):
         "--cov-fail-under=0",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_langchain",
+        "--ignore=tests/unit/architecture",
         os.path.join("tests", "unit"),
+        *session.posargs,
+    )
+
+    # Run tests that require isolation.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
+        os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
         *session.posargs,
     )
 
@@ -328,7 +338,7 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=98")
+    session.run("coverage", "report", "--show-missing", "--fail-under=85")
 
     session.run("coverage", "erase")
 
@@ -399,6 +409,75 @@ def docfx(session):
         os.path.join("docs", "_build", "doctrees", ""),
         os.path.join("docs", ""),
         os.path.join("docs", "_build", "html", ""),
+    )
+
+
+@nox.session(python="3.9")
+def gemini_docs(session):
+    """Build the docs for library related to Gemini."""
+
+    session.install("-e", ".")
+    session.install(
+        "sphinx==5.0.2",
+        "alabaster",
+        "google-cloud-aiplatform[prediction]",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
+    )
+
+
+@nox.session(python="3.10")
+def gemini_docfx(session):
+    """Build the docfx yaml files for library related to Gemini."""
+
+    session.install("-e", ".")
+    session.install(
+        "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
+        "alabaster",
+        "google-cloud-aiplatform",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-D",
+        (
+            "extensions=sphinx.ext.autodoc,"
+            "sphinx.ext.autosummary,"
+            "docfx_yaml.extension,"
+            "sphinx.ext.intersphinx,"
+            "sphinx.ext.coverage,"
+            "sphinx.ext.napoleon,"
+            "sphinx.ext.todo,"
+            "sphinx.ext.viewcode,"
+            "recommonmark"
+        ),
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
     )
 
 

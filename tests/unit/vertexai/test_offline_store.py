@@ -115,8 +115,11 @@ bpd_module.read_gbq_query = lambda x: x
 sys.modules["bigframes.pandas"] = bpd_module
 
 bigframe_module = type(sys)("bigframes")
-bigframe_module.pandas = bpd_module
+bigframe_module.BigQueryOptions = mock.Mock()
+bigframe_module.connect = mock.Mock()
 bigframe_module.enums = mock.Mock()
+bigframe_module.pandas = bpd_module
+bigframe_module.session = mock.Mock()
 sys.modules["bigframes"] = bigframe_module
 
 # And now import bigframes
@@ -236,9 +239,9 @@ def test_wrong_type_in_feature_list_raises_error(mock_convert_to_bigquery_datafr
 
 
 @pytest.fixture()
-def mock_query():
-    with mock.patch.object(bpd, "read_gbq_query") as mock_read_query:
-        yield mock_read_query
+def mock_session():
+    with mock.patch.object(bigframes, "connect") as mock_session:
+        yield mock_session
 
 
 @pytest.fixture()
@@ -275,12 +278,67 @@ def create_mock_feature(
     return feature
 
 
-def help_test_one_feature(
+def expected_sql_for_one_feature(
     feature_name: str,
     bq_column_name: str,
-    expected_sql: str,
+):
+    return f"""WITH
+  entity_df_without_row_num AS (
+    ENTITY DF QUERY Line 1
+    ENTITY DF QUERY Line 2
+    ENTITY DF QUERY Line 3
+  ),
+  entity_df AS (
+    SELECT *, ROW_NUMBER() OVER() AS row_num,
+    FROM entity_df_without_row_num
+  ),
+
+  # Features
+  fake__my_feature AS (
+    SELECT
+      customer_id,
+      {bq_column_name} AS {feature_name},
+      feature_timestamp
+    FROM my.table
+  ),
+
+  # Features with PITL
+  fake__my_feature_pitl AS (
+    SELECT
+      entity_df.row_num,
+      fake__my_feature.my_feature,
+    FROM entity_df
+    LEFT JOIN fake__my_feature
+    ON (
+      entity_df.customer_id = fake__my_feature.customer_id AND
+      CAST(fake__my_feature.feature_timestamp AS TIMESTAMP) <= CAST(entity_df.timestamp AS TIMESTAMP)
+    )
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_df.row_num ORDER BY fake__my_feature.feature_timestamp DESC) = 1
+  )
+
+
+SELECT
+  entity_df.customer_id, entity_df.feature_1,
+  fake__my_feature_pitl.my_feature,
+  entity_df.timestamp
+
+FROM entity_df
+JOIN fake__my_feature_pitl USING (row_num)
+"""
+
+
+@pytest.mark.parametrize(
+    "feature_name, bq_column_name",
+    [
+        ("my_feature", "my_feature"),
+        ("my_feature", "bq_col_name"),
+    ],
+)
+def test_one_feature_same_and_different_bq_col_name(
+    feature_name,
+    bq_column_name,
     mock_convert_to_bigquery_dataframe,
-    mock_query,
+    mock_session,
     mock_fg,
     mock_feature,
 ):
@@ -297,7 +355,7 @@ def help_test_one_feature(
         ts_cols=["timestamp"],
         sql=FAKE_ENTITY_DF_QUERY,
     )
-    mock_query.return_value = "SOME SQL QUERY OUTPUT"
+    mock_session.return_value.read_gbq_query.return_value = "SOME SQL QUERY OUTPUT"
 
     mock_fg.return_value = create_mock_fg(
         name="fake", entity_id_cols=["customer_id"], bq_uri="bq://my.table"
@@ -312,97 +370,124 @@ def help_test_one_feature(
         features=[f"fake.{feature_name}"],
     )
 
-    mock_query.assert_called_once_with(
-        expected_sql,
+    mock_session.assert_called_once_with(
+        bigframes.BigQueryOptions(project=None, location=None),
+    )
+    mock_session.return_value.read_gbq_query.assert_called_once_with(
+        expected_sql_for_one_feature(feature_name, bq_column_name),
         index_col=bigframes.enums.DefaultIndexKind.NULL,
     )
 
     assert rsp == "SOME SQL QUERY OUTPUT"
 
 
-def test_one_feature_same_bq_col_name(
-    mock_convert_to_bigquery_dataframe, mock_query, mock_fg, mock_feature
+def test_one_feature_with_explicit_project_and_location(
+    mock_convert_to_bigquery_dataframe,
+    mock_session,
+    mock_fg,
+    mock_feature,
 ):
-    help_test_one_feature(
-        "my_feature",
-        "my_feature",
-        """WITH
-  entity_df_without_row_num AS (
-    ENTITY DF QUERY Line 1
-    ENTITY DF QUERY Line 2
-    ENTITY DF QUERY Line 3
-  ),
-  entity_df AS (
-    SELECT *, ROW_NUMBER() OVER() AS row_num,
-    FROM entity_df_without_row_num
-  ),
-  # Features
-  fake__my_feature AS (
-    SELECT
-      customer_id,
-      my_feature AS my_feature,
-      feature_timestamp
-    FROM my.table
-  )
-
-SELECT
-  entity_df.customer_id, entity_df.feature_1,
-  fake__my_feature.my_feature,
-  entity_df.timestamp
-
-FROM entity_df
-LEFT OUTER JOIN fake__my_feature ON
-  (
-   entity_df.customer_id = fake__my_feature.customer_id AND
-   CAST(fake__my_feature.feature_timestamp AS TIMESTAMP) <= CAST(entity_df.timestamp AS TIMESTAMP)
-  )
-QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_df.row_num ORDER BY timestamp DESC) = 1""",
-        mock_convert_to_bigquery_dataframe,
-        mock_query,
-        mock_fg,
-        mock_feature,
+    entity_df = pd.DataFrame(
+        [
+            CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
+            CUSTOMER_2_OLD_ENTITY_DF_ENTRY,
+        ],
+        columns=ENTITY_DF_COLUMNS,
     )
 
-
-def test_one_feature_bq_col_name_is_different(
-    mock_convert_to_bigquery_dataframe, mock_query, mock_fg, mock_feature
-):
-    help_test_one_feature(
-        "my_feature",
-        "bq_col_name",
-        """WITH
-  entity_df_without_row_num AS (
-    ENTITY DF QUERY Line 1
-    ENTITY DF QUERY Line 2
-    ENTITY DF QUERY Line 3
-  ),
-  entity_df AS (
-    SELECT *, ROW_NUMBER() OVER() AS row_num,
-    FROM entity_df_without_row_num
-  ),
-  # Features
-  fake__my_feature AS (
-    SELECT
-      customer_id,
-      bq_col_name AS my_feature,
-      feature_timestamp
-    FROM my.table
-  )
-
-SELECT
-  entity_df.customer_id, entity_df.feature_1,
-  fake__my_feature.my_feature,
-  entity_df.timestamp
-
-FROM entity_df
-LEFT OUTER JOIN fake__my_feature ON
-  (
-   entity_df.customer_id = fake__my_feature.customer_id AND
-   CAST(fake__my_feature.feature_timestamp AS TIMESTAMP) <= CAST(entity_df.timestamp AS TIMESTAMP)
-  )
-QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_df.row_num ORDER BY timestamp DESC) = 1""",
-        mock_convert_to_bigquery_dataframe,
-        mock_query,
-        mock_fg,
-        mock_feature,
+    mock_convert_to_bigquery_dataframe.return_value = mock_bdf(
+        non_ts_cols=["customer_id", "feature_1"],
+        ts_cols=["timestamp"],
+        sql=FAKE_ENTITY_DF_QUERY,
     )
+
+    mock_fg.return_value = create_mock_fg(
+        name="fake", entity_id_cols=["customer_id"], bq_uri="bq://my.table"
+    )
+    mock_feature.return_value = create_mock_feature(
+        name="my_feature", version_column_name="my_feature"
+    )
+    mock_fg.return_value.get_feature = mock_feature
+
+    mock_session.return_value.read_gbq_query.return_value = "SOME SQL QUERY OUTPUT"
+
+    rsp = offline_store.fetch_historical_feature_values(
+        entity_df=entity_df,
+        features=["fake.my_feature"],
+        project="my-project",
+        location="my-location",
+    )
+
+    mock_session.assert_called_once_with(
+        bigframes.BigQueryOptions(project="my-project", location="my-location"),
+    )
+    mock_session.return_value.read_gbq_query.assert_called_once_with(
+        expected_sql_for_one_feature("my_feature", "my_feature"),
+        index_col=bigframes.enums.DefaultIndexKind.NULL,
+    )
+
+    assert rsp == "SOME SQL QUERY OUTPUT"
+
+
+def test_one_feature_with_explicit_credentials(
+    mock_convert_to_bigquery_dataframe,
+    mock_session,
+    mock_fg,
+    mock_feature,
+):
+    entity_df = pd.DataFrame(
+        [
+            CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
+            CUSTOMER_2_OLD_ENTITY_DF_ENTRY,
+        ],
+        columns=ENTITY_DF_COLUMNS,
+    )
+
+    mock_convert_to_bigquery_dataframe.return_value = mock_bdf(
+        non_ts_cols=["customer_id", "feature_1"],
+        ts_cols=["timestamp"],
+        sql=FAKE_ENTITY_DF_QUERY,
+    )
+
+    mock_fg.return_value = create_mock_fg(
+        name="fake", entity_id_cols=["customer_id"], bq_uri="bq://my.table"
+    )
+    mock_feature.return_value = create_mock_feature(
+        name="my_feature", version_column_name="my_feature"
+    )
+    mock_fg.return_value.get_feature = mock_feature
+
+    mock_session.return_value.read_gbq_query.return_value = "SOME SQL QUERY OUTPUT"
+
+    credentials = mock.MagicMock()
+    rsp = offline_store.fetch_historical_feature_values(
+        entity_df=entity_df,
+        features=["fake.my_feature"],
+        credentials=credentials,
+    )
+
+    # Ensure when initializing the session, the credentials are
+    # passed through.
+    mock_session.assert_called_once_with(
+        bigframes.BigQueryOptions(
+            credentials=credentials, project="my-project", location="my-location"
+        ),
+    )
+    mock_session.return_value.read_gbq_query.assert_called_once_with(
+        expected_sql_for_one_feature("my_feature", "my_feature"),
+        index_col=bigframes.enums.DefaultIndexKind.NULL,
+    )
+
+    # Ensure when getting the FeatureGroup and Feature, the credentials are
+    # passed through.
+    mock_fg.assert_called_once_with(
+        FeatureGroup,
+        "fake",
+        project=None,
+        credentials=credentials,
+    )
+    mock_fg.return_value.get_feature.assert_called_once_with(
+        "my_feature",
+    )
+
+    assert rsp == "SOME SQL QUERY OUTPUT"

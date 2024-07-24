@@ -56,34 +56,30 @@ class DataSource:
         self.timestamp_column = timestamp_column
         self.entity_id_columns = entity_id_columns
 
+    def copy_with_pitl_suffix(self) -> "DataSource":
+        import copy
+
+        data_source = copy.copy(self)
+        data_source.qualifying_name += "_pitl"
+        return data_source
+
     @property
     def sql(self):
         return self._sql
 
     @property
-    def comma_separated_data_columns(self):
-        return ", ".join(self.data_columns)
-
-    @property
-    def comma_separated_name_qualified_columns(self):
+    def comma_separated_qualified_data_columns(self):
         return ", ".join(
             [self.qualifying_name + "." + col for col in self.data_columns]
         )
 
     @property
     def comma_separated_name_qualified_all_non_timestamp_columns(self):
-        """Same as `comma_separated_name_qualified_columns` but including entity ID column."""
-        all_columns = self.data_columns
+        """Same as `comma_separated_qualified_data_columns` but including entity ID column."""
+        all_columns = self.data_columns.copy()
         if self.entity_id_columns:
             all_columns += self.entity_id_columns
         return ", ".join([self.qualifying_name + "." + col for col in all_columns])
-
-    @property
-    def qualified_entity_id_columns(self) -> List[str]:
-        """Returns name qualified entity ID column(s) e.g. `name.customer_id`."""
-        if not self.entity_id_columns:
-            raise ValueError("Entity ID columns is None.")
-        return [f"{self.qualifying_name}.{col}" for col in self.entity_id_columns]
 
     @property
     def qualified_timestamp_column(self) -> str:
@@ -125,29 +121,43 @@ _PITL_QUERY_TEMPLATE_RAW = """WITH
     SELECT *, ROW_NUMBER() OVER() AS row_num,
     FROM entity_df_without_row_num
   ),
+
   # Features
   {% for feature_data_elem in feature_data %}
   {{ feature_data_elem.qualifying_name }} AS (
 {{ textwrap.indent(feature_data_elem.sql, ' ' * 4) }}
+  ),
+  {% endfor %}
+
+  # Features with PITL
+  {% for feature_data_elem in feature_data %}
+  {{ feature_data_elem.qualifying_name }}_pitl AS (
+    SELECT
+      {{ entity_data.qualifying_name }}.row_num,
+      {{ feature_data_elem.comma_separated_qualified_data_columns }},
+    FROM {{ entity_data.qualifying_name }}
+    LEFT JOIN {{ feature_data_elem.qualifying_name }}
+    ON (
+{{ textwrap.indent(generate_eid_check(entity_data, feature_data_elem) + ' AND', ' ' * 6) }}
+      CAST({{ feature_data_elem.qualified_timestamp_column }} AS TIMESTAMP) <= CAST({{ entity_data.qualified_timestamp_column }} AS TIMESTAMP)
+    )
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY {{ entity_data.qualifying_name }}.row_num ORDER BY {{ feature_data_elem.qualified_timestamp_column }} DESC) = 1
   ){{ ',' if not loop.last else '' }}
   {% endfor %}
+
 
 SELECT
   {{ entity_data.comma_separated_name_qualified_all_non_timestamp_columns }},
   {% for feature_data_elem in feature_data %}
-  {{ feature_data_elem.comma_separated_name_qualified_columns }},
+  {% set feature_pitl = feature_data_elem.copy_with_pitl_suffix() %}
+  {{ feature_pitl.comma_separated_qualified_data_columns }},
   {% endfor %}
   {{ entity_data.qualified_timestamp_column }}
 
 FROM {{ entity_data.qualifying_name }}
 {% for feature_data_elem in feature_data %}
-LEFT OUTER JOIN {{ feature_data_elem.qualifying_name }} ON
-  (
-{{ textwrap.indent(generate_eid_check(entity_data, feature_data_elem) + ' AND', ' ' * 3) }}
-   CAST({{ feature_data_elem.qualified_timestamp_column }} AS TIMESTAMP) <= CAST({{ entity_data.qualified_timestamp_column }} AS TIMESTAMP)
-  )
+JOIN {{ feature_data_elem.qualifying_name }}_pitl USING (row_num)
 {% endfor %}
-QUALIFY ROW_NUMBER() OVER (PARTITION BY {{ entity_data.qualifying_name }}.row_num ORDER BY timestamp DESC) = 1
 """
 
 

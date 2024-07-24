@@ -6594,6 +6594,8 @@ def test_create_training_pipeline_rest(request_type):
                 "model_garden_source": {"public_model_name": "public_model_name_value"},
                 "genie_source": {"base_model_uri": "base_model_uri_value"},
             },
+            "satisfies_pzs": True,
+            "satisfies_pzi": True,
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",

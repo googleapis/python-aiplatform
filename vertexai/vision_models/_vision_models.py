@@ -187,7 +187,7 @@ class Video:
         video_bytes: Optional[bytes] = None,
         gcs_uri: Optional[str] = None,
     ):
-        """Creates an `Image` object.
+        """Creates a `Video` object.
 
         Args:
             video_bytes: Video file bytes. Video can be in AVI, FLV, MKV, MOV,
@@ -211,9 +211,20 @@ class Video:
         Returns:
             Loaded video as an `Video` object.
         """
-        if location.startswith("gs://"):
+        parsed_url = urllib.parse.urlparse(location)
+        if (
+            parsed_url.scheme == "https"
+            and parsed_url.netloc == "storage.googleapis.com"
+        ):
+            parsed_url = parsed_url._replace(
+                scheme="gs", netloc="", path=f"/{urllib.parse.unquote(parsed_url.path)}"
+            )
+            location = urllib.parse.urlunparse(parsed_url)
+
+        if parsed_url.scheme == "gs":
             return Video(gcs_uri=location)
 
+        # Load video from local path
         video_bytes = pathlib.Path(location).read_bytes()
         video = Video(video_bytes=video_bytes)
         return video

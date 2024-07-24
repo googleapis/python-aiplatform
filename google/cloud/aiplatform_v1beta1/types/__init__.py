@@ -43,7 +43,9 @@ from .content import (
     FileData,
     GenerationConfig,
     GroundingAttribution,
+    GroundingChunk,
     GroundingMetadata,
+    GroundingSupport,
     Part,
     SafetyRating,
     SafetySetting,
@@ -135,6 +137,7 @@ from .deployment_resource_pool_service import (
     QueryDeployedModelsRequest,
     QueryDeployedModelsResponse,
     UpdateDeploymentResourcePoolOperationMetadata,
+    UpdateDeploymentResourcePoolRequest,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -933,6 +936,7 @@ from .prediction_service import (
     StreamingPredictResponse,
     StreamingRawPredictRequest,
     StreamingRawPredictResponse,
+    StreamRawPredictRequest,
 )
 from .publisher_model import (
     PublisherModel,
@@ -1183,7 +1187,9 @@ __all__ = (
     "FileData",
     "GenerationConfig",
     "GroundingAttribution",
+    "GroundingChunk",
     "GroundingMetadata",
+    "GroundingSupport",
     "Part",
     "SafetyRating",
     "SafetySetting",
@@ -1253,6 +1259,7 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
+    "UpdateDeploymentResourcePoolRequest",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
@@ -1895,6 +1902,7 @@ __all__ = (
     "StreamingPredictResponse",
     "StreamingRawPredictRequest",
     "StreamingRawPredictResponse",
+    "StreamRawPredictRequest",
     "PublisherModel",
     "ReasoningEngine",
     "ReasoningEngineSpec",

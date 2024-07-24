@@ -16,6 +16,7 @@
 #
 
 import datetime
+import importlib
 import pytest
 import yaml
 import json
@@ -32,6 +33,7 @@ from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform.utils import gcs_utils
 
@@ -749,9 +751,17 @@ def mock_request_urlopen(job_spec):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestModelEvaluation:
-    def test_init_model_evaluation_with_only_resource_name(self, mock_model_eval_get):
-        aiplatform.init(project=_TEST_PROJECT)
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+        )
 
+    def test_init_model_evaluation_with_only_resource_name(self, mock_model_eval_get):
         aiplatform.ModelEvaluation(evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME)
 
         mock_model_eval_get.assert_called_once_with(
@@ -759,8 +769,6 @@ class TestModelEvaluation:
         )
 
     def test_init_model_evaluation_with_eval_id_and_model_id(self, mock_model_eval_get):
-        aiplatform.init(project=_TEST_PROJECT)
-
         aiplatform.ModelEvaluation(
             evaluation_name=_TEST_EVAL_ID, model_id=_TEST_MODEL_ID
         )
@@ -772,8 +780,6 @@ class TestModelEvaluation:
     def test_init_model_evaluatin_with_id_project_and_location(
         self, mock_model_eval_get
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         aiplatform.ModelEvaluation(
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME,
             project=_TEST_PROJECT,
@@ -786,14 +792,10 @@ class TestModelEvaluation:
     def test_init_model_evaluation_with_invalid_evaluation_resource_raises(
         self, mock_model_eval_get
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         with pytest.raises(ValueError):
             aiplatform.ModelEvaluation(evaluation_name=_TEST_MODEL_RESOURCE_NAME)
 
     def test_get_model_evaluation_metrics(self, mock_model_eval_get):
-        aiplatform.init(project=_TEST_PROJECT)
-
         eval_metrics = aiplatform.ModelEvaluation(
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
         ).metrics
@@ -813,8 +815,6 @@ class TestModelEvaluation:
         get_model_mock,
         list_model_evaluations_mock,
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         metrics_list = aiplatform.ModelEvaluation.list(model=_TEST_MODEL_RESOURCE_NAME)
 
         assert isinstance(metrics_list[0], aiplatform.ModelEvaluation)
@@ -825,8 +825,6 @@ class TestModelEvaluation:
         get_model_mock,
         list_model_evaluations_mock,
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         metrics_list = aiplatform.ModelEvaluation.list(
             model=_TEST_MODEL_RESOURCE_NAME, order_by="create_time desc"
         )
@@ -836,8 +834,6 @@ class TestModelEvaluation:
     def test_get_model_evaluation_pipeline_job(
         self, mock_model_eval_get, mock_pipeline_service_get
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         eval_pipeline_job = aiplatform.ModelEvaluation(
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME,
             project=_TEST_PROJECT,
@@ -868,13 +864,6 @@ class TestModelEvaluation:
         get_batch_prediction_job_mock,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
@@ -921,13 +910,6 @@ class TestModelEvaluation:
         get_artifact_mock,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
@@ -967,8 +949,6 @@ class TestModelEvaluationJob:
         mock_model_eval_job_get,
         get_execution_mock,
     ):
-        aiplatform.init(project=_TEST_PROJECT)
-
         model_evaluation_job._ModelEvaluationJob(
             evaluation_pipeline_run_name=_TEST_PIPELINE_JOB_NAME
         )
@@ -996,9 +976,6 @@ class TestModelEvaluationJob:
         That mock uses a pipeline template that doesn't have the _component_identifier
         defined in the ModelEvaluationJob class.
         """
-
-        aiplatform.init(project=_TEST_PROJECT)
-
         with pytest.raises(ValueError):
             model_evaluation_job._ModelEvaluationJob(
                 evaluation_pipeline_run_name=_TEST_PIPELINE_JOB_NAME
@@ -1008,12 +985,6 @@ class TestModelEvaluationJob:
         self,
         mock_pipeline_service_get,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-        )
-
         with pytest.raises(ValueError):
             model_evaluation_job._ModelEvaluationJob(
                 evaluation_pipeline_run_name=_TEST_INVALID_PIPELINE_JOB_NAME,
@@ -1037,13 +1008,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
@@ -1141,13 +1105,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_experiment = aiplatform.Experiment(_TEST_EXPERIMENT)
 
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
@@ -1244,13 +1201,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
@@ -1312,13 +1262,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
@@ -1360,13 +1303,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-        )
-
         test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
             model_name=_TEST_MODEL_RESOURCE_NAME,
             prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,

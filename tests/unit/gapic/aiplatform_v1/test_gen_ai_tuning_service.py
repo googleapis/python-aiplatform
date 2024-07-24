@@ -54,6 +54,7 @@ from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import (
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import pagers
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import transports
 from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import genai_tuning_service
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import tool
@@ -3029,6 +3030,7 @@ def test_create_tuning_job_rest(request_type):
                 ],
             }
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

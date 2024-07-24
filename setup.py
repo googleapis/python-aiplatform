@@ -143,19 +143,20 @@ ray_testing_extra_require = ray_extra_require + [
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
+    "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
     "pydantic >= 2.6.3, < 3",
 ]
 
 rapid_evaluation_extra_require = [
-    "nest_asyncio >= 1.0.0, < 1.6.0",
     "pandas >= 1.0.0, < 2.2.0",
+    "tqdm>=4.23.0",
 ]
 
 langchain_extra_require = [
     "langchain >= 0.1.16, < 0.3",
-    "langchain-core < 0.2",
+    "langchain-core < 0.3",
     "langchain-google-vertexai < 2",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
     "tenacity <= 8.3",
@@ -168,6 +169,9 @@ langchain_testing_extra_require = list(
         + ["absl-py", "pytest-xdist"]
     )
 )
+
+tokenization_extra_require = ["sentencepiece >= 0.2.0"]
+tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
 full_extra_require = list(
     set(
@@ -191,6 +195,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
+    + tokenization_testing_extra_require
     + [
         "bigframes; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
@@ -242,7 +247,7 @@ setuptools.setup(
             " <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
         "google-auth >= 2.14.1, <3.0.0dev",
-        "proto-plus >= 1.22.0, <2.0.0dev",
+        "proto-plus >= 1.22.3, <2.0.0dev",
         "protobuf>=3.19.5,<5.0.0dev,!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
@@ -273,6 +278,7 @@ setuptools.setup(
         "rapid_evaluation": rapid_evaluation_extra_require,
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
+        "tokenization": tokenization_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

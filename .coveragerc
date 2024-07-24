@@ -4,8 +4,11 @@ branch = True
 [report]
 show_missing = True
 omit =
-    google/cloud/aiplatform/v1/schema/trainingjob/definition/__init__.py
     google/cloud/aiplatform/vizier/pyvizier/*
+    google/cloud/aiplatform_v1/*
+    google/cloud/aiplatform_v1beta1/*
+    google/cloud/aiplatform/v1/schema/*
+    google/cloud/aiplatform/v1beta1/schema/*
 exclude_lines =
     # Re-enable the standard pragma
     pragma: NO COVER

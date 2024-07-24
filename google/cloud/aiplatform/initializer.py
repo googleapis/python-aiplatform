@@ -17,6 +17,7 @@
 
 
 from concurrent import futures
+import enum
 import functools
 import inspect
 import logging
@@ -51,6 +52,14 @@ _TVertexAiServiceClientWithOverride = TypeVar(
 )
 
 _TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG = "top_google_constructor_method"
+
+
+class _Product(enum.Enum):
+    """Notebook product types."""
+
+    WORKBENCH_INSTANCE = "WORKBENCH_INSTANCE"
+    COLAB_ENTERPRISE = "COLAB_ENTERPRISE"
+    WORKBENCH_CUSTOM_CONTAINER = "WORKBENCH_CUSTOM_CONTAINER"
 
 
 class _Config:
@@ -110,6 +119,7 @@ class _Config:
         self._api_endpoint = None
         self._api_transport = None
         self._request_metadata = None
+        self._resource_type = None
 
     def init(
         self,
@@ -242,6 +252,7 @@ class _Config:
             self._service_account = service_account
         if request_metadata is not None:
             self._request_metadata = request_metadata
+        self._resource_type = None
 
         # Finally, perform secondary state updates
         if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
@@ -370,6 +381,21 @@ class _Config:
         """Default experiment name, if provided."""
         return metadata._experiment_tracker.experiment_name
 
+    def get_resource_type(self) -> _Product:
+        """Returns the resource type from environment variables."""
+        if self._resource_type:
+            return self._resource_type
+
+        vertex_product = os.getenv("VERTEX_PRODUCT")
+        if vertex_product == "COLAB_ENTERPRISE":
+            self._resource_type = _Product.COLAB_ENTERPRISE
+        if vertex_product == "WORKBENCH_CUSTOM_CONTAINER":
+            self._resource_type = _Product.WORKBENCH_CUSTOM_CONTAINER
+        if vertex_product == "WORKBENCH_INSTANCE":
+            self._resource_type = _Product.WORKBENCH_INSTANCE
+
+        return self._resource_type
+
     def get_client_options(
         self,
         location_override: Optional[str] = None,
@@ -488,6 +514,10 @@ class _Config:
                 )
         except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+        resource_type = self.get_resource_type()
+        if resource_type:
+            gapic_version += f"+environment+{resource_type.value}"
 
         if telemetry._tool_names_to_append:
             # Must append to gapic_version due to b/259738581.

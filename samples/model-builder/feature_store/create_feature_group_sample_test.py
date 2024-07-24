@@ -24,6 +24,8 @@ def test_create_feature_group_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         feature_group_id=constants.FEATURE_GROUP_ID,
+        bq_table_uri=constants.FEATURE_GROUP_BQ_URI,
+        entity_id_columns=constants.FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -31,5 +33,5 @@ def test_create_feature_group_sample(
     )
 
     mock_create_feature_group.assert_called_once_with(
-        constants.FEATURE_GROUP_ID
+        name=constants.FEATURE_GROUP_ID, source=constants.FEATURE_GROUP_SOURCE
     )

@@ -2290,11 +2290,10 @@ class TestLanguageModels:
         indirect=True,
     )
     @pytest.mark.parametrize(
-        "base_model_version_id,use_preview_module,tune_args,expected_pipeline_args",
+        "base_model_version_id,tune_args,expected_pipeline_args",
         [  # Do not pass any optional parameters.
             (
                 "textembedding-gecko@003",
-                False,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2311,7 +2310,6 @@ class TestLanguageModels:
             # Pass all optional parameters.
             (
                 "text-multilingual-embedding-002",
-                True,
                 dict(
                     training_data="gs://bucket/training.tsv",
                     corpus_data="gs://bucket/corpus.jsonl",
@@ -2364,7 +2362,6 @@ class TestLanguageModels:
         tune_args,
         expected_pipeline_args,
         base_model_version_id,
-        use_preview_module,
     ):
         """Tests tuning the text embedding model."""
         aiplatform.init(
@@ -2379,10 +2376,7 @@ class TestLanguageModels:
                 _TEXT_GECKO_PUBLISHER_MODEL_DICT
             ),
         ):
-            language_models_module = (
-                preview_language_models if use_preview_module else language_models
-            )
-            model = language_models_module.TextEmbeddingModel.from_pretrained(
+            model = language_models.TextEmbeddingModel.from_pretrained(
                 base_model_version_id
             )
             tuning_result = model.tune_model(**tune_args)
@@ -4532,7 +4526,48 @@ class TestLanguageModels:
                     == expected_embedding["statistics"]["truncated"]
                 )
 
-    def test_text_embedding_preview_count_tokens(self):
+    def test_text_embedding_count_tokens_ga(self):
+        """Tests the text embedding model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextEmbeddingModel.from_pretrained(
+                "textembedding-gecko@001"
+            )
+
+            gca_count_tokens_response = (
+                gca_prediction_service_v1beta1.CountTokensResponse(
+                    total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+                    total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                        "total_billable_characters"
+                    ],
+                )
+            )
+
+            with mock.patch.object(
+                target=prediction_service_client_v1beta1.PredictionServiceClient,
+                attribute="count_tokens",
+                return_value=gca_count_tokens_response,
+            ):
+                response = model.count_tokens(["What is life?"])
+
+                assert (
+                    response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+                )
+                assert (
+                    response.total_billable_characters
+                    == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+                )
+
+    def test_text_embedding_count_tokens_preview(self):
         """Tests the text embedding model."""
         aiplatform.init(
             project=_TEST_PROJECT,

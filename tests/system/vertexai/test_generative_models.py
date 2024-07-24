@@ -313,7 +313,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         chat = model.start_chat()
         response1 = chat.send_message(
-            "I really like fantasy books.",
+            "I really like fantasy movies.",
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response1.text
@@ -479,3 +479,15 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response
+
+    def test_compute_tokens_from_text(self):
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+        response = model.compute_tokens(["Why is sky blue?", "Explain it like I'm 5."])
+        assert len(response.tokens_info) == 2
+        for token_info in response.tokens_info:
+            assert token_info.tokens
+            assert token_info.token_ids
+            assert len(token_info.token_ids) == len(token_info.tokens)
+            assert token_info.role
+            # Lightly validate that the tokens are not Base64 encoded
+            assert b"=" not in token_info.tokens

@@ -23,7 +23,6 @@ import logging
 import re
 import time
 from typing import Callable, Dict, Generator, List, Optional, Tuple
-import uuid
 
 from absl import app
 from google.api_core import exceptions
@@ -42,6 +41,8 @@ import grpc
 from tensorboard.util import tb_logging
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
+DEFAULT_RUN_NAME = "default"
+DEFAULT_PROFILE_RUN_NAME = "profile"
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -222,8 +223,6 @@ class OnePlatformResourceManager(object):
         location = m[2]
         tensorboard = m[3]
         experiment = m[4]
-        if not run_name or run_name == ".":
-            run_name = str(uuid.uuid4())
         experiment_run = experiment_run_resource.ExperimentRun.get(
             project=project, location=location, run_name=run_name
         )

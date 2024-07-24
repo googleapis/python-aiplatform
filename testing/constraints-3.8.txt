@@ -4,7 +4,7 @@
 # List *all* library dependencies and extras in this file.
 google-api-core==2.17.1 # Increased for gapic owlbot presubmit tests
 google-auth==2.14.1
-proto-plus==1.22.0
+proto-plus==1.22.3
 protobuf
 mock==4.0.2
 google-cloud-storage==2.2.1 # Increased for kfp 2.0 compatibility

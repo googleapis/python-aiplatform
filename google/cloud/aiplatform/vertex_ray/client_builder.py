@@ -59,14 +59,14 @@ class _VertexRayClientContext(client_builder.ClientContext):
         self.vertex_sdk_version = str(VERTEX_SDK_VERSION)
         self.shell_uri = ray_head_uris.get("RAY_HEAD_NODE_INTERACTIVE_SHELL_URI")
 
-    def _repr_html_(self):
+    def _context_table_template(self):
         shell_uri_row = None
         if self.shell_uri is not None:
             shell_uri_row = VertexRayTemplate("context_shellurirow.html.j2").render(
                 shell_uri=self.shell_uri
             )
 
-        return VertexRayTemplate("context.html.j2").render(
+        return VertexRayTemplate("context_table.html.j2").render(
             python_version=self.python_version,
             ray_version=self.ray_version,
             vertex_sdk_version=self.vertex_sdk_version,

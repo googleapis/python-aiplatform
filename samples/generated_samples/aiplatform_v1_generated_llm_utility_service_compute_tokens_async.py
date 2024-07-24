@@ -39,12 +39,8 @@ async def sample_compute_tokens():
     client = aiplatform_v1.LlmUtilityServiceAsyncClient()
 
     # Initialize request argument(s)
-    instances = aiplatform_v1.Value()
-    instances.null_value = "NULL_VALUE"
-
     request = aiplatform_v1.ComputeTokensRequest(
         endpoint="endpoint_value",
-        instances=instances,
     )
 
     # Make the request

@@ -456,6 +456,11 @@ class PublisherModel(proto.Message):
                     "text to image generation").
 
                     This field is a member of `oneof`_ ``_deploy_task_name``.
+                deploy_metadata (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.Deploy.DeployMetadata):
+                    Optional. Metadata information about this
+                    deployment config.
+
+                    This field is a member of `oneof`_ ``_deploy_metadata``.
                 title (str):
                     Required. The title of the regional resource
                     reference.
@@ -463,6 +468,23 @@ class PublisherModel(proto.Message):
                     Optional. The signed URI for ephemeral Cloud
                     Storage access to model artifact.
             """
+
+            class DeployMetadata(proto.Message):
+                r"""Metadata information about the deployment for managing
+                deployment config.
+
+                Attributes:
+                    labels (MutableMapping[str, str]):
+                        Optional. Labels for the deployment. For
+                        managing deployment config like verifying,
+                        source of deployment config, etc.
+                """
+
+                labels: MutableMapping[str, str] = proto.MapField(
+                    proto.STRING,
+                    proto.STRING,
+                    number=1,
+                )
 
             dedicated_resources: machine_resources.DedicatedResources = proto.Field(
                 proto.MESSAGE,
@@ -503,6 +525,14 @@ class PublisherModel(proto.Message):
                 proto.STRING,
                 number=10,
                 optional=True,
+            )
+            deploy_metadata: "PublisherModel.CallToAction.Deploy.DeployMetadata" = (
+                proto.Field(
+                    proto.MESSAGE,
+                    number=11,
+                    optional=True,
+                    message="PublisherModel.CallToAction.Deploy.DeployMetadata",
+                )
             )
             title: str = proto.Field(
                 proto.STRING,

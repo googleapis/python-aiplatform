@@ -557,7 +557,7 @@ class RuntimeConfig(proto.Message):
 
             This field is a member of `oneof`_ ``GoogleFirstPartyExtensionConfig``.
         vertex_ai_search_runtime_config (google.cloud.aiplatform_v1beta1.types.RuntimeConfig.VertexAISearchRuntimeConfig):
-            Runtime configuration for Vertext AI Search
+            Runtime configuration for Vertex AI Search
             extension.
 
             This field is a member of `oneof`_ ``GoogleFirstPartyExtensionConfig``.

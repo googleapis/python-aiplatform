@@ -63,6 +63,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import DeploymentResourcePoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import DeploymentResourcePoolServiceGrpcAsyncIOTransport
@@ -713,6 +714,164 @@ class DeploymentResourcePoolServiceAsyncClient:
             request=request,
             response=response,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_deployment_resource_pool(
+        self,
+        request: Optional[
+            Union[
+                deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest,
+                dict,
+            ]
+        ] = None,
+        *,
+        deployment_resource_pool: Optional[
+            gca_deployment_resource_pool.DeploymentResourcePool
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Update a DeploymentResourcePool.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_update_deployment_resource_pool():
+                # Create a client
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                deployment_resource_pool = aiplatform_v1beta1.DeploymentResourcePool()
+                deployment_resource_pool.dedicated_resources.min_replica_count = 1803
+
+                request = aiplatform_v1beta1.UpdateDeploymentResourcePoolRequest(
+                    deployment_resource_pool=deployment_resource_pool,
+                )
+
+                # Make the request
+                operation = client.update_deployment_resource_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateDeploymentResourcePoolRequest, dict]]):
+                The request object. Request message for
+                UpdateDeploymentResourcePool method.
+            deployment_resource_pool (:class:`google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool`):
+                Required. The DeploymentResourcePool to update.
+
+                The DeploymentResourcePool's ``name`` field is used to
+                identify the DeploymentResourcePool to update. Format:
+                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+
+                This corresponds to the ``deployment_resource_pool`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The list of fields to
+                update.
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool` A description of resources that can be shared by multiple DeployedModels,
+                   whose underlying specification consists of a
+                   DedicatedResources.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([deployment_resource_pool, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request,
+            deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest,
+        ):
+            request = (
+                deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest(
+                    request
+                )
+            )
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if deployment_resource_pool is not None:
+            request.deployment_resource_pool = deployment_resource_pool
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_deployment_resource_pool
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (
+                    (
+                        "deployment_resource_pool.name",
+                        request.deployment_resource_pool.name,
+                    ),
+                )
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            gca_deployment_resource_pool.DeploymentResourcePool,
+            metadata_type=deployment_resource_pool_service.UpdateDeploymentResourcePoolOperationMetadata,
         )
 
         # Done; return the response.

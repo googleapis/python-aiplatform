@@ -39,6 +39,7 @@ from google.cloud.aiplatform.matching_engine import (
 )
 from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform.tensorboard import uploader_tracker
+from google.cloud.aiplatform.models import DeploymentResourcePool
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
@@ -148,6 +149,7 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
+    "DeploymentResourcePool",
     "Endpoint",
     "EntityType",
     "Execution",

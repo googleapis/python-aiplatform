@@ -17,7 +17,6 @@ from typing import Optional
 from unittest import mock
 
 from google import auth
-from google.auth import credentials as auth_credentials
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
@@ -65,8 +64,10 @@ def place_photo_query(
 @pytest.fixture(scope="module")
 def google_auth_mock():
     with mock.patch.object(auth, "default") as google_auth_mock:
+        credentials_mock = mock.Mock()
+        credentials_mock.with_quota_project.return_value = None
         google_auth_mock.return_value = (
-            auth_credentials.AnonymousCredentials(),
+            credentials_mock,
             _TEST_PROJECT,
         )
         yield google_auth_mock

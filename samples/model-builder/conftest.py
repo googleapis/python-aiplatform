@@ -732,12 +732,30 @@ def mock_create_feature_group(mock_feature_group):
 
 
 @pytest.fixture
+def mock_get_feature_group(mock_feature_group):
+    with patch.object(
+        preview_resources.FeatureGroup, "__new__"
+    ) as mock_get_feature_group:
+        mock_get_feature_group.return_value = mock_feature_group
+        yield mock_get_feature_group
+
+
+@pytest.fixture
 def mock_create_optimized_private_online_store(mock_feature_online_store):
     with patch.object(
         preview_resources.FeatureOnlineStore, "create_optimized_store"
     ) as mock_create_optimized_store:
         mock_create_optimized_store.return_value = mock_feature_online_store
         yield mock_create_optimized_store
+
+
+@pytest.fixture
+def mock_get_feature_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "__new__"
+    ) as mock_get_feature_online_store:
+        mock_get_feature_online_store.return_value = mock_feature_online_store
+        yield mock_get_feature_online_store
 
 
 """

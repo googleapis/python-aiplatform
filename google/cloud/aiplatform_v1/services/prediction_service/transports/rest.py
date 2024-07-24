@@ -732,11 +732,6 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                     "uri": "/v1/{endpoint=projects/*/locations/*/endpoints/*}:directPredict",
                     "body": "*",
                 },
-                {
-                    "method": "post",
-                    "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:directPredict",
-                    "body": "*",
-                },
             ]
             request, metadata = self._interceptor.pre_direct_predict(request, metadata)
             pb_request = prediction_service.DirectPredictRequest.pb(request)
@@ -828,11 +823,6 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{endpoint=projects/*/locations/*/endpoints/*}:directRawPredict",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:directRawPredict",
                     "body": "*",
                 },
             ]
@@ -2498,6 +2488,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
@@ -2639,6 +2641,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -2865,6 +2879,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -3018,6 +3044,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -3271,6 +3309,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -3428,6 +3478,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -3678,6 +3740,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -3835,6 +3909,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
                 },
                 {
                     "method": "get",
@@ -4085,6 +4171,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                 },
                 {
@@ -4238,6 +4336,18 @@ class PredictionServiceRestTransport(PredictionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

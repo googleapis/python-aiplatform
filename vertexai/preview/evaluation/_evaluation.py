@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import asyncio
 import collections
 from concurrent import futures
 import time
@@ -39,6 +38,13 @@ from vertexai.preview.evaluation.metrics import (
     _instance_evaluation,
 )
 
+try:
+    from tqdm import tqdm
+except ImportError:
+    raise ImportError(
+        'tqdm is not installed. Please install the SDK using "pip install'
+        ' google-cloud-aiplatform[rapid_evaluation]"'
+    )
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -187,21 +193,24 @@ def _separate_custom_metrics(
     return api_metrics, custom_metrics
 
 
-def _compute_summary_metrics(
+def _aggregate_summary_metrics(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
     metrics_table: "pd.DataFrame",
+    error_list: List[Tuple[str, int, str]],
 ) -> Dict[str, Any]:
     """Computes summary metrics.
 
     Args:
         evaluation_run_config: Evaluation Run Configurations.
         metrics_table: A dataframe containing per-instance metrics results.
+        error_list: A list of (metric_name, row_index, error_message) tuples.
 
     Returns:
         A dictionary containing summary metrics results and statistics.
     """
     summary_metrics = {}
     summary_metrics[constants.MetricResult.ROW_COUNT_KEY] = metrics_table.shape[0]
+
     for metric in evaluation_run_config.metrics:
         try:
             if isinstance(metric, metrics_base.PairwiseMetric):
@@ -323,7 +332,7 @@ def _generate_response_from_gemini_model(
                         model=model,
                     )
                 )
-    responses = [task.result() for task in tasks]
+    responses = [future.result() for future in tasks]
     if is_baseline_model:
         evaluation_run_config.dataset = df.assign(baseline_model_response=responses)
     else:
@@ -419,7 +428,7 @@ def _run_model_inference(
     else:
         raise ValueError(f"Unsupported model or baseline model type: {type(model)}")
     t2 = time.perf_counter()
-    _LOGGER.info(f"MultiThreaded Batch Inference Took:{t2 - t1} seconds")
+    _LOGGER.info(f"Multithreaded Batch Inference took: {t2 - t1} seconds.")
 
 
 def _check_placeholder_columns_exist(
@@ -524,10 +533,14 @@ def _parse_metric_results_to_dataframe(
         ):
             explanations = [
                 result.get(constants.MetricResult.EXPLANATION_KEY)
+                if isinstance(result, dict)
+                else "Error"
                 for result in metric_results
             ]
             confidences = [
                 result.get(constants.MetricResult.CONFIDENCE_KEY)
+                if isinstance(result, dict)
+                else "Error"
                 for result in metric_results
             ]
             metrics_table[
@@ -539,6 +552,8 @@ def _parse_metric_results_to_dataframe(
         if metric_name in constants.Metric.PAIRWISE_METRIC_LIST:
             pairwise_choices = [
                 result.get(constants.MetricResult.PAIRWISE_CHOICE_KEY)
+                if isinstance(result, dict)
+                else "Error"
                 for result in metric_results
             ]
             metrics_table[
@@ -551,6 +566,8 @@ def _parse_metric_results_to_dataframe(
         ):
             scores = [
                 result.get(constants.MetricResult.SCORE_KEY)
+                if isinstance(result, dict)
+                else None
                 for result in metric_results
             ]
             metrics_table[metric_name] = scores
@@ -558,7 +575,7 @@ def _parse_metric_results_to_dataframe(
     return metrics_table
 
 
-async def _compute_metrics(
+def _compute_metrics(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
 ) -> Tuple[Dict[str, Any], "pd.DataFrame"]:
     """Computes the metrics for the dataset.
@@ -583,43 +600,77 @@ async def _compute_metrics(
     api_metrics, custom_metrics = _separate_custom_metrics(
         evaluation_run_config.metrics
     )
-    instance_list = []
-    tasks_by_metric = collections.defaultdict(list)
-    for _, row in evaluation_run_config.dataset.iterrows():
-        row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics)
-
-        instance_list.append(row_dict)
-
-        for metric in api_metrics:
-            task = asyncio.create_task(
-                _instance_evaluation.evaluate_instances_async(
-                    client=evaluation_run_config.client,
-                    request=_instance_evaluation.build_request(
-                        metric=metric,
-                        row_dict=row_dict,
-                        evaluation_run_config=evaluation_run_config,
-                    ),
-                    retry_timeout=evaluation_run_config.retry_timeout,
-                )
-            )
-            tasks_by_metric[str(metric)].append(task)
-
-    api_request_count = len(api_metrics) * len(evaluation_run_config.dataset)
+    row_count = len(evaluation_run_config.dataset)
+    api_request_count = len(api_metrics) * row_count
     _LOGGER.info(
         f"Computing metrics with a total of {api_request_count} Vertex online"
         " evaluation service requests."
     )
-    results_dict = {
-        metric_name: await asyncio.gather(*tasks)
-        for metric_name, tasks in tasks_by_metric.items()
-    }
+
+    instance_list = []
+    futures_by_metric = collections.defaultdict(list)
+    eval_max_workers = constants.QuotaLimit.EVAL_SERVICE_QPS
+    with tqdm(total=api_request_count) as pbar:
+        with futures.ThreadPoolExecutor(max_workers=eval_max_workers) as executor:
+            for idx, row in evaluation_run_config.dataset.iterrows():
+                row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics)
+
+                instance_list.append(row_dict)
+
+                for metric in api_metrics:
+                    future = executor.submit(
+                        _instance_evaluation.evaluate_instances,
+                        client=evaluation_run_config.client,
+                        request=_instance_evaluation.build_request(
+                            metric=metric,
+                            row_dict=row_dict,
+                            evaluation_run_config=evaluation_run_config,
+                        ),
+                        retry_timeout=evaluation_run_config.retry_timeout,
+                    )
+                    future.add_done_callback(lambda _: pbar.update(1))
+                    futures_by_metric[str(metric)].append((future, idx))
+
+        # Retrieve results from all futures and handle errors.
+        results_dict = collections.defaultdict(list)
+        error_list = []
+        for metric_name, futures_list in futures_by_metric.items():
+            for future, index in futures_list:
+                try:
+                    response = future.result()
+                    results_dict[metric_name].append(response)
+                except Exception as e:
+                    results_dict[metric_name].append("Error")
+                    error_list.append((metric_name, index, f"Error: {e}"))
+
+    for metric_name, responses in results_dict.items():
+        results_dict[metric_name] = [
+            _instance_evaluation.handle_response(response) for response in responses
+        ]
+    if error_list:
+        _LOGGER.warning(
+            f"{len(error_list)} errors encountered during evaluation. Continue to"
+            " compute summary metrics for the rest of the dataset."
+        )
+        for metric_name, index, error in error_list:
+            _LOGGER.warning(
+                f"Error encountered for metric {metric_name} at dataset index"
+                f" {index}: {error}"
+            )
+    else:
+        _LOGGER.info(f"All {api_request_count} metrics are successfully computed.")
 
     instance_df = pd.DataFrame.from_dict(instance_list)
     metrics_table = _parse_metric_results_to_dataframe(instance_df, results_dict)
 
-    _LOGGER.info(f"All {api_request_count} metrics are successfully computed.")
-    summary_metrics = _compute_summary_metrics(evaluation_run_config, metrics_table)
-    return summary_metrics, metrics_table
+    # Aggregate the summary metrics.
+    summary_metrics = _aggregate_summary_metrics(
+        evaluation_run_config, metrics_table, error_list
+    )
+
+    return evaluation_base.EvalResult(
+        summary_metrics=summary_metrics, metrics_table=metrics_table
+    )
 
 
 def evaluate(
@@ -689,7 +740,7 @@ def evaluate(
             constants.Dataset.CONTEXT_COLUMN: context_column_name,
             constants.Dataset.INSTRUCTION_COLUMN: instruction_column_name,
         },
-        client=utils.create_evaluation_service_async_client(),
+        client=utils.create_evaluation_service_client(),
         retry_timeout=retry_timeout,
     )
 
@@ -753,7 +804,6 @@ def evaluate(
     evaluation_run_config.validate_dataset_column(
         constants.Dataset.MODEL_RESPONSE_COLUMN
     )
-
     if baseline_model:
         _run_model_inference(
             model=baseline_model,
@@ -765,17 +815,9 @@ def evaluate(
             constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
         )
 
-    if asyncio.get_event_loop().is_running():
-        asyncio.set_event_loop(asyncio.new_event_loop())
-    loop = asyncio.get_event_loop()
-
     t1 = time.perf_counter()
-    summary_metrics, metrics_table = loop.run_until_complete(
-        _compute_metrics(evaluation_run_config)
-    )
+    evaluation_result = _compute_metrics(evaluation_run_config)
     t2 = time.perf_counter()
     _LOGGER.info(f"Evaluation Took:{t2 - t1} seconds")
 
-    return evaluation_base.EvalResult(
-        summary_metrics=summary_metrics, metrics_table=metrics_table
-    )
+    return evaluation_result
