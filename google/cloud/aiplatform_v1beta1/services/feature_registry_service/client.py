@@ -1177,6 +1177,9 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 Updatable fields:
 
                 -  ``labels``
+                -  ``description``
+                -  ``big_query``
+                -  ``big_query.entity_id_columns``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1851,7 +1854,9 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 -  ``description``
                 -  ``labels``
                 -  ``disable_monitoring`` (Not supported for
-                   FeatureRegistry Feature)
+                   FeatureRegistryService Feature)
+                -  ``point_of_contact`` (Not supported for
+                   FeaturestoreService FeatureStore)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

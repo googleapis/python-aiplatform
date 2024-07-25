@@ -10708,6 +10708,8 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_batch_prediction_job(request)
 
@@ -10727,6 +10729,8 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_batch_prediction_job_empty_call():
@@ -10844,6 +10848,8 @@ async def test_create_batch_prediction_job_empty_call_async():
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_batch_prediction_job()
@@ -10922,6 +10928,8 @@ async def test_create_batch_prediction_job_async(
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_batch_prediction_job(request)
@@ -10942,6 +10950,8 @@ async def test_create_batch_prediction_job_async(
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -11149,6 +11159,8 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_batch_prediction_job(request)
 
@@ -11168,6 +11180,8 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_batch_prediction_job_empty_call():
@@ -11285,6 +11299,8 @@ async def test_get_batch_prediction_job_empty_call_async():
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_batch_prediction_job()
@@ -11363,6 +11379,8 @@ async def test_get_batch_prediction_job_async(
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_batch_prediction_job(request)
@@ -11383,6 +11401,8 @@ async def test_get_batch_prediction_job_async(
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -16662,6 +16682,7 @@ def test_create_custom_job_rest(request_type):
             "scheduling": {
                 "timeout": {"seconds": 751, "nanos": 543},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -20273,6 +20294,7 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
             "scheduling": {
                 "timeout": {},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -22154,6 +22176,7 @@ def test_create_nas_job_rest(request_type):
                         "scheduling": {
                             "timeout": {"seconds": 751, "nanos": 543},
                             "restart_job_on_worker_restart": True,
+                            "strategy": 1,
                             "disable_retries": True,
                         },
                         "service_account": "service_account_value",
@@ -24777,6 +24800,8 @@ def test_create_batch_prediction_job_rest(request_type):
         ],
         "model_monitoring_status": {},
         "disable_container_logging": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -24863,6 +24888,8 @@ def test_create_batch_prediction_job_rest(request_type):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -24886,6 +24913,8 @@ def test_create_batch_prediction_job_rest(request_type):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_batch_prediction_job_rest_use_cached_wrapped_rpc():
@@ -25202,6 +25231,8 @@ def test_get_batch_prediction_job_rest(request_type):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -25225,6 +25256,8 @@ def test_get_batch_prediction_job_rest(request_type):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_batch_prediction_job_rest_use_cached_wrapped_rpc():

@@ -7754,7 +7754,6 @@ def test_count_tokens_rest_required_fields(
 
     request_init = {}
     request_init["endpoint"] = ""
-    request_init["model"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
     jsonified_request = json.loads(
@@ -7771,7 +7770,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with default values are now present
 
     jsonified_request["endpoint"] = "endpoint_value"
-    jsonified_request["model"] = "model_value"
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
@@ -7781,8 +7779,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with non-default values are left alone
     assert "endpoint" in jsonified_request
     assert jsonified_request["endpoint"] == "endpoint_value"
-    assert "model" in jsonified_request
-    assert jsonified_request["model"] == "model_value"
 
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -7832,17 +7828,7 @@ def test_count_tokens_rest_unset_required_fields():
     )
 
     unset_fields = transport.count_tokens._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "endpoint",
-                "model",
-                "instances",
-                "contents",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])

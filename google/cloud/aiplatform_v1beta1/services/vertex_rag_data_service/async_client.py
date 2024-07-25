@@ -85,6 +85,10 @@ class VertexRagDataServiceAsyncClient:
     )
     rag_file_path = staticmethod(VertexRagDataServiceClient.rag_file_path)
     parse_rag_file_path = staticmethod(VertexRagDataServiceClient.parse_rag_file_path)
+    secret_version_path = staticmethod(VertexRagDataServiceClient.secret_version_path)
+    parse_secret_version_path = staticmethod(
+        VertexRagDataServiceClient.parse_secret_version_path
+    )
     common_billing_account_path = staticmethod(
         VertexRagDataServiceClient.common_billing_account_path
     )

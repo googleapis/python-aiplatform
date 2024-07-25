@@ -1200,6 +1200,7 @@ def test_create_cached_content(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = gca_cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
         response = client.create_cached_content(request)
@@ -1213,6 +1214,7 @@ def test_create_cached_content(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -1324,6 +1326,7 @@ async def test_create_cached_content_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -1396,6 +1399,7 @@ async def test_create_cached_content_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -1410,6 +1414,7 @@ async def test_create_cached_content_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -1615,6 +1620,7 @@ def test_get_cached_content(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
         response = client.get_cached_content(request)
@@ -1628,6 +1634,7 @@ def test_get_cached_content(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -1738,6 +1745,7 @@ async def test_get_cached_content_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -1810,6 +1818,7 @@ async def test_get_cached_content_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -1824,6 +1833,7 @@ async def test_get_cached_content_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -2007,6 +2017,7 @@ def test_update_cached_content(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = gca_cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
         response = client.update_cached_content(request)
@@ -2020,6 +2031,7 @@ def test_update_cached_content(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -2127,6 +2139,7 @@ async def test_update_cached_content_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -2199,6 +2212,7 @@ async def test_update_cached_content_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_cached_content.CachedContent(
                 name="name_value",
+                display_name="display_name_value",
                 model="model_value",
             )
         )
@@ -2213,6 +2227,7 @@ async def test_update_cached_content_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -3376,6 +3391,7 @@ def test_create_cached_content_rest(request_type):
         "expire_time": {"seconds": 751, "nanos": 543},
         "ttl": {"seconds": 751, "nanos": 543},
         "name": "name_value",
+        "display_name": "display_name_value",
         "model": "model_value",
         "system_instruction": {
             "role": "role_value",
@@ -3544,6 +3560,7 @@ def test_create_cached_content_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = gca_cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
 
@@ -3561,6 +3578,7 @@ def test_create_cached_content_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -3870,6 +3888,7 @@ def test_get_cached_content_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
 
@@ -3887,6 +3906,7 @@ def test_get_cached_content_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 
@@ -4182,6 +4202,7 @@ def test_update_cached_content_rest(request_type):
         "expire_time": {"seconds": 751, "nanos": 543},
         "ttl": {"seconds": 751, "nanos": 543},
         "name": "projects/sample1/locations/sample2/cachedContents/sample3",
+        "display_name": "display_name_value",
         "model": "model_value",
         "system_instruction": {
             "role": "role_value",
@@ -4350,6 +4371,7 @@ def test_update_cached_content_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = gca_cached_content.CachedContent(
             name="name_value",
+            display_name="display_name_value",
             model="model_value",
         )
 
@@ -4367,6 +4389,7 @@ def test_update_cached_content_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_cached_content.CachedContent)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.model == "model_value"
 
 

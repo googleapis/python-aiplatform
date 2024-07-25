@@ -58,6 +58,7 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import pagers
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import transports
+from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
@@ -8823,8 +8824,36 @@ def test_parse_rag_file_path():
     assert expected == actual
 
 
+def test_secret_version_path():
+    project = "whelk"
+    secret = "octopus"
+    secret_version = "oyster"
+    expected = "projects/{project}/secrets/{secret}/versions/{secret_version}".format(
+        project=project,
+        secret=secret,
+        secret_version=secret_version,
+    )
+    actual = VertexRagDataServiceClient.secret_version_path(
+        project, secret, secret_version
+    )
+    assert expected == actual
+
+
+def test_parse_secret_version_path():
+    expected = {
+        "project": "nudibranch",
+        "secret": "cuttlefish",
+        "secret_version": "mussel",
+    }
+    path = VertexRagDataServiceClient.secret_version_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = VertexRagDataServiceClient.parse_secret_version_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8834,7 +8863,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "nautilus",
     }
     path = VertexRagDataServiceClient.common_billing_account_path(**expected)
 
@@ -8844,7 +8873,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "scallop"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8854,7 +8883,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "abalone",
     }
     path = VertexRagDataServiceClient.common_folder_path(**expected)
 
@@ -8864,7 +8893,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "squid"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8874,7 +8903,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "clam",
     }
     path = VertexRagDataServiceClient.common_organization_path(**expected)
 
@@ -8884,7 +8913,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "winkle"
+    project = "whelk"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8894,7 +8923,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "octopus",
     }
     path = VertexRagDataServiceClient.common_project_path(**expected)
 
@@ -8904,8 +8933,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8916,8 +8945,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = VertexRagDataServiceClient.common_location_path(**expected)
 

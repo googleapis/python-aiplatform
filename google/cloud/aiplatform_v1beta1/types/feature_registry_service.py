@@ -219,6 +219,9 @@ class UpdateFeatureGroupRequest(proto.Message):
             Updatable fields:
 
             -  ``labels``
+            -  ``description``
+            -  ``big_query``
+            -  ``big_query.entity_id_columns``
     """
 
     feature_group: gca_feature_group.FeatureGroup = proto.Field(

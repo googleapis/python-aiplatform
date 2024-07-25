@@ -79,6 +79,10 @@ class GenAiTuningServiceAsyncClient:
     parse_endpoint_path = staticmethod(GenAiTuningServiceClient.parse_endpoint_path)
     model_path = staticmethod(GenAiTuningServiceClient.model_path)
     parse_model_path = staticmethod(GenAiTuningServiceClient.parse_model_path)
+    pipeline_job_path = staticmethod(GenAiTuningServiceClient.pipeline_job_path)
+    parse_pipeline_job_path = staticmethod(
+        GenAiTuningServiceClient.parse_pipeline_job_path
+    )
     tuning_job_path = staticmethod(GenAiTuningServiceClient.tuning_job_path)
     parse_tuning_job_path = staticmethod(GenAiTuningServiceClient.parse_tuning_job_path)
     common_billing_account_path = staticmethod(

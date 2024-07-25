@@ -1210,6 +1210,7 @@ def test_create_tuning_job(request_type, transport: str = "grpc"):
             description="description_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
+            pipeline_job="pipeline_job_value",
             base_model="base_model_value",
         )
         response = client.create_tuning_job(request)
@@ -1227,6 +1228,7 @@ def test_create_tuning_job(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 def test_create_tuning_job_empty_call():
@@ -1338,6 +1340,7 @@ async def test_create_tuning_job_empty_call_async():
                 description="description_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
+                pipeline_job="pipeline_job_value",
             )
         )
         response = await client.create_tuning_job()
@@ -1413,6 +1416,7 @@ async def test_create_tuning_job_async(
                 description="description_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
+                pipeline_job="pipeline_job_value",
             )
         )
         response = await client.create_tuning_job(request)
@@ -1430,6 +1434,7 @@ async def test_create_tuning_job_async(
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 @pytest.mark.asyncio
@@ -1624,6 +1629,7 @@ def test_get_tuning_job(request_type, transport: str = "grpc"):
             description="description_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
+            pipeline_job="pipeline_job_value",
             base_model="base_model_value",
         )
         response = client.get_tuning_job(request)
@@ -1641,6 +1647,7 @@ def test_get_tuning_job(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 def test_get_tuning_job_empty_call():
@@ -1744,6 +1751,7 @@ async def test_get_tuning_job_empty_call_async():
                 description="description_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
+                pipeline_job="pipeline_job_value",
             )
         )
         response = await client.get_tuning_job()
@@ -1817,6 +1825,7 @@ async def test_get_tuning_job_async(
                 description="description_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
+                pipeline_job="pipeline_job_value",
             )
         )
         response = await client.get_tuning_job(request)
@@ -1834,6 +1843,7 @@ async def test_get_tuning_job_async(
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 @pytest.mark.asyncio
@@ -2944,6 +2954,19 @@ def test_create_tuning_job_rest(request_type):
                 "adapter_size": 1,
             },
         },
+        "distillation_spec": {
+            "base_teacher_model": "base_teacher_model_value",
+            "tuned_teacher_model_source": "tuned_teacher_model_source_value",
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {
+                "epoch_count": 1175,
+                "learning_rate_multiplier": 0.2561,
+                "adapter_size": 1,
+            },
+            "student_model": "student_model_value",
+            "pipeline_root_directory": "pipeline_root_directory_value",
+        },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
         "description": "description_value",
@@ -2970,9 +2993,11 @@ def test_create_tuning_job_rest(request_type):
                 "tuning_dataset_example_count": 2989,
                 "total_tuning_character_count": 2988,
                 "total_billable_character_count": 3150,
+                "total_billable_token_count": 2754,
                 "tuning_step_count": 1848,
                 "user_input_token_distribution": {
                     "sum": 341,
+                    "billable_sum": 1259,
                     "min_": 0.419,
                     "max_": 0.421,
                     "mean": 0.417,
@@ -3013,8 +3038,30 @@ def test_create_tuning_job_rest(request_type):
                         ],
                     }
                 ],
-            }
+            },
+            "distillation_data_stats": {
+                "training_dataset_stats": {
+                    "tuning_dataset_example_count": 2989,
+                    "total_tuning_character_count": 2988,
+                    "total_billable_character_count": 3150,
+                    "tuning_step_count": 1848,
+                    "user_input_token_distribution": {
+                        "sum": 0.341,
+                        "min_": 0.419,
+                        "max_": 0.421,
+                        "mean": 0.417,
+                        "median": 0.622,
+                        "p5": 0.165,
+                        "p95": 0.222,
+                        "buckets": [{"count": 553, "left": 0.427, "right": 0.542}],
+                    },
+                    "user_output_token_distribution": {},
+                    "user_message_per_example_distribution": {},
+                    "user_dataset_examples": {},
+                }
+            },
         },
+        "pipeline_job": "pipeline_job_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -3095,6 +3142,7 @@ def test_create_tuning_job_rest(request_type):
             description="description_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
+            pipeline_job="pipeline_job_value",
             base_model="base_model_value",
         )
 
@@ -3116,6 +3164,7 @@ def test_create_tuning_job_rest(request_type):
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 def test_create_tuning_job_rest_use_cached_wrapped_rpc():
@@ -3420,6 +3469,7 @@ def test_get_tuning_job_rest(request_type):
             description="description_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
+            pipeline_job="pipeline_job_value",
             base_model="base_model_value",
         )
 
@@ -3441,6 +3491,7 @@ def test_get_tuning_job_rest(request_type):
     assert response.description == "description_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
+    assert response.pipeline_job == "pipeline_job_value"
 
 
 def test_get_tuning_job_rest_use_cached_wrapped_rpc():
@@ -5011,10 +5062,38 @@ def test_parse_model_path():
     assert expected == actual
 
 
-def test_tuning_job_path():
+def test_pipeline_job_path():
     project = "winkle"
     location = "nautilus"
-    tuning_job = "scallop"
+    pipeline_job = "scallop"
+    expected = (
+        "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
+        )
+    )
+    actual = GenAiTuningServiceClient.pipeline_job_path(project, location, pipeline_job)
+    assert expected == actual
+
+
+def test_parse_pipeline_job_path():
+    expected = {
+        "project": "abalone",
+        "location": "squid",
+        "pipeline_job": "clam",
+    }
+    path = GenAiTuningServiceClient.pipeline_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = GenAiTuningServiceClient.parse_pipeline_job_path(path)
+    assert expected == actual
+
+
+def test_tuning_job_path():
+    project = "whelk"
+    location = "octopus"
+    tuning_job = "oyster"
     expected = "projects/{project}/locations/{location}/tuningJobs/{tuning_job}".format(
         project=project,
         location=location,
@@ -5026,9 +5105,9 @@ def test_tuning_job_path():
 
 def test_parse_tuning_job_path():
     expected = {
-        "project": "abalone",
-        "location": "squid",
-        "tuning_job": "clam",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "tuning_job": "mussel",
     }
     path = GenAiTuningServiceClient.tuning_job_path(**expected)
 
@@ -5038,7 +5117,7 @@ def test_parse_tuning_job_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -5048,7 +5127,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "nautilus",
     }
     path = GenAiTuningServiceClient.common_billing_account_path(**expected)
 
@@ -5058,7 +5137,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "scallop"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -5068,7 +5147,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "abalone",
     }
     path = GenAiTuningServiceClient.common_folder_path(**expected)
 
@@ -5078,7 +5157,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "squid"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -5088,7 +5167,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "clam",
     }
     path = GenAiTuningServiceClient.common_organization_path(**expected)
 
@@ -5098,7 +5177,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "winkle"
+    project = "whelk"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -5108,7 +5187,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "octopus",
     }
     path = GenAiTuningServiceClient.common_project_path(**expected)
 
@@ -5118,8 +5197,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -5130,8 +5209,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = GenAiTuningServiceClient.common_location_path(**expected)
 

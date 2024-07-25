@@ -285,6 +285,28 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def secret_version_path(
+        project: str,
+        secret: str,
+        secret_version: str,
+    ) -> str:
+        """Returns a fully-qualified secret_version string."""
+        return "projects/{project}/secrets/{secret}/versions/{secret_version}".format(
+            project=project,
+            secret=secret,
+            secret_version=secret_version,
+        )
+
+    @staticmethod
+    def parse_secret_version_path(path: str) -> Dict[str, str]:
+        """Parses a secret_version path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/secrets/(?P<secret>.+?)/versions/(?P<secret_version>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(
         billing_account: str,
     ) -> str:

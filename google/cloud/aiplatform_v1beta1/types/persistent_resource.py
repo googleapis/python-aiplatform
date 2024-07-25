@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 
@@ -35,6 +36,7 @@ __protobuf__ = proto.module(
         "ResourceRuntime",
         "ServiceAccountSpec",
         "RayMetricSpec",
+        "RayLogsSpec",
     },
 )
 
@@ -100,6 +102,9 @@ class PersistentResource(proto.Message):
 
             If this field is left unspecified, the resources aren't
             peered with any network.
+        psc_interface_config (google.cloud.aiplatform_v1beta1.types.PscInterfaceConfig):
+            Optional. Configuration for PSC-I for
+            PersistentResource.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Optional. Customer-managed encryption key
             spec for a PersistentResource. If set, this
@@ -204,6 +209,11 @@ class PersistentResource(proto.Message):
     network: str = proto.Field(
         proto.STRING,
         number=11,
+    )
+    psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        message=service_networking.PscInterfaceConfig,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
@@ -389,6 +399,8 @@ class RaySpec(proto.Message):
             head node by default if this field isn't set.
         ray_metric_spec (google.cloud.aiplatform_v1beta1.types.RayMetricSpec):
             Optional. Ray metrics configurations.
+        ray_logs_spec (google.cloud.aiplatform_v1beta1.types.RayLogsSpec):
+            Optional. OSS Ray logging configurations.
     """
 
     image_uri: str = proto.Field(
@@ -408,6 +420,11 @@ class RaySpec(proto.Message):
         proto.MESSAGE,
         number=8,
         message="RayMetricSpec",
+    )
+    ray_logs_spec: "RayLogsSpec" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="RayLogsSpec",
     )
 
 
@@ -486,6 +503,21 @@ class RayMetricSpec(proto.Message):
         disabled (bool):
             Optional. Flag to disable the Ray metrics
             collection.
+    """
+
+    disabled: bool = proto.Field(
+        proto.BOOL,
+        number=1,
+    )
+
+
+class RayLogsSpec(proto.Message):
+    r"""Configuration for the Ray OSS Logs.
+
+    Attributes:
+        disabled (bool):
+            Optional. Flag to disable the export of Ray
+            OSS logs to Cloud Logging.
     """
 
     disabled: bool = proto.Field(

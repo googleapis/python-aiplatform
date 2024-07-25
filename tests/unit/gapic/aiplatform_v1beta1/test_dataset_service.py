@@ -1551,6 +1551,8 @@ def test_get_dataset(request_type, transport: str = "grpc"):
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_dataset(request)
 
@@ -1570,6 +1572,8 @@ def test_get_dataset(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_dataset_empty_call():
@@ -1676,6 +1680,8 @@ async def test_get_dataset_empty_call_async():
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_dataset()
@@ -1751,6 +1757,8 @@ async def test_get_dataset_async(
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_dataset(request)
@@ -1771,6 +1779,8 @@ async def test_get_dataset_async(
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -1946,6 +1956,8 @@ def test_update_dataset(request_type, transport: str = "grpc"):
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_dataset(request)
 
@@ -1965,6 +1977,8 @@ def test_update_dataset(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_dataset_empty_call():
@@ -2067,6 +2081,8 @@ async def test_update_dataset_empty_call_async():
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_dataset()
@@ -2142,6 +2158,8 @@ async def test_update_dataset_async(
                 etag="etag_value",
                 metadata_artifact="metadata_artifact_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_dataset(request)
@@ -2162,6 +2180,8 @@ async def test_update_dataset_async(
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4456,6 +4476,8 @@ def test_update_dataset_version(request_type, transport: str = "grpc"):
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_dataset_version(request)
 
@@ -4472,6 +4494,8 @@ def test_update_dataset_version(request_type, transport: str = "grpc"):
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_dataset_version_empty_call():
@@ -4582,6 +4606,8 @@ async def test_update_dataset_version_empty_call_async():
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_dataset_version()
@@ -4657,6 +4683,8 @@ async def test_update_dataset_version_async(
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_dataset_version(request)
@@ -4674,6 +4702,8 @@ async def test_update_dataset_version_async(
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -5258,6 +5288,8 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_dataset_version(request)
 
@@ -5274,6 +5306,8 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_dataset_version_empty_call():
@@ -5387,6 +5421,8 @@ async def test_get_dataset_version_empty_call_async():
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_dataset_version()
@@ -5462,6 +5498,8 @@ async def test_get_dataset_version_async(
                 big_query_dataset_name="big_query_dataset_name_value",
                 display_name="display_name_value",
                 model_reference="model_reference_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_dataset_version(request)
@@ -5479,6 +5517,8 @@ async def test_get_dataset_version_async(
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -9694,6 +9734,8 @@ def test_create_dataset_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "metadata_artifact": "metadata_artifact_value",
         "model_reference": "model_reference_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10086,6 +10128,8 @@ def test_get_dataset_rest(request_type):
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -10109,6 +10153,8 @@ def test_get_dataset_rest(request_type):
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_dataset_rest_use_cached_wrapped_rpc():
@@ -10426,6 +10472,8 @@ def test_update_dataset_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "metadata_artifact": "metadata_artifact_value",
         "model_reference": "model_reference_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10508,6 +10556,8 @@ def test_update_dataset_rest(request_type):
             etag="etag_value",
             metadata_artifact="metadata_artifact_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -10531,6 +10581,8 @@ def test_update_dataset_rest(request_type):
     assert response.etag == "etag_value"
     assert response.metadata_artifact == "metadata_artifact_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_dataset_rest_use_cached_wrapped_rpc():
@@ -12149,6 +12201,8 @@ def test_create_dataset_version_rest(request_type):
             "list_value": {"values": {}},
         },
         "model_reference": "model_reference_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12556,6 +12610,8 @@ def test_update_dataset_version_rest(request_type):
             "list_value": {"values": {}},
         },
         "model_reference": "model_reference_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12637,6 +12693,8 @@ def test_update_dataset_version_rest(request_type):
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -12657,6 +12715,8 @@ def test_update_dataset_version_rest(request_type):
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_dataset_version_rest_use_cached_wrapped_rpc():
@@ -13281,6 +13341,8 @@ def test_get_dataset_version_rest(request_type):
             big_query_dataset_name="big_query_dataset_name_value",
             display_name="display_name_value",
             model_reference="model_reference_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -13301,6 +13363,8 @@ def test_get_dataset_version_rest(request_type):
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
     assert response.display_name == "display_name_value"
     assert response.model_reference == "model_reference_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_dataset_version_rest_use_cached_wrapped_rpc():

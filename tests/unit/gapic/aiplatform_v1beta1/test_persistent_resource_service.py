@@ -69,6 +69,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     persistent_resource as gca_persistent_resource,
 )
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -3895,6 +3896,7 @@ def test_create_persistent_resource_rest(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
+        "psc_interface_config": {"network_attachment": "network_attachment_value"},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -3906,6 +3908,7 @@ def test_create_persistent_resource_rest(request_type):
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
+                "ray_logs_spec": {"disabled": True},
             },
         },
         "resource_runtime": {
@@ -5411,6 +5414,7 @@ def test_update_persistent_resource_rest(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
+        "psc_interface_config": {"network_attachment": "network_attachment_value"},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -5422,6 +5426,7 @@ def test_update_persistent_resource_rest(request_type):
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
+                "ray_logs_spec": {"disabled": True},
             },
         },
         "resource_runtime": {
@@ -6772,10 +6777,38 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_notebook_runtime_template_path():
+def test_network_attachment_path():
     project = "oyster"
-    location = "nudibranch"
-    notebook_runtime_template = "cuttlefish"
+    region = "nudibranch"
+    networkattachment = "cuttlefish"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = PersistentResourceServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "mussel",
+        "region": "winkle",
+        "networkattachment": "nautilus",
+    }
+    path = PersistentResourceServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PersistentResourceServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_notebook_runtime_template_path():
+    project = "scallop"
+    location = "abalone"
+    notebook_runtime_template = "squid"
     expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
         project=project,
         location=location,
@@ -6789,9 +6822,9 @@ def test_notebook_runtime_template_path():
 
 def test_parse_notebook_runtime_template_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "notebook_runtime_template": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "notebook_runtime_template": "octopus",
     }
     path = PersistentResourceServiceClient.notebook_runtime_template_path(**expected)
 
@@ -6801,9 +6834,9 @@ def test_parse_notebook_runtime_template_path():
 
 
 def test_persistent_resource_path():
-    project = "scallop"
-    location = "abalone"
-    persistent_resource = "squid"
+    project = "oyster"
+    location = "nudibranch"
+    persistent_resource = "cuttlefish"
     expected = "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
         project=project,
         location=location,
@@ -6817,9 +6850,9 @@ def test_persistent_resource_path():
 
 def test_parse_persistent_resource_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "persistent_resource": "octopus",
+        "project": "mussel",
+        "location": "winkle",
+        "persistent_resource": "nautilus",
     }
     path = PersistentResourceServiceClient.persistent_resource_path(**expected)
 
@@ -6829,7 +6862,7 @@ def test_parse_persistent_resource_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6841,7 +6874,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = PersistentResourceServiceClient.common_billing_account_path(**expected)
 
@@ -6851,7 +6884,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -6861,7 +6894,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = PersistentResourceServiceClient.common_folder_path(**expected)
 
@@ -6871,7 +6904,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -6881,7 +6914,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = PersistentResourceServiceClient.common_organization_path(**expected)
 
@@ -6891,7 +6924,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -6901,7 +6934,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = PersistentResourceServiceClient.common_project_path(**expected)
 
@@ -6911,8 +6944,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -6923,8 +6956,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = PersistentResourceServiceClient.common_location_path(**expected)
 
