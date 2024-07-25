@@ -59,8 +59,8 @@ def _append_tool_name(tool_name: str) -> None:
 
 def _pop_tool_name(tool_name: str) -> None:
     if not _tool_names_to_append or _tool_names_to_append[-1] != tool_name:
-        _LOGGER.warning(
-            "Gapic client context issue detected."
+        _LOGGER.debug(
+            "Gapic client context telemetry issue detected."
             + "This can occur due to parallelization."
         )
         return
