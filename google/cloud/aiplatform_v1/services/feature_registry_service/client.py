@@ -1095,8 +1095,6 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1768,8 +1766,6 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
