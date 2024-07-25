@@ -238,9 +238,6 @@ class PredictionServiceAsyncClient:
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the PredictionServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -1619,17 +1616,8 @@ class PredictionServiceAsyncClient:
                 client = aiplatform_v1beta1.PredictionServiceAsyncClient()
 
                 # Initialize request argument(s)
-                instances = aiplatform_v1beta1.Value()
-                instances.null_value = "NULL_VALUE"
-
-                contents = aiplatform_v1beta1.Content()
-                contents.parts.text = "text_value"
-
                 request = aiplatform_v1beta1.CountTokensRequest(
                     endpoint="endpoint_value",
-                    model="model_value",
-                    instances=instances,
-                    contents=contents,
                 )
 
                 # Make the request
@@ -1651,7 +1639,7 @@ class PredictionServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             instances (:class:`MutableSequence[google.protobuf.struct_pb2.Value]`):
-                Required. The instances that are the
+                Optional. The instances that are the
                 input to token counting call. Schema is
                 identical to the prediction schema of
                 the underlying model.

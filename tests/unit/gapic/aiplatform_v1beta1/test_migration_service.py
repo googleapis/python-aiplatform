@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.migration_service import (
@@ -1344,12 +1345,7 @@ async def test_search_migratable_resources_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_migratable_resources
         ] = mock_object
@@ -1600,12 +1596,18 @@ def test_search_migratable_resources_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.search_migratable_resources(request={})
+        pager = client.search_migratable_resources(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -1938,12 +1940,7 @@ async def test_batch_migrate_resources_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.batch_migrate_resources
         ] = mock_object
@@ -2356,7 +2353,7 @@ def test_search_migratable_resources_rest_required_fields(
 
             response = client.search_migratable_resources(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -2726,7 +2723,7 @@ def test_batch_migrate_resources_rest_required_fields(
 
             response = client.batch_migrate_resources(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -3561,31 +3558,8 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    dataset = "clam"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "whelk",
-        "dataset": "octopus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
+    location = "clam"
+    dataset = "whelk"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -3597,8 +3571,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
+    dataset = "mussel"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

@@ -1536,8 +1536,10 @@ class UpdateFeatureRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
-            -  ``disable_monitoring`` (Not supported for FeatureRegistry
-               Feature)
+            -  ``disable_monitoring`` (Not supported for
+               FeatureRegistryService Feature)
+            -  ``point_of_contact`` (Not supported for
+               FeaturestoreService FeatureStore)
     """
 
     feature: gca_feature.Feature = proto.Field(

@@ -58,6 +58,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     persistent_resource as gca_persistent_resource,
 )
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -216,6 +217,28 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def network_attachment_path(
+        project: str,
+        region: str,
+        networkattachment: str,
+    ) -> str:
+        """Returns a fully-qualified network_attachment string."""
+        return "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+            project=project,
+            region=region,
+            networkattachment=networkattachment,
+        )
+
+    @staticmethod
+    def parse_network_attachment_path(path: str) -> Dict[str, str]:
+        """Parses a network_attachment path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/regions/(?P<region>.+?)/networkAttachments/(?P<networkattachment>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 
@@ -613,9 +636,6 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the PersistentResourceServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -1134,6 +1154,8 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

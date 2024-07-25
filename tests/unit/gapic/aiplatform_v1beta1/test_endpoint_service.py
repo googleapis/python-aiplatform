@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
@@ -1335,12 +1336,7 @@ async def test_create_endpoint_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_endpoint
         ] = mock_object
@@ -1589,6 +1585,10 @@ def test_get_endpoint(request_type, transport: str = "grpc"):
             network="network_value",
             enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_endpoint(request)
 
@@ -1610,6 +1610,10 @@ def test_get_endpoint(request_type, transport: str = "grpc"):
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_endpoint_empty_call():
@@ -1715,6 +1719,10 @@ async def test_get_endpoint_empty_call_async():
                 network="network_value",
                 enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                dedicated_endpoint_enabled=True,
+                dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_endpoint()
@@ -1746,12 +1754,7 @@ async def test_get_endpoint_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_endpoint
         ] = mock_object
@@ -1794,6 +1797,10 @@ async def test_get_endpoint_async(
                 network="network_value",
                 enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                dedicated_endpoint_enabled=True,
+                dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_endpoint(request)
@@ -1816,6 +1823,10 @@ async def test_get_endpoint_async(
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -2130,12 +2141,7 @@ async def test_list_endpoints_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_endpoints
         ] = mock_object
@@ -2373,12 +2379,16 @@ def test_list_endpoints_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_endpoints(request={})
+        pager = client.list_endpoints(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -2553,6 +2563,10 @@ def test_update_endpoint(request_type, transport: str = "grpc"):
             network="network_value",
             enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_endpoint(request)
 
@@ -2574,6 +2588,10 @@ def test_update_endpoint(request_type, transport: str = "grpc"):
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_endpoint_empty_call():
@@ -2675,6 +2693,10 @@ async def test_update_endpoint_empty_call_async():
                 network="network_value",
                 enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                dedicated_endpoint_enabled=True,
+                dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_endpoint()
@@ -2706,12 +2728,7 @@ async def test_update_endpoint_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_endpoint
         ] = mock_object
@@ -2754,6 +2771,10 @@ async def test_update_endpoint_async(
                 network="network_value",
                 enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                dedicated_endpoint_enabled=True,
+                dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_endpoint(request)
@@ -2776,6 +2797,10 @@ async def test_update_endpoint_async(
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -3099,12 +3124,7 @@ async def test_delete_endpoint_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_endpoint
         ] = mock_object
@@ -3468,12 +3488,7 @@ async def test_deploy_model_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.deploy_model
         ] = mock_object
@@ -3895,12 +3910,7 @@ async def test_undeploy_model_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.undeploy_model
         ] = mock_object
@@ -4297,12 +4307,7 @@ async def test_mutate_deployed_model_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.mutate_deployed_model
         ] = mock_object
@@ -4695,6 +4700,10 @@ def test_create_endpoint_rest(request_type):
             "sampling_rate": 0.13820000000000002,
             "bigquery_destination": {"output_uri": "output_uri_value"},
         },
+        "dedicated_endpoint_enabled": True,
+        "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4892,7 +4901,7 @@ def test_create_endpoint_rest_required_fields(
 
             response = client.create_endpoint(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -5090,6 +5099,10 @@ def test_get_endpoint_rest(request_type):
             network="network_value",
             enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5115,6 +5128,10 @@ def test_get_endpoint_rest(request_type):
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_endpoint_rest_use_cached_wrapped_rpc():
@@ -5222,7 +5239,7 @@ def test_get_endpoint_rest_required_fields(
 
             response = client.get_endpoint(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -5534,7 +5551,7 @@ def test_list_endpoints_rest_required_fields(
 
             response = client.list_endpoints(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -5886,6 +5903,10 @@ def test_update_endpoint_rest(request_type):
             "sampling_rate": 0.13820000000000002,
             "bigquery_destination": {"output_uri": "output_uri_value"},
         },
+        "dedicated_endpoint_enabled": True,
+        "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5967,6 +5988,10 @@ def test_update_endpoint_rest(request_type):
             network="network_value",
             enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5992,6 +6017,10 @@ def test_update_endpoint_rest(request_type):
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_endpoint_rest_use_cached_wrapped_rpc():
@@ -6097,7 +6126,7 @@ def test_update_endpoint_rest_required_fields(
 
             response = client.update_endpoint(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -6410,7 +6439,7 @@ def test_delete_endpoint_rest_required_fields(
 
             response = client.delete_endpoint(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -6712,7 +6741,7 @@ def test_deploy_model_rest_required_fields(
 
             response = client.deploy_model(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7042,7 +7071,7 @@ def test_undeploy_model_rest_required_fields(
 
             response = client.undeploy_model(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7361,7 +7390,7 @@ def test_mutate_deployed_model_rest_required_fields(
 
             response = client.mutate_deployed_model(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 

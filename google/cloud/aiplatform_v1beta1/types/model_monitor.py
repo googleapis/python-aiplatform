@@ -96,6 +96,10 @@ class ModelMonitor(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this ModelMonitor
             was updated most recently.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class ModelMonitoringTarget(proto.Message):
@@ -197,6 +201,14 @@ class ModelMonitor(proto.Message):
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=17,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=18,
     )
 
 
