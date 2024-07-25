@@ -19,6 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.protobuf import timestamp_pb2  # type: ignore
+
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
@@ -34,6 +37,8 @@ __protobuf__ = proto.module(
         "ContainerRegistryDestination",
         "GoogleDriveSource",
         "DirectUploadSource",
+        "SlackSource",
+        "JiraSource",
     },
 )
 
@@ -258,6 +263,141 @@ class DirectUploadSource(proto.Message):
     request.
 
     """
+
+
+class SlackSource(proto.Message):
+    r"""The Slack source for the ImportRagFilesRequest.
+
+    Attributes:
+        channels (MutableSequence[google.cloud.aiplatform_v1beta1.types.SlackSource.SlackChannels]):
+            Required. The Slack channels.
+    """
+
+    class SlackChannels(proto.Message):
+        r"""SlackChannels contains the Slack channels and corresponding
+        access token.
+
+        Attributes:
+            channels (MutableSequence[google.cloud.aiplatform_v1beta1.types.SlackSource.SlackChannels.SlackChannel]):
+                Required. The Slack channel IDs.
+            api_key_config (google.cloud.aiplatform_v1beta1.types.ApiAuth.ApiKeyConfig):
+                Required. The SecretManager secret version
+                resource name (e.g.
+                projects/{project}/secrets/{secret}/versions/{version})
+                storing the Slack channel access token that has
+                access to the slack channel IDs. See:
+                https://api.slack.com/tutorials/tracks/getting-a-token.
+        """
+
+        class SlackChannel(proto.Message):
+            r"""SlackChannel contains the Slack channel ID and the time range
+            to import.
+
+            Attributes:
+                channel_id (str):
+                    Required. The Slack channel ID.
+                start_time (google.protobuf.timestamp_pb2.Timestamp):
+                    Optional. The starting timestamp for messages
+                    to import.
+                end_time (google.protobuf.timestamp_pb2.Timestamp):
+                    Optional. The ending timestamp for messages
+                    to import.
+            """
+
+            channel_id: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            start_time: timestamp_pb2.Timestamp = proto.Field(
+                proto.MESSAGE,
+                number=2,
+                message=timestamp_pb2.Timestamp,
+            )
+            end_time: timestamp_pb2.Timestamp = proto.Field(
+                proto.MESSAGE,
+                number=3,
+                message=timestamp_pb2.Timestamp,
+            )
+
+        channels: MutableSequence[
+            "SlackSource.SlackChannels.SlackChannel"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="SlackSource.SlackChannels.SlackChannel",
+        )
+        api_key_config: api_auth.ApiAuth.ApiKeyConfig = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message=api_auth.ApiAuth.ApiKeyConfig,
+        )
+
+    channels: MutableSequence[SlackChannels] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=SlackChannels,
+    )
+
+
+class JiraSource(proto.Message):
+    r"""The Jira source for the ImportRagFilesRequest.
+
+    Attributes:
+        jira_queries (MutableSequence[google.cloud.aiplatform_v1beta1.types.JiraSource.JiraQueries]):
+            Required. The Jira queries.
+    """
+
+    class JiraQueries(proto.Message):
+        r"""JiraQueries contains the Jira queries and corresponding
+        authentication.
+
+        Attributes:
+            projects (MutableSequence[str]):
+                A list of Jira projects to import in their
+                entirety.
+            custom_queries (MutableSequence[str]):
+                A list of custom Jira queries to import. For
+                information about JQL (Jira Query Language), see
+                https://support.atlassian.com/jira-service-management-cloud/docs/use-advanced-search-with-jira-query-language-jql/
+            email (str):
+                Required. The Jira email address.
+            server_uri (str):
+                Required. The Jira server URI.
+            api_key_config (google.cloud.aiplatform_v1beta1.types.ApiAuth.ApiKeyConfig):
+                Required. The SecretManager secret version
+                resource name (e.g.
+                projects/{project}/secrets/{secret}/versions/{version})
+                storing the Jira API key
+                (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+        """
+
+        projects: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+        custom_queries: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=4,
+        )
+        email: str = proto.Field(
+            proto.STRING,
+            number=5,
+        )
+        server_uri: str = proto.Field(
+            proto.STRING,
+            number=6,
+        )
+        api_key_config: api_auth.ApiAuth.ApiKeyConfig = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            message=api_auth.ApiAuth.ApiKeyConfig,
+        )
+
+    jira_queries: MutableSequence[JiraQueries] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=JiraQueries,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

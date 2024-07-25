@@ -108,6 +108,7 @@ from .services.vizier_service import VizierServiceAsyncClient
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
+from .types.api_auth import ApiAuth
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
 from .types.cached_content import CachedContent
@@ -522,6 +523,8 @@ from .types.io import DirectUploadSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
 from .types.io import GoogleDriveSource
+from .types.io import JiraSource
+from .types.io import SlackSource
 from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
@@ -789,6 +792,7 @@ from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RayLogsSpec
 from .types.persistent_resource import RayMetricSpec
 from .types.persistent_resource import RaySpec
 from .types.persistent_resource import ResourcePool
@@ -840,6 +844,9 @@ from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
 from .types.prediction_service import GenerateContentRequest
 from .types.prediction_service import GenerateContentResponse
+from .types.prediction_service import GenerateVideoResponse
+from .types.prediction_service import PredictLongRunningMetadata
+from .types.prediction_service import PredictLongRunningResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
@@ -877,6 +884,7 @@ from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
+from .types.service_networking import PscInterfaceConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -966,6 +974,11 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.tuning_job import DatasetDistribution
+from .types.tuning_job import DatasetStats
+from .types.tuning_job import DistillationDataStats
+from .types.tuning_job import DistillationHyperParameters
+from .types.tuning_job import DistillationSpec
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
@@ -1076,6 +1089,7 @@ __all__ = (
     "AddTrialMeasurementRequest",
     "Annotation",
     "AnnotationSpec",
+    "ApiAuth",
     "Artifact",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
@@ -1226,7 +1240,9 @@ __all__ = (
     "DataItemView",
     "DataLabelingJob",
     "Dataset",
+    "DatasetDistribution",
     "DatasetServiceClient",
+    "DatasetStats",
     "DatasetVersion",
     "DedicatedResources",
     "DeleteArtifactRequest",
@@ -1300,6 +1316,9 @@ __all__ = (
     "DirectRawPredictResponse",
     "DirectUploadSource",
     "DiskSpec",
+    "DistillationDataStats",
+    "DistillationHyperParameters",
+    "DistillationSpec",
     "DoubleArray",
     "EncryptionSpec",
     "Endpoint",
@@ -1397,6 +1416,7 @@ __all__ = (
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateVideoResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
     "GenieSource",
@@ -1490,6 +1510,7 @@ __all__ = (
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
+    "JiraSource",
     "JobServiceClient",
     "JobState",
     "LargeModelReference",
@@ -1705,6 +1726,8 @@ __all__ = (
     "PipelineTemplateMetadata",
     "Port",
     "PredefinedSplit",
+    "PredictLongRunningMetadata",
+    "PredictLongRunningResponse",
     "PredictRequest",
     "PredictRequestResponseLoggingConfig",
     "PredictResponse",
@@ -1715,6 +1738,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "Probe",
     "PscAutomatedEndpoints",
+    "PscInterfaceConfig",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1759,6 +1783,7 @@ __all__ = (
     "RagFileChunkingConfig",
     "RagQuery",
     "RawPredictRequest",
+    "RayLogsSpec",
     "RayMetricSpec",
     "RaySpec",
     "ReadFeatureValuesRequest",
@@ -1834,6 +1859,7 @@ __all__ = (
     "Segment",
     "ServiceAccountSpec",
     "ShieldedVmConfig",
+    "SlackSource",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",

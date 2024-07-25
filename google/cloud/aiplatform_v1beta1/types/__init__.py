@@ -22,6 +22,9 @@ from .annotation import (
 from .annotation_spec import (
     AnnotationSpec,
 )
+from .api_auth import (
+    ApiAuth,
+)
 from .artifact import (
     Artifact,
 )
@@ -531,6 +534,8 @@ from .io import (
     GcsDestination,
     GcsSource,
     GoogleDriveSource,
+    JiraSource,
+    SlackSource,
     TFRecordDestination,
 )
 from .job_service import (
@@ -862,6 +867,7 @@ from .operation import (
 )
 from .persistent_resource import (
     PersistentResource,
+    RayLogsSpec,
     RayMetricSpec,
     RaySpec,
     ResourcePool,
@@ -925,6 +931,9 @@ from .prediction_service import (
     ExplainResponse,
     GenerateContentRequest,
     GenerateContentResponse,
+    GenerateVideoResponse,
+    PredictLongRunningMetadata,
+    PredictLongRunningResponse,
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
@@ -978,6 +987,7 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
+    PscInterfaceConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1091,6 +1101,11 @@ from .training_pipeline import (
     TrainingPipeline,
 )
 from .tuning_job import (
+    DatasetDistribution,
+    DatasetStats,
+    DistillationDataStats,
+    DistillationHyperParameters,
+    DistillationSpec,
     SupervisedHyperParameters,
     SupervisedTuningDatasetDistribution,
     SupervisedTuningDataStats,
@@ -1175,6 +1190,7 @@ __all__ = (
     "AcceleratorType",
     "Annotation",
     "AnnotationSpec",
+    "ApiAuth",
     "Artifact",
     "BatchPredictionJob",
     "CachedContent",
@@ -1581,6 +1597,8 @@ __all__ = (
     "GcsDestination",
     "GcsSource",
     "GoogleDriveSource",
+    "JiraSource",
+    "SlackSource",
     "TFRecordDestination",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
@@ -1840,6 +1858,7 @@ __all__ = (
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
     "PersistentResource",
+    "RayLogsSpec",
     "RayMetricSpec",
     "RaySpec",
     "ResourcePool",
@@ -1891,6 +1910,9 @@ __all__ = (
     "ExplainResponse",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateVideoResponse",
+    "PredictLongRunningMetadata",
+    "PredictLongRunningResponse",
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
@@ -1928,6 +1950,7 @@ __all__ = (
     "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
+    "PscInterfaceConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -2017,6 +2040,11 @@ __all__ = (
     "StratifiedSplit",
     "TimestampSplit",
     "TrainingPipeline",
+    "DatasetDistribution",
+    "DatasetStats",
+    "DistillationDataStats",
+    "DistillationHyperParameters",
+    "DistillationSpec",
     "SupervisedHyperParameters",
     "SupervisedTuningDatasetDistribution",
     "SupervisedTuningDataStats",

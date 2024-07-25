@@ -60,6 +60,9 @@ class CachedContent(proto.Message):
             Immutable. Identifier. The server-generated resource name of
             the cached content Format:
             projects/{project}/locations/{location}/cachedContents/{cached_content}
+        display_name (str):
+            Optional. Immutable. The user-generated
+            meaningful display name of the cached content.
         model (str):
             Immutable. The name of the publisher model to
             use for cached content. Format:
@@ -100,6 +103,10 @@ class CachedContent(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=11,
     )
     model: str = proto.Field(
         proto.STRING,

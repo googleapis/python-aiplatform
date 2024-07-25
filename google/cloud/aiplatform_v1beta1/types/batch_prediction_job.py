@@ -254,6 +254,10 @@ class BatchPredictionJob(proto.Message):
 
             User can disable container logging by setting this flag to
             true.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class InputConfig(proto.Message):
@@ -719,6 +723,14 @@ class BatchPredictionJob(proto.Message):
     disable_container_logging: bool = proto.Field(
         proto.BOOL,
         number=34,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=36,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=37,
     )
 
 

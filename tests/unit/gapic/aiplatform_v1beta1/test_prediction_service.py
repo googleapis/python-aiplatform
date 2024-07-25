@@ -44,6 +44,7 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
@@ -1349,12 +1350,7 @@ async def test_predict_async_use_cached_wrapped_rpc(transport: str = "grpc_async
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.predict
         ] = mock_object
@@ -1678,12 +1674,7 @@ async def test_raw_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.raw_predict
         ] = mock_object
@@ -2066,12 +2057,7 @@ async def test_stream_raw_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.stream_raw_predict
         ] = mock_object
@@ -2445,12 +2431,7 @@ async def test_direct_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.direct_predict
         ] = mock_object
@@ -2744,12 +2725,7 @@ async def test_direct_raw_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.direct_raw_predict
         ] = mock_object
@@ -2973,12 +2949,7 @@ async def test_stream_direct_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.stream_direct_predict
         ] = mock_object
@@ -3136,12 +3107,7 @@ async def test_stream_direct_raw_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.stream_direct_raw_predict
         ] = mock_object
@@ -3296,12 +3262,7 @@ async def test_streaming_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.streaming_predict
         ] = mock_object
@@ -3534,12 +3495,7 @@ async def test_server_streaming_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.server_streaming_predict
         ] = mock_object
@@ -3763,12 +3719,7 @@ async def test_streaming_raw_predict_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.streaming_raw_predict
         ] = mock_object
@@ -3991,12 +3942,7 @@ async def test_explain_async_use_cached_wrapped_rpc(transport: str = "grpc_async
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.explain
         ] = mock_object
@@ -4318,12 +4264,7 @@ async def test_count_tokens_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.count_tokens
         ] = mock_object
@@ -4698,12 +4639,7 @@ async def test_generate_content_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.generate_content
         ] = mock_object
@@ -5087,12 +5023,7 @@ async def test_stream_generate_content_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.stream_generate_content
         ] = mock_object
@@ -5472,12 +5403,7 @@ async def test_chat_completions_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.chat_completions
         ] = mock_object
@@ -5832,7 +5758,7 @@ def test_predict_rest_required_fields(request_type=prediction_service.PredictReq
 
             response = client.predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -6148,7 +6074,7 @@ def test_raw_predict_rest_required_fields(
 
             response = client.raw_predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -6464,7 +6390,7 @@ def test_stream_raw_predict_rest_required_fields(
                 iter_content.return_value = iter(json_return_value)
                 response = client.stream_raw_predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -6769,7 +6695,7 @@ def test_direct_predict_rest_required_fields(
 
             response = client.direct_predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7020,7 +6946,7 @@ def test_direct_raw_predict_rest_required_fields(
 
             response = client.direct_raw_predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7312,7 +7238,7 @@ def test_server_streaming_predict_rest_required_fields(
                 iter_content.return_value = iter(json_return_value)
                 response = client.server_streaming_predict(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7569,7 +7495,7 @@ def test_explain_rest_required_fields(request_type=prediction_service.ExplainReq
 
             response = client.explain(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7828,7 +7754,6 @@ def test_count_tokens_rest_required_fields(
 
     request_init = {}
     request_init["endpoint"] = ""
-    request_init["model"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
     jsonified_request = json.loads(
@@ -7845,7 +7770,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with default values are now present
 
     jsonified_request["endpoint"] = "endpoint_value"
-    jsonified_request["model"] = "model_value"
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
@@ -7855,8 +7779,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with non-default values are left alone
     assert "endpoint" in jsonified_request
     assert jsonified_request["endpoint"] == "endpoint_value"
-    assert "model" in jsonified_request
-    assert jsonified_request["model"] == "model_value"
 
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -7895,7 +7817,7 @@ def test_count_tokens_rest_required_fields(
 
             response = client.count_tokens(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7906,17 +7828,7 @@ def test_count_tokens_rest_unset_required_fields():
     )
 
     unset_fields = transport.count_tokens._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "endpoint",
-                "model",
-                "instances",
-                "contents",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8212,7 +8124,7 @@ def test_generate_content_rest_required_fields(
 
             response = client.generate_content(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8540,7 +8452,7 @@ def test_stream_generate_content_rest_required_fields(
                 iter_content.return_value = iter(json_return_value)
                 response = client.stream_generate_content(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8947,7 +8859,7 @@ def test_chat_completions_rest_required_fields(
                 iter_content.return_value = iter(json_return_value)
                 response = client.chat_completions(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
