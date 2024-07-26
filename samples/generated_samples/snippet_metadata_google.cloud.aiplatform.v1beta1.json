@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.60.0"
+    "version": "0.1.0"
   },
   "snippets": [
     {
@@ -41442,12 +41442,12 @@
       "regionTag": "aiplatform_v1beta1_generated_PredictionService_CountTokens_async",
       "segments": [
         {
-          "end": 60,
+          "end": 51,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 51,
           "start": 27,
           "type": "SHORT"
         },
@@ -41457,18 +41457,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 54,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 55,
+          "end": 48,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 52,
+          "start": 49,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -41526,12 +41526,12 @@
       "regionTag": "aiplatform_v1beta1_generated_PredictionService_CountTokens_sync",
       "segments": [
         {
-          "end": 60,
+          "end": 51,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 51,
           "start": 27,
           "type": "SHORT"
         },
@@ -41541,18 +41541,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 54,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 55,
+          "end": 48,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 52,
+          "start": 49,
           "type": "RESPONSE_HANDLING"
         }
       ],

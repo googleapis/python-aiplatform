@@ -33,15 +33,25 @@ __protobuf__ = proto.module(
         "TunedModel",
         "SupervisedTuningDatasetDistribution",
         "SupervisedTuningDataStats",
+        "DatasetDistribution",
+        "DatasetStats",
+        "DistillationDataStats",
         "TuningDataStats",
         "SupervisedHyperParameters",
         "SupervisedTuningSpec",
+        "DistillationSpec",
+        "DistillationHyperParameters",
     },
 )
 
 
 class TuningJob(proto.Message):
     r"""Represents a TuningJob that runs with Google owned models.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -53,6 +63,10 @@ class TuningJob(proto.Message):
             This field is a member of `oneof`_ ``source_model``.
         supervised_tuning_spec (google.cloud.aiplatform_v1beta1.types.SupervisedTuningSpec):
             Tuning Spec for Supervised Fine Tuning.
+
+            This field is a member of `oneof`_ ``tuning_spec``.
+        distillation_spec (google.cloud.aiplatform_v1beta1.types.DistillationSpec):
+            Tuning Spec for Distillation.
 
             This field is a member of `oneof`_ ``tuning_spec``.
         name (str):
@@ -112,6 +126,11 @@ class TuningJob(proto.Message):
         tuning_data_stats (google.cloud.aiplatform_v1beta1.types.TuningDataStats):
             Output only. The tuning data statistics associated with this
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
+        pipeline_job (str):
+            Output only. The resource name of the PipelineJob associated
+            with the [TuningJob][google.cloud.aiplatform.v1.TuningJob].
+            Format:
+            ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key options for a
             TuningJob. If this is set, then all resources
@@ -129,6 +148,12 @@ class TuningJob(proto.Message):
         number=5,
         oneof="tuning_spec",
         message="SupervisedTuningSpec",
+    )
+    distillation_spec: "DistillationSpec" = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        oneof="tuning_spec",
+        message="DistillationSpec",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -191,6 +216,10 @@ class TuningJob(proto.Message):
         number=15,
         message="TuningDataStats",
     )
+    pipeline_job: str = proto.Field(
+        proto.STRING,
+        number=18,
+    )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=16,
@@ -228,6 +257,9 @@ class SupervisedTuningDatasetDistribution(proto.Message):
         sum (int):
             Output only. Sum of a given population of
             values.
+        billable_sum (int):
+            Output only. Sum of a given population of
+            values that are billable.
         min_ (float):
             Output only. The minimum of the population
             values.
@@ -280,6 +312,10 @@ class SupervisedTuningDatasetDistribution(proto.Message):
         proto.INT64,
         number=1,
     )
+    billable_sum: int = proto.Field(
+        proto.INT64,
+        number=9,
+    )
     min_: float = proto.Field(
         proto.DOUBLE,
         number=2,
@@ -324,6 +360,9 @@ class SupervisedTuningDataStats(proto.Message):
         total_billable_character_count (int):
             Output only. Number of billable characters in
             the tuning dataset.
+        total_billable_token_count (int):
+            Output only. Number of billable tokens in the
+            tuning dataset.
         tuning_step_count (int):
             Output only. Number of tuning steps for this
             Tuning Job.
@@ -353,6 +392,10 @@ class SupervisedTuningDataStats(proto.Message):
         proto.INT64,
         number=3,
     )
+    total_billable_token_count: int = proto.Field(
+        proto.INT64,
+        number=9,
+    )
     tuning_step_count: int = proto.Field(
         proto.INT64,
         number=4,
@@ -381,16 +424,203 @@ class SupervisedTuningDataStats(proto.Message):
     )
 
 
+class DatasetDistribution(proto.Message):
+    r"""Distribution computed over a tuning dataset.
+
+    Attributes:
+        sum (float):
+            Output only. Sum of a given population of
+            values.
+        min_ (float):
+            Output only. The minimum of the population
+            values.
+        max_ (float):
+            Output only. The maximum of the population
+            values.
+        mean (float):
+            Output only. The arithmetic mean of the
+            values in the population.
+        median (float):
+            Output only. The median of the values in the
+            population.
+        p5 (float):
+            Output only. The 5th percentile of the values
+            in the population.
+        p95 (float):
+            Output only. The 95th percentile of the
+            values in the population.
+        buckets (MutableSequence[google.cloud.aiplatform_v1beta1.types.DatasetDistribution.DistributionBucket]):
+            Output only. Defines the histogram bucket.
+    """
+
+    class DistributionBucket(proto.Message):
+        r"""Dataset bucket used to create a histogram for the
+        distribution given a population of values.
+
+        Attributes:
+            count (int):
+                Output only. Number of values in the bucket.
+            left (float):
+                Output only. Left bound of the bucket.
+            right (float):
+                Output only. Right bound of the bucket.
+        """
+
+        count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        left: float = proto.Field(
+            proto.DOUBLE,
+            number=2,
+        )
+        right: float = proto.Field(
+            proto.DOUBLE,
+            number=3,
+        )
+
+    sum: float = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    min_: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    max_: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
+    mean: float = proto.Field(
+        proto.DOUBLE,
+        number=4,
+    )
+    median: float = proto.Field(
+        proto.DOUBLE,
+        number=5,
+    )
+    p5: float = proto.Field(
+        proto.DOUBLE,
+        number=6,
+    )
+    p95: float = proto.Field(
+        proto.DOUBLE,
+        number=7,
+    )
+    buckets: MutableSequence[DistributionBucket] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=8,
+        message=DistributionBucket,
+    )
+
+
+class DatasetStats(proto.Message):
+    r"""Statistics computed over a tuning dataset.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tuning_dataset_example_count (int):
+            Output only. Number of examples in the tuning
+            dataset.
+        total_tuning_character_count (int):
+            Output only. Number of tuning characters in
+            the tuning dataset.
+        total_billable_character_count (int):
+            Output only. Number of billable characters in
+            the tuning dataset.
+        tuning_step_count (int):
+            Output only. Number of tuning steps for this
+            Tuning Job.
+        user_input_token_distribution (google.cloud.aiplatform_v1beta1.types.DatasetDistribution):
+            Output only. Dataset distributions for the
+            user input tokens.
+        user_output_token_distribution (google.cloud.aiplatform_v1beta1.types.DatasetDistribution):
+            Output only. Dataset distributions for the
+            user output tokens.
+
+            This field is a member of `oneof`_ ``_user_output_token_distribution``.
+        user_message_per_example_distribution (google.cloud.aiplatform_v1beta1.types.DatasetDistribution):
+            Output only. Dataset distributions for the
+            messages per example.
+        user_dataset_examples (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+            Output only. Sample user messages in the
+            training dataset uri.
+    """
+
+    tuning_dataset_example_count: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    total_tuning_character_count: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    total_billable_character_count: int = proto.Field(
+        proto.INT64,
+        number=3,
+    )
+    tuning_step_count: int = proto.Field(
+        proto.INT64,
+        number=4,
+    )
+    user_input_token_distribution: "DatasetDistribution" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="DatasetDistribution",
+    )
+    user_output_token_distribution: "DatasetDistribution" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        optional=True,
+        message="DatasetDistribution",
+    )
+    user_message_per_example_distribution: "DatasetDistribution" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message="DatasetDistribution",
+    )
+    user_dataset_examples: MutableSequence[content.Content] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=8,
+        message=content.Content,
+    )
+
+
+class DistillationDataStats(proto.Message):
+    r"""Statistics computed for datasets used for distillation.
+
+    Attributes:
+        training_dataset_stats (google.cloud.aiplatform_v1beta1.types.DatasetStats):
+            Output only. Statistics computed for the
+            training dataset.
+    """
+
+    training_dataset_stats: "DatasetStats" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="DatasetStats",
+    )
+
+
 class TuningDataStats(proto.Message):
     r"""The tuning data statistic values for
     [TuningJob][google.cloud.aiplatform.v1.TuningJob].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         supervised_tuning_data_stats (google.cloud.aiplatform_v1beta1.types.SupervisedTuningDataStats):
             The SFT Tuning data stats.
+
+            This field is a member of `oneof`_ ``tuning_data_stats``.
+        distillation_data_stats (google.cloud.aiplatform_v1beta1.types.DistillationDataStats):
+            Output only. Statistics for distillation.
 
             This field is a member of `oneof`_ ``tuning_data_stats``.
     """
@@ -400,6 +630,12 @@ class TuningDataStats(proto.Message):
         number=1,
         oneof="tuning_data_stats",
         message="SupervisedTuningDataStats",
+    )
+    distillation_data_stats: "DistillationDataStats" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="tuning_data_stats",
+        message="DistillationDataStats",
     )
 
 
@@ -482,6 +718,122 @@ class SupervisedTuningSpec(proto.Message):
         proto.MESSAGE,
         number=3,
         message="SupervisedHyperParameters",
+    )
+
+
+class DistillationSpec(proto.Message):
+    r"""Tuning Spec for Distillation.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        base_teacher_model (str):
+            The base teacher model that is being
+            distilled, e.g., "gemini-1.0-pro-002".
+
+            This field is a member of `oneof`_ ``teacher_model``.
+        tuned_teacher_model_source (str):
+            The resource name of the Tuned teacher model. Format:
+            ``projects/{project}/locations/{location}/models/{model}``.
+
+            This field is a member of `oneof`_ ``teacher_model``.
+        training_dataset_uri (str):
+            Required. Cloud Storage path to file
+            containing training dataset for tuning. The
+            dataset must be formatted as a JSONL file.
+        validation_dataset_uri (str):
+            Optional. Cloud Storage path to file
+            containing validation dataset for tuning. The
+            dataset must be formatted as a JSONL file.
+
+            This field is a member of `oneof`_ ``_validation_dataset_uri``.
+        hyper_parameters (google.cloud.aiplatform_v1beta1.types.DistillationHyperParameters):
+            Optional. Hyperparameters for Distillation.
+        student_model (str):
+            The student model that is being tuned, e.g.,
+            "google/gemma-2b-1.1-it".
+        pipeline_root_directory (str):
+            Required. A path in a Cloud Storage bucket,
+            which will be treated as the root output
+            directory of the distillation pipeline. It is
+            used by the system to generate the paths of
+            output artifacts.
+    """
+
+    base_teacher_model: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="teacher_model",
+    )
+    tuned_teacher_model_source: str = proto.Field(
+        proto.STRING,
+        number=6,
+        oneof="teacher_model",
+    )
+    training_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    hyper_parameters: "DistillationHyperParameters" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="DistillationHyperParameters",
+    )
+    student_model: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    pipeline_root_directory: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+
+
+class DistillationHyperParameters(proto.Message):
+    r"""Hyperparameters for Distillation.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        epoch_count (int):
+            Optional. Number of complete passes the model
+            makes over the entire training dataset during
+            training.
+
+            This field is a member of `oneof`_ ``_epoch_count``.
+        learning_rate_multiplier (float):
+            Optional. Multiplier for adjusting the
+            default learning rate.
+
+            This field is a member of `oneof`_ ``_learning_rate_multiplier``.
+        adapter_size (google.cloud.aiplatform_v1beta1.types.SupervisedHyperParameters.AdapterSize):
+            Optional. Adapter size for distillation.
+    """
+
+    epoch_count: int = proto.Field(
+        proto.INT64,
+        number=1,
+        optional=True,
+    )
+    learning_rate_multiplier: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+        optional=True,
+    )
+    adapter_size: "SupervisedHyperParameters.AdapterSize" = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum="SupervisedHyperParameters.AdapterSize",
     )
 
 

@@ -150,6 +150,10 @@ class PipelineJob(proto.Message):
         preflight_validations (bool):
             Optional. Whether to do component level
             validations before job creation.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class RuntimeConfig(proto.Message):
@@ -342,6 +346,14 @@ class PipelineJob(proto.Message):
     preflight_validations: bool = proto.Field(
         proto.BOOL,
         number=26,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=27,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=28,
     )
 
 

@@ -17,6 +17,10 @@
 """Constants for evaluation."""
 import dataclasses
 
+# The number of concurrent workers to use for making model inference and
+# evaluation requests.
+MAX_WORKERS = 100
+
 
 @dataclasses.dataclass(frozen=True)
 class Metric:
@@ -193,4 +197,7 @@ class QuotaLimit:
     # Default queries per minute (QPM) quota for `gemini-1.0-pro` base model.
     GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE = 300
 
-    EVAL_SERVICE_QPS = 10
+    # Evaluation Service QPS limit can be computed by
+    # (GEMINI_1_5_PRO_GENERATE_CONTENT_REQUESTS_QPM / 60 / Number of Samples)
+    # 0.25 = 300 / 60 / 4
+    EVAL_SERVICE_QPS = 0.25

@@ -261,6 +261,28 @@ class GenAiTuningServiceClient(metaclass=GenAiTuningServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def pipeline_job_path(
+        project: str,
+        location: str,
+        pipeline_job: str,
+    ) -> str:
+        """Returns a fully-qualified pipeline_job string."""
+        return "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
+        )
+
+    @staticmethod
+    def parse_pipeline_job_path(path: str) -> Dict[str, str]:
+        """Parses a pipeline_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/pipelineJobs/(?P<pipeline_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def tuning_job_path(
         project: str,
         location: str,
@@ -630,9 +652,6 @@ class GenAiTuningServiceClient(metaclass=GenAiTuningServiceClientMeta):
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the GenAiTuningServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -1098,6 +1117,8 @@ class GenAiTuningServiceClient(metaclass=GenAiTuningServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

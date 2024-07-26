@@ -620,11 +620,10 @@ def handle_response(
     return result
 
 
-# TODO(b/346659152): Add interface to customize rate limit.
-@utils.rate_limit(constants.QuotaLimit.EVAL_SERVICE_QPS)
 def evaluate_instances(
     client: gapic_evaluation_services.EvaluationServiceClient,
     request: gapic_eval_service_types.EvaluateInstancesRequest,
+    rate_limiter: utils.RateLimiter,
     retry_timeout: float,
 ) -> gapic_eval_service_types.EvaluateInstancesResponse:
     """Evaluates an instance.
@@ -632,12 +631,13 @@ def evaluate_instances(
     Args:
         client: The client to use for evaluation.
         request: An EvaluateInstancesRequest.
+        rate_limiter: The rate limiter to use for evaluation service requests.
         retry_timeout: How long to keep retrying the evaluation requests, in seconds.
 
     Returns:
         A response from the evaluation service.
     """
-
+    rate_limiter.sleep_and_advance()
     return client.evaluate_instances(
         request=request,
         retry=api_core.retry.Retry(

@@ -285,6 +285,28 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def secret_version_path(
+        project: str,
+        secret: str,
+        secret_version: str,
+    ) -> str:
+        """Returns a fully-qualified secret_version string."""
+        return "projects/{project}/secrets/{secret}/versions/{secret_version}".format(
+            project=project,
+            secret=secret,
+            secret_version=secret_version,
+        )
+
+    @staticmethod
+    def parse_secret_version_path(path: str) -> Dict[str, str]:
+        """Parses a secret_version path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/secrets/(?P<secret>.+?)/versions/(?P<secret_version>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(
         billing_account: str,
     ) -> str:
@@ -632,9 +654,6 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the VertexRagDataServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -1115,6 +1134,8 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1733,6 +1754,8 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

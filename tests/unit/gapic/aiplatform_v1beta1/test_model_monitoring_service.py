@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
@@ -1404,12 +1405,7 @@ async def test_create_model_monitor_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_model_monitor
         ] = mock_object
@@ -1838,12 +1834,7 @@ async def test_update_model_monitor_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_model_monitor
         ] = mock_object
@@ -2126,6 +2117,8 @@ def test_get_model_monitor(request_type, transport: str = "grpc"):
         call.return_value = model_monitor.ModelMonitor(
             name="name_value",
             display_name="display_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_model_monitor(request)
 
@@ -2139,6 +2132,8 @@ def test_get_model_monitor(request_type, transport: str = "grpc"):
     assert isinstance(response, model_monitor.ModelMonitor)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_monitor_empty_call():
@@ -2247,6 +2242,8 @@ async def test_get_model_monitor_empty_call_async():
             model_monitor.ModelMonitor(
                 name="name_value",
                 display_name="display_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_monitor()
@@ -2278,12 +2275,7 @@ async def test_get_model_monitor_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_model_monitor
         ] = mock_object
@@ -2324,6 +2316,8 @@ async def test_get_model_monitor_async(
             model_monitor.ModelMonitor(
                 name="name_value",
                 display_name="display_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_monitor(request)
@@ -2338,6 +2332,8 @@ async def test_get_model_monitor_async(
     assert isinstance(response, model_monitor.ModelMonitor)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -2676,12 +2672,7 @@ async def test_list_model_monitors_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_model_monitors
         ] = mock_object
@@ -2932,12 +2923,16 @@ def test_list_model_monitors_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_model_monitors(request={})
+        pager = client.list_model_monitors(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -3265,12 +3260,7 @@ async def test_delete_model_monitor_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_model_monitor
         ] = mock_object
@@ -3670,12 +3660,7 @@ async def test_create_model_monitoring_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_model_monitoring_job
         ] = mock_object
@@ -4096,12 +4081,7 @@ async def test_get_model_monitoring_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_model_monitoring_job
         ] = mock_object
@@ -4499,12 +4479,7 @@ async def test_list_model_monitoring_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_model_monitoring_jobs
         ] = mock_object
@@ -4755,12 +4730,18 @@ def test_list_model_monitoring_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_model_monitoring_jobs(request={})
+        pager = client.list_model_monitoring_jobs(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -5093,12 +5074,7 @@ async def test_delete_model_monitoring_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_model_monitoring_job
         ] = mock_object
@@ -5489,12 +5465,7 @@ async def test_search_model_monitoring_stats_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_model_monitoring_stats
         ] = mock_object
@@ -5751,12 +5722,18 @@ def test_search_model_monitoring_stats_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("model_monitor", ""),)),
         )
-        pager = client.search_model_monitoring_stats(request={})
+        pager = client.search_model_monitoring_stats(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -6104,12 +6081,7 @@ async def test_search_model_monitoring_alerts_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
+        mock_object = mock.AsyncMock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_model_monitoring_alerts
         ] = mock_object
@@ -6368,12 +6340,18 @@ def test_search_model_monitoring_alerts_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("model_monitor", ""),)),
         )
-        pager = client.search_model_monitoring_alerts(request={})
+        pager = client.search_model_monitoring_alerts(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -6670,6 +6648,8 @@ def test_create_model_monitor_rest(request_type):
         },
         "create_time": {},
         "update_time": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6873,7 +6853,7 @@ def test_create_model_monitor_rest_required_fields(
 
             response = client.create_model_monitor(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7197,6 +7177,8 @@ def test_update_model_monitor_rest(request_type):
         },
         "create_time": {},
         "update_time": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7395,7 +7377,7 @@ def test_update_model_monitor_rest_required_fields(
 
             response = client.update_model_monitor(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -7607,6 +7589,8 @@ def test_get_model_monitor_rest(request_type):
         return_value = model_monitor.ModelMonitor(
             name="name_value",
             display_name="display_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -7624,6 +7608,8 @@ def test_get_model_monitor_rest(request_type):
     assert isinstance(response, model_monitor.ModelMonitor)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_monitor_rest_use_cached_wrapped_rpc():
@@ -7733,7 +7719,7 @@ def test_get_model_monitor_rest_required_fields(
 
             response = client.get_model_monitor(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8056,7 +8042,7 @@ def test_list_model_monitors_rest_required_fields(
 
             response = client.list_model_monitors(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8434,7 +8420,7 @@ def test_delete_model_monitor_rest_required_fields(
 
             response = client.delete_model_monitor(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -8964,7 +8950,7 @@ def test_create_model_monitoring_job_rest_required_fields(
 
             response = client.create_model_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -9301,7 +9287,7 @@ def test_get_model_monitoring_job_rest_required_fields(
 
             response = client.get_model_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -9630,7 +9616,7 @@ def test_list_model_monitoring_jobs_rest_required_fields(
 
             response = client.list_model_monitoring_jobs(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10019,7 +10005,7 @@ def test_delete_model_monitoring_job_rest_required_fields(
 
             response = client.delete_model_monitoring_job(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10343,7 +10329,7 @@ def test_search_model_monitoring_stats_rest_required_fields(
 
             response = client.search_model_monitoring_stats(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
@@ -10739,7 +10725,7 @@ def test_search_model_monitoring_alerts_rest_required_fields(
 
             response = client.search_model_monitoring_alerts(request)
 
-            expected_params = []
+            expected_params = [("$alt", "json;enum-encoding=int")]
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 

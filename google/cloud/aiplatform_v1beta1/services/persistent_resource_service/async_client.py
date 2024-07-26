@@ -54,6 +54,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     persistent_resource as gca_persistent_resource,
 )
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -86,6 +87,12 @@ class PersistentResourceServiceAsyncClient:
     network_path = staticmethod(PersistentResourceServiceClient.network_path)
     parse_network_path = staticmethod(
         PersistentResourceServiceClient.parse_network_path
+    )
+    network_attachment_path = staticmethod(
+        PersistentResourceServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        PersistentResourceServiceClient.parse_network_attachment_path
     )
     notebook_runtime_template_path = staticmethod(
         PersistentResourceServiceClient.notebook_runtime_template_path
@@ -259,9 +266,6 @@ class PersistentResourceServiceAsyncClient:
                 If a Callable is given, it will be called with the same set of initialization
                 arguments as used in the PersistentResourceServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
-                NOTE: "rest" transport functionality is currently in a
-                beta state (preview). We welcome your feedback via an
-                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -697,6 +701,8 @@ class PersistentResourceServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
