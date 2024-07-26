@@ -28,9 +28,9 @@ def init_sample(
     service_account: Optional[str] = None,
 ):
 
-    from google.cloud import aiplatform
+    import vertexai
 
-    aiplatform.init(
+    vertexai.init(
         project=project,
         location=location,
         experiment=experiment,

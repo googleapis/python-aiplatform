@@ -17,7 +17,7 @@ import init_sample
 import test_constants as constants
 
 
-def test_init_sample(mock_sdk_init):
+def test_init_sample(mock_vertexai_init):
 
     init_sample.init_sample(
         project=constants.PROJECT,
@@ -29,7 +29,7 @@ def test_init_sample(mock_sdk_init):
         service_account=constants.SERVICE_ACCOUNT,
     )
 
-    mock_sdk_init.assert_called_once_with(
+    mock_vertexai_init.assert_called_once_with(
         project=constants.PROJECT,
         location=constants.LOCATION_EUROPE,
         experiment=constants.EXPERIMENT_NAME,
