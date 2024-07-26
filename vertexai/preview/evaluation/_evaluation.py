@@ -272,7 +272,7 @@ def _generate_response_from_gemini(
                     f"Finish reason: {candidate.finish_reason}.\n"
                     f"Finish message: {candidate.finish_message}.\n"
                     f"Safety ratings: {candidate.safety_ratings}.\n"
-                    "Please adjsut the model safety_settings, or try a different prompt."
+                    "Please adjust the model safety_settings, or try a different prompt."
                 )
             return response.candidates[0].content.parts[0].text
     except Exception:
@@ -295,9 +295,7 @@ def _generate_response_from_gemini_model(
         evaluation_run_config: Evaluation Run Configurations.
         is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
     """
-    max_workers = int(
-        constants.QuotaLimit.GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE / 2
-    )
+
     # Ensure thread safety and avoid race conditions.
     df = evaluation_run_config.dataset.copy()
 
@@ -310,7 +308,7 @@ def _generate_response_from_gemini_model(
         constants.Dataset.COMPLETED_PROMPT_COLUMN
         in evaluation_run_config.dataset.columns
     ):
-        with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for _, row in df.iterrows():
                 tasks.append(
                     executor.submit(
@@ -323,7 +321,7 @@ def _generate_response_from_gemini_model(
         content_column_name = evaluation_run_config.column_map[
             constants.Dataset.CONTENT_COLUMN
         ]
-        with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for _, row in df.iterrows():
                 tasks.append(
                     executor.submit(
@@ -609,9 +607,10 @@ def _compute_metrics(
 
     instance_list = []
     futures_by_metric = collections.defaultdict(list)
-    eval_max_workers = constants.QuotaLimit.EVAL_SERVICE_QPS
+
+    rate_limiter = utils.RateLimiter(evaluation_run_config.evaluation_service_qps)
     with tqdm(total=api_request_count) as pbar:
-        with futures.ThreadPoolExecutor(max_workers=eval_max_workers) as executor:
+        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for idx, row in evaluation_run_config.dataset.iterrows():
                 row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics)
 
@@ -626,6 +625,7 @@ def _compute_metrics(
                             row_dict=row_dict,
                             evaluation_run_config=evaluation_run_config,
                         ),
+                        rate_limiter=rate_limiter,
                         retry_timeout=evaluation_run_config.retry_timeout,
                     )
                     future.add_done_callback(lambda _: pbar.update(1))
@@ -686,6 +686,7 @@ def evaluate(
     response_column_name: str = "response",
     context_column_name: str = "context",
     instruction_column_name: str = "instruction",
+    evaluation_service_qps: Optional[float] = None,
     retry_timeout: float = 600.0,
 ) -> evaluation_base.EvalResult:
     """Runs the evaluation for metrics.
@@ -712,6 +713,7 @@ def evaluate(
         not set, default to `context`.
       instruction_column_name: The column name of the instruction prompt in the
         dataset. If not set, default to `instruction`.
+      evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests for the
         whole evaluation dataset, in seconds.
     Returns:
@@ -741,6 +743,9 @@ def evaluate(
             constants.Dataset.INSTRUCTION_COLUMN: instruction_column_name,
         },
         client=utils.create_evaluation_service_client(),
+        evaluation_service_qps=evaluation_service_qps
+        if evaluation_service_qps
+        else constants.QuotaLimit.EVAL_SERVICE_QPS,
         retry_timeout=retry_timeout,
     )
 

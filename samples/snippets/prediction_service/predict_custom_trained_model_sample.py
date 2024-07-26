@@ -54,7 +54,7 @@ def predict_custom_trained_model_sample(
     # The predictions are a google.protobuf.Value representation of the model's predictions.
     predictions = response.predictions
     for prediction in predictions:
-        print(" prediction:", dict(prediction))
+        print(" prediction:", prediction)
 
 
 # [END aiplatform_predict_custom_trained_model_sample]

@@ -40,6 +40,7 @@ class EvaluationRunConfig:
       metrics: The list of metric names, or metric bundle names, or Metric instances to evaluate.
       column_map: The dictionary of column name overrides in the dataset.
       client: The evaluation service client.
+      evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests, in seconds.
     """
 
@@ -47,6 +48,7 @@ class EvaluationRunConfig:
     metrics: List[Union[str, metrics_base._Metric]]
     column_map: Dict[str, str]
     client: gapic_evaluation_services.EvaluationServiceClient
+    evaluation_service_qps: float
     retry_timeout: float
 
     def validate_dataset_column(self, column_name: str) -> None:

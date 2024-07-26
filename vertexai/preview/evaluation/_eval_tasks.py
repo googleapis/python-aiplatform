@@ -255,6 +255,7 @@ class EvalTask:
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         response_column_name: Optional[str] = None,
+        evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 600.0,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
@@ -271,6 +272,7 @@ class EvalTask:
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
             provided, this will override the `response_column_name` of the `EvalTask`.
+          evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
 
@@ -288,6 +290,7 @@ class EvalTask:
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
                 response_column_name=response_column_name,
+                evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
             )
 
@@ -308,6 +311,7 @@ class EvalTask:
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         response_column_name: Optional[str] = None,
+        evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 600.0,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask.
@@ -324,6 +328,7 @@ class EvalTask:
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
             provided, this will override the `response_column_name` of the `EvalTask`.
+          evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
 
@@ -350,6 +355,7 @@ class EvalTask:
                 prompt_template,
                 experiment_run_name,
                 response_column_name,
+                evaluation_service_qps,
                 retry_timeout,
             )
             metadata._experiment_tracker.set_experiment(
@@ -364,6 +370,7 @@ class EvalTask:
                 prompt_template,
                 experiment_run_name,
                 response_column_name,
+                evaluation_service_qps,
                 retry_timeout,
             )
             metadata._experiment_tracker.reset()
@@ -373,6 +380,7 @@ class EvalTask:
                 prompt_template,
                 experiment_run_name,
                 response_column_name,
+                evaluation_service_qps,
                 retry_timeout,
             )
         else:
@@ -384,6 +392,7 @@ class EvalTask:
                 content_column_name=self.content_column_name,
                 reference_column_name=self.reference_column_name,
                 response_column_name=response_column_name,
+                evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
             )
         return eval_result

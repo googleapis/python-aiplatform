@@ -73,7 +73,7 @@ class RateLimiter:
         Raises:
             ValueError: If the rate is not positive.
         """
-        if rate <= 0:
+        if not rate or rate <= 0:
             raise ValueError("Rate must be a positive number")
         self.seconds_per_event = 1.0 / rate
         self.last = time.time() - self.seconds_per_event
