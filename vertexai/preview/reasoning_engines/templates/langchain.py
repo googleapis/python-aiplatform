@@ -114,6 +114,7 @@ def _default_model_builder(
 def _default_runnable_builder(
     model: "BaseLanguageModel",
     *,
+    system_instruction: Optional[str] = None,
     tools: Optional[Sequence["_ToolLike"]] = None,
     prompt: Optional["RunnableSerializable"] = None,
     output_parser: Optional["RunnableSerializable"] = None,
@@ -131,7 +132,10 @@ def _default_runnable_builder(
     # user would reflect that is by setting chat_history (which defaults to
     # None).
     has_history: bool = chat_history is not None
-    prompt = prompt or _default_prompt(has_history)
+    prompt = prompt or _default_prompt(
+        has_history=has_history,
+        system_instruction=system_instruction,
+    )
     output_parser = output_parser or _default_output_parser()
     model_tool_kwargs = model_tool_kwargs or {}
     agent_executor_kwargs = agent_executor_kwargs or {}
@@ -162,7 +166,10 @@ def _default_runnable_builder(
     return agent_executor
 
 
-def _default_prompt(has_history: bool) -> "RunnableSerializable":
+def _default_prompt(
+    has_history: bool,
+    system_instruction: Optional[str] = None,
+) -> "RunnableSerializable":
     from langchain_core import prompts
 
     try:
@@ -173,6 +180,10 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
             format_to_openai_tool_messages as format_to_tool_messages,
         )
 
+    system_instructions = []
+    if system_instruction:
+        system_instructions = [("system", system_instruction)]
+
     if has_history:
         return {
             "history": lambda x: x["history"],
@@ -181,7 +192,8 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
                 lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
         } | prompts.ChatPromptTemplate.from_messages(
-            [
+            system_instructions
+            + [
                 prompts.MessagesPlaceholder(variable_name="history"),
                 ("user", "{input}"),
                 prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
@@ -194,7 +206,8 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
                 lambda x: format_to_tool_messages(x["intermediate_steps"])
             ),
         } | prompts.ChatPromptTemplate.from_messages(
-            [
+            system_instructions
+            + [
                 ("user", "{input}"),
                 prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
             ]
@@ -265,6 +278,7 @@ class LangchainAgent:
         self,
         model: str,
         *,
+        system_instruction: Optional[str] = None,
         prompt: Optional["RunnableSerializable"] = None,
         tools: Optional[Sequence["_ToolLike"]] = None,
         output_parser: Optional["RunnableSerializable"] = None,
@@ -319,6 +333,9 @@ class LangchainAgent:
         Args:
             model (str):
                 Optional. The name of the model (e.g. "gemini-1.0-pro").
+            system_instruction (str):
+                Optional. The system instruction to use for the agent. This
+                argument should not be specified if `prompt` is specified.
             prompt (langchain_core.runnables.RunnableSerializable):
                 Optional. The prompt template for the model. Defaults to a
                 ChatPromptTemplate.
@@ -394,6 +411,7 @@ class LangchainAgent:
                 False.
 
         Raises:
+            ValueError: If both `prompt` and `system_instruction` are specified.
             TypeError: If there is an invalid tool (e.g. function with an input
             that did not specify its type).
         """
@@ -407,7 +425,14 @@ class LangchainAgent:
             # they are deployed.
             _validate_tools(tools)
             self._tools = tools
+        if prompt and system_instruction:
+            raise ValueError(
+                "Only one of `prompt` or `system_instruction` should be specified. "
+                "Consider incorporating the system instruction into the prompt "
+                "rather than passing it separately as an argument."
+            )
         self._model_name = model
+        self._system_instruction = system_instruction
         self._prompt = prompt
         self._output_parser = output_parser
         self._chat_history = chat_history
@@ -528,6 +553,7 @@ class LangchainAgent:
             prompt=self._prompt,
             model=self._model,
             tools=self._tools,
+            system_instruction=self._system_instruction,
             output_parser=self._output_parser,
             chat_history=self._chat_history,
             model_tool_kwargs=self._model_tool_kwargs,
