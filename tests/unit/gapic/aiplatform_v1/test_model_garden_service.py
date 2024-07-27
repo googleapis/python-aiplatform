@@ -1736,6 +1736,7 @@ def test_get_publisher_model_rest_required_fields(
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "is_hugging_face_model",
             "language_code",
             "view",
         )
@@ -1796,6 +1797,7 @@ def test_get_publisher_model_rest_unset_required_fields():
     assert set(unset_fields) == (
         set(
             (
+                "isHuggingFaceModel",
                 "languageCode",
                 "view",
             )

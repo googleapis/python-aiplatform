@@ -294,17 +294,8 @@ class LlmUtilityServiceAsyncClient:
                 client = aiplatform_v1.LlmUtilityServiceAsyncClient()
 
                 # Initialize request argument(s)
-                instances = aiplatform_v1.Value()
-                instances.null_value = "NULL_VALUE"
-
-                contents = aiplatform_v1.Content()
-                contents.parts.text = "text_value"
-
                 request = aiplatform_v1.CountTokensRequest(
                     endpoint="endpoint_value",
-                    model="model_value",
-                    instances=instances,
-                    contents=contents,
                 )
 
                 # Make the request
@@ -325,7 +316,7 @@ class LlmUtilityServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             instances (:class:`MutableSequence[google.protobuf.struct_pb2.Value]`):
-                Required. The instances that are the
+                Optional. The instances that are the
                 input to token counting call. Schema is
                 identical to the prediction schema of
                 the underlying model.

@@ -214,10 +214,8 @@ class Retrieval(proto.Message):
 
             This field is a member of `oneof`_ ``source``.
         disable_attribution (bool):
-            Optional. Disable using the result from this
-            tool in detecting grounding attribution. This
-            does not affect how the result is given to the
-            model for generation.
+            Optional. Deprecated. This option is no
+            longer supported.
     """
 
     vertex_ai_search: "VertexAISearch" = proto.Field(

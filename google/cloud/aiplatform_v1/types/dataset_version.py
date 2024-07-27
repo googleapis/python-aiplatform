@@ -36,8 +36,8 @@ class DatasetVersion(proto.Message):
 
     Attributes:
         name (str):
-            Output only. The resource name of the
-            DatasetVersion.
+            Output only. Identifier. The resource name of
+            the DatasetVersion.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             DatasetVersion was created.

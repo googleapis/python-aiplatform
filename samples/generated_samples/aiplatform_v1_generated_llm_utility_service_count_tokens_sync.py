@@ -39,17 +39,8 @@ def sample_count_tokens():
     client = aiplatform_v1.LlmUtilityServiceClient()
 
     # Initialize request argument(s)
-    instances = aiplatform_v1.Value()
-    instances.null_value = "NULL_VALUE"
-
-    contents = aiplatform_v1.Content()
-    contents.parts.text = "text_value"
-
     request = aiplatform_v1.CountTokensRequest(
         endpoint="endpoint_value",
-        model="model_value",
-        instances=instances,
-        contents=contents,
     )
 
     # Make the request

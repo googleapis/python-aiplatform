@@ -16618,6 +16618,7 @@ def test_create_custom_job_rest(request_type):
             "scheduling": {
                 "timeout": {"seconds": 751, "nanos": 543},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -20211,6 +20212,7 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
             "scheduling": {
                 "timeout": {},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -22092,6 +22094,7 @@ def test_create_nas_job_rest(request_type):
                         "scheduling": {
                             "timeout": {"seconds": 751, "nanos": 543},
                             "restart_job_on_worker_restart": True,
+                            "strategy": 1,
                             "disable_retries": True,
                         },
                         "service_account": "service_account_value",

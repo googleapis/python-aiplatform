@@ -27,6 +27,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
+from google.cloud.aiplatform_v1.types import notebook_execution_job
 from google.cloud.aiplatform_v1.types import notebook_runtime
 from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -598,6 +599,126 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
             )
         return self._stubs["start_notebook_runtime"]
 
+    @property
+    def create_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.CreateNotebookExecutionJobRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the create notebook execution job method over gRPC.
+
+        Creates a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.CreateNotebookExecutionJobRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_notebook_execution_job" not in self._stubs:
+            self._stubs[
+                "create_notebook_execution_job"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookExecutionJob",
+                request_serializer=notebook_service.CreateNotebookExecutionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["create_notebook_execution_job"]
+
+    @property
+    def get_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.GetNotebookExecutionJobRequest],
+        Awaitable[notebook_execution_job.NotebookExecutionJob],
+    ]:
+        r"""Return a callable for the get notebook execution job method over gRPC.
+
+        Gets a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.GetNotebookExecutionJobRequest],
+                    Awaitable[~.NotebookExecutionJob]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_notebook_execution_job" not in self._stubs:
+            self._stubs["get_notebook_execution_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/GetNotebookExecutionJob",
+                request_serializer=notebook_service.GetNotebookExecutionJobRequest.serialize,
+                response_deserializer=notebook_execution_job.NotebookExecutionJob.deserialize,
+            )
+        return self._stubs["get_notebook_execution_job"]
+
+    @property
+    def list_notebook_execution_jobs(
+        self,
+    ) -> Callable[
+        [notebook_service.ListNotebookExecutionJobsRequest],
+        Awaitable[notebook_service.ListNotebookExecutionJobsResponse],
+    ]:
+        r"""Return a callable for the list notebook execution jobs method over gRPC.
+
+        Lists NotebookExecutionJobs in a Location.
+
+        Returns:
+            Callable[[~.ListNotebookExecutionJobsRequest],
+                    Awaitable[~.ListNotebookExecutionJobsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_notebook_execution_jobs" not in self._stubs:
+            self._stubs["list_notebook_execution_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/ListNotebookExecutionJobs",
+                request_serializer=notebook_service.ListNotebookExecutionJobsRequest.serialize,
+                response_deserializer=notebook_service.ListNotebookExecutionJobsResponse.deserialize,
+            )
+        return self._stubs["list_notebook_execution_jobs"]
+
+    @property
+    def delete_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.DeleteNotebookExecutionJobRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the delete notebook execution job method over gRPC.
+
+        Deletes a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.DeleteNotebookExecutionJobRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_notebook_execution_job" not in self._stubs:
+            self._stubs[
+                "delete_notebook_execution_job"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookExecutionJob",
+                request_serializer=notebook_service.DeleteNotebookExecutionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_notebook_execution_job"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -653,6 +774,26 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
             ),
             self.start_notebook_runtime: gapic_v1.method_async.wrap_method(
                 self.start_notebook_runtime,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_notebook_execution_job: gapic_v1.method_async.wrap_method(
+                self.create_notebook_execution_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_notebook_execution_job: gapic_v1.method_async.wrap_method(
+                self.get_notebook_execution_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_notebook_execution_jobs: gapic_v1.method_async.wrap_method(
+                self.list_notebook_execution_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_notebook_execution_job: gapic_v1.method_async.wrap_method(
+                self.delete_notebook_execution_job,
                 default_timeout=None,
                 client_info=client_info,
             ),

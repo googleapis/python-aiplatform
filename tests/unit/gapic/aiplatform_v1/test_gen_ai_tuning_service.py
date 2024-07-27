@@ -2965,9 +2965,11 @@ def test_create_tuning_job_rest(request_type):
                 "tuning_dataset_example_count": 2989,
                 "total_tuning_character_count": 2988,
                 "total_billable_character_count": 3150,
+                "total_billable_token_count": 2754,
                 "tuning_step_count": 1848,
                 "user_input_token_distribution": {
                     "sum": 341,
+                    "billable_sum": 1259,
                     "min_": 0.419,
                     "max_": 0.421,
                     "mean": 0.417,

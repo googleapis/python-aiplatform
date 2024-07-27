@@ -54,6 +54,7 @@ from google.cloud.aiplatform_v1.services.llm_utility_service import (
 from google.cloud.aiplatform_v1.services.llm_utility_service import transports
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import llm_utility_service
+from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.location import locations_pb2
@@ -2005,7 +2006,6 @@ def test_count_tokens_rest_required_fields(
 
     request_init = {}
     request_init["endpoint"] = ""
-    request_init["model"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
     jsonified_request = json.loads(
@@ -2022,7 +2022,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with default values are now present
 
     jsonified_request["endpoint"] = "endpoint_value"
-    jsonified_request["model"] = "model_value"
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
@@ -2032,8 +2031,6 @@ def test_count_tokens_rest_required_fields(
     # verify required fields with non-default values are left alone
     assert "endpoint" in jsonified_request
     assert jsonified_request["endpoint"] == "endpoint_value"
-    assert "model" in jsonified_request
-    assert jsonified_request["model"] == "model_value"
 
     client = LlmUtilityServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -2083,17 +2080,7 @@ def test_count_tokens_rest_unset_required_fields():
     )
 
     unset_fields = transport.count_tokens._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "endpoint",
-                "model",
-                "instances",
-                "contents",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
