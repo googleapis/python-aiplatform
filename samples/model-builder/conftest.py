@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from google.cloud import aiplatform
+import vertexai
 from vertexai.resources import preview as preview_resources
 import pytest
 
@@ -22,6 +24,12 @@ import pytest
 @pytest.fixture
 def mock_sdk_init():
     with patch.object(aiplatform, "init") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_vertexai_init():
+    with patch.object(vertexai, "init") as mock:
         yield mock
 
 
