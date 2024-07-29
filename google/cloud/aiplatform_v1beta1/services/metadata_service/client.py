@@ -1165,8 +1165,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1643,8 +1641,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2353,8 +2349,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3557,8 +3551,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -4515,8 +4507,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 

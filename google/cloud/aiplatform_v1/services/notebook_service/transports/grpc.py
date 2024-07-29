@@ -25,6 +25,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
+from google.cloud.aiplatform_v1.types import notebook_execution_job
 from google.cloud.aiplatform_v1.types import notebook_runtime
 from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -586,6 +587,124 @@ class NotebookServiceGrpcTransport(NotebookServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["start_notebook_runtime"]
+
+    @property
+    def create_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.CreateNotebookExecutionJobRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the create notebook execution job method over gRPC.
+
+        Creates a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.CreateNotebookExecutionJobRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_notebook_execution_job" not in self._stubs:
+            self._stubs[
+                "create_notebook_execution_job"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookExecutionJob",
+                request_serializer=notebook_service.CreateNotebookExecutionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["create_notebook_execution_job"]
+
+    @property
+    def get_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.GetNotebookExecutionJobRequest],
+        notebook_execution_job.NotebookExecutionJob,
+    ]:
+        r"""Return a callable for the get notebook execution job method over gRPC.
+
+        Gets a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.GetNotebookExecutionJobRequest],
+                    ~.NotebookExecutionJob]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_notebook_execution_job" not in self._stubs:
+            self._stubs["get_notebook_execution_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/GetNotebookExecutionJob",
+                request_serializer=notebook_service.GetNotebookExecutionJobRequest.serialize,
+                response_deserializer=notebook_execution_job.NotebookExecutionJob.deserialize,
+            )
+        return self._stubs["get_notebook_execution_job"]
+
+    @property
+    def list_notebook_execution_jobs(
+        self,
+    ) -> Callable[
+        [notebook_service.ListNotebookExecutionJobsRequest],
+        notebook_service.ListNotebookExecutionJobsResponse,
+    ]:
+        r"""Return a callable for the list notebook execution jobs method over gRPC.
+
+        Lists NotebookExecutionJobs in a Location.
+
+        Returns:
+            Callable[[~.ListNotebookExecutionJobsRequest],
+                    ~.ListNotebookExecutionJobsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_notebook_execution_jobs" not in self._stubs:
+            self._stubs["list_notebook_execution_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/ListNotebookExecutionJobs",
+                request_serializer=notebook_service.ListNotebookExecutionJobsRequest.serialize,
+                response_deserializer=notebook_service.ListNotebookExecutionJobsResponse.deserialize,
+            )
+        return self._stubs["list_notebook_execution_jobs"]
+
+    @property
+    def delete_notebook_execution_job(
+        self,
+    ) -> Callable[
+        [notebook_service.DeleteNotebookExecutionJobRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the delete notebook execution job method over gRPC.
+
+        Deletes a NotebookExecutionJob.
+
+        Returns:
+            Callable[[~.DeleteNotebookExecutionJobRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_notebook_execution_job" not in self._stubs:
+            self._stubs[
+                "delete_notebook_execution_job"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookExecutionJob",
+                request_serializer=notebook_service.DeleteNotebookExecutionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_notebook_execution_job"]
 
     def close(self):
         self.grpc_channel.close()

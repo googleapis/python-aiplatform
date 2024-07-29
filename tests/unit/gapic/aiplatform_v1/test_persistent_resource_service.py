@@ -47,7 +47,6 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
-from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.persistent_resource_service import (
@@ -2492,18 +2491,12 @@ def test_list_persistent_resources_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_persistent_resources(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.list_persistent_resources(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -3904,6 +3897,7 @@ def test_create_persistent_resource_rest(request_type):
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
+                "ray_logs_spec": {"disabled": True},
             },
         },
         "resource_runtime": {"access_uris": {}},
@@ -5417,6 +5411,7 @@ def test_update_persistent_resource_rest(request_type):
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
+                "ray_logs_spec": {"disabled": True},
             },
         },
         "resource_runtime": {"access_uris": {}},

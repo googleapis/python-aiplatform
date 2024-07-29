@@ -1122,8 +1122,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1789,8 +1787,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2599,8 +2595,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2676,7 +2670,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``description``
                 -  ``labels``
                 -  ``disable_monitoring`` (Not supported for
-                   FeatureRegistry Feature)
+                   FeatureRegistryService Feature)
+                -  ``point_of_contact`` (Not supported for
+                   FeaturestoreService FeatureStore)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3633,8 +3629,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 

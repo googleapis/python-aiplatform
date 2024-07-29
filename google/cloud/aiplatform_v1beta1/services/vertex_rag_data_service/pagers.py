@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.api_core import gapic_v1
-from google.api_core import retry as retries
 from typing import (
     Any,
     AsyncIterator,
@@ -24,15 +22,7 @@ from typing import (
     Tuple,
     Optional,
     Iterator,
-    Union,
 )
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-    OptionalAsyncRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
-    OptionalAsyncRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data_service
@@ -62,8 +52,6 @@ class ListRagCorporaPager:
         request: vertex_rag_data_service.ListRagCorporaRequest,
         response: vertex_rag_data_service.ListRagCorporaResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -75,17 +63,12 @@ class ListRagCorporaPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1beta1.types.ListRagCorporaResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = vertex_rag_data_service.ListRagCorporaRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -96,12 +79,7 @@ class ListRagCorporaPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[vertex_rag_data.RagCorpus]:
@@ -138,8 +116,6 @@ class ListRagCorporaAsyncPager:
         request: vertex_rag_data_service.ListRagCorporaRequest,
         response: vertex_rag_data_service.ListRagCorporaResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -151,17 +127,12 @@ class ListRagCorporaAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1beta1.types.ListRagCorporaResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = vertex_rag_data_service.ListRagCorporaRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -174,12 +145,7 @@ class ListRagCorporaAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[vertex_rag_data.RagCorpus]:
@@ -218,8 +184,6 @@ class ListRagFilesPager:
         request: vertex_rag_data_service.ListRagFilesRequest,
         response: vertex_rag_data_service.ListRagFilesResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -231,17 +195,12 @@ class ListRagFilesPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1beta1.types.ListRagFilesResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = vertex_rag_data_service.ListRagFilesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -252,12 +211,7 @@ class ListRagFilesPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[vertex_rag_data.RagFile]:
@@ -292,8 +246,6 @@ class ListRagFilesAsyncPager:
         request: vertex_rag_data_service.ListRagFilesRequest,
         response: vertex_rag_data_service.ListRagFilesResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -305,17 +257,12 @@ class ListRagFilesAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1beta1.types.ListRagFilesResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = vertex_rag_data_service.ListRagFilesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -328,12 +275,7 @@ class ListRagFilesAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[vertex_rag_data.RagFile]:

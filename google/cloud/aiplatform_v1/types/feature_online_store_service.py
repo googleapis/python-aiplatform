@@ -255,6 +255,8 @@ class NearestNeighborQuery(proto.Message):
             be retrieved from feature view for each query.
         string_filters (MutableSequence[google.cloud.aiplatform_v1.types.NearestNeighborQuery.StringFilter]):
             Optional. The list of string filters.
+        numeric_filters (MutableSequence[google.cloud.aiplatform_v1.types.NearestNeighborQuery.NumericFilter]):
+            Optional. The list of numeric filters.
         per_crowding_attribute_neighbor_count (int):
             Optional. Crowding is a constraint on a neighbor list
             produced by nearest neighbor search requiring that no more
@@ -313,6 +315,106 @@ class NearestNeighborQuery(proto.Message):
             number=3,
         )
 
+    class NumericFilter(proto.Message):
+        r"""Numeric filter is used to search a subset of the entities by using
+        boolean rules on numeric columns. For example: Database Point 0:
+        {name: “a” value_int: 42} {name: “b” value_float: 1.0} Database
+        Point 1: {name: “a” value_int: 10} {name: “b” value_float: 2.0}
+        Database Point 2: {name: “a” value_int: -1} {name: “b” value_float:
+        3.0} Query: {name: “a” value_int: 12 operator: LESS} // Matches
+        Point 1, 2 {name: “b” value_float: 2.0 operator: EQUAL} // Matches
+        Point 1
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            value_int (int):
+                int value type.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_float (float):
+                float value type.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_double (float):
+                double value type.
+
+                This field is a member of `oneof`_ ``Value``.
+            name (str):
+                Required. Column name in BigQuery that used
+                as filters.
+            op (google.cloud.aiplatform_v1.types.NearestNeighborQuery.NumericFilter.Operator):
+                Optional. This MUST be specified for queries
+                and must NOT be specified for database points.
+
+                This field is a member of `oneof`_ ``_op``.
+        """
+
+        class Operator(proto.Enum):
+            r"""Datapoints for which Operator is true relative to the query’s
+            Value field will be allowlisted.
+
+            Values:
+                OPERATOR_UNSPECIFIED (0):
+                    Unspecified operator.
+                LESS (1):
+                    Entities are eligible if their value is < the
+                    query's.
+                LESS_EQUAL (2):
+                    Entities are eligible if their value is <=
+                    the query's.
+                EQUAL (3):
+                    Entities are eligible if their value is ==
+                    the query's.
+                GREATER_EQUAL (4):
+                    Entities are eligible if their value is >=
+                    the query's.
+                GREATER (5):
+                    Entities are eligible if their value is > the
+                    query's.
+                NOT_EQUAL (6):
+                    Entities are eligible if their value is !=
+                    the query's.
+            """
+            OPERATOR_UNSPECIFIED = 0
+            LESS = 1
+            LESS_EQUAL = 2
+            EQUAL = 3
+            GREATER_EQUAL = 4
+            GREATER = 5
+            NOT_EQUAL = 6
+
+        value_int: int = proto.Field(
+            proto.INT64,
+            number=2,
+            oneof="Value",
+        )
+        value_float: float = proto.Field(
+            proto.FLOAT,
+            number=3,
+            oneof="Value",
+        )
+        value_double: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
+            oneof="Value",
+        )
+        name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        op: "NearestNeighborQuery.NumericFilter.Operator" = proto.Field(
+            proto.ENUM,
+            number=5,
+            optional=True,
+            enum="NearestNeighborQuery.NumericFilter.Operator",
+        )
+
     class Parameters(proto.Message):
         r"""Parameters that can be overrided in each query to tune query
         latency and recall.
@@ -359,6 +461,11 @@ class NearestNeighborQuery(proto.Message):
         proto.MESSAGE,
         number=4,
         message=StringFilter,
+    )
+    numeric_filters: MutableSequence[NumericFilter] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=8,
+        message=NumericFilter,
     )
     per_crowding_attribute_neighbor_count: int = proto.Field(
         proto.INT32,

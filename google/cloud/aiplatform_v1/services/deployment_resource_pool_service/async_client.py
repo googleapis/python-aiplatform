@@ -708,8 +708,6 @@ class DeploymentResourcePoolServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1138,8 +1136,6 @@ class DeploymentResourcePoolServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
