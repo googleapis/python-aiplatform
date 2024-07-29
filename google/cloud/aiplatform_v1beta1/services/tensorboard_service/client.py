@@ -1284,8 +1284,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2133,8 +2131,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2892,8 +2888,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3656,8 +3650,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 
@@ -4539,8 +4531,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
-            retry=retry,
-            timeout=timeout,
             metadata=metadata,
         )
 

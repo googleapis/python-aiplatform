@@ -40,6 +40,9 @@ __protobuf__ = proto.module(
         "CitationMetadata",
         "Citation",
         "Candidate",
+        "Segment",
+        "GroundingChunk",
+        "GroundingSupport",
         "GroundingMetadata",
         "SearchEntryPoint",
     },
@@ -607,6 +610,9 @@ class Candidate(proto.Message):
             Output only. Index of the candidate.
         content (google.cloud.aiplatform_v1.types.Content):
             Output only. Content parts of the candidate.
+        score (float):
+            Output only. Confidence score of the
+            candidate.
         finish_reason (google.cloud.aiplatform_v1.types.Candidate.FinishReason):
             Output only. The reason why the model stopped
             generating tokens. If empty, the model has not
@@ -689,6 +695,10 @@ class Candidate(proto.Message):
         number=2,
         message="Content",
     )
+    score: float = proto.Field(
+        proto.DOUBLE,
+        number=8,
+    )
     finish_reason: FinishReason = proto.Field(
         proto.ENUM,
         number=3,
@@ -716,6 +726,173 @@ class Candidate(proto.Message):
     )
 
 
+class Segment(proto.Message):
+    r"""Segment of the content.
+
+    Attributes:
+        part_index (int):
+            Output only. The index of a Part object
+            within its parent Content object.
+        start_index (int):
+            Output only. Start index in the given Part,
+            measured in bytes. Offset from the start of the
+            Part, inclusive, starting at zero.
+        end_index (int):
+            Output only. End index in the given Part,
+            measured in bytes. Offset from the start of the
+            Part, exclusive, starting at zero.
+        text (str):
+            Output only. The text corresponding to the
+            segment from the response.
+    """
+
+    part_index: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    start_index: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    end_index: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    text: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+
+
+class GroundingChunk(proto.Message):
+    r"""Grounding chunk.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        web (google.cloud.aiplatform_v1.types.GroundingChunk.Web):
+            Grounding chunk from the web.
+
+            This field is a member of `oneof`_ ``chunk_type``.
+        retrieved_context (google.cloud.aiplatform_v1.types.GroundingChunk.RetrievedContext):
+            Grounding chunk from context retrieved by the
+            retrieval tools.
+
+            This field is a member of `oneof`_ ``chunk_type``.
+    """
+
+    class Web(proto.Message):
+        r"""Chunk from the web.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            uri (str):
+                URI reference of the chunk.
+
+                This field is a member of `oneof`_ ``_uri``.
+            title (str):
+                Title of the chunk.
+
+                This field is a member of `oneof`_ ``_title``.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+            optional=True,
+        )
+
+    class RetrievedContext(proto.Message):
+        r"""Chunk from context retrieved by the retrieval tools.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            uri (str):
+                URI reference of the attribution.
+
+                This field is a member of `oneof`_ ``_uri``.
+            title (str):
+                Title of the attribution.
+
+                This field is a member of `oneof`_ ``_title``.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+            optional=True,
+        )
+
+    web: Web = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="chunk_type",
+        message=Web,
+    )
+    retrieved_context: RetrievedContext = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="chunk_type",
+        message=RetrievedContext,
+    )
+
+
+class GroundingSupport(proto.Message):
+    r"""Grounding support.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        segment (google.cloud.aiplatform_v1.types.Segment):
+            Segment of the content this support belongs
+            to.
+
+            This field is a member of `oneof`_ ``_segment``.
+        grounding_chunk_indices (MutableSequence[int]):
+            A list of indices (into 'grounding_chunk') specifying the
+            citations associated with the claim. For instance [1,3,4]
+            means that grounding_chunk[1], grounding_chunk[3],
+            grounding_chunk[4] are the retrieved content attributed to
+            the claim.
+        confidence_scores (MutableSequence[float]):
+            Confidence score of the support references. Ranges from 0 to
+            1. 1 is the most confident. This list must have the same
+            size as the grounding_chunk_indices.
+    """
+
+    segment: "Segment" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Segment",
+    )
+    grounding_chunk_indices: MutableSequence[int] = proto.RepeatedField(
+        proto.INT32,
+        number=2,
+    )
+    confidence_scores: MutableSequence[float] = proto.RepeatedField(
+        proto.FLOAT,
+        number=3,
+    )
+
+
 class GroundingMetadata(proto.Message):
     r"""Metadata returned to client when grounding is enabled.
 
@@ -730,6 +907,11 @@ class GroundingMetadata(proto.Message):
             following-up web searches.
 
             This field is a member of `oneof`_ ``_search_entry_point``.
+        grounding_chunks (MutableSequence[google.cloud.aiplatform_v1.types.GroundingChunk]):
+            List of supporting references retrieved from
+            specified grounding source.
+        grounding_supports (MutableSequence[google.cloud.aiplatform_v1.types.GroundingSupport]):
+            Optional. List of grounding support.
     """
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
@@ -741,6 +923,16 @@ class GroundingMetadata(proto.Message):
         number=4,
         optional=True,
         message="SearchEntryPoint",
+    )
+    grounding_chunks: MutableSequence["GroundingChunk"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message="GroundingChunk",
+    )
+    grounding_supports: MutableSequence["GroundingSupport"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message="GroundingSupport",
     )
 
 

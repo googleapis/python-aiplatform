@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "ResourceRuntime",
         "ServiceAccountSpec",
         "RayMetricSpec",
+        "RayLogsSpec",
     },
 )
 
@@ -389,6 +390,8 @@ class RaySpec(proto.Message):
             head node by default if this field isn't set.
         ray_metric_spec (google.cloud.aiplatform_v1.types.RayMetricSpec):
             Optional. Ray metrics configurations.
+        ray_logs_spec (google.cloud.aiplatform_v1.types.RayLogsSpec):
+            Optional. OSS Ray logging configurations.
     """
 
     image_uri: str = proto.Field(
@@ -408,6 +411,11 @@ class RaySpec(proto.Message):
         proto.MESSAGE,
         number=8,
         message="RayMetricSpec",
+    )
+    ray_logs_spec: "RayLogsSpec" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="RayLogsSpec",
     )
 
 
@@ -473,6 +481,21 @@ class RayMetricSpec(proto.Message):
         disabled (bool):
             Optional. Flag to disable the Ray metrics
             collection.
+    """
+
+    disabled: bool = proto.Field(
+        proto.BOOL,
+        number=1,
+    )
+
+
+class RayLogsSpec(proto.Message):
+    r"""Configuration for the Ray OSS Logs.
+
+    Attributes:
+        disabled (bool):
+            Optional. Flag to disable the export of Ray
+            OSS logs to Cloud Logging.
     """
 
     disabled: bool = proto.Field(

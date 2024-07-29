@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.api_core import gapic_v1
-from google.api_core import retry as retries
 from typing import (
     Any,
     AsyncIterator,
@@ -24,15 +22,7 @@ from typing import (
     Tuple,
     Optional,
     Iterator,
-    Union,
 )
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-    OptionalAsyncRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
-    OptionalAsyncRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1.types import entity_type
 from google.cloud.aiplatform_v1.types import feature
@@ -64,8 +54,6 @@ class ListFeaturestoresPager:
         request: featurestore_service.ListFeaturestoresRequest,
         response: featurestore_service.ListFeaturestoresResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -77,17 +65,12 @@ class ListFeaturestoresPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListFeaturestoresResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListFeaturestoresRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -98,12 +81,7 @@ class ListFeaturestoresPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[featurestore.Featurestore]:
@@ -140,8 +118,6 @@ class ListFeaturestoresAsyncPager:
         request: featurestore_service.ListFeaturestoresRequest,
         response: featurestore_service.ListFeaturestoresResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -153,17 +129,12 @@ class ListFeaturestoresAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListFeaturestoresResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListFeaturestoresRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -176,12 +147,7 @@ class ListFeaturestoresAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[featurestore.Featurestore]:
@@ -220,8 +186,6 @@ class ListEntityTypesPager:
         request: featurestore_service.ListEntityTypesRequest,
         response: featurestore_service.ListEntityTypesResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -233,17 +197,12 @@ class ListEntityTypesPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListEntityTypesResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListEntityTypesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -254,12 +213,7 @@ class ListEntityTypesPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[entity_type.EntityType]:
@@ -294,8 +248,6 @@ class ListEntityTypesAsyncPager:
         request: featurestore_service.ListEntityTypesRequest,
         response: featurestore_service.ListEntityTypesResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -307,17 +259,12 @@ class ListEntityTypesAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListEntityTypesResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListEntityTypesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -330,12 +277,7 @@ class ListEntityTypesAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[entity_type.EntityType]:
@@ -374,8 +316,6 @@ class ListFeaturesPager:
         request: featurestore_service.ListFeaturesRequest,
         response: featurestore_service.ListFeaturesResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -387,17 +327,12 @@ class ListFeaturesPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListFeaturesResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListFeaturesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -408,12 +343,7 @@ class ListFeaturesPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[feature.Feature]:
@@ -448,8 +378,6 @@ class ListFeaturesAsyncPager:
         request: featurestore_service.ListFeaturesRequest,
         response: featurestore_service.ListFeaturesResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -461,17 +389,12 @@ class ListFeaturesAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.ListFeaturesResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.ListFeaturesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -482,12 +405,7 @@ class ListFeaturesAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[feature.Feature]:
@@ -526,8 +444,6 @@ class SearchFeaturesPager:
         request: featurestore_service.SearchFeaturesRequest,
         response: featurestore_service.SearchFeaturesResponse,
         *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiate the pager.
@@ -539,17 +455,12 @@ class SearchFeaturesPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.SearchFeaturesResponse):
                 The initial response object.
-            retry (google.api_core.retry.Retry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.SearchFeaturesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -560,12 +471,7 @@ class SearchFeaturesPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterator[feature.Feature]:
@@ -600,8 +506,6 @@ class SearchFeaturesAsyncPager:
         request: featurestore_service.SearchFeaturesRequest,
         response: featurestore_service.SearchFeaturesResponse,
         *,
-        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
         """Instantiates the pager.
@@ -613,17 +517,12 @@ class SearchFeaturesAsyncPager:
                 The initial request object.
             response (google.cloud.aiplatform_v1.types.SearchFeaturesResponse):
                 The initial response object.
-            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
-                if any, should be retried.
-            timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         self._method = method
         self._request = featurestore_service.SearchFeaturesRequest(request)
         self._response = response
-        self._retry = retry
-        self._timeout = timeout
         self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
@@ -634,12 +533,7 @@ class SearchFeaturesAsyncPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = await self._method(
-                self._request,
-                retry=self._retry,
-                timeout=self._timeout,
-                metadata=self._metadata,
-            )
+            self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __aiter__(self) -> AsyncIterator[feature.Feature]:

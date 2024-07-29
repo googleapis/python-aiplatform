@@ -137,6 +137,23 @@ class Endpoint(proto.Message):
         predict_request_response_logging_config (google.cloud.aiplatform_v1.types.PredictRequestResponseLoggingConfig):
             Configures the request-response logging for
             online prediction.
+        dedicated_endpoint_enabled (bool):
+            If true, the endpoint will be exposed through a dedicated
+            DNS [Endpoint.dedicated_endpoint_dns]. Your request to the
+            dedicated DNS will be isolated from other users' traffic and
+            will have better performance and reliability. Note: Once you
+            enabled dedicated endpoint, you won't be able to send
+            request to the shared DNS
+            {region}-aiplatform.googleapis.com. The limitation will be
+            removed soon.
+        dedicated_endpoint_dns (str):
+            Output only. DNS of the dedicated endpoint. Will only be
+            populated if dedicated_endpoint_enabled is true. Format:
+            ``https://{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog``.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -210,6 +227,22 @@ class Endpoint(proto.Message):
             number=18,
             message="PredictRequestResponseLoggingConfig",
         )
+    )
+    dedicated_endpoint_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=24,
+    )
+    dedicated_endpoint_dns: str = proto.Field(
+        proto.STRING,
+        number=25,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=27,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=28,
     )
 
 

@@ -47,7 +47,6 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
-from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
@@ -2523,18 +2522,12 @@ def test_list_deployment_resource_pools_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_deployment_resource_pools(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.list_deployment_resource_pools(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -3952,18 +3945,14 @@ def test_query_deployed_models_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata(
                 (("deployment_resource_pool", ""),)
             ),
         )
-        pager = client.query_deployed_models(request={}, retry=retry, timeout=timeout)
+        pager = client.query_deployed_models(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6

@@ -43,7 +43,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import path_template
-from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.model_garden_service import (
@@ -1737,6 +1736,7 @@ def test_get_publisher_model_rest_required_fields(
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "is_hugging_face_model",
             "language_code",
             "view",
         )
@@ -1797,6 +1797,7 @@ def test_get_publisher_model_rest_unset_required_fields():
     assert set(unset_fields) == (
         set(
             (
+                "isHuggingFaceModel",
                 "languageCode",
                 "view",
             )

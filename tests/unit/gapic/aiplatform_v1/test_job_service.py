@@ -47,7 +47,6 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
-from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.job_service import JobServiceAsyncClient
@@ -2319,16 +2318,12 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_custom_jobs(request={}, retry=retry, timeout=timeout)
+        pager = client.list_custom_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -4526,16 +4521,12 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_data_labeling_jobs(request={}, retry=retry, timeout=timeout)
+        pager = client.list_data_labeling_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -6728,18 +6719,12 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_hyperparameter_tuning_jobs(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.list_hyperparameter_tuning_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -8824,16 +8809,12 @@ def test_list_nas_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_nas_jobs(request={}, retry=retry, timeout=timeout)
+        pager = client.list_nas_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -10512,16 +10493,12 @@ def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_nas_trial_details(request={}, retry=retry, timeout=timeout)
+        pager = client.list_nas_trial_details(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -11970,18 +11947,12 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_batch_prediction_jobs(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.list_batch_prediction_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -13841,20 +13812,14 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata(
                 (("model_deployment_monitoring_job", ""),)
             ),
         )
-        pager = client.search_model_deployment_monitoring_stats_anomalies(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.search_model_deployment_monitoring_stats_anomalies(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -14893,18 +14858,12 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
         )
 
         expected_metadata = ()
-        retry = retries.Retry()
-        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_model_deployment_monitoring_jobs(
-            request={}, retry=retry, timeout=timeout
-        )
+        pager = client.list_model_deployment_monitoring_jobs(request={})
 
         assert pager._metadata == expected_metadata
-        assert pager._retry == retry
-        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -16659,6 +16618,7 @@ def test_create_custom_job_rest(request_type):
             "scheduling": {
                 "timeout": {"seconds": 751, "nanos": 543},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -20252,6 +20212,7 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
             "scheduling": {
                 "timeout": {},
                 "restart_job_on_worker_restart": True,
+                "strategy": 1,
                 "disable_retries": True,
             },
             "service_account": "service_account_value",
@@ -22133,6 +22094,7 @@ def test_create_nas_job_rest(request_type):
                         "scheduling": {
                             "timeout": {"seconds": 751, "nanos": 543},
                             "restart_job_on_worker_restart": True,
+                            "strategy": 1,
                             "disable_retries": True,
                         },
                         "service_account": "service_account_value",

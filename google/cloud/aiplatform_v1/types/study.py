@@ -292,7 +292,7 @@ class Trial(proto.Message):
 
 
 class TrialContext(proto.Message):
-    r"""Next ID: 3
+    r"""
 
     Attributes:
         description (str):
