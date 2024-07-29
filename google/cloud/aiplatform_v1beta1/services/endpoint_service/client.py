@@ -1148,6 +1148,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
