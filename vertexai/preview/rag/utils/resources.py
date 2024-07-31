@@ -16,7 +16,9 @@
 #
 
 import dataclasses
-from typing import List, Optional
+from typing import List, Optional, Sequence
+
+from google.protobuf import timestamp_pb2
 
 
 @dataclasses.dataclass
@@ -102,3 +104,66 @@ class RagResource:
 
     rag_corpus: Optional[str] = None
     rag_file_ids: Optional[List[str]] = None
+
+
+@dataclasses.dataclass
+class SlackChannel:
+    """SlackChannel.
+
+    Attributes:
+        channel_id: The Slack channel ID.
+        api_key: The SecretManager resource name for the Slack API token. Format:
+            ``projects/{project}/secrets/{secret}/versions/{version}``
+            See: https://api.slack.com/tutorials/tracks/getting-a-token.
+        start_time: The starting timestamp for messages to import.
+        end_time: The ending timestamp for messages to import.
+    """
+
+    channel_id: str
+    api_key: str
+    start_time: Optional[timestamp_pb2.Timestamp] = None
+    end_time: Optional[timestamp_pb2.Timestamp] = None
+
+
+@dataclasses.dataclass
+class SlackChannelsSource:
+    """SlackChannelsSource.
+
+    Attributes:
+        channels: The Slack channels.
+    """
+
+    channels: Sequence[SlackChannel]
+
+
+@dataclasses.dataclass
+class JiraQuery:
+    """JiraQuery.
+
+    Attributes:
+        email: The Jira email address.
+        jira_projects: A list of Jira projects to import in their entirety.
+        custom_queries: A list of custom JQL Jira queries to import.
+        api_key: The SecretManager version resource name for Jira API access. Format:
+            ``projects/{project}/secrets/{secret}/versions/{version}``
+            See: https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+        server_uri: The Jira server URI. Format:
+            ``{server}.atlassian.net``
+    """
+
+    email: str
+    jira_projects: Sequence[str]
+    custom_queries: Sequence[str]
+    api_key: str
+    server_uri: str
+
+
+@dataclasses.dataclass
+class JiraSource:
+    """JiraSource.
+
+    Attributes:
+        queries: The Jira queries.
+    """
+
+    queries: Sequence[JiraQuery]

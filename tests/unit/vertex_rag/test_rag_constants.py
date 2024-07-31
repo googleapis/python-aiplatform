@@ -15,24 +15,25 @@
 # limitations under the License.
 #
 
-from vertexai.preview.rag.utils.resources import (
-    EmbeddingModelConfig,
-    RagCorpus,
-    RagFile,
-    RagResource,
-)
+
 from google.cloud import aiplatform
+
+from vertexai.preview import rag
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
     RagFileChunkingConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     ImportRagFilesResponse,
+    JiraSource as GapicJiraSource,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    SlackSource as GapicSlackSource,
     RagContexts,
     RetrieveContextsResponse,
 )
+from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.protobuf import timestamp_pb2
 
 
 TEST_PROJECT = "test-project"
@@ -55,10 +56,10 @@ TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endp
         TEST_PROJECT, TEST_REGION
     )
 )
-TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
+TEST_EMBEDDING_MODEL_CONFIG = rag.EmbeddingModelConfig(
     publisher_model="publishers/google/models/textembedding-gecko",
 )
-TEST_RAG_CORPUS = RagCorpus(
+TEST_RAG_CORPUS = rag.RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
@@ -144,10 +145,113 @@ TEST_GAPIC_RAG_FILE = GapicRagFile(
     display_name=TEST_FILE_DISPLAY_NAME,
     description=TEST_FILE_DESCRIPTION,
 )
-TEST_RAG_FILE = RagFile(
+TEST_RAG_FILE = rag.RagFile(
     name=TEST_RAG_FILE_RESOURCE_NAME,
     display_name=TEST_FILE_DISPLAY_NAME,
     description=TEST_FILE_DESCRIPTION,
+)
+# Slack sources
+TEST_SLACK_CHANNEL_ID = "123"
+TEST_SLACK_CHANNEL_ID_2 = "456"
+TEST_SLACK_START_TIME = timestamp_pb2.Timestamp()
+TEST_SLACK_START_TIME.GetCurrentTime()
+TEST_SLACK_END_TIME = timestamp_pb2.Timestamp()
+TEST_SLACK_END_TIME.GetCurrentTime()
+TEST_SLACK_API_KEY_SECRET_VERSION = (
+    "projects/test-project/secrets/test-secret/versions/1"
+)
+TEST_SLACK_API_KEY_SECRET_VERSION_2 = (
+    "projects/test-project/secrets/test-secret/versions/2"
+)
+TEST_SLACK_SOURCE = rag.SlackChannelsSource(
+    channels=[
+        rag.SlackChannel(
+            channel_id=TEST_SLACK_CHANNEL_ID,
+            api_key=TEST_SLACK_API_KEY_SECRET_VERSION,
+            start_time=TEST_SLACK_START_TIME,
+            end_time=TEST_SLACK_END_TIME,
+        ),
+        rag.SlackChannel(
+            channel_id=TEST_SLACK_CHANNEL_ID_2,
+            api_key=TEST_SLACK_API_KEY_SECRET_VERSION_2,
+        ),
+    ],
+)
+TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE = ImportRagFilesConfig(
+    rag_file_chunking_config=RagFileChunkingConfig(
+        chunk_size=TEST_CHUNK_SIZE,
+        chunk_overlap=TEST_CHUNK_OVERLAP,
+    )
+)
+TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE.slack_source.channels = [
+    GapicSlackSource.SlackChannels(
+        channels=[
+            GapicSlackSource.SlackChannels.SlackChannel(
+                channel_id=TEST_SLACK_CHANNEL_ID,
+                start_time=TEST_SLACK_START_TIME,
+                end_time=TEST_SLACK_END_TIME,
+            ),
+        ],
+        api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+            api_key_secret_version=TEST_SLACK_API_KEY_SECRET_VERSION
+        ),
+    ),
+    GapicSlackSource.SlackChannels(
+        channels=[
+            GapicSlackSource.SlackChannels.SlackChannel(
+                channel_id=TEST_SLACK_CHANNEL_ID_2,
+                start_time=None,
+                end_time=None,
+            ),
+        ],
+        api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+            api_key_secret_version=TEST_SLACK_API_KEY_SECRET_VERSION_2
+        ),
+    ),
+]
+TEST_IMPORT_REQUEST_SLACK_SOURCE = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE,
+)
+# Jira sources
+TEST_JIRA_EMAIL = "test@test.com"
+TEST_JIRA_PROJECT = "test-project"
+TEST_JIRA_CUSTOM_QUERY = "test-custom-query"
+TEST_JIRA_SERVER_URI = "test.atlassian.net"
+TEST_JIRA_API_KEY_SECRET_VERSION = (
+    "projects/test-project/secrets/test-secret/versions/1"
+)
+TEST_JIRA_SOURCE = rag.JiraSource(
+    queries=[
+        rag.JiraQuery(
+            email=TEST_JIRA_EMAIL,
+            jira_projects=[TEST_JIRA_PROJECT],
+            custom_queries=[TEST_JIRA_CUSTOM_QUERY],
+            api_key=TEST_JIRA_API_KEY_SECRET_VERSION,
+            server_uri=TEST_JIRA_SERVER_URI,
+        )
+    ],
+)
+TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE = ImportRagFilesConfig(
+    rag_file_chunking_config=RagFileChunkingConfig(
+        chunk_size=TEST_CHUNK_SIZE,
+        chunk_overlap=TEST_CHUNK_OVERLAP,
+    )
+)
+TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE.jira_source.jira_queries = [
+    GapicJiraSource.JiraQueries(
+        custom_queries=[TEST_JIRA_CUSTOM_QUERY],
+        projects=[TEST_JIRA_PROJECT],
+        email=TEST_JIRA_EMAIL,
+        server_uri=TEST_JIRA_SERVER_URI,
+        api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+            api_key_secret_version=TEST_JIRA_API_KEY_SECRET_VERSION
+        ),
+    )
+]
+TEST_IMPORT_REQUEST_JIRA_SOURCE = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE,
 )
 
 # Retrieval
@@ -162,11 +266,11 @@ TEST_CONTEXTS = RagContexts(
     ]
 )
 TEST_RETRIEVAL_RESPONSE = RetrieveContextsResponse(contexts=TEST_CONTEXTS)
-TEST_RAG_RESOURCE = RagResource(
+TEST_RAG_RESOURCE = rag.RagResource(
     rag_corpus=TEST_RAG_CORPUS_RESOURCE_NAME,
     rag_file_ids=[TEST_RAG_FILE_ID],
 )
-TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
+TEST_RAG_RESOURCE_INVALID_NAME = rag.RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
 )

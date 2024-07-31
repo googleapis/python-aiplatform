@@ -38,7 +38,13 @@ from vertexai.preview.rag.rag_store import (
 )
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
+    JiraSource,
+    JiraQuery,
+    RagCorpus,
+    RagFile,
     RagResource,
+    SlackChannel,
+    SlackChannelsSource,
 )
 
 
@@ -58,4 +64,10 @@ __all__ = (
     "Retrieval",
     "VertexRagStore",
     "RagResource",
+    "RagFile",
+    "RagCorpus",
+    "JiraSource",
+    "JiraQuery",
+    "SlackChannel",
+    "SlackChannelsSource",
 )
