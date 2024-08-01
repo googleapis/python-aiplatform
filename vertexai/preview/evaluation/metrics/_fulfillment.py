@@ -15,8 +15,16 @@
 # limitations under the License.
 #
 from typing import Optional
+import warnings
+
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import _base
+
+_DEPRECATION_WARNING_MESSAGE = (
+    "After google-cloud-aiplatform>1.63.0, using metric class `Fulfillment` will"
+    " result in an error. Please use string metric name `fulfillment` or define"
+    " a PointwiseMetric instead."
+)
 
 
 class Fulfillment(_base._ModelBasedMetric):
@@ -25,6 +33,7 @@ class Fulfillment(_base._ModelBasedMetric):
     _metric_name = constants.Metric.FULFILLMENT
 
     def __init__(self, *, version: Optional[int] = None):
+        warnings.warn(message=_DEPRECATION_WARNING_MESSAGE)
         super().__init__(
             metric=Fulfillment._metric_name,
             version=version,

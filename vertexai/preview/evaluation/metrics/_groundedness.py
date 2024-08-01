@@ -15,8 +15,16 @@
 # limitations under the License.
 #
 from typing import Optional
+import warnings
+
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import _base
+
+_DEPRECATION_WARNING_MESSAGE = (
+    "After google-cloud-aiplatform>1.63.0, using metric class `Groundedness` will"
+    " result in an error. Please use string metric name `groundedness` or define"
+    " a PointwiseMetric instead."
+)
 
 
 class Groundedness(_base._ModelBasedMetric):
@@ -25,6 +33,7 @@ class Groundedness(_base._ModelBasedMetric):
     _metric_name = constants.Metric.GROUNDEDNESS
 
     def __init__(self, *, version: Optional[int] = None):
+        warnings.warn(message=_DEPRECATION_WARNING_MESSAGE)
         super().__init__(
             metric=Groundedness._metric_name,
             version=version,
