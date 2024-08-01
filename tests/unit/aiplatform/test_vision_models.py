@@ -203,7 +203,7 @@ class TestImageGenerationModels:
 
     def _get_image_generation_model(
         self,
-    ) -> preview_vision_models.ImageGenerationModel:
+    ) -> ga_vision_models.ImageGenerationModel:
         """Gets the image generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -216,7 +216,7 @@ class TestImageGenerationModels:
                 _IMAGE_GENERATION_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_vision_models.ImageGenerationModel.from_pretrained(
+            model = ga_vision_models.ImageGenerationModel.from_pretrained(
                 "imagegeneration@002"
             )
 
