@@ -435,6 +435,25 @@ class TestInit:
 
         assert client_options.api_endpoint == "asia-east1-override.googleapis.com"
 
+    def test_get_resource_type(self):
+        initializer.global_config.init()
+        os.environ["VERTEX_PRODUCT"] = "COLAB_ENTERPRISE"
+        assert initializer.global_config.get_resource_type().value == (
+            "COLAB_ENTERPRISE"
+        )
+
+        initializer.global_config.init()
+        os.environ["VERTEX_PRODUCT"] = "WORKBENCH_INSTANCE"
+        assert initializer.global_config.get_resource_type().value == (
+            "WORKBENCH_INSTANCE"
+        )
+
+        initializer.global_config.init()
+        os.environ["VERTEX_PRODUCT"] = "WORKBENCH_CUSTOM_CONTAINER"
+        assert initializer.global_config.get_resource_type().value == (
+            "WORKBENCH_CUSTOM_CONTAINER"
+        )
+
     def test_init_with_only_creds_does_not_override_set_project(self):
         assert initializer.global_config.project is not _TEST_PROJECT_2
         initializer.global_config.init(project=_TEST_PROJECT_2)
