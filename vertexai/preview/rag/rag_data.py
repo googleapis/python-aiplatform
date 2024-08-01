@@ -290,10 +290,14 @@ def import_files(
     ```
     import vertexai
     from vertexai.preview import rag
+    from google.protobuf import timestamp_pb2
 
     vertexai.init(project="my-project")
     # Google Drive example
-    paths = ["https://drive.google.com/file/123", "https://drive.google.com/file/456"]
+    paths = [
+        "https://drive.google.com/file/d/123",
+        "https://drive.google.com/drive/folders/456"
+    ]
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
@@ -305,9 +309,9 @@ def import_files(
     )
 
     # Slack example
-    start_time = protobuf.timestamp_pb2.Timestamp()
-    start_time.GetCurrentTime()
-    end_time = protobuf.timestamp_pb2.Timestamp()
+    start_time = timestamp_pb2.Timestamp()
+    start_time.FromJsonString('2020-12-31T21:33:44Z')
+    end_time = timestamp_pb2.Timestamp()
     end_time.GetCurrentTime()
     source = rag.SlackChannelsSource(
         channels = [
@@ -342,7 +346,7 @@ def import_files(
         corpus_name: The name of the RagCorpus resource into which to import files.
             Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
             or ``{rag_corpus}``.
-        paths: A list of uris. Elligible uris will be Google Cloud Storage
+        paths: A list of uris. Eligible uris will be Google Cloud Storage
             directory ("gs://my-bucket/my_dir") or a Google Drive url for file
             (https://drive.google.com/file/... or folder
             "https://drive.google.com/corp/drive/folders/...").
@@ -401,11 +405,15 @@ async def import_files_async(
     ```
     import vertexai
     from vertexai.preview import rag
+    from google.protobuf import timestamp_pb2
 
     vertexai.init(project="my-project")
 
     # Google Drive example
-    paths = ["https://drive.google.com/file/123", "https://drive.google.com/file/456"]
+    paths = [
+        "https://drive.google.com/file/d/123",
+        "https://drive.google.com/drive/folders/456"
+    ]
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
@@ -417,9 +425,9 @@ async def import_files_async(
     )
 
     # Slack example
-    start_time = protobuf.timestamp_pb2.Timestamp()
-    start_time.GetCurrentTime()
-    end_time = protobuf.timestamp_pb2.Timestamp()
+    start_time = timestamp_pb2.Timestamp()
+    start_time.FromJsonString('2020-12-31T21:33:44Z')
+    end_time = timestamp_pb2.Timestamp()
     end_time.GetCurrentTime()
     source = rag.SlackChannelsSource(
         channels = [
@@ -454,7 +462,7 @@ async def import_files_async(
         corpus_name: The name of the RagCorpus resource into which to import files.
             Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
             or ``{rag_corpus}``.
-        paths: A list of uris. Elligible uris will be Google Cloud Storage
+        paths: A list of uris. Eligible uris will be Google Cloud Storage
             directory ("gs://my-bucket/my_dir") or a Google Drive url for file
             (https://drive.google.com/file/... or folder
             "https://drive.google.com/corp/drive/folders/...").
