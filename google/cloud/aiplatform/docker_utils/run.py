@@ -19,7 +19,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional, Union, Sequence
 
 try:
     import docker
@@ -94,6 +94,8 @@ def run_prediction_container(
     gpu_count: Optional[int] = None,
     gpu_device_ids: Optional[List[str]] = None,
     gpu_capabilities: Optional[List[List[str]]] = None,
+    nano_cpus: Optional[int] = None,
+    mem_limit: Optional[Union[int, str]] = None,
 ) -> docker.models.containers.Container:
     """Runs a prediction container locally.
 
@@ -246,6 +248,8 @@ def run_prediction_container(
         volumes=volumes,
         device_requests=device_requests,
         detach=True,
+        nano_cpus=nano_cpus,
+        mem_limit=mem_limit,
     )
 
     return container

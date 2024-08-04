@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 import requests
 import time
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Union, Sequence
 
 from google.auth.exceptions import GoogleAuthError
 
@@ -57,6 +57,8 @@ class LocalEndpoint:
         gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
+        cpus: Optional[float] = None,
+        mem_limit: Optional[Union[int, str]] = None,
     ):
         """Creates a local endpoint instance.
 
@@ -171,6 +173,12 @@ class LocalEndpoint:
         self.gpu_device_ids = gpu_device_ids
         self.gpu_capabilities = gpu_capabilities
 
+        if cpus is None:
+            self.nano_cpus = None
+        else:
+            self.nano_cpus = int(cpus * 10**9)
+        self.mem_limit = mem_limit
+
         if self.gpu_count and self.gpu_device_ids:
             raise ValueError(
                 "At most one gpu_count or gpu_device_ids can be set but both are set."
@@ -262,6 +270,8 @@ class LocalEndpoint:
                 gpu_count=self.gpu_count,
                 gpu_device_ids=self.gpu_device_ids,
                 gpu_capabilities=self.gpu_capabilities,
+                nano_cpus=self.nano_cpus,
+                mem_limit=self.mem_limit,
             )
 
             # Retrieves the assigned host port.

@@ -164,6 +164,8 @@ _TEST_GPU_DEVICE_IDS = ["1"]
 _TEST_GPU_CAPABILITIES = [["gpu"]]
 _TEST_MULTIPROCESSING_CPU_COUNT = 16
 _DEFAULT_WORKERS_PER_CORE = 1
+_TEST_CPUS = 0.8
+_TEST_MEM_LIMIT = 1 * 1000**3
 
 
 @pytest.fixture
@@ -1982,9 +1984,7 @@ class TestLocalModel:
             """
             Docker failed with error code {return_code}.
             Command: {command}
-            """.format(
-                return_code=return_code, command=" ".join(expected_command)
-            )
+            """.format(return_code=return_code, command=" ".join(expected_command))
         )
 
         with pytest.raises(errors.DockerError) as exception:
@@ -2020,6 +2020,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2071,6 +2073,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2099,6 +2103,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2129,6 +2135,8 @@ class TestLocalEndpoint:
             gpu_count=_TEST_GPU_COUNT,
             gpu_device_ids=None,
             gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2159,6 +2167,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=_TEST_GPU_DEVICE_IDS,
             gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2205,6 +2215,8 @@ class TestLocalEndpoint:
             gpu_count=_TEST_GPU_COUNT,
             gpu_device_ids=None,
             gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2231,6 +2243,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=_TEST_GPU_DEVICE_IDS,
             gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2257,6 +2271,8 @@ class TestLocalEndpoint:
             gpu_count=prediction.DEFAULT_LOCAL_RUN_GPU_COUNT,
             gpu_device_ids=None,
             gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert run_prediction_container_mock.return_value.stop.called
 
@@ -2288,6 +2304,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         assert (
             run_prediction_container_container_not_running_mock.return_value.stop.called
@@ -2327,6 +2345,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         local_endpoint_print_container_logs_mock.assert_called_once_with(
             show_all=True,
@@ -2368,6 +2388,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
         local_endpoint_print_container_logs_mock.assert_called_once_with(
             show_all=True,
@@ -2402,6 +2424,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
 
     def test_serve_with_all_parameters(
@@ -2452,6 +2476,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
 
     def test_serve_with_initializer_project(
@@ -2480,6 +2506,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
 
     def test_serve_with_gpu_count(
@@ -2510,6 +2538,8 @@ class TestLocalEndpoint:
             gpu_count=_TEST_GPU_COUNT,
             gpu_device_ids=None,
             gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
         )
 
     def test_serve_with_gpu_device_ids(
@@ -2540,6 +2570,74 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=_TEST_GPU_DEVICE_IDS,
             gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            nano_cpus=None,
+            mem_limit=None,
+        )
+
+    def test_serve_with_cpus_limit(
+        self,
+        initializer_project_none_mock,
+        run_prediction_container_mock,
+        local_endpoint_run_health_check_mock,
+    ):
+        local_endpoint = LocalEndpoint(_TEST_IMAGE_URI, cpus=_TEST_CPUS)
+
+        local_endpoint.serve()
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={},
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
+            nano_cpus=int(_TEST_CPUS * 10**9),
+            mem_limit=None,
+        )
+
+    @pytest.mark.parametrize(
+        "mem_limit",
+        [
+            _TEST_MEM_LIMIT,
+            f"{_TEST_MEM_LIMIT}",
+            f"{_TEST_MEM_LIMIT}b",
+            f"{int(_TEST_MEM_LIMIT / 1000**2)}m"
+        ],
+    )
+    def test_serve_with_memory_limit(
+        self,
+        initializer_project_none_mock,
+        run_prediction_container_mock,
+        local_endpoint_run_health_check_mock,
+        mem_limit
+    ):
+        local_endpoint = LocalEndpoint(_TEST_IMAGE_URI, mem_limit=mem_limit)
+
+        local_endpoint.serve()
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={},
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=mem_limit,
         )
 
     def test_serve_serve_twice(
@@ -2569,6 +2667,8 @@ class TestLocalEndpoint:
             gpu_count=None,
             gpu_device_ids=None,
             gpu_capabilities=None,
+            nano_cpus=None,
+            mem_limit=None,
         )
 
     def test_stop(
