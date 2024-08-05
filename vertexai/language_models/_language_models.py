@@ -2092,6 +2092,8 @@ class TextEmbeddingInput:
                 Specifies that the embeddings will be used for question answering.
             FACT_VERIFICATION
                 Specifies that the embeddings will be used for fact verification.
+            CODE_RETRIEVAL_QUERY
+                Specifies that the embeddings will be used for code retrieval.
         title: Optional identifier of the text content.
     """
 
