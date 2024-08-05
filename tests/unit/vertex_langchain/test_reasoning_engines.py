@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from absl.testing import parameterized
 import cloudpickle
+import difflib
 import importlib
+import os
+import pytest
 import sys
 import tarfile
-from absl.testing import parameterized
+import tempfile
 from typing import Optional
 from unittest import mock
 
@@ -31,9 +35,9 @@ from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import reasoning_engine_execution_service
 from google.cloud.aiplatform_v1beta1.services import reasoning_engine_service
 from vertexai.preview import reasoning_engines
-from vertexai.reasoning_engines import _utils
 from vertexai.reasoning_engines import _reasoning_engines
-import pytest
+from vertexai.reasoning_engines import _utils
+from google.protobuf import field_mask_pb2
 
 
 class CapitalizeEngine:
@@ -61,6 +65,7 @@ _TEST_REASONING_ENGINE_RESOURCE_NAME = (
     f"{_TEST_PARENT}/reasoningEngines/{_TEST_RESOURCE_ID}"
 )
 _TEST_REASONING_ENGINE_DISPLAY_NAME = "Reasoning Engine Display Name"
+_TEST_REASONING_ENGINE_DESCRIPTION = "Reasoning Engine Description"
 _TEST_GCS_DIR_NAME = _reasoning_engines._DEFAULT_GCS_DIR_NAME
 _TEST_BLOB_FILENAME = _reasoning_engines._BLOB_FILENAME
 _TEST_REQUIREMENTS_FILE = _reasoning_engines._REQUIREMENTS_FILE
@@ -124,6 +129,17 @@ _TEST_REASONING_ENGINE_OBJ = types.ReasoningEngine(
 _TEST_REASONING_ENGINE_OBJ.spec.class_methods.append(
     _TEST_REASONING_ENGINE_QUERY_SCHEMA
 )
+_TEST_UPDATE_REASONING_ENGINE_OBJ = types.ReasoningEngine(
+    name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+    spec=types.ReasoningEngineSpec(
+        package_spec=types.ReasoningEngineSpec.PackageSpec(
+            pickle_object_gcs_uri=_TEST_REASONING_ENGINE_GCS_URI,
+        ),
+    ),
+)
+_TEST_UPDATE_REASONING_ENGINE_OBJ.spec.class_methods.append(
+    _TEST_REASONING_ENGINE_QUERY_SCHEMA
+)
 _TEST_REASONING_ENGINE_QUERY_REQUEST = types.QueryReasoningEngineRequest(
     name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
     input={"query": _TEST_QUERY_PROMPT},
@@ -131,6 +147,32 @@ _TEST_REASONING_ENGINE_QUERY_REQUEST = types.QueryReasoningEngineRequest(
 _TEST_REASONING_ENGINE_QUERY_RESPONSE = {}
 _TEST_REASONING_ENGINE_OPERATION_SCHEMAS = []
 _TEST_REASONING_ENGINE_SYS_VERSION = "3.10"
+_TEST_REASONING_ENGINE_EXTRA_PACKAGE = "fake.py"
+
+
+def _create_empty_fake_package(package_name: str) -> str:
+    """Creates a temporary directory structure representing an empty fake Python package.
+
+    Args:
+        package_name (str): The name of the fake package.
+
+    Returns:
+        str: The path to the top-level directory of the fake package.
+    """
+    temp_dir = tempfile.mkdtemp()
+    package_dir = os.path.join(temp_dir, package_name)
+    os.makedirs(package_dir)
+
+    # Create an empty __init__.py file to mark it as a package
+    init_path = os.path.join(package_dir, "__init__.py")
+    open(init_path, "w").close()
+
+    return temp_dir
+
+
+_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH = _create_empty_fake_package(
+    _TEST_REASONING_ENGINE_EXTRA_PACKAGE
+)
 
 
 @pytest.fixture(scope="module")
@@ -215,6 +257,16 @@ def create_reasoning_engine_mock():
         )
         create_reasoning_engine_mock.return_value = create_reasoning_engine_lro_mock
         yield create_reasoning_engine_mock
+
+
+# Function scope is required for the pytest parameterized tests.
+@pytest.fixture(scope="function")
+def update_reasoning_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "update_reasoning_engine",
+    ) as update_reasoning_engine_mock:
+        yield update_reasoning_engine_mock
 
 
 @pytest.fixture(scope="module")
@@ -395,6 +447,154 @@ class TestReasoningEngine:
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
+        )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_kwargs, want_request",
+        [
+            (
+                "Update the requirements",
+                {"requirements": _TEST_REASONING_ENGINE_REQUIREMENTS},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            package_spec=types.ReasoningEngineSpec.PackageSpec(
+                                requirements_gcs_uri=(
+                                    _TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI
+                                ),
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["spec.package_spec.requirements_gcs_uri"]
+                    ),
+                ),
+            ),
+            (
+                "Update the extra_packages",
+                {"extra_packages": [_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH]},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            package_spec=types.ReasoningEngineSpec.PackageSpec(
+                                dependency_files_gcs_uri=(
+                                    _TEST_REASONING_ENGINE_DEPENDENCY_FILES_GCS_URI
+                                ),
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["spec.package_spec.dependency_files_gcs_uri"]
+                    ),
+                ),
+            ),
+            (
+                "Update the reasoning_engine",
+                {"reasoning_engine": CapitalizeEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_TEST_UPDATE_REASONING_ENGINE_OBJ,
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                        ]
+                    ),
+                ),
+            ),
+            (
+                "Update the display_name",
+                {"display_name": _TEST_REASONING_ENGINE_DISPLAY_NAME},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(paths=["display_name"]),
+                ),
+            ),
+            (
+                "Update the description",
+                {"description": _TEST_REASONING_ENGINE_DESCRIPTION},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        description=_TEST_REASONING_ENGINE_DESCRIPTION,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(paths=["description"]),
+                ),
+            ),
+        ],
+    )
+    def test_update_reasoning_engine(
+        self,
+        test_case_name,
+        test_kwargs,
+        want_request,
+        update_reasoning_engine_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+    ):
+        test_reasoning_engine = _generate_reasoning_engine_to_update()
+        test_reasoning_engine.update(**test_kwargs)
+        assert_called_with_diff(
+            update_reasoning_engine_mock,
+            {"request": want_request},
+        )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_update_reasoning_engine_warn_sys_version(
+        self,
+        caplog,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+    ):
+        test_reasoning_engine = _generate_reasoning_engine_to_update()
+        # Update the reasoning engine's sys_version alone will raise
+        # `no updates` error, so we need to update the display_name as well.
+        test_reasoning_engine.update(
+            sys_version="3.10", display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME
+        )
+        assert "Updated sys_version is not supported." in caplog.text
+
+    def test_update_reasoning_engine_requirements_from_file(
+        self,
+        update_reasoning_engine_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+    ):
+        test_reasoning_engine = _generate_reasoning_engine_to_update()
+        with mock.patch(
+            "builtins.open",
+            mock.mock_open(read_data="google-cloud-aiplatform==1.29.0"),
+        ) as mock_file:
+            test_reasoning_engine.update(
+                requirements="requirements.txt",
+            )
+            mock_file.assert_called_with("requirements.txt")
+        assert_called_with_diff(
+            update_reasoning_engine_mock,
+            {
+                "request": types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            package_spec=types.ReasoningEngineSpec.PackageSpec(
+                                requirements_gcs_uri=(
+                                    _TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI
+                                ),
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["spec.package_spec.requirements_gcs_uri"]
+                    ),
+                )
+            },
         )
 
     def test_delete_after_create_reasoning_engine(
@@ -620,6 +820,135 @@ class TestReasoningEngineErrors:
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
 
+    def test_update_reasoning_engine_unspecified_staging_bucket(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+    ):
+        with pytest.raises(
+            ValueError,
+            match="Please provide a `staging_bucket`",
+        ):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            importlib.reload(initializer)
+            importlib.reload(aiplatform)
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+            )
+            test_reasoning_engine.update(
+                reasoning_engine=InvalidCapitalizeEngineWithoutQueryMethod(),
+            )
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+
+    def test_update_reasoning_engine_no_query_method(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            TypeError,
+            match="does not have a callable method named `query`",
+        ):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                reasoning_engine=InvalidCapitalizeEngineWithoutQueryMethod(),
+            )
+
+    def test_update_reasoning_engine_noncallable_query_attribute(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            TypeError,
+            match="does not have a callable method named `query`",
+        ):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                reasoning_engine=InvalidCapitalizeEngineWithNoncallableQuery(),
+            )
+
+    def test_update_reasoning_engine_requirements_ioerror(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(IOError, match="Failed to read requirements"):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                requirements="nonexistent_requirements.txt",
+            )
+
+    def test_update_reasoning_engine_nonexistent_extra_packages(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(FileNotFoundError, match="not found"):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                extra_packages=_TEST_REASONING_ENGINE_INVALID_EXTRA_PACKAGES,
+            )
+
+    def test_update_reasoning_engine_with_invalid_query_method(
+        self,
+        update_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Invalid query signature"):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                reasoning_engine=InvalidCapitalizeEngineWithoutQuerySelf(),
+            )
+
+    def test_update_reasoning_engine_with_no_updates(
+        self,
+        update_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "At least one of `reasoning_engine`, `requirements`, "
+                "`extra_packages`, `display_name`, or `description` "
+                "must be specified."
+            ),
+        ):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update()
+
+
+def _generate_reasoning_engine_to_update() -> "reasoning_engines.ReasoningEngine":
+    test_reasoning_engine = reasoning_engines.ReasoningEngine.create(CapitalizeEngine())
+    # Resource name is required for the update method.
+    test_reasoning_engine._gca_resource = types.ReasoningEngine(
+        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+    )
+    return test_reasoning_engine
+
 
 def place_tool_query(
     city: str,
@@ -637,6 +966,32 @@ def place_photo_query(
 ):
     """Returns the photo for a given reference."""
     pass
+
+
+def assert_called_with_diff(mock_obj, expected_kwargs=None):
+    """Asserts that the mock object was called with the expected arguments,
+    using difflib to show any differences.
+
+    Args:
+        mock_obj: The mock object to check.
+        expected_kwargs: Expected keyword arguments, or None if not checking.
+    """
+    assert mock_obj.called, (
+        f"Expected '{mock_obj._extract_mock_name()}' to be called, ",
+        "but it was not.",
+    )
+
+    _, call_kwargs = mock_obj.call_args_list[0]
+    diff = "\n".join(
+        difflib.ndiff(
+            str(call_kwargs or "").splitlines(), str(expected_kwargs or "").splitlines()
+        )
+    )
+    assert call_kwargs == expected_kwargs, (
+        "Unexpected keyword arguments for "
+        f"'{mock_obj._extract_mock_name()}'.\n"
+        f"Diff (-got +want):\n{diff}"
+    )
 
 
 class TestGenerateSchema(parameterized.TestCase):

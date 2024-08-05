@@ -20,14 +20,17 @@ import os
 import sys
 import tarfile
 import typing
-from typing import Optional, Protocol, Sequence, Union
+from typing import Optional, Protocol, Sequence, Union, List
 
 from google.api_core import exceptions
+from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1beta1 import types
+from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
+from google.protobuf import field_mask_pb2
 
 
 _LOGGER = base.Logger(__name__)
@@ -179,25 +182,21 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             ValueError: If the `staging_bucket` does not start with "gs://".
             FileNotFoundError: If `extra_packages` includes a file or directory
             that does not exist.
+            IOError: If requirements is a string that corresponds to a
+            nonexistent file.
         """
         if not sys_version:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-        if sys_version not in _SUPPORTED_PYTHON_VERSIONS:
-            raise ValueError(
-                f"Unsupported python version: {sys_version}. ReasoningEngine "
-                f"only supports {_SUPPORTED_PYTHON_VERSIONS} at the moment."
-            )
+        _validate_sys_version_or_raise(sys_version)
+        reasoning_engine = _validate_reasoning_engine_or_raise(reasoning_engine)
+        requirements = _validate_requirements_or_raise(requirements)
+        extra_packages = _validate_extra_packages_or_raise(extra_packages)
+
         if reasoning_engine_name:
             _LOGGER.warning(
                 "ReasoningEngine does not support user-defined resource IDs at "
                 f"the moment. Therefore {reasoning_engine_name=} would be "
                 "ignored and a random ID will be generated instead."
-            )
-        if sys_version != f"{sys.version_info.major}.{sys.version_info.minor}":
-            _LOGGER.warning(
-                f"{sys_version=} is inconsistent with {sys.version_info=}. "
-                "This might result in issues with deployment, and should only "
-                "be used as a workaround for advanced cases."
             )
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(
@@ -205,45 +204,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             resource_name=reasoning_engine_name,
         )
         staging_bucket = initializer.global_config.staging_bucket
-        if not staging_bucket:
-            raise ValueError(
-                "Please provide a `staging_bucket` in `vertexai.init(...)`"
-            )
-        if not staging_bucket.startswith("gs://"):
-            raise ValueError(f"{staging_bucket=} must start with `gs://`")
-        if not (
-            hasattr(reasoning_engine, "query") and callable(reasoning_engine.query)
-        ):
-            raise TypeError(
-                "reasoning_engine does not have a callable method named `query`"
-            )
-        try:
-            inspect.signature(reasoning_engine.query)
-        except ValueError as err:
-            raise ValueError(
-                "Invalid query signature. This might be due to a missing "
-                "`self` argument in the reasoning_engine.query method."
-            ) from err
-        if isinstance(reasoning_engine, Cloneable):
-            # Avoid undeployable ReasoningChain states.
-            reasoning_engine = reasoning_engine.clone()
-        if isinstance(requirements, str):
-            try:
-                _LOGGER.info(f"Reading requirements from {requirements=}")
-                with open(requirements) as f:
-                    requirements = f.read().splitlines()
-                    _LOGGER.info(f"Read the following lines: {requirements}")
-            except IOError as err:
-                raise IOError(
-                    f"Failed to read requirements from {requirements=}"
-                ) from err
-        requirements = requirements or []
-        extra_packages = extra_packages or []
-        for extra_package in extra_packages:
-            if not os.path.exists(extra_package):
-                raise FileNotFoundError(
-                    f"Extra package specified but not found: {extra_package=}"
-                )
+        _validate_staging_bucket_or_raise(staging_bucket)
         # Prepares the Reasoning Engine for creation in Vertex AI.
         # This involves packaging and uploading the artifacts for
         # reasoning_engine, requirements and extra_packages to
@@ -257,6 +218,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             gcs_dir_name=gcs_dir_name,
             extra_packages=extra_packages,
         )
+        # Update the package spec.
         package_spec = types.ReasoningEngineSpec.PackageSpec(
             python_version=sys_version,
             pickle_object_gcs_uri="{}/{}/{}".format(
@@ -284,11 +246,6 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 reasoning_engine.query,
                 schema_name=f"{type(reasoning_engine).__name__}_query",
             )
-            # Note: we append the schema post-initialization to avoid upstream
-            # issues in marshaling the data that would result in errors like:
-            # ../../../../../proto/marshal/rules/struct.py:140: in to_proto
-            #  self._marshal.to_proto(struct_pb2.Value, v) for k, v in value.items()
-            # E   AttributeError: 'list' object has no attribute 'items'
             reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
         except Exception as e:
             _LOGGER.warning(f"failed to generate schema: {e}")
@@ -324,11 +281,133 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         sdk_resource._operation_schemas = None
         return sdk_resource
 
+    def update(
+        self,
+        *,
+        reasoning_engine: Optional[Queryable] = None,
+        requirements: Optional[Union[str, Sequence[str]]] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
+        sys_version: Optional[str] = None,
+        extra_packages: Optional[Sequence[str]] = None,
+    ) -> "ReasoningEngine":
+        """Updates an existing ReasoningEngine.
+
+        This method updates the configuration of an existing ReasoningEngine
+        running remotely, which is identified by its resource name.
+        Unlike the `create` function which requires a `reasoning_engine` object,
+        all arguments in this method are optional.
+        This method allows you to modify individual aspects of the configuration
+        by providing any of the optional arguments.
+        Note that you must provide at least one argument (except `sys_version`).
+
+        Args:
+            reasoning_engine (ReasoningEngineInterface):
+                Optional. The Reasoning Engine to be replaced.
+            requirements (Union[str, Sequence[str]]):
+                Optional. The set of PyPI dependencies needed. It can either be
+                the path to a single file (requirements.txt), or an ordered list
+                of strings corresponding to each line of the requirements file.
+            display_name (str):
+                Optional. The user-defined name of the Reasoning Engine.
+                The name can be up to 128 characters long and can comprise any
+                UTF-8 character.
+            description (str):
+                Optional. The description of the Reasoning Engine.
+            gcs_dir_name (CreateReasoningEngineOptions):
+                Optional. The GCS bucket directory under `staging_bucket` to
+                use for staging the artifacts needed.
+            sys_version (str):
+                Optional. The Python system version used. Currently updating
+                sys version is not supported.
+            extra_packages (Sequence[str]):
+                Optional. The set of extra user-provided packages (if any).
+
+        Returns:
+            ReasoningEngine: The Reasoning Engine that was updated.
+
+        Raises:
+            ValueError: If `sys.version` is updated.
+            ValueError: If the `staging_bucket` was not set using vertexai.init.
+            ValueError: If the `staging_bucket` does not start with "gs://".
+            FileNotFoundError: If `extra_packages` includes a file or directory
+            that does not exist.
+            ValueError: if none of `display_name`, `description`,
+            `requirements`, `extra_packages`, or `reasoning_engine` were
+            specified.
+            IOError: If requirements is a string that corresponds to a
+            nonexistent file.
+        """
+        staging_bucket = initializer.global_config.staging_bucket
+        _validate_staging_bucket_or_raise(staging_bucket)
+
+        # Validate the arguments.
+        if not any(
+            [
+                reasoning_engine,
+                requirements,
+                extra_packages,
+                display_name,
+                description,
+            ]
+        ):
+            raise ValueError(
+                "At least one of `reasoning_engine`, `requirements`, "
+                "`extra_packages`, `display_name`, or `description` must be "
+                "specified."
+            )
+        if sys_version:
+            _LOGGER.warning("Updated sys_version is not supported.")
+        if requirements:
+            requirements = _validate_requirements_or_raise(requirements)
+        if extra_packages:
+            extra_packages = _validate_extra_packages_or_raise(extra_packages)
+        if reasoning_engine:
+            reasoning_engine = _validate_reasoning_engine_or_raise(reasoning_engine)
+
+        # Prepares the Reasoning Engine for creation in Vertex AI.
+        # This involves packaging and uploading the artifacts for
+        # reasoning_engine, requirements and extra_packages to
+        # `staging_bucket/gcs_dir_name`.
+        _prepare(
+            reasoning_engine=reasoning_engine,
+            requirements=requirements,
+            project=self.project,
+            location=self.location,
+            staging_bucket=staging_bucket,
+            gcs_dir_name=gcs_dir_name,
+            extra_packages=extra_packages,
+        )
+        update_request = _generate_update_request_or_raise(
+            resource_name=self.resource_name,
+            staging_bucket=staging_bucket,
+            gcs_dir_name=gcs_dir_name,
+            reasoning_engine=reasoning_engine,
+            requirements=requirements,
+            extra_packages=extra_packages,
+            display_name=display_name,
+            description=description,
+        )
+        operation_future = self.api_client.update_reasoning_engine(
+            request=update_request
+        )
+        _LOGGER.log_create_with_lro(ReasoningEngine, operation_future)
+        created_resource = operation_future.result()
+        _LOGGER.log_create_complete(
+            ReasoningEngine,
+            created_resource,
+            self._resource_noun,
+            module_name="vertexai.preview.reasoning_engines",
+        )
+        self._operation_schemas = None
+        return self
+
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
         """Returns the (Open)API schemas for the Reasoning Engine."""
         spec = _utils.to_dict(self._gca_resource.spec)
         if self._operation_schemas is None:
-            self._operation_schemas = spec.get("classMethods", [])
+            self._operation_schemas = spec.get("class_methods", [])
         return self._operation_schemas
 
     def query(self, **kwargs) -> _utils.JsonDict:
@@ -356,31 +435,75 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         return output
 
 
-def _prepare(
-    reasoning_engine: Queryable,
-    requirements: Sequence[str],
-    project: str,
-    location: str,
-    staging_bucket: str,
-    gcs_dir_name: str,
-    extra_packages: Sequence[str],
-) -> None:
-    """Prepares the reasoning engine for creation in Vertex AI.
+def _validate_sys_version_or_raise(sys_version: str) -> None:
+    """Tries to validate the python system version."""
+    if sys_version not in _SUPPORTED_PYTHON_VERSIONS:
+        raise ValueError(
+            f"Unsupported python version: {sys_version}. ReasoningEngine "
+            f"only supports {_SUPPORTED_PYTHON_VERSIONS} at the moment."
+        )
+    if sys_version != f"{sys.version_info.major}.{sys.version_info.minor}":
+        _LOGGER.warning(
+            f"{sys_version=} is inconsistent with {sys.version_info=}. "
+            "This might result in issues with deployment, and should only "
+            "be used as a workaround for advanced cases."
+        )
 
-    This involves packaging and uploading the artifacts to Cloud Storage.
 
-    Args:
-        reasoning_engine: The reasoning engine to be prepared.
-        requirements (Sequence[str]): The set of PyPI dependencies needed.
-        project (str): The project for the staging bucket.
-        location (str): The location for the staging bucket.
-        staging_bucket (str): The staging bucket name in the form "gs://...".
-        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
-            use for staging the artifacts needed.
-        extra_packages (Sequence[str]): The set of extra user-provided packages.
-    """
+def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
+    """Tries to validate the staging bucket."""
+    if not staging_bucket:
+        raise ValueError("Please provide a `staging_bucket` in `vertexai.init(...)`")
+    if not staging_bucket.startswith("gs://"):
+        raise ValueError(f"{staging_bucket=} must start with `gs://`")
+
+
+def _validate_reasoning_engine_or_raise(reasoning_engine: Queryable) -> Queryable:
+    """Tries to validate the reasoning engine."""
+    if not (hasattr(reasoning_engine, "query") and callable(reasoning_engine.query)):
+        raise TypeError(
+            "reasoning_engine does not have a callable method named `query`"
+        )
+    try:
+        inspect.signature(reasoning_engine.query)
+    except ValueError as err:
+        raise ValueError(
+            "Invalid query signature. This might be due to a missing "
+            "`self` argument in the reasoning_engine.query method."
+        ) from err
+    if isinstance(reasoning_engine, Cloneable):
+        # Avoid undeployable ReasoningChain states.
+        reasoning_engine = reasoning_engine.clone()
+    return reasoning_engine
+
+
+def _validate_requirements_or_raise(requirements: Sequence[str]) -> Sequence[str]:
+    """Tries to validate the requirements."""
+    if isinstance(requirements, str):
+        try:
+            _LOGGER.info(f"Reading requirements from {requirements=}")
+            with open(requirements) as f:
+                requirements = f.read().splitlines()
+                _LOGGER.info(f"Read the following lines: {requirements}")
+        except IOError as err:
+            raise IOError(f"Failed to read requirements from {requirements=}") from err
+    return requirements or []
+
+
+def _validate_extra_packages_or_raise(extra_packages: Sequence[str]) -> Sequence[str]:
+    """Tries to validates the extra packages."""
+    extra_packages = extra_packages or []
+    for extra_package in extra_packages:
+        if not os.path.exists(extra_package):
+            raise FileNotFoundError(
+                f"Extra package specified but not found: {extra_package=}"
+            )
+    return extra_packages
+
+
+def _get_gcs_bucket(project: str, location: str, staging_bucket: str) -> storage.Bucket:
+    """Gets or creates the GCS bucket."""
     storage = _utils._import_cloud_storage_or_raise()
-    cloudpickle = _utils._import_cloudpickle_or_raise()
     storage_client = storage.Client(project=project)
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
@@ -390,18 +513,41 @@ def _prepare(
         new_bucket = storage_client.bucket(staging_bucket)
         gcs_bucket = storage_client.create_bucket(new_bucket, location=location)
         _LOGGER.info(f"Creating bucket {staging_bucket} in {location=}")
+    return gcs_bucket
 
+
+def _upload_reasoning_engine(
+    reasoning_engine: Queryable,
+    gcs_bucket: storage.Bucket,
+    gcs_dir_name: str,
+) -> None:
+    """Uploads the reasoning engine to GCS."""
+    cloudpickle = _utils._import_cloudpickle_or_raise()
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
     with blob.open("wb") as f:
         cloudpickle.dump(reasoning_engine, f)
-    dir_name = f"gs://{staging_bucket}/{gcs_dir_name}"
+    dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
     _LOGGER.info(f"Writing to {dir_name}/{_BLOB_FILENAME}")
 
-    blob = gcs_bucket.blob(f"{gcs_dir_name}/{_REQUIREMENTS_FILE}")
-    if requirements:
-        blob.upload_from_string("\n".join(requirements))
-        _LOGGER.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
 
+def _upload_requirements(
+    requirements: Sequence[str],
+    gcs_bucket: storage.Bucket,
+    gcs_dir_name: str,
+) -> None:
+    """Uploads the requirements file to GCS."""
+    blob = gcs_bucket.blob(f"{gcs_dir_name}/{_REQUIREMENTS_FILE}")
+    blob.upload_from_string("\n".join(requirements))
+    dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
+    _LOGGER.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
+
+
+def _upload_extra_packages(
+    extra_packages: Sequence[str],
+    gcs_bucket: storage.Bucket,
+    gcs_dir_name: str,
+) -> None:
+    """Uploads extra packages to GCS."""
     _LOGGER.info("Creating in-memory tarfile of extra_packages")
     tar_fileobj = io.BytesIO()
     with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
@@ -410,4 +556,108 @@ def _prepare(
     tar_fileobj.seek(0)
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")
     blob.upload_from_string(tar_fileobj.read())
+    dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
     _LOGGER.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
+
+
+def _prepare(
+    reasoning_engine: Queryable,
+    requirements: Sequence[str],
+    extra_packages: Sequence[str],
+    project: str,
+    location: str,
+    staging_bucket: str,
+    gcs_dir_name: str,
+) -> None:
+    """Prepares the reasoning engine for creation in Vertex AI.
+
+    This involves packaging and uploading the artifacts to Cloud Storage.
+
+    Args:
+        reasoning_engine: The reasoning engine to be prepared.
+        requirements (Sequence[str]): The set of PyPI dependencies needed.
+        extra_packages (Sequence[str]): The set of extra user-provided packages.
+        project (str): The project for the staging bucket.
+        location (str): The location for the staging bucket.
+        staging_bucket (str): The staging bucket name in the form "gs://...".
+        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
+            use for staging the artifacts needed.
+    """
+    gcs_bucket = _get_gcs_bucket(project, location, staging_bucket)
+    if reasoning_engine:
+        _upload_reasoning_engine(reasoning_engine, gcs_bucket, gcs_dir_name)
+    if requirements:
+        _upload_requirements(requirements, gcs_bucket, gcs_dir_name)
+    if extra_packages:
+        _upload_extra_packages(extra_packages, gcs_bucket, gcs_dir_name)
+
+
+def _generate_update_request_or_raise(
+    resource_name: str,
+    staging_bucket: str,
+    gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
+    reasoning_engine: Optional[Queryable] = None,
+    requirements: Optional[Union[str, Sequence[str]]] = None,
+    extra_packages: Optional[Sequence[str]] = None,
+    display_name: Optional[str] = None,
+    description: Optional[str] = None,
+) -> reasoning_engine_service.UpdateReasoningEngineRequest:
+    """Tries to generates the update request for the reasoning engine."""
+    is_spec_update = False
+    update_masks: List[str] = []
+    reasoning_engine_spec = types.ReasoningEngineSpec()
+    package_spec = types.ReasoningEngineSpec.PackageSpec()
+    if requirements:
+        is_spec_update = True
+        update_masks.append("spec.package_spec.requirements_gcs_uri")
+        package_spec.requirements_gcs_uri = "{}/{}/{}".format(
+            staging_bucket,
+            gcs_dir_name,
+            _REQUIREMENTS_FILE,
+        )
+    if extra_packages:
+        is_spec_update = True
+        update_masks.append("spec.package_spec.dependency_files_gcs_uri")
+        package_spec.dependency_files_gcs_uri = "{}/{}/{}".format(
+            staging_bucket,
+            gcs_dir_name,
+            _EXTRA_PACKAGES_FILE,
+        )
+    if reasoning_engine:
+        is_spec_update = True
+        update_masks.append("spec.package_spec.pickle_object_gcs_uri")
+        package_spec.pickle_object_gcs_uri = "{}/{}/{}".format(
+            staging_bucket,
+            gcs_dir_name,
+            _BLOB_FILENAME,
+        )
+        try:
+            schema_dict = _utils.generate_schema(
+                reasoning_engine.query,
+                schema_name=f"{type(reasoning_engine).__name__}_query",
+            )
+            reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
+        except Exception as e:
+            _LOGGER.warning(f"failed to generate schema: {e}")
+        update_masks.append("spec.class_methods")
+
+    reasoning_engine_message = types.ReasoningEngine(name=resource_name)
+    if is_spec_update:
+        reasoning_engine_spec.package_spec = package_spec
+        reasoning_engine_message.spec = reasoning_engine_spec
+    if display_name:
+        reasoning_engine_message.display_name = display_name
+        update_masks.append("display_name")
+    if description:
+        reasoning_engine_message.description = description
+        update_masks.append("description")
+    if not update_masks:
+        raise ValueError(
+            "At least one of `reasoning_engine`, `requirements`, "
+            "`extra_packages`, `display_name`, or `description` must be "
+            "specified."
+        )
+    return reasoning_engine_service.UpdateReasoningEngineRequest(
+        reasoning_engine=reasoning_engine_message,
+        update_mask=field_mask_pb2.FieldMask(paths=update_masks),
+    )
