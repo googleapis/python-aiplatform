@@ -73,6 +73,8 @@ class DeploymentResourcePoolServiceAsyncClient:
     parse_endpoint_path = staticmethod(DeploymentResourcePoolServiceClient.parse_endpoint_path)
     model_path = staticmethod(DeploymentResourcePoolServiceClient.model_path)
     parse_model_path = staticmethod(DeploymentResourcePoolServiceClient.parse_model_path)
+    reservation_path = staticmethod(DeploymentResourcePoolServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(DeploymentResourcePoolServiceClient.parse_reservation_path)
     common_billing_account_path = staticmethod(DeploymentResourcePoolServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(DeploymentResourcePoolServiceClient.parse_common_billing_account_path)
     common_folder_path = staticmethod(DeploymentResourcePoolServiceClient.common_folder_path)

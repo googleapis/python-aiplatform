@@ -59,6 +59,8 @@ class ModelGardenServiceAsyncClient:
 
     publisher_model_path = staticmethod(ModelGardenServiceClient.publisher_model_path)
     parse_publisher_model_path = staticmethod(ModelGardenServiceClient.parse_publisher_model_path)
+    reservation_path = staticmethod(ModelGardenServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(ModelGardenServiceClient.parse_reservation_path)
     common_billing_account_path = staticmethod(ModelGardenServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(ModelGardenServiceClient.parse_common_billing_account_path)
     common_folder_path = staticmethod(ModelGardenServiceClient.common_folder_path)

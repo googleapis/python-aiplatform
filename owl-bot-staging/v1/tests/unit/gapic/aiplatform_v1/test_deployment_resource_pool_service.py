@@ -61,6 +61,7 @@ from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -4224,7 +4225,7 @@ def test_update_deployment_resource_pool_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'deployment_resource_pool': {'name': 'projects/sample1/locations/sample2/deploymentResourcePools/sample3'}}
-    request_init["deployment_resource_pool"] = {'name': 'projects/sample1/locations/sample2/deploymentResourcePools/sample3', 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'service_account': 'service_account_value', 'disable_container_logging': True, 'create_time': {'seconds': 751, 'nanos': 543}}
+    request_init["deployment_resource_pool"] = {'name': 'projects/sample1/locations/sample2/deploymentResourcePools/sample3', 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'service_account': 'service_account_value', 'disable_container_logging': True, 'create_time': {'seconds': 751, 'nanos': 543}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -5759,8 +5760,29 @@ def test_parse_model_path():
     actual = DeploymentResourcePoolServiceClient.parse_model_path(path)
     assert expected == actual
 
+def test_reservation_path():
+    project_id_or_number = "cuttlefish"
+    zone = "mussel"
+    reservation_name = "winkle"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = DeploymentResourcePoolServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "nautilus",
+        "zone": "scallop",
+        "reservation_name": "abalone",
+    }
+    path = DeploymentResourcePoolServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DeploymentResourcePoolServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = DeploymentResourcePoolServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -5768,7 +5790,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = DeploymentResourcePoolServiceClient.common_billing_account_path(**expected)
 
@@ -5777,7 +5799,7 @@ def test_parse_common_billing_account_path():
     assert expected == actual
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(folder=folder, )
     actual = DeploymentResourcePoolServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -5785,7 +5807,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = DeploymentResourcePoolServiceClient.common_folder_path(**expected)
 
@@ -5794,7 +5816,7 @@ def test_parse_common_folder_path():
     assert expected == actual
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(organization=organization, )
     actual = DeploymentResourcePoolServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -5802,7 +5824,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = DeploymentResourcePoolServiceClient.common_organization_path(**expected)
 
@@ -5811,7 +5833,7 @@ def test_parse_common_organization_path():
     assert expected == actual
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(project=project, )
     actual = DeploymentResourcePoolServiceClient.common_project_path(project)
     assert expected == actual
@@ -5819,7 +5841,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = DeploymentResourcePoolServiceClient.common_project_path(**expected)
 
@@ -5828,8 +5850,8 @@ def test_parse_common_project_path():
     assert expected == actual
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = DeploymentResourcePoolServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -5837,8 +5859,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = DeploymentResourcePoolServiceClient.common_location_path(**expected)
 

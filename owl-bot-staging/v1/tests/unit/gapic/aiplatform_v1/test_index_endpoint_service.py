@@ -60,6 +60,7 @@ from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoin
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -3940,7 +3941,7 @@ def test_create_index_endpoint_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["index_endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
+    request_init["index_endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -4877,7 +4878,7 @@ def test_update_index_endpoint_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
-    request_init["index_endpoint"] = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
+    request_init["index_endpoint"] = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -6022,7 +6023,7 @@ def test_mutate_deployed_index_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
-    request_init["deployed_index"] = {'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}
+    request_init["deployed_index"] = {'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'enable_access_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value'}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -6955,8 +6956,29 @@ def test_parse_index_endpoint_path():
     actual = IndexEndpointServiceClient.parse_index_endpoint_path(path)
     assert expected == actual
 
+def test_reservation_path():
+    project_id_or_number = "squid"
+    zone = "clam"
+    reservation_name = "whelk"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = IndexEndpointServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "octopus",
+        "zone": "oyster",
+        "reservation_name": "nudibranch",
+    }
+    path = IndexEndpointServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = IndexEndpointServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = IndexEndpointServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -6964,7 +6986,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = IndexEndpointServiceClient.common_billing_account_path(**expected)
 
@@ -6973,7 +6995,7 @@ def test_parse_common_billing_account_path():
     assert expected == actual
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(folder=folder, )
     actual = IndexEndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -6981,7 +7003,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = IndexEndpointServiceClient.common_folder_path(**expected)
 
@@ -6990,7 +7012,7 @@ def test_parse_common_folder_path():
     assert expected == actual
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(organization=organization, )
     actual = IndexEndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -6998,7 +7020,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = IndexEndpointServiceClient.common_organization_path(**expected)
 
@@ -7007,7 +7029,7 @@ def test_parse_common_organization_path():
     assert expected == actual
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(project=project, )
     actual = IndexEndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -7015,7 +7037,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = IndexEndpointServiceClient.common_project_path(**expected)
 
@@ -7024,8 +7046,8 @@ def test_parse_common_project_path():
     assert expected == actual
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = IndexEndpointServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -7033,8 +7055,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = IndexEndpointServiceClient.common_location_path(**expected)
 

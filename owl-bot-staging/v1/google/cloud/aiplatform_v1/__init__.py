@@ -643,6 +643,7 @@ from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
+from .types.reservation_affinity import ReservationAffinity
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -1381,6 +1382,7 @@ __all__ = (
 'RemoveContextChildrenResponse',
 'RemoveDatapointsRequest',
 'RemoveDatapointsResponse',
+'ReservationAffinity',
 'ResourcePool',
 'ResourceRuntime',
 'ResourceRuntimeSpec',

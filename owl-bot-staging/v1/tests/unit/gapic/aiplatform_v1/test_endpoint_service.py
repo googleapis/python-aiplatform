@@ -63,6 +63,7 @@ from google.cloud.aiplatform_v1.types import explanation_metadata
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -4018,7 +4019,7 @@ def test_create_endpoint_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_models': [{'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'shared_resources': 'shared_resources_value', 'id': 'id_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {'uris': ['uris_value1', 'uris_value2']}}, 'nearest_neighbor_search_config': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'disable_explanations': True, 'service_account': 'service_account_value', 'disable_container_logging': True, 'enable_access_logging': True, 'private_endpoints': {'predict_http_uri': 'predict_http_uri_value', 'explain_http_uri': 'explain_http_uri_value', 'health_http_uri': 'health_http_uri_value', 'service_attachment': 'service_attachment_value'}}], 'traffic_split': {}, 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'model_deployment_monitoring_job': 'model_deployment_monitoring_job_value', 'predict_request_response_logging_config': {'enabled': True, 'sampling_rate': 0.13820000000000002, 'bigquery_destination': {'output_uri': 'output_uri_value'}}, 'dedicated_endpoint_enabled': True, 'dedicated_endpoint_dns': 'dedicated_endpoint_dns_value', 'satisfies_pzs': True, 'satisfies_pzi': True}
+    request_init["endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_models': [{'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'shared_resources': 'shared_resources_value', 'id': 'id_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {'uris': ['uris_value1', 'uris_value2']}}, 'nearest_neighbor_search_config': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'disable_explanations': True, 'service_account': 'service_account_value', 'disable_container_logging': True, 'enable_access_logging': True, 'private_endpoints': {'predict_http_uri': 'predict_http_uri_value', 'explain_http_uri': 'explain_http_uri_value', 'health_http_uri': 'health_http_uri_value', 'service_attachment': 'service_attachment_value'}}], 'traffic_split': {}, 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'model_deployment_monitoring_job': 'model_deployment_monitoring_job_value', 'predict_request_response_logging_config': {'enabled': True, 'sampling_rate': 0.13820000000000002, 'bigquery_destination': {'output_uri': 'output_uri_value'}}, 'dedicated_endpoint_enabled': True, 'dedicated_endpoint_dns': 'dedicated_endpoint_dns_value', 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -4965,7 +4966,7 @@ def test_update_endpoint_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'endpoint': {'name': 'projects/sample1/locations/sample2/endpoints/sample3'}}
-    request_init["endpoint"] = {'name': 'projects/sample1/locations/sample2/endpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_models': [{'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}]}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'shared_resources': 'shared_resources_value', 'id': 'id_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {'uris': ['uris_value1', 'uris_value2']}}, 'nearest_neighbor_search_config': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'disable_explanations': True, 'service_account': 'service_account_value', 'disable_container_logging': True, 'enable_access_logging': True, 'private_endpoints': {'predict_http_uri': 'predict_http_uri_value', 'explain_http_uri': 'explain_http_uri_value', 'health_http_uri': 'health_http_uri_value', 'service_attachment': 'service_attachment_value'}}], 'traffic_split': {}, 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'model_deployment_monitoring_job': 'model_deployment_monitoring_job_value', 'predict_request_response_logging_config': {'enabled': True, 'sampling_rate': 0.13820000000000002, 'bigquery_destination': {'output_uri': 'output_uri_value'}}, 'dedicated_endpoint_enabled': True, 'dedicated_endpoint_dns': 'dedicated_endpoint_dns_value', 'satisfies_pzs': True, 'satisfies_pzi': True}
+    request_init["endpoint"] = {'name': 'projects/sample1/locations/sample2/endpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_models': [{'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647}], 'spot': True}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'shared_resources': 'shared_resources_value', 'id': 'id_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {'uris': ['uris_value1', 'uris_value2']}}, 'nearest_neighbor_search_config': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'disable_explanations': True, 'service_account': 'service_account_value', 'disable_container_logging': True, 'enable_access_logging': True, 'private_endpoints': {'predict_http_uri': 'predict_http_uri_value', 'explain_http_uri': 'explain_http_uri_value', 'health_http_uri': 'health_http_uri_value', 'service_attachment': 'service_attachment_value'}}], 'traffic_split': {}, 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2']}, 'model_deployment_monitoring_job': 'model_deployment_monitoring_job_value', 'predict_request_response_logging_config': {'enabled': True, 'sampling_rate': 0.13820000000000002, 'bigquery_destination': {'output_uri': 'output_uri_value'}}, 'dedicated_endpoint_enabled': True, 'dedicated_endpoint_dns': 'dedicated_endpoint_dns_value', 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -7052,8 +7053,29 @@ def test_parse_network_path():
     actual = EndpointServiceClient.parse_network_path(path)
     assert expected == actual
 
+def test_reservation_path():
+    project_id_or_number = "oyster"
+    zone = "nudibranch"
+    reservation_name = "cuttlefish"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = EndpointServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "mussel",
+        "zone": "winkle",
+        "reservation_name": "nautilus",
+    }
+    path = EndpointServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = EndpointServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -7061,7 +7083,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -7070,7 +7092,7 @@ def test_parse_common_billing_account_path():
     assert expected == actual
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(folder=folder, )
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -7078,7 +7100,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -7087,7 +7109,7 @@ def test_parse_common_folder_path():
     assert expected == actual
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(organization=organization, )
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -7095,7 +7117,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -7104,7 +7126,7 @@ def test_parse_common_organization_path():
     assert expected == actual
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(project=project, )
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -7112,7 +7134,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -7121,8 +7143,8 @@ def test_parse_common_project_path():
     assert expected == actual
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = EndpointServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -7130,8 +7152,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 

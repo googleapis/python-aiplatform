@@ -70,6 +70,8 @@ class IndexEndpointServiceAsyncClient:
     parse_index_path = staticmethod(IndexEndpointServiceClient.parse_index_path)
     index_endpoint_path = staticmethod(IndexEndpointServiceClient.index_endpoint_path)
     parse_index_endpoint_path = staticmethod(IndexEndpointServiceClient.parse_index_endpoint_path)
+    reservation_path = staticmethod(IndexEndpointServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(IndexEndpointServiceClient.parse_reservation_path)
     common_billing_account_path = staticmethod(IndexEndpointServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(IndexEndpointServiceClient.parse_common_billing_account_path)
     common_folder_path = staticmethod(IndexEndpointServiceClient.common_folder_path)

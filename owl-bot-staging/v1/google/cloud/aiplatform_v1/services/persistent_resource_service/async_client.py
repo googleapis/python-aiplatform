@@ -72,6 +72,8 @@ class PersistentResourceServiceAsyncClient:
     parse_network_path = staticmethod(PersistentResourceServiceClient.parse_network_path)
     persistent_resource_path = staticmethod(PersistentResourceServiceClient.persistent_resource_path)
     parse_persistent_resource_path = staticmethod(PersistentResourceServiceClient.parse_persistent_resource_path)
+    reservation_path = staticmethod(PersistentResourceServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(PersistentResourceServiceClient.parse_reservation_path)
     common_billing_account_path = staticmethod(PersistentResourceServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(PersistentResourceServiceClient.parse_common_billing_account_path)
     common_folder_path = staticmethod(PersistentResourceServiceClient.common_folder_path)

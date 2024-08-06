@@ -643,6 +643,7 @@ from google.cloud.aiplatform_v1.types.prediction_service import StreamingRawPred
 from google.cloud.aiplatform_v1.types.prediction_service import StreamingRawPredictResponse
 from google.cloud.aiplatform_v1.types.prediction_service import StreamRawPredictRequest
 from google.cloud.aiplatform_v1.types.publisher_model import PublisherModel
+from google.cloud.aiplatform_v1.types.reservation_affinity import ReservationAffinity
 from google.cloud.aiplatform_v1.types.saved_query import SavedQuery
 from google.cloud.aiplatform_v1.types.schedule import Schedule
 from google.cloud.aiplatform_v1.types.schedule_service import CreateScheduleRequest
@@ -1404,6 +1405,7 @@ __all__ = ('DatasetServiceClient',
     'StreamingRawPredictResponse',
     'StreamRawPredictRequest',
     'PublisherModel',
+    'ReservationAffinity',
     'SavedQuery',
     'Schedule',
     'CreateScheduleRequest',

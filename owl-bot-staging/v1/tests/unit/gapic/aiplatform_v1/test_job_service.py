@@ -79,6 +79,7 @@ from google.cloud.aiplatform_v1.types import model_monitoring
 from google.cloud.aiplatform_v1.types import nas_job
 from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2
@@ -15058,7 +15059,7 @@ def test_create_custom_job_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["custom_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {'seconds': 751, 'nanos': 543}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'state': 1, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'web_access_uris': {}}
+    request_init["custom_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {'seconds': 751, 'nanos': 543}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'state': 1, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'web_access_uris': {}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -17988,7 +17989,7 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["hyperparameter_tuning_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'study_spec': {'decay_curve_stopping_spec': {'use_elapsed_duration': True}, 'median_automated_stopping_spec': {'use_elapsed_duration': True}, 'convex_automated_stopping_spec': {'max_step_count': 1513, 'min_step_count': 1511, 'min_measurement_count': 2257, 'learning_rate_parameter_name': 'learning_rate_parameter_name_value', 'use_elapsed_duration': True, 'update_all_stopped_trials': True}, 'metrics': [{'metric_id': 'metric_id_value', 'goal': 1, 'safety_config': {'safety_threshold': 0.17200000000000001, 'desired_min_safe_trials_fraction': 0.33640000000000003}}], 'parameters': [{'double_value_spec': {'min_value': 0.96, 'max_value': 0.962, 'default_value': 0.13770000000000002}, 'integer_value_spec': {'min_value': 960, 'max_value': 962, 'default_value': 1377}, 'categorical_value_spec': {'values': ['values_value1', 'values_value2'], 'default_value': 'default_value_value'}, 'discrete_value_spec': {'values': [0.657, 0.658], 'default_value': 0.13770000000000002}, 'parameter_id': 'parameter_id_value', 'scale_type': 1, 'conditional_parameter_specs': [{'parent_discrete_values': {'values': [0.657, 0.658]}, 'parent_int_values': {'values': [657, 658]}, 'parent_categorical_values': {'values': ['values_value1', 'values_value2']}, 'parameter_spec': {}}]}], 'algorithm': 2, 'observation_noise': 1, 'measurement_selection_type': 1, 'study_stopping_config': {'should_stop_asap': {'value': True}, 'minimum_runtime_constraint': {'max_duration': {'seconds': 751, 'nanos': 543}, 'end_time': {'seconds': 751, 'nanos': 543}}, 'maximum_runtime_constraint': {}, 'min_num_trials': {'value': 541}, 'max_num_trials': {}, 'max_num_trials_no_progress': {}, 'max_duration_no_progress': {}}}, 'max_trial_count': 1609, 'parallel_trial_count': 2128, 'max_failed_trial_count': 2317, 'trial_job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'trials': [{'name': 'name_value', 'id': 'id_value', 'state': 1, 'parameters': [{'parameter_id': 'parameter_id_value', 'value': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}}], 'final_measurement': {'elapsed_duration': {}, 'step_count': 1092, 'metrics': [{'metric_id': 'metric_id_value', 'value': 0.541}]}, 'measurements': {}, 'start_time': {}, 'end_time': {}, 'client_id': 'client_id_value', 'infeasible_reason': 'infeasible_reason_value', 'custom_job': 'custom_job_value', 'web_access_uris': {}}], 'state': 1, 'create_time': {}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
+    request_init["hyperparameter_tuning_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'study_spec': {'decay_curve_stopping_spec': {'use_elapsed_duration': True}, 'median_automated_stopping_spec': {'use_elapsed_duration': True}, 'convex_automated_stopping_spec': {'max_step_count': 1513, 'min_step_count': 1511, 'min_measurement_count': 2257, 'learning_rate_parameter_name': 'learning_rate_parameter_name_value', 'use_elapsed_duration': True, 'update_all_stopped_trials': True}, 'metrics': [{'metric_id': 'metric_id_value', 'goal': 1, 'safety_config': {'safety_threshold': 0.17200000000000001, 'desired_min_safe_trials_fraction': 0.33640000000000003}}], 'parameters': [{'double_value_spec': {'min_value': 0.96, 'max_value': 0.962, 'default_value': 0.13770000000000002}, 'integer_value_spec': {'min_value': 960, 'max_value': 962, 'default_value': 1377}, 'categorical_value_spec': {'values': ['values_value1', 'values_value2'], 'default_value': 'default_value_value'}, 'discrete_value_spec': {'values': [0.657, 0.658], 'default_value': 0.13770000000000002}, 'parameter_id': 'parameter_id_value', 'scale_type': 1, 'conditional_parameter_specs': [{'parent_discrete_values': {'values': [0.657, 0.658]}, 'parent_int_values': {'values': [657, 658]}, 'parent_categorical_values': {'values': ['values_value1', 'values_value2']}, 'parameter_spec': {}}]}], 'algorithm': 2, 'observation_noise': 1, 'measurement_selection_type': 1, 'study_stopping_config': {'should_stop_asap': {'value': True}, 'minimum_runtime_constraint': {'max_duration': {'seconds': 751, 'nanos': 543}, 'end_time': {'seconds': 751, 'nanos': 543}}, 'maximum_runtime_constraint': {}, 'min_num_trials': {'value': 541}, 'max_num_trials': {}, 'max_num_trials_no_progress': {}, 'max_duration_no_progress': {}}}, 'max_trial_count': 1609, 'parallel_trial_count': 2128, 'max_failed_trial_count': 2317, 'trial_job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'trials': [{'name': 'name_value', 'id': 'id_value', 'state': 1, 'parameters': [{'parameter_id': 'parameter_id_value', 'value': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}}], 'final_measurement': {'elapsed_duration': {}, 'step_count': 1092, 'metrics': [{'metric_id': 'metric_id_value', 'value': 0.541}]}, 'measurements': {}, 'start_time': {}, 'end_time': {}, 'client_id': 'client_id_value', 'infeasible_reason': 'infeasible_reason_value', 'custom_job': 'custom_job_value', 'web_access_uris': {}}], 'state': 1, 'create_time': {}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -19453,7 +19454,7 @@ def test_create_nas_job_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["nas_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'nas_job_spec': {'multi_trial_algorithm_spec': {'multi_trial_algorithm': 1, 'metric': {'metric_id': 'metric_id_value', 'goal': 1}, 'search_trial_spec': {'search_trial_job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {'seconds': 751, 'nanos': 543}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'max_trial_count': 1609, 'max_parallel_trial_count': 2549, 'max_failed_trial_count': 2317}, 'train_trial_spec': {'train_trial_job_spec': {}, 'max_parallel_trial_count': 2549, 'frequency': 978}}, 'resume_nas_job_id': 'resume_nas_job_id_value', 'search_space_spec': 'search_space_spec_value'}, 'nas_job_output': {'multi_trial_job_output': {'search_trials': [{'id': 'id_value', 'state': 1, 'final_measurement': {'elapsed_duration': {}, 'step_count': 1092, 'metrics': [{'metric_id': 'metric_id_value', 'value': 0.541}]}, 'start_time': {'seconds': 751, 'nanos': 543}, 'end_time': {}}], 'train_trials': {}}}, 'state': 1, 'create_time': {}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'enable_restricted_image_training': True}
+    request_init["nas_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'nas_job_spec': {'multi_trial_algorithm_spec': {'multi_trial_algorithm': 1, 'metric': {'metric_id': 'metric_id_value', 'goal': 1}, 'search_trial_spec': {'search_trial_job_spec': {'persistent_resource_id': 'persistent_resource_id_value', 'worker_pool_specs': [{'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}]}, 'python_package_spec': {'executor_image_uri': 'executor_image_uri_value', 'package_uris': ['package_uris_value1', 'package_uris_value2'], 'python_module': 'python_module_value', 'args': ['args_value1', 'args_value2'], 'env': {}}, 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'replica_count': 1384, 'nfs_mounts': [{'server': 'server_value', 'path': 'path_value', 'mount_point': 'mount_point_value'}], 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}}], 'scheduling': {'timeout': {'seconds': 751, 'nanos': 543}, 'restart_job_on_worker_restart': True, 'strategy': 1, 'disable_retries': True}, 'service_account': 'service_account_value', 'network': 'network_value', 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'base_output_directory': {'output_uri_prefix': 'output_uri_prefix_value'}, 'protected_artifact_location_id': 'protected_artifact_location_id_value', 'tensorboard': 'tensorboard_value', 'enable_web_access': True, 'enable_dashboard_access': True, 'experiment': 'experiment_value', 'experiment_run': 'experiment_run_value', 'models': ['models_value1', 'models_value2']}, 'max_trial_count': 1609, 'max_parallel_trial_count': 2549, 'max_failed_trial_count': 2317}, 'train_trial_spec': {'train_trial_job_spec': {}, 'max_parallel_trial_count': 2549, 'frequency': 978}}, 'resume_nas_job_id': 'resume_nas_job_id_value', 'search_space_spec': 'search_space_spec_value'}, 'nas_job_output': {'multi_trial_job_output': {'search_trials': [{'id': 'id_value', 'state': 1, 'final_measurement': {'elapsed_duration': {}, 'step_count': 1092, 'metrics': [{'metric_id': 'metric_id_value', 'value': 0.541}]}, 'start_time': {'seconds': 751, 'nanos': 543}, 'end_time': {}}], 'train_trials': {}}}, 'state': 1, 'create_time': {}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'enable_restricted_image_training': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -21505,7 +21506,7 @@ def test_create_batch_prediction_job_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["batch_prediction_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'unmanaged_container_model': {'artifact_uri': 'artifact_uri_value', 'predict_schemata': {'instance_schema_uri': 'instance_schema_uri_value', 'parameters_schema_uri': 'parameters_schema_uri_value', 'prediction_schema_uri': 'prediction_schema_uri_value'}, 'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}], 'ports': [{'container_port': 1511}], 'predict_route': 'predict_route_value', 'health_route': 'health_route_value', 'grpc_ports': {}, 'deployment_timeout': {'seconds': 751, 'nanos': 543}, 'shared_memory_size_mb': 2231, 'startup_probe': {'exec_': {'command': ['command_value1', 'command_value2']}, 'period_seconds': 1489, 'timeout_seconds': 1621}, 'health_probe': {}}}, 'input_config': {'gcs_source': {'uris': ['uris_value1', 'uris_value2']}, 'bigquery_source': {'input_uri': 'input_uri_value'}, 'instances_format': 'instances_format_value'}, 'instance_config': {'instance_type': 'instance_type_value', 'key_field': 'key_field_value', 'included_fields': ['included_fields_value1', 'included_fields_value2'], 'excluded_fields': ['excluded_fields_value1', 'excluded_fields_value2']}, 'model_parameters': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'output_config': {'gcs_destination': {'output_uri_prefix': 'output_uri_prefix_value'}, 'bigquery_destination': {'output_uri': 'output_uri_value'}, 'predictions_format': 'predictions_format_value'}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'starting_replica_count': 2355, 'max_replica_count': 1805}, 'service_account': 'service_account_value', 'manual_batch_tuning_parameters': {'batch_size': 1052}, 'generate_explanation': True, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {}}, 'nearest_neighbor_search_config': {}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'output_info': {'gcs_output_directory': 'gcs_output_directory_value', 'bigquery_output_dataset': 'bigquery_output_dataset_value', 'bigquery_output_table': 'bigquery_output_table_value'}, 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'partial_failures': {}, 'resources_consumed': {'replica_hours': 0.13920000000000002}, 'completion_stats': {'successful_count': 1736, 'failed_count': 1261, 'incomplete_count': 1720, 'successful_forecast_point_count': 3335}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'disable_container_logging': True}
+    request_init["batch_prediction_job"] = {'name': 'name_value', 'display_name': 'display_name_value', 'model': 'model_value', 'model_version_id': 'model_version_id_value', 'unmanaged_container_model': {'artifact_uri': 'artifact_uri_value', 'predict_schemata': {'instance_schema_uri': 'instance_schema_uri_value', 'parameters_schema_uri': 'parameters_schema_uri_value', 'prediction_schema_uri': 'prediction_schema_uri_value'}, 'container_spec': {'image_uri': 'image_uri_value', 'command': ['command_value1', 'command_value2'], 'args': ['args_value1', 'args_value2'], 'env': [{'name': 'name_value', 'value': 'value_value'}], 'ports': [{'container_port': 1511}], 'predict_route': 'predict_route_value', 'health_route': 'health_route_value', 'grpc_ports': {}, 'deployment_timeout': {'seconds': 751, 'nanos': 543}, 'shared_memory_size_mb': 2231, 'startup_probe': {'exec_': {'command': ['command_value1', 'command_value2']}, 'period_seconds': 1489, 'timeout_seconds': 1621}, 'health_probe': {}}}, 'input_config': {'gcs_source': {'uris': ['uris_value1', 'uris_value2']}, 'bigquery_source': {'input_uri': 'input_uri_value'}, 'instances_format': 'instances_format_value'}, 'instance_config': {'instance_type': 'instance_type_value', 'key_field': 'key_field_value', 'included_fields': ['included_fields_value1', 'included_fields_value2'], 'excluded_fields': ['excluded_fields_value1', 'excluded_fields_value2']}, 'model_parameters': {'null_value': 0, 'number_value': 0.1285, 'string_value': 'string_value_value', 'bool_value': True, 'struct_value': {'fields': {}}, 'list_value': {'values': {}}}, 'output_config': {'gcs_destination': {'output_uri_prefix': 'output_uri_prefix_value'}, 'bigquery_destination': {'output_uri': 'output_uri_value'}, 'predictions_format': 'predictions_format_value'}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'starting_replica_count': 2355, 'max_replica_count': 1805}, 'service_account': 'service_account_value', 'manual_batch_tuning_parameters': {'batch_size': 1052}, 'generate_explanation': True, 'explanation_spec': {'parameters': {'sampled_shapley_attribution': {'path_count': 1077}, 'integrated_gradients_attribution': {'step_count': 1092, 'smooth_grad_config': {'noise_sigma': 0.11660000000000001, 'feature_noise_sigma': {'noise_sigma': [{'name': 'name_value', 'sigma': 0.529}]}, 'noisy_sample_count': 1947}, 'blur_baseline_config': {'max_blur_sigma': 0.1482}}, 'xrai_attribution': {'step_count': 1092, 'smooth_grad_config': {}, 'blur_baseline_config': {}}, 'examples': {'example_gcs_source': {'data_format': 1, 'gcs_source': {}}, 'nearest_neighbor_search_config': {}, 'presets': {'query': 1, 'modality': 1}, 'neighbor_count': 1494}, 'top_k': 541, 'output_indices': {}}, 'metadata': {'inputs': {}, 'outputs': {}, 'feature_attributions_schema_uri': 'feature_attributions_schema_uri_value', 'latent_space_source': 'latent_space_source_value'}}, 'output_info': {'gcs_output_directory': 'gcs_output_directory_value', 'bigquery_output_dataset': 'bigquery_output_dataset_value', 'bigquery_output_table': 'bigquery_output_table_value'}, 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'partial_failures': {}, 'resources_consumed': {'replica_hours': 0.13920000000000002}, 'completion_stats': {'successful_count': 1736, 'failed_count': 1261, 'incomplete_count': 1720, 'successful_forecast_point_count': 3335}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'end_time': {}, 'update_time': {}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'disable_container_logging': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -26328,10 +26329,31 @@ def test_parse_persistent_resource_path():
     actual = JobServiceClient.parse_persistent_resource_path(path)
     assert expected == actual
 
+def test_reservation_path():
+    project_id_or_number = "squid"
+    zone = "clam"
+    reservation_name = "whelk"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = JobServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "octopus",
+        "zone": "oyster",
+        "reservation_name": "nudibranch",
+    }
+    path = JobServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
 def test_tensorboard_path():
-    project = "squid"
-    location = "clam"
-    tensorboard = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    tensorboard = "winkle"
     expected = "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(project=project, location=location, tensorboard=tensorboard, )
     actual = JobServiceClient.tensorboard_path(project, location, tensorboard)
     assert expected == actual
@@ -26339,9 +26361,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "tensorboard": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "tensorboard": "abalone",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -26350,10 +26372,10 @@ def test_parse_tensorboard_path():
     assert expected == actual
 
 def test_trial_path():
-    project = "cuttlefish"
-    location = "mussel"
-    study = "winkle"
-    trial = "nautilus"
+    project = "squid"
+    location = "clam"
+    study = "whelk"
+    trial = "octopus"
     expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(project=project, location=location, study=study, trial=trial, )
     actual = JobServiceClient.trial_path(project, location, study, trial)
     assert expected == actual
@@ -26361,10 +26383,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
-        "study": "squid",
-        "trial": "clam",
+        "project": "oyster",
+        "location": "nudibranch",
+        "study": "cuttlefish",
+        "trial": "mussel",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -26373,7 +26395,7 @@ def test_parse_trial_path():
     assert expected == actual
 
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = JobServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -26381,7 +26403,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "nautilus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -26390,7 +26412,7 @@ def test_parse_common_billing_account_path():
     assert expected == actual
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "scallop"
     expected = "folders/{folder}".format(folder=folder, )
     actual = JobServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -26398,7 +26420,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "abalone",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -26407,7 +26429,7 @@ def test_parse_common_folder_path():
     assert expected == actual
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "squid"
     expected = "organizations/{organization}".format(organization=organization, )
     actual = JobServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -26415,7 +26437,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "clam",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -26424,7 +26446,7 @@ def test_parse_common_organization_path():
     assert expected == actual
 
 def test_common_project_path():
-    project = "winkle"
+    project = "whelk"
     expected = "projects/{project}".format(project=project, )
     actual = JobServiceClient.common_project_path(project)
     assert expected == actual
@@ -26432,7 +26454,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "octopus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -26441,8 +26463,8 @@ def test_parse_common_project_path():
     assert expected == actual
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = JobServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -26450,8 +26472,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = JobServiceClient.common_location_path(**expected)
 

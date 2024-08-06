@@ -60,6 +60,7 @@ from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import persistent_resource
 from google.cloud.aiplatform_v1.types import persistent_resource as gca_persistent_resource
 from google.cloud.aiplatform_v1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -3163,7 +3164,7 @@ def test_create_persistent_resource_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["persistent_resource"] = {'name': 'name_value', 'display_name': 'display_name_value', 'resource_pools': [{'id': 'id_value', 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'replica_count': 1384, 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}, 'used_replica_count': 1912, 'autoscaling_spec': {'min_replica_count': 1803, 'max_replica_count': 1805}}], 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'update_time': {}, 'labels': {}, 'network': 'network_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'resource_runtime_spec': {'service_account_spec': {'enable_custom_service_account': True, 'service_account': 'service_account_value'}, 'ray_spec': {'image_uri': 'image_uri_value', 'resource_pool_images': {}, 'head_node_resource_pool_id': 'head_node_resource_pool_id_value', 'ray_metric_spec': {'disabled': True}, 'ray_logs_spec': {'disabled': True}}}, 'resource_runtime': {'access_uris': {}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2']}
+    request_init["persistent_resource"] = {'name': 'name_value', 'display_name': 'display_name_value', 'resource_pools': [{'id': 'id_value', 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'replica_count': 1384, 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}, 'used_replica_count': 1912, 'autoscaling_spec': {'min_replica_count': 1803, 'max_replica_count': 1805}}], 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'update_time': {}, 'labels': {}, 'network': 'network_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'resource_runtime_spec': {'service_account_spec': {'enable_custom_service_account': True, 'service_account': 'service_account_value'}, 'ray_spec': {'image_uri': 'image_uri_value', 'resource_pool_images': {}, 'head_node_resource_pool_id': 'head_node_resource_pool_id_value', 'ray_metric_spec': {'disabled': True}, 'ray_logs_spec': {'disabled': True}}}, 'resource_runtime': {'access_uris': {}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2']}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -4372,7 +4373,7 @@ def test_update_persistent_resource_rest(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'persistent_resource': {'name': 'projects/sample1/locations/sample2/persistentResources/sample3'}}
-    request_init["persistent_resource"] = {'name': 'projects/sample1/locations/sample2/persistentResources/sample3', 'display_name': 'display_name_value', 'resource_pools': [{'id': 'id_value', 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value'}, 'replica_count': 1384, 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}, 'used_replica_count': 1912, 'autoscaling_spec': {'min_replica_count': 1803, 'max_replica_count': 1805}}], 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'update_time': {}, 'labels': {}, 'network': 'network_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'resource_runtime_spec': {'service_account_spec': {'enable_custom_service_account': True, 'service_account': 'service_account_value'}, 'ray_spec': {'image_uri': 'image_uri_value', 'resource_pool_images': {}, 'head_node_resource_pool_id': 'head_node_resource_pool_id_value', 'ray_metric_spec': {'disabled': True}, 'ray_logs_spec': {'disabled': True}}}, 'resource_runtime': {'access_uris': {}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2']}
+    request_init["persistent_resource"] = {'name': 'projects/sample1/locations/sample2/persistentResources/sample3', 'display_name': 'display_name_value', 'resource_pools': [{'id': 'id_value', 'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'replica_count': 1384, 'disk_spec': {'boot_disk_type': 'boot_disk_type_value', 'boot_disk_size_gb': 1792}, 'used_replica_count': 1912, 'autoscaling_spec': {'min_replica_count': 1803, 'max_replica_count': 1805}}], 'state': 1, 'error': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'start_time': {}, 'update_time': {}, 'labels': {}, 'network': 'network_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'resource_runtime_spec': {'service_account_spec': {'enable_custom_service_account': True, 'service_account': 'service_account_value'}, 'ray_spec': {'image_uri': 'image_uri_value', 'resource_pool_images': {}, 'head_node_resource_pool_id': 'head_node_resource_pool_id_value', 'ray_metric_spec': {'disabled': True}, 'ray_logs_spec': {'disabled': True}}}, 'resource_runtime': {'access_uris': {}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2']}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -5556,8 +5557,29 @@ def test_parse_persistent_resource_path():
     actual = PersistentResourceServiceClient.parse_persistent_resource_path(path)
     assert expected == actual
 
+def test_reservation_path():
+    project_id_or_number = "scallop"
+    zone = "abalone"
+    reservation_name = "squid"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = PersistentResourceServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "clam",
+        "zone": "whelk",
+        "reservation_name": "octopus",
+    }
+    path = PersistentResourceServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PersistentResourceServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = PersistentResourceServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -5565,7 +5587,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = PersistentResourceServiceClient.common_billing_account_path(**expected)
 
@@ -5574,7 +5596,7 @@ def test_parse_common_billing_account_path():
     assert expected == actual
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(folder=folder, )
     actual = PersistentResourceServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -5582,7 +5604,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = PersistentResourceServiceClient.common_folder_path(**expected)
 
@@ -5591,7 +5613,7 @@ def test_parse_common_folder_path():
     assert expected == actual
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(organization=organization, )
     actual = PersistentResourceServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -5599,7 +5621,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = PersistentResourceServiceClient.common_organization_path(**expected)
 
@@ -5608,7 +5630,7 @@ def test_parse_common_organization_path():
     assert expected == actual
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(project=project, )
     actual = PersistentResourceServiceClient.common_project_path(project)
     assert expected == actual
@@ -5616,7 +5638,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = PersistentResourceServiceClient.common_project_path(**expected)
 
@@ -5625,8 +5647,8 @@ def test_parse_common_project_path():
     assert expected == actual
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = PersistentResourceServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -5634,8 +5656,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = PersistentResourceServiceClient.common_location_path(**expected)
 
