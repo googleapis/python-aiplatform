@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.61.0](https://github.com/googleapis/python-aiplatform/compare/v1.60.0...v1.61.0) (2024-08-05)
+
+
+### Features
+
+* Add a warning message for scheduled deprecation of Coherence metric class ([7f238fb](https://github.com/googleapis/python-aiplatform/commit/7f238fb3cebc44893b4e6959a77743cc4d96138e))
+* Add deprecation messages for all model-based metric classes ([71c0fd3](https://github.com/googleapis/python-aiplatform/commit/71c0fd397139a95b6045f898e906ce11b2e7e8ce))
+* Add support for task type (CODE_RETRIEVAL_QUERY) through get_embeddings. ([f2ce1e4](https://github.com/googleapis/python-aiplatform/commit/f2ce1e4caea9f344e39fc3232f697b1a6ea4f99a))
+* Add system_instruction to LangchainAgent template. ([c71c3dd](https://github.com/googleapis/python-aiplatform/commit/c71c3ddbfeaa577dfce683b3299d94e77d1c4895))
+* Adding Slack and Jira data connector for RAG to SDK ([d92e7c9](https://github.com/googleapis/python-aiplatform/commit/d92e7c91d280dd417d2c2a2cf5abc36592888593))
+* Allow protobuf 5.x ([ce9cd5d](https://github.com/googleapis/python-aiplatform/commit/ce9cd5def14597822c1d071e438cf63b6d4ba3ca))
+* LVM - Release `ImageGenerationModel` to GA ([718c199](https://github.com/googleapis/python-aiplatform/commit/718c1997778310b6898344b2e5a34513e7a82e5f))
+* Support "update" for reasoning engine. ([b73ef3e](https://github.com/googleapis/python-aiplatform/commit/b73ef3eaa2d88dbc8071e3a4f0c7da934683fc2a))
+* Update Rapid Evaluation Service QPS. Add a customizable evaluation service QPS parameter. ([9ee9289](https://github.com/googleapis/python-aiplatform/commit/9ee9289fbe5face719515e453d4f81648b44e7b1))
+
+
+### Documentation
+
+* Change init sample to use vertexai ([829e0f6](https://github.com/googleapis/python-aiplatform/commit/829e0f6fd286cf2de2ac307a836305766473faef))
+* Make small fixes to file import documentation ([f7d65c3](https://github.com/googleapis/python-aiplatform/commit/f7d65c32948c54bcf3a6927639f2173b556bb310))
+
 ## [1.60.0](https://github.com/googleapis/python-aiplatform/compare/v1.59.0...v1.60.0) (2024-07-24)
 
 
