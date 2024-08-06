@@ -252,6 +252,10 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import PairwiseMetricInput
+from .types.evaluation_service import PairwiseMetricInstance
+from .types.evaluation_service import PairwiseMetricResult
+from .types.evaluation_service import PairwiseMetricSpec
 from .types.evaluation_service import PairwiseQuestionAnsweringQualityInput
 from .types.evaluation_service import PairwiseQuestionAnsweringQualityInstance
 from .types.evaluation_service import PairwiseQuestionAnsweringQualityResult
@@ -260,6 +264,10 @@ from .types.evaluation_service import PairwiseSummarizationQualityInput
 from .types.evaluation_service import PairwiseSummarizationQualityInstance
 from .types.evaluation_service import PairwiseSummarizationQualityResult
 from .types.evaluation_service import PairwiseSummarizationQualitySpec
+from .types.evaluation_service import PointwiseMetricInput
+from .types.evaluation_service import PointwiseMetricInstance
+from .types.evaluation_service import PointwiseMetricResult
+from .types.evaluation_service import PointwiseMetricSpec
 from .types.evaluation_service import QuestionAnsweringCorrectnessInput
 from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
 from .types.evaluation_service import QuestionAnsweringCorrectnessResult
@@ -1703,6 +1711,10 @@ __all__ = (
     "NotebookRuntimeType",
     "NotebookServiceClient",
     "PairwiseChoice",
+    "PairwiseMetricInput",
+    "PairwiseMetricInstance",
+    "PairwiseMetricResult",
+    "PairwiseMetricSpec",
     "PairwiseQuestionAnsweringQualityInput",
     "PairwiseQuestionAnsweringQualityInstance",
     "PairwiseQuestionAnsweringQualityResult",
@@ -1725,6 +1737,10 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "PointwiseMetricInput",
+    "PointwiseMetricInstance",
+    "PointwiseMetricResult",
+    "PointwiseMetricSpec",
     "Port",
     "PredefinedSplit",
     "PredictLongRunningMetadata",

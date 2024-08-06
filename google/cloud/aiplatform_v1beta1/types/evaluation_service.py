@@ -97,6 +97,14 @@ __protobuf__ = proto.module(
         "QuestionAnsweringCorrectnessInstance",
         "QuestionAnsweringCorrectnessSpec",
         "QuestionAnsweringCorrectnessResult",
+        "PointwiseMetricInput",
+        "PointwiseMetricInstance",
+        "PointwiseMetricSpec",
+        "PointwiseMetricResult",
+        "PairwiseMetricInput",
+        "PairwiseMetricInstance",
+        "PairwiseMetricSpec",
+        "PairwiseMetricResult",
         "ToolCallValidInput",
         "ToolCallValidSpec",
         "ToolCallValidInstance",
@@ -226,6 +234,14 @@ class EvaluateInstancesRequest(proto.Message):
         question_answering_correctness_input (google.cloud.aiplatform_v1beta1.types.QuestionAnsweringCorrectnessInput):
             Input for question answering correctness
             metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        pointwise_metric_input (google.cloud.aiplatform_v1beta1.types.PointwiseMetricInput):
+            Input for pointwise metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        pairwise_metric_input (google.cloud.aiplatform_v1beta1.types.PairwiseMetricInput):
+            Input for pairwise metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
         tool_call_valid_input (google.cloud.aiplatform_v1beta1.types.ToolCallValidInput):
@@ -360,6 +376,18 @@ class EvaluateInstancesRequest(proto.Message):
             message="QuestionAnsweringCorrectnessInput",
         )
     )
+    pointwise_metric_input: "PointwiseMetricInput" = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        oneof="metric_inputs",
+        message="PointwiseMetricInput",
+    )
+    pairwise_metric_input: "PairwiseMetricInput" = proto.Field(
+        proto.MESSAGE,
+        number=29,
+        oneof="metric_inputs",
+        message="PairwiseMetricInput",
+    )
     tool_call_valid_input: "ToolCallValidInput" = proto.Field(
         proto.MESSAGE,
         number=19,
@@ -477,6 +505,15 @@ class EvaluateInstancesResponse(proto.Message):
         question_answering_correctness_result (google.cloud.aiplatform_v1beta1.types.QuestionAnsweringCorrectnessResult):
             Result for question answering correctness
             metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        pointwise_metric_result (google.cloud.aiplatform_v1beta1.types.PointwiseMetricResult):
+            Generic metrics.
+            Result for pointwise metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        pairwise_metric_result (google.cloud.aiplatform_v1beta1.types.PairwiseMetricResult):
+            Result for pairwise metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
         tool_call_valid_results (google.cloud.aiplatform_v1beta1.types.ToolCallValidResults):
@@ -608,6 +645,18 @@ class EvaluateInstancesResponse(proto.Message):
             oneof="evaluation_results",
             message="QuestionAnsweringCorrectnessResult",
         )
+    )
+    pointwise_metric_result: "PointwiseMetricResult" = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        oneof="evaluation_results",
+        message="PointwiseMetricResult",
+    )
+    pairwise_metric_result: "PairwiseMetricResult" = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        oneof="evaluation_results",
+        message="PairwiseMetricResult",
     )
     tool_call_valid_results: "ToolCallValidResults" = proto.Field(
         proto.MESSAGE,
@@ -2602,6 +2651,184 @@ class QuestionAnsweringCorrectnessResult(proto.Message):
         proto.FLOAT,
         number=3,
         optional=True,
+    )
+
+
+class PointwiseMetricInput(proto.Message):
+    r"""Input for pointwise metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.PointwiseMetricSpec):
+            Required. Spec for pointwise metric.
+        instance (google.cloud.aiplatform_v1beta1.types.PointwiseMetricInstance):
+            Required. Pointwise metric instance.
+    """
+
+    metric_spec: "PointwiseMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="PointwiseMetricSpec",
+    )
+    instance: "PointwiseMetricInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="PointwiseMetricInstance",
+    )
+
+
+class PointwiseMetricInstance(proto.Message):
+    r"""Pointwise metric instance. Usually one instance corresponds
+    to one row in an evaluation dataset.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        json_instance (str):
+            Instance specified as a json string. String key-value pairs
+            are expected in the json_instance to render
+            PointwiseMetricSpec.instance_prompt_template.
+
+            This field is a member of `oneof`_ ``instance``.
+    """
+
+    json_instance: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="instance",
+    )
+
+
+class PointwiseMetricSpec(proto.Message):
+    r"""Spec for pointwise metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        metric_prompt_template (str):
+            Required. Metric prompt template for
+            pointwise metric.
+
+            This field is a member of `oneof`_ ``_metric_prompt_template``.
+    """
+
+    metric_prompt_template: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class PointwiseMetricResult(proto.Message):
+    r"""Spec for pointwise metric result.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. Pointwise metric score.
+
+            This field is a member of `oneof`_ ``_score``.
+        explanation (str):
+            Output only. Explanation for pointwise metric
+            score.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+    explanation: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class PairwiseMetricInput(proto.Message):
+    r"""Input for pairwise metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.PairwiseMetricSpec):
+            Required. Spec for pairwise metric.
+        instance (google.cloud.aiplatform_v1beta1.types.PairwiseMetricInstance):
+            Required. Pairwise metric instance.
+    """
+
+    metric_spec: "PairwiseMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="PairwiseMetricSpec",
+    )
+    instance: "PairwiseMetricInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="PairwiseMetricInstance",
+    )
+
+
+class PairwiseMetricInstance(proto.Message):
+    r"""Pairwise metric instance. Usually one instance corresponds to
+    one row in an evaluation dataset.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        json_instance (str):
+            Instance specified as a json string. String key-value pairs
+            are expected in the json_instance to render
+            PairwiseMetricSpec.instance_prompt_template.
+
+            This field is a member of `oneof`_ ``instance``.
+    """
+
+    json_instance: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="instance",
+    )
+
+
+class PairwiseMetricSpec(proto.Message):
+    r"""Spec for pairwise metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        metric_prompt_template (str):
+            Required. Metric prompt template for pairwise
+            metric.
+
+            This field is a member of `oneof`_ ``_metric_prompt_template``.
+    """
+
+    metric_prompt_template: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class PairwiseMetricResult(proto.Message):
+    r"""Spec for pairwise metric result.
+
+    Attributes:
+        pairwise_choice (google.cloud.aiplatform_v1beta1.types.PairwiseChoice):
+            Output only. Pairwise metric choice.
+        explanation (str):
+            Output only. Explanation for pairwise metric
+            score.
+    """
+
+    pairwise_choice: "PairwiseChoice" = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum="PairwiseChoice",
+    )
+    explanation: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
