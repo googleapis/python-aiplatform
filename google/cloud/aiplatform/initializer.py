@@ -121,6 +121,10 @@ class _Config:
         self._request_metadata = None
         self._resource_type = None
 
+    def init_auto(self, *):
+        # TODO: create a GCP project with a location
+        self.init(project=project, location=location)
+
     def init(
         self,
         *,
