@@ -248,6 +248,36 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         response = self.execution_api_client.execute_extension(request)
         return _try_parse_execution_response(response)
 
+    def query(
+        self,
+        contents: list[types.Content],
+    ) -> list[types.Content]:
+        """Queries an extension with the specified contents.
+
+        Args:
+          contents (list[Content]):
+              Required. The content of the current
+              conversation with the model.
+              For single-turn queries, this is a single
+              instance. For multi-turn queries, this is a
+              repeated field that contains conversation
+              history + latest request.
+
+        Returns:
+            The result of querying the extension.
+
+        Raises:
+            RuntimeError: If the response contains an error.
+        """
+        request = types.QueryExtensionRequest(
+            name=self.resource_name,
+            contents=contents,
+        )
+        response = self.execution_api_client.query_extension(request)
+        if response.failure_message:
+            raise RuntimeError(response.failure_message)
+        return response.steps
+
     @classmethod
     def from_hub(
         cls,
