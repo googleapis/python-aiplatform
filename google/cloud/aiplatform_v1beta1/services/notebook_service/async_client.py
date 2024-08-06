@@ -110,6 +110,8 @@ class NotebookServiceAsyncClient:
     parse_notebook_runtime_template_path = staticmethod(
         NotebookServiceClient.parse_notebook_runtime_template_path
     )
+    reservation_path = staticmethod(NotebookServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(NotebookServiceClient.parse_reservation_path)
     schedule_path = staticmethod(NotebookServiceClient.schedule_path)
     parse_schedule_path = staticmethod(NotebookServiceClient.parse_schedule_path)
     subnetwork_path = staticmethod(NotebookServiceClient.subnetwork_path)

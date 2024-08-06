@@ -757,6 +757,9 @@ from .prediction_service import (
 from .publisher_model import (
     PublisherModel,
 )
+from .reservation_affinity import (
+    ReservationAffinity,
+)
 from .saved_query import (
     SavedQuery,
 )
@@ -1509,6 +1512,7 @@ __all__ = (
     "StreamingRawPredictResponse",
     "StreamRawPredictRequest",
     "PublisherModel",
+    "ReservationAffinity",
     "SavedQuery",
     "Schedule",
     "CreateScheduleRequest",

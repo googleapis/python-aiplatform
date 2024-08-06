@@ -153,6 +153,8 @@ class JobServiceAsyncClient:
     parse_persistent_resource_path = staticmethod(
         JobServiceClient.parse_persistent_resource_path
     )
+    reservation_path = staticmethod(JobServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(JobServiceClient.parse_reservation_path)
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)

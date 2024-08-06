@@ -75,6 +75,7 @@ from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import reservation_affinity
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -6545,6 +6546,11 @@ def test_create_model_monitor_rest(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
                     },
                     "starting_replica_count": 2355,
                     "max_replica_count": 1805,
@@ -7074,6 +7080,11 @@ def test_update_model_monitor_rest(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
                     },
                     "starting_replica_count": 2355,
                     "max_replica_count": 1805,
@@ -8623,6 +8634,11 @@ def test_create_model_monitoring_job_rest(request_type):
                                 "accelerator_type": 1,
                                 "accelerator_count": 1805,
                                 "tpu_topology": "tpu_topology_value",
+                                "reservation_affinity": {
+                                    "reservation_affinity_type": 1,
+                                    "key": "key_value",
+                                    "values": ["values_value1", "values_value2"],
+                                },
                             },
                             "starting_replica_count": 2355,
                             "max_replica_count": 1805,
@@ -11768,10 +11784,38 @@ def test_parse_model_monitoring_job_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "whelk"
+    zone = "octopus"
+    reservation_name = "oyster"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = ModelMonitoringServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "nudibranch",
+        "zone": "cuttlefish",
+        "reservation_name": "mussel",
+    }
+    path = ModelMonitoringServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelMonitoringServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_schedule_path():
-    project = "whelk"
-    location = "octopus"
-    schedule = "oyster"
+    project = "winkle"
+    location = "nautilus"
+    schedule = "scallop"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -11783,9 +11827,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "nudibranch",
-        "location": "cuttlefish",
-        "schedule": "mussel",
+        "project": "abalone",
+        "location": "squid",
+        "schedule": "clam",
     }
     path = ModelMonitoringServiceClient.schedule_path(**expected)
 
@@ -11795,7 +11839,7 @@ def test_parse_schedule_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "whelk"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -11805,7 +11849,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "octopus",
     }
     path = ModelMonitoringServiceClient.common_billing_account_path(**expected)
 
@@ -11815,7 +11859,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "scallop"
+    folder = "oyster"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -11825,7 +11869,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "nudibranch",
     }
     path = ModelMonitoringServiceClient.common_folder_path(**expected)
 
@@ -11835,7 +11879,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "squid"
+    organization = "cuttlefish"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -11845,7 +11889,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "mussel",
     }
     path = ModelMonitoringServiceClient.common_organization_path(**expected)
 
@@ -11855,7 +11899,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "whelk"
+    project = "winkle"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -11865,7 +11909,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "nautilus",
     }
     path = ModelMonitoringServiceClient.common_project_path(**expected)
 
@@ -11875,8 +11919,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "scallop"
+    location = "abalone"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -11887,8 +11931,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "squid",
+        "location": "clam",
     }
     path = ModelMonitoringServiceClient.common_location_path(**expected)
 

@@ -86,6 +86,7 @@ from google.cloud.aiplatform_v1.types import model_monitoring
 from google.cloud.aiplatform_v1.types import nas_job
 from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2
@@ -16641,6 +16642,11 @@ def test_create_custom_job_rest(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -20235,6 +20241,11 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -22117,6 +22128,11 @@ def test_create_nas_job_rest(request_type):
                                     "accelerator_type": 1,
                                     "accelerator_count": 1805,
                                     "tpu_topology": "tpu_topology_value",
+                                    "reservation_affinity": {
+                                        "reservation_affinity_type": 1,
+                                        "key": "key_value",
+                                        "values": ["values_value1", "values_value2"],
+                                    },
                                 },
                                 "replica_count": 1384,
                                 "nfs_mounts": [
@@ -24611,6 +24627,11 @@ def test_create_batch_prediction_job_rest(request_type):
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
                 "tpu_topology": "tpu_topology_value",
+                "reservation_affinity": {
+                    "reservation_affinity_type": 1,
+                    "key": "key_value",
+                    "values": ["values_value1", "values_value2"],
+                },
             },
             "starting_replica_count": 2355,
             "max_replica_count": 1805,
@@ -30706,10 +30727,38 @@ def test_parse_persistent_resource_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "squid"
+    zone = "clam"
+    reservation_name = "whelk"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = JobServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "octopus",
+        "zone": "oyster",
+        "reservation_name": "nudibranch",
+    }
+    path = JobServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_tensorboard_path():
-    project = "squid"
-    location = "clam"
-    tensorboard = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    tensorboard = "winkle"
     expected = (
         "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
             project=project,
@@ -30723,9 +30772,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "tensorboard": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "tensorboard": "abalone",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -30735,10 +30784,10 @@ def test_parse_tensorboard_path():
 
 
 def test_trial_path():
-    project = "cuttlefish"
-    location = "mussel"
-    study = "winkle"
-    trial = "nautilus"
+    project = "squid"
+    location = "clam"
+    study = "whelk"
+    trial = "octopus"
     expected = (
         "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project,
@@ -30753,10 +30802,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
-        "study": "squid",
-        "trial": "clam",
+        "project": "oyster",
+        "location": "nudibranch",
+        "study": "cuttlefish",
+        "trial": "mussel",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -30766,7 +30815,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -30776,7 +30825,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "nautilus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -30786,7 +30835,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "scallop"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -30796,7 +30845,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "abalone",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -30806,7 +30855,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "squid"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -30816,7 +30865,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "clam",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -30826,7 +30875,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "winkle"
+    project = "whelk"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -30836,7 +30885,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "octopus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -30846,8 +30895,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -30858,8 +30907,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = JobServiceClient.common_location_path(**expected)
 

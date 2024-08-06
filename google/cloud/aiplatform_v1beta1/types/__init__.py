@@ -968,6 +968,9 @@ from .reasoning_engine_service import (
     UpdateReasoningEngineOperationMetadata,
     UpdateReasoningEngineRequest,
 )
+from .reservation_affinity import (
+    ReservationAffinity,
+)
 from .saved_query import (
     SavedQuery,
 )
@@ -1938,6 +1941,7 @@ __all__ = (
     "ListReasoningEnginesResponse",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
+    "ReservationAffinity",
     "SavedQuery",
     "Schedule",
     "CreateScheduleRequest",

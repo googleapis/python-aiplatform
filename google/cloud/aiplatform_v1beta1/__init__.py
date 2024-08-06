@@ -872,6 +872,7 @@ from .types.reasoning_engine_service import ListReasoningEnginesRequest
 from .types.reasoning_engine_service import ListReasoningEnginesResponse
 from .types.reasoning_engine_service import UpdateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import UpdateReasoningEngineRequest
+from .types.reservation_affinity import ReservationAffinity
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -1808,6 +1809,7 @@ __all__ = (
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
     "ResourceRuntimeSpec",

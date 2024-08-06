@@ -20,6 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
+from google.cloud.aiplatform_v1.types import (
+    reservation_affinity as gca_reservation_affinity,
+)
 
 
 __protobuf__ = proto.module(
@@ -71,6 +74,10 @@ class MachineSpec(proto.Message):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
             "2x2x1").
+        reservation_affinity (google.cloud.aiplatform_v1.types.ReservationAffinity):
+            Optional. Immutable. Configuration
+            controlling how this resource pool consumes
+            reservation.
     """
 
     machine_type: str = proto.Field(
@@ -89,6 +96,11 @@ class MachineSpec(proto.Message):
     tpu_topology: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    reservation_affinity: gca_reservation_affinity.ReservationAffinity = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=gca_reservation_affinity.ReservationAffinity,
     )
 
 
@@ -157,6 +169,9 @@ class DedicatedResources(proto.Message):
             and
             [autoscaling_metric_specs.target][google.cloud.aiplatform.v1.AutoscalingMetricSpec.target]
             to ``80``.
+        spot (bool):
+            Optional. If true, schedule the deployment workload on `spot
+            VMs <https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms>`__.
     """
 
     machine_spec: "MachineSpec" = proto.Field(
@@ -178,6 +193,10 @@ class DedicatedResources(proto.Message):
         proto.MESSAGE,
         number=4,
         message="AutoscalingMetricSpec",
+    )
+    spot: bool = proto.Field(
+        proto.BOOL,
+        number=5,
     )
 
 
