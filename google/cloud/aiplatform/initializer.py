@@ -387,12 +387,14 @@ class _Config:
             return self._resource_type
 
         vertex_product = os.getenv("VERTEX_PRODUCT")
-        if vertex_product == "COLAB_ENTERPRISE":
-            self._resource_type = _Product.COLAB_ENTERPRISE
-        if vertex_product == "WORKBENCH_CUSTOM_CONTAINER":
-            self._resource_type = _Product.WORKBENCH_CUSTOM_CONTAINER
-        if vertex_product == "WORKBENCH_INSTANCE":
-            self._resource_type = _Product.WORKBENCH_INSTANCE
+        product_mapping = {
+            "COLAB_ENTERPRISE": _Product.COLAB_ENTERPRISE,
+            "WORKBENCH_CUSTOM_CONTAINER": _Product.WORKBENCH_CUSTOM_CONTAINER,
+            "WORKBENCH_INSTANCE": _Product.WORKBENCH_INSTANCE,
+        }
+
+        if vertex_product in product_mapping:
+            self._resource_type = product_mapping[vertex_product]
 
         return self._resource_type
 

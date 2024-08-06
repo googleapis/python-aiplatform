@@ -158,6 +158,14 @@ def import_files_request_eq(returned_request, expected_request):
         returned_request.import_rag_files_config.google_drive_source.resource_ids
         == expected_request.import_rag_files_config.google_drive_source.resource_ids
     )
+    assert (
+        returned_request.import_rag_files_config.slack_source.channels
+        == expected_request.import_rag_files_config.slack_source.channels
+    )
+    assert (
+        returned_request.import_rag_files_config.jira_source.jira_queries
+        == expected_request.import_rag_files_config.jira_source.jira_queries
+    )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -420,6 +428,24 @@ class TestRagDataManagement:
                 chunk_overlap=tc.TEST_CHUNK_OVERLAP,
             )
         e.match("path must be a Google Cloud Storage uri or a Google Drive url")
+
+    def test_prepare_import_files_request_slack_source(self):
+        request = prepare_import_files_request(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            source=tc.TEST_SLACK_SOURCE,
+            chunk_size=tc.TEST_CHUNK_SIZE,
+            chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+        )
+        import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_SLACK_SOURCE)
+
+    def test_prepare_import_files_request_jira_source(self):
+        request = prepare_import_files_request(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            source=tc.TEST_JIRA_SOURCE,
+            chunk_size=tc.TEST_CHUNK_SIZE,
+            chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+        )
+        import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_JIRA_SOURCE)
 
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.EmbeddingModelConfig(

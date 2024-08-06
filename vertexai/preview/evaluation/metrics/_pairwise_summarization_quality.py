@@ -16,9 +16,18 @@
 #
 
 from typing import Callable, Optional, Union
+import warnings
+
 from vertexai.generative_models import _generative_models
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import _base
+
+_DEPRECATION_WARNING_MESSAGE = (
+    "After google-cloud-aiplatform>1.63.0, using metric class"
+    " `PairwiseSummarizationQuality` will result in an error. Please use"
+    " string metric name `pairwise_summarization_quality` or define a"
+    " PairwiseMetric instead."
+)
 
 
 class PairwiseSummarizationQuality(_base.PairwiseMetric):
@@ -35,6 +44,7 @@ class PairwiseSummarizationQuality(_base.PairwiseMetric):
         use_reference: bool = False,
         version: Optional[int] = None
     ):
+        warnings.warn(message=_DEPRECATION_WARNING_MESSAGE)
         super().__init__(
             metric=PairwiseSummarizationQuality._metric_name,
             baseline_model=baseline_model,

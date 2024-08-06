@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 import re
-from typing import Any, Dict, Sequence, Union
+from typing import Any, Dict, Optional, Sequence, Union
+from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1 import (
     RagEmbeddingModelConfig,
     GoogleDriveSource,
@@ -24,6 +25,8 @@ from google.cloud.aiplatform_v1beta1 import (
     RagFileChunkingConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    SlackSource as GapicSlackSource,
+    JiraSource as GapicJiraSource,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
@@ -35,6 +38,8 @@ from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     RagCorpus,
     RagFile,
+    SlackChannelsSource,
+    JiraSource,
 )
 
 
@@ -153,9 +158,62 @@ def convert_path_to_resource_id(
         )
 
 
+def convert_source_for_rag_import(
+    source: Union[SlackChannelsSource, JiraSource]
+) -> Union[GapicSlackSource, GapicJiraSource]:
+    """Converts a SlackChannelsSource or JiraSource to a GapicSlackSource or GapicJiraSource."""
+    if isinstance(source, SlackChannelsSource):
+        result_source_channels = []
+        for channel in source.channels:
+            api_key = channel.api_key
+            cid = channel.channel_id
+            start_time = channel.start_time
+            end_time = channel.end_time
+            result_channels = GapicSlackSource.SlackChannels(
+                channels=[
+                    GapicSlackSource.SlackChannels.SlackChannel(
+                        channel_id=cid,
+                        start_time=start_time,
+                        end_time=end_time,
+                    )
+                ],
+                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version=api_key
+                ),
+            )
+            result_source_channels.append(result_channels)
+        return GapicSlackSource(
+            channels=result_source_channels,
+        )
+    elif isinstance(source, JiraSource):
+        result_source_queries = []
+        for query in source.queries:
+            api_key = query.api_key
+            custom_queries = query.custom_queries
+            projects = query.jira_projects
+            email = query.email
+            server_uri = query.server_uri
+            result_query = GapicJiraSource.JiraQueries(
+                custom_queries=custom_queries,
+                projects=projects,
+                email=email,
+                server_uri=server_uri,
+                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version=api_key
+                ),
+            )
+            result_source_queries.append(result_query)
+        return GapicJiraSource(
+            jira_queries=result_source_queries,
+        )
+    else:
+        raise TypeError("source must be a SlackChannelsSource or JiraSource.")
+
+
 def prepare_import_files_request(
     corpus_name: str,
-    paths: Sequence[str],
+    paths: Optional[Sequence[str]] = None,
+    source: Optional[Union[SlackChannelsSource, JiraSource]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
     max_embedding_requests_per_min: int = 1000,
@@ -174,22 +232,28 @@ def prepare_import_files_request(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
 
-    uris = []
-    resource_ids = []
-    for p in paths:
-        output = convert_path_to_resource_id(p)
-        if isinstance(output, str):
-            uris.append(p)
-        else:
-            resource_ids.append(output)
-
-    if uris:
-        import_rag_files_config.gcs_source.uris = uris
-    if resource_ids:
-        google_drive_source = GoogleDriveSource(
-            resource_ids=resource_ids,
-        )
-        import_rag_files_config.google_drive_source = google_drive_source
+    if source is not None:
+        gapic_source = convert_source_for_rag_import(source)
+        if isinstance(gapic_source, GapicSlackSource):
+            import_rag_files_config.slack_source = gapic_source
+        if isinstance(gapic_source, GapicJiraSource):
+            import_rag_files_config.jira_source = gapic_source
+    else:
+        uris = []
+        resource_ids = []
+        for p in paths:
+            output = convert_path_to_resource_id(p)
+            if isinstance(output, str):
+                uris.append(p)
+            else:
+                resource_ids.append(output)
+        if uris:
+            import_rag_files_config.gcs_source.uris = uris
+        if resource_ids:
+            google_drive_source = GoogleDriveSource(
+                resource_ids=resource_ids,
+            )
+            import_rag_files_config.google_drive_source = google_drive_source
 
     request = ImportRagFilesRequest(
         parent=corpus_name, import_rag_files_config=import_rag_files_config
