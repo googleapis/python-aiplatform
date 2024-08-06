@@ -171,6 +171,36 @@ class TestReadBigQuery:
         "parallelism",
         [1, 2, 3, 4, 10, 100],
     )
+    def test_create_reader_with_row_restriction(self, parallelism):
+        bq_ds = bigquery_datasource.BigQueryDatasource()
+        reader = bq_ds.create_reader(
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            dataset=_TEST_BQ_DATASET,
+            parallelism=parallelism,
+            row_restriction="WHERE id = 1",
+        )
+        read_tasks_list = reader.get_read_tasks(parallelism)
+        assert len(read_tasks_list) == parallelism
+
+    @pytest.mark.parametrize(
+        "parallelism",
+        [1, 2, 3, 4, 10, 100],
+    )
+    def test_create_reader_with_selected_fields(self, parallelism):
+        bq_ds = bigquery_datasource.BigQueryDatasource()
+        reader = bq_ds.create_reader(
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            dataset=_TEST_BQ_DATASET,
+            parallelism=parallelism,
+            selected_fields=["id"],
+        )
+        read_tasks_list = reader.get_read_tasks(parallelism)
+        assert len(read_tasks_list) == parallelism
+
+    @pytest.mark.parametrize(
+        "parallelism",
+        [1, 2, 3, 4, 10, 100],
+    )
     def test_create_reader_initialized(self, parallelism):
         """If initialized, create_reader doesn't need to specify project_id."""
         aiplatform.init(

@@ -52,6 +52,27 @@ vertex_ray.data.write_bigquery(
     ds,
     dataset="bugbashbq1.system_test_ray29_write",
 )
+
+# test BQ Storage API compatibility
+dataset = "bugbashbq1.system_test_ray29_write"
+selected_fields=["Time", "V1", "V2", "Amount"]
+row_restriction="Class = 1"
+
+ds = vertex_ray.data.read_bigquery(
+    parallelism=parallelism,
+    dataset=dataset,
+    selected_fields=selected_fields,
+    row_restriction=row_restriction,
+)
+
+# The reads are lazy, so the end time cannot be captured until ds.materialize() is called
+ds.materialize()
+
+# Write
+vertex_ray.data.write_bigquery(
+    ds,
+    dataset="bugbashbq1.system_test_ray29_write2",
+)
 """
 
 my_script = {"2.9": my_script_ray29}
