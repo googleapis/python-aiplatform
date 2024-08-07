@@ -557,6 +557,40 @@
         }
       }
     },
+    "EvaluationService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "EvaluationServiceClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "EvaluationServiceAsyncClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "EvaluationServiceClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        }
+      }
+    },
     "FeatureOnlineStoreAdminService": {
       "clients": {
         "grpc": {
