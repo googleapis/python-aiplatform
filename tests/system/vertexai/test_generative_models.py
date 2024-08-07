@@ -36,6 +36,9 @@ GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
 GEMINI_15_PRO_MODEL_NAME = "gemini-1.5-pro-001"
 
+STAGING_API_ENDPOINT = "us-central1-staging-aiplatform.sandbox.googleapis.com"
+PROD_API_ENDPOINT = None
+
 
 # A dummy function for function calling
 def get_current_weather(location: str, unit: str = "centigrade"):
@@ -89,7 +92,8 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_generative_models_test_"
 
-    def setup_method(self):
+    @pytest.mark.parametrize("api_endpoint", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT])
+    def setup_method(self, api_endpoint):
         super().setup_method()
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
@@ -98,6 +102,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             credentials=credentials,
+            api_endpoint=api_endpoint,
         )
 
     def test_generate_content_with_cached_content_from_text(self):
