@@ -8,3 +8,4 @@ setuptools
 nox>=2022.11.21 # required to remove dependency on py
 charset-normalizer<3
 click<8.1.0
+build
