@@ -513,6 +513,16 @@ class LlmUtilityServiceRestTransport(LlmUtilityServiceTransport):
                     "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:computeTokens",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=endpoints/*}:computeTokens",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=publishers/*/models/*}:computeTokens",
+                    "body": "*",
+                },
             ]
             request, metadata = self._interceptor.pre_compute_tokens(request, metadata)
             pb_request = llm_utility_service.ComputeTokensRequest.pb(request)
@@ -608,6 +618,16 @@ class LlmUtilityServiceRestTransport(LlmUtilityServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{endpoint=projects/*/locations/*/publishers/*/models/*}:countTokens",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=endpoints/*}:countTokens",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{endpoint=publishers/*/models/*}:countTokens",
                     "body": "*",
                 },
             ]
