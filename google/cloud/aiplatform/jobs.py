@@ -49,6 +49,7 @@ from google.cloud.aiplatform.compat.types import (
 
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.metadata import constants as metadata_constants
+from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import model_monitoring
@@ -2484,12 +2485,12 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 `experiment` is not specified or the specified experiment
                 doesn't have a backing tensorboard.
         """
-        if experiment and tensorboard:
-            raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
-        if self._enable_autolog and (not experiment):
-            raise ValueError(
-                "'experiment' is required since you've enabled autolog in 'from_local_script'."
-            )
+        # if experiment and tensorboard:
+        #     raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
+        # if self._enable_autolog and (not experiment):
+        #     raise ValueError(
+        #         "'experiment' is required since you've enabled autolog in 'from_local_script'."
+        #     )
 
         service_account = service_account or initializer.global_config.service_account
         if service_account:
@@ -2509,16 +2510,23 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         if enable_web_access:
             self._gca_resource.job_spec.enable_web_access = enable_web_access
 
-        if tensorboard:
-            self._gca_resource.job_spec.tensorboard = tensorboard
-
         if persistent_resource_id:
             self._gca_resource.job_spec.persistent_resource_id = persistent_resource_id
 
-        (
-            self._gca_resource.job_spec.experiment,
-            self._gca_resource.job_spec.experiment_run,
-        ) = self._get_experiment_and_run_resource_name(experiment, experiment_run)
+        if experiment:
+            (
+                self._gca_resource.job_spec.experiment,
+                self._gca_resource.job_spec.experiment_run,
+            ) = self._get_experiment_and_run_resource_name(experiment, experiment_run)
+            print(f"experiment_tracker.experiment={metadata._experiment_tracker.experiment}")
+            if self._enable_autolog:
+                aiplatform.autolog()
+
+        if not tensorboard:
+            tensorboard = self._get_experiment_backing_tensorboard(experiment)
+
+        if tensorboard:
+            self._gca_resource.job_spec.tensorboard = tensorboard
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -2531,6 +2539,16 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         _LOGGER.log_create_complete_with_getter(
             self.__class__, self._gca_resource, "custom_job"
         )
+
+        # Create and set experiment to match Tensorboard
+        experiment = self.resource_name.split('/')[-1]
+        (
+            self._gca_resource.job_spec.experiment,
+            self._gca_resource.job_spec.experiment_run,
+        ) = self._get_experiment_and_run_resource_name(experiment, experiment_run)
+        print(f"experiment_tracker.experiment={metadata._experiment_tracker.experiment}")
+        if self._enable_autolog:
+            aiplatform.autolog()
 
         _LOGGER.info("View Custom Job:\n%s" % self._dashboard_uri())
 
@@ -2547,19 +2565,51 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         return self._gca_resource.job_spec
 
     @staticmethod
-    def _get_experiment_and_run_resource_name(
+    def _get_experiment_backing_tensorboard(
         experiment: Optional[Union["aiplatform.Experiment", str]] = None,
-        experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
-    ) -> Tuple[str, str]:
-        """Helper method to get the experiment and run resource name for the custom job."""
+    ) -> str:
+        """Helper method to get the experiment backing tensorboard."""
         if not experiment:
-            return None, None
+            return None
 
         experiment_resource = (
             aiplatform.Experiment(experiment)
             if isinstance(experiment, str)
             else experiment
         )
+        backing_tensorboard = experiment_resource.get_backing_tensorboard_resource()
+        if not backing_tensorboard:
+            return None
+        return backing_tensorboard.resource_name
+
+    @staticmethod
+    def _get_experiment_and_run_resource_name(
+        experiment: Optional[Union["aiplatform.Experiment", str]] = None,
+        experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
+        tensorboard: Optional[str] = None,
+    ) -> Tuple[str, str]:
+        """Helper method to get the experiment and run resource name for the custom job."""
+        if not experiment:
+            return None, None
+
+        # experiment_resource = (
+        #     aiplatform.Experiment(experiment)
+        #     if isinstance(experiment, str)
+        #     else experiment
+        # )
+        metadata._experiment_tracker.set_experiment(
+            experiment=experiment,
+            backing_tensorboard=tensorboard,
+        )
+        if tensorboard:
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=tensorboard,
+            )
+        experiment_resource = metadata._experiment_tracker.experiment
+
+        if not experiment_resource:
+            print('Experiment resource is not found')
+            return None, None
 
         if not experiment_run:
             return experiment_resource.resource_name, None
@@ -2573,6 +2623,18 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             experiment_resource.resource_name,
             experiment_run_resource.resource_name,
         )
+
+    @staticmethod
+    def _get_or_create_experiment_resource_name(
+        experiment: Optional[Union["aiplatform.Experiment", str]] = None,
+    ) -> str:
+        """Helper method to get the experiment and run resource name for the custom job."""
+        if not experiment:
+            return None
+
+        experiment_resource = aiplatform.Experiment.get_or_create(experiment)
+
+        return experiment_resource.resource_name
 
 
 class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
