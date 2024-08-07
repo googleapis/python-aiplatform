@@ -298,6 +298,10 @@ class EvalTask:
                 k: ("NaN" if isinstance(v, float) and np.isnan(v) else v)
                 for k, v in eval_result.summary_metrics.items()
             }
+            eval_result.metadata = {
+                "experiment": self.experiment,
+                "experiment_run": experiment_run_name,
+            }
             try:
                 vertexai.preview.log_metrics(eval_result.summary_metrics)
             except (TypeError, exceptions.InvalidArgument) as e:

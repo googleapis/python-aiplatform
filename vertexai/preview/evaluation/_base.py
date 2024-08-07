@@ -37,7 +37,7 @@ class EvaluationRunConfig:
 
     Attributes:
       dataset: The dataset to evaluate.
-      metrics: The list of metric names, or metric bundle names, or Metric instances to evaluate.
+      metrics: The list of metrics, or Metric instances to evaluate.
       column_map: The dictionary of column name overrides in the dataset.
       client: The evaluation service client.
       evaluation_service_qps: The custom QPS limit for the evaluation service.
@@ -73,10 +73,11 @@ class EvalResult:
     """Evaluation result.
 
     Attributes:
-      summary_metrics: The summary evaluation metrics for an evaluation run.
-      metrics_table: A table containing eval inputs, ground truth, and metrics per
-        row.
+      summary_metrics: The summary evaluation metrics for the evaluation run.
+      metrics_table: A table containing evaluation dataset, and metric results.
+      metadata: The metadata for the evaluation run.
     """
 
     summary_metrics: Dict[str, float]
     metrics_table: Optional["pd.DataFrame"] = None
+    metadata: Optional[Dict[str, str]] = None
