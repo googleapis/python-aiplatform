@@ -216,6 +216,14 @@ _TEST_STRING_FILTER = (
     )
 )
 
+_TEST_NUMERIC_FILTER = (
+    types.feature_online_store_service.NearestNeighborQuery.NumericFilter(
+        name="numeric_filter_name",
+        value_int=123,
+        op=types.feature_online_store_service.NearestNeighborQuery.NumericFilter.Op.EQUAL,
+    )
+)
+
 # Test optimized embedding feature view
 _TEST_OPTIMIZED_EMBEDDING_FV_ID = "optimized_embedding_fv"
 _TEST_OPTIMIZED_EMBEDDING_FV_PATH = (
