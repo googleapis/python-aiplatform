@@ -109,6 +109,10 @@ class ModelMonitoringServiceAsyncClient:
     parse_model_monitoring_job_path = staticmethod(
         ModelMonitoringServiceClient.parse_model_monitoring_job_path
     )
+    reservation_path = staticmethod(ModelMonitoringServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(
+        ModelMonitoringServiceClient.parse_reservation_path
+    )
     schedule_path = staticmethod(ModelMonitoringServiceClient.schedule_path)
     parse_schedule_path = staticmethod(ModelMonitoringServiceClient.parse_schedule_path)
     common_billing_account_path = staticmethod(
@@ -808,6 +812,8 @@ class ModelMonitoringServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1302,6 +1308,8 @@ class ModelMonitoringServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1563,6 +1571,8 @@ class ModelMonitoringServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1690,6 +1700,8 @@ class ModelMonitoringServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

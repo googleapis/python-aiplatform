@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.persistent_resource_service import (
@@ -66,6 +67,7 @@ from google.cloud.aiplatform_v1.types import (
     persistent_resource as gca_persistent_resource,
 )
 from google.cloud.aiplatform_v1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -2491,12 +2493,18 @@ def test_list_persistent_resources_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_persistent_resources(request={})
+        pager = client.list_persistent_resources(
+            request={}, retry=retry, timeout=timeout
+        )
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -3857,6 +3865,11 @@ def test_create_persistent_resource_rest(request_type):
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "reservation_affinity": {
+                        "reservation_affinity_type": 1,
+                        "key": "key_value",
+                        "values": ["values_value1", "values_value2"],
+                    },
                 },
                 "replica_count": 1384,
                 "disk_spec": {
@@ -5371,6 +5384,11 @@ def test_update_persistent_resource_rest(request_type):
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "reservation_affinity": {
+                        "reservation_affinity_type": 1,
+                        "key": "key_value",
+                        "values": ["values_value1", "values_value2"],
+                    },
                 },
                 "replica_count": 1384,
                 "disk_spec": {
@@ -6787,8 +6805,36 @@ def test_parse_persistent_resource_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "scallop"
+    zone = "abalone"
+    reservation_name = "squid"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = PersistentResourceServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "clam",
+        "zone": "whelk",
+        "reservation_name": "octopus",
+    }
+    path = PersistentResourceServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PersistentResourceServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6800,7 +6846,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = PersistentResourceServiceClient.common_billing_account_path(**expected)
 
@@ -6810,7 +6856,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -6820,7 +6866,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = PersistentResourceServiceClient.common_folder_path(**expected)
 
@@ -6830,7 +6876,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -6840,7 +6886,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = PersistentResourceServiceClient.common_organization_path(**expected)
 
@@ -6850,7 +6896,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -6860,7 +6906,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = PersistentResourceServiceClient.common_project_path(**expected)
 
@@ -6870,8 +6916,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -6882,8 +6928,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = PersistentResourceServiceClient.common_location_path(**expected)
 

@@ -95,6 +95,8 @@ class EndpointServiceAsyncClient:
     )
     network_path = staticmethod(EndpointServiceClient.network_path)
     parse_network_path = staticmethod(EndpointServiceClient.parse_network_path)
+    reservation_path = staticmethod(EndpointServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(EndpointServiceClient.parse_reservation_path)
     common_billing_account_path = staticmethod(
         EndpointServiceClient.common_billing_account_path
     )
@@ -669,6 +671,8 @@ class EndpointServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

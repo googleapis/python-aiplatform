@@ -563,10 +563,18 @@ class Scheduling(proto.Message):
             LOW_COST (2):
                 Low cost by making potential use of spot
                 resources.
+            STANDARD (3):
+                Standard provisioning strategy uses regular
+                on-demand resources.
+            SPOT (4):
+                Spot provisioning strategy uses spot
+                resources.
         """
         STRATEGY_UNSPECIFIED = 0
         ON_DEMAND = 1
         LOW_COST = 2
+        STANDARD = 3
+        SPOT = 4
 
     timeout: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,

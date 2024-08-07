@@ -2877,6 +2877,11 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "uri": "/v1/{parent=projects/*/locations/*}/datasets",
                     "body": "dataset",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1/datasets",
+                    "body": "dataset",
+                },
             ]
             request, metadata = self._interceptor.pre_create_dataset(request, metadata)
             pb_request = dataset_service.CreateDatasetRequest.pb(request)
@@ -2969,6 +2974,11 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{parent=projects/*/locations/*/datasets/*}/datasetVersions",
+                    "body": "dataset_version",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{parent=datasets/*}/datasetVersions",
                     "body": "dataset_version",
                 },
             ]
@@ -3066,6 +3076,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/datasets/*}",
                 },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=datasets/*}",
+                },
             ]
             request, metadata = self._interceptor.pre_delete_dataset(request, metadata)
             pb_request = dataset_service.DeleteDatasetRequest.pb(request)
@@ -3152,6 +3166,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/datasets/*/datasetVersions/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=datasets/*/datasetVersions/*}",
                 },
             ]
             request, metadata = self._interceptor.pre_delete_dataset_version(
@@ -3514,6 +3532,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/datasets/*}",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=datasets/*}",
+                },
             ]
             request, metadata = self._interceptor.pre_get_dataset(request, metadata)
             pb_request = dataset_service.GetDatasetRequest.pb(request)
@@ -3599,6 +3621,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/datasets/*/datasetVersions/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=datasets/*/datasetVersions/*}",
                 },
             ]
             request, metadata = self._interceptor.pre_get_dataset_version(
@@ -3962,6 +3988,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "method": "get",
                     "uri": "/v1/{parent=projects/*/locations/*}/datasets",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1/datasets",
+                },
             ]
             request, metadata = self._interceptor.pre_list_datasets(request, metadata)
             pb_request = dataset_service.ListDatasetsRequest.pb(request)
@@ -4049,6 +4079,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{parent=projects/*/locations/*/datasets/*}/datasetVersions",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{parent=datasets/*}/datasetVersions",
                 },
             ]
             request, metadata = self._interceptor.pre_list_dataset_versions(
@@ -4231,6 +4265,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/datasets/*/datasetVersions/*}:restore",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=datasets/*/datasetVersions/*}:restore",
+                },
             ]
             request, metadata = self._interceptor.pre_restore_dataset_version(
                 request, metadata
@@ -4412,6 +4450,11 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     "uri": "/v1/{dataset.name=projects/*/locations/*/datasets/*}",
                     "body": "dataset",
                 },
+                {
+                    "method": "patch",
+                    "uri": "/v1/{dataset.name=datasets/*}",
+                    "body": "dataset",
+                },
             ]
             request, metadata = self._interceptor.pre_update_dataset(request, metadata)
             pb_request = dataset_service.UpdateDatasetRequest.pb(request)
@@ -4505,6 +4548,11 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "patch",
                     "uri": "/v1/{dataset_version.name=projects/*/locations/*/datasets/*/datasetVersions/*}",
+                    "body": "dataset_version",
+                },
+                {
+                    "method": "patch",
+                    "uri": "/v1/{dataset_version.name=datasets/*/datasetVersions/*}",
                     "body": "dataset_version",
                 },
             ]

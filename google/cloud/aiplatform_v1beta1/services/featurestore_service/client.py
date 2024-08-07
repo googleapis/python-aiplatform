@@ -1123,6 +1123,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1788,6 +1790,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2596,6 +2600,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3630,6 +3636,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

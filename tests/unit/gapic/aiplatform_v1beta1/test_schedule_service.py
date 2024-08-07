@@ -47,6 +47,7 @@ from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.schedule_service import (
@@ -78,6 +79,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
+from google.cloud.aiplatform_v1beta1.types import reservation_affinity
 from google.cloud.aiplatform_v1beta1.types import schedule
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1beta1.types import schedule_service
@@ -2766,12 +2768,16 @@ def test_list_schedules_pager(transport_name: str = "grpc"):
         )
 
         expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
         expected_metadata = tuple(expected_metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_schedules(request={})
+        pager = client.list_schedules(request={}, retry=retry, timeout=timeout)
 
         assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
 
         results = list(pager)
         assert len(results) == 6
@@ -4191,6 +4197,14 @@ def test_create_schedule_rest(request_type):
                                         "accelerator_type": 1,
                                         "accelerator_count": 1805,
                                         "tpu_topology": "tpu_topology_value",
+                                        "reservation_affinity": {
+                                            "reservation_affinity_type": 1,
+                                            "key": "key_value",
+                                            "values": [
+                                                "values_value1",
+                                                "values_value2",
+                                            ],
+                                        },
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
@@ -6473,6 +6487,14 @@ def test_update_schedule_rest(request_type):
                                         "accelerator_type": 1,
                                         "accelerator_count": 1805,
                                         "tpu_topology": "tpu_topology_value",
+                                        "reservation_affinity": {
+                                            "reservation_affinity_type": 1,
+                                            "key": "key_value",
+                                            "values": [
+                                                "values_value1",
+                                                "values_value2",
+                                            ],
+                                        },
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
@@ -8001,10 +8023,38 @@ def test_parse_pipeline_job_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "squid"
+    zone = "clam"
+    reservation_name = "whelk"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = ScheduleServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "octopus",
+        "zone": "oyster",
+        "reservation_name": "nudibranch",
+    }
+    path = ScheduleServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_schedule_path():
-    project = "squid"
-    location = "clam"
-    schedule = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    schedule = "winkle"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -8016,9 +8066,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "schedule": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "schedule": "abalone",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
@@ -8028,7 +8078,7 @@ def test_parse_schedule_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8038,7 +8088,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -8048,7 +8098,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8058,7 +8108,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -8068,7 +8118,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8078,7 +8128,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -8088,7 +8138,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8098,7 +8148,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -8108,8 +8158,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8120,8 +8170,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 

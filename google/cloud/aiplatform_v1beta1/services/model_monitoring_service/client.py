@@ -341,6 +341,28 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def reservation_path(
+        project_id_or_number: str,
+        zone: str,
+        reservation_name: str,
+    ) -> str:
+        """Returns a fully-qualified reservation string."""
+        return "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+            project_id_or_number=project_id_or_number,
+            zone=zone,
+            reservation_name=reservation_name,
+        )
+
+    @staticmethod
+    def parse_reservation_path(path: str) -> Dict[str, str]:
+        """Parses a reservation path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project_id_or_number>.+?)/zones/(?P<zone>.+?)/reservations/(?P<reservation_name>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def schedule_path(
         project: str,
         location: str,
@@ -1327,6 +1349,8 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1813,6 +1837,8 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2072,6 +2098,8 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2198,6 +2226,8 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.61.0"
+    "version": "0.1.0"
   },
   "snippets": [
     {
@@ -5459,6 +5459,159 @@
         }
       ],
       "title": "aiplatform_v1_generated_endpoint_service_update_endpoint_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.EvaluationServiceAsyncClient",
+          "shortName": "EvaluationServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.EvaluationServiceAsyncClient.evaluate_instances",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.EvaluationService.EvaluateInstances",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.EvaluationService",
+            "shortName": "EvaluationService"
+          },
+          "shortName": "EvaluateInstances"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.EvaluateInstancesRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.EvaluateInstancesResponse",
+        "shortName": "evaluate_instances"
+      },
+      "description": "Sample for EvaluateInstances",
+      "file": "aiplatform_v1_generated_evaluation_service_evaluate_instances_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_EvaluationService_EvaluateInstances_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_evaluation_service_evaluate_instances_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.EvaluationServiceClient",
+          "shortName": "EvaluationServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.EvaluationServiceClient.evaluate_instances",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.EvaluationService.EvaluateInstances",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.EvaluationService",
+            "shortName": "EvaluationService"
+          },
+          "shortName": "EvaluateInstances"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.EvaluateInstancesRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.EvaluateInstancesResponse",
+        "shortName": "evaluate_instances"
+      },
+      "description": "Sample for EvaluateInstances",
+      "file": "aiplatform_v1_generated_evaluation_service_evaluate_instances_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_EvaluationService_EvaluateInstances_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_evaluation_service_evaluate_instances_sync.py"
     },
     {
       "canonical": true,

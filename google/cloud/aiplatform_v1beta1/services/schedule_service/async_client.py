@@ -127,6 +127,8 @@ class ScheduleServiceAsyncClient:
     parse_pipeline_job_path = staticmethod(
         ScheduleServiceClient.parse_pipeline_job_path
     )
+    reservation_path = staticmethod(ScheduleServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(ScheduleServiceClient.parse_reservation_path)
     schedule_path = staticmethod(ScheduleServiceClient.schedule_path)
     parse_schedule_path = staticmethod(ScheduleServiceClient.parse_schedule_path)
     common_billing_account_path = staticmethod(
@@ -798,6 +800,8 @@ class ScheduleServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

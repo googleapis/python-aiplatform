@@ -6,6 +6,7 @@ Services for Google Cloud Aiplatform v1 API
     dataset_service
     deployment_resource_pool_service
     endpoint_service
+    evaluation_service
     feature_online_store_admin_service
     feature_online_store_service
     feature_registry_service

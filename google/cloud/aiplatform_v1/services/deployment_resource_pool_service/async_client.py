@@ -96,6 +96,12 @@ class DeploymentResourcePoolServiceAsyncClient:
     parse_model_path = staticmethod(
         DeploymentResourcePoolServiceClient.parse_model_path
     )
+    reservation_path = staticmethod(
+        DeploymentResourcePoolServiceClient.reservation_path
+    )
+    parse_reservation_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_reservation_path
+    )
     common_billing_account_path = staticmethod(
         DeploymentResourcePoolServiceClient.common_billing_account_path
     )
@@ -708,6 +714,8 @@ class DeploymentResourcePoolServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1136,6 +1144,8 @@ class DeploymentResourcePoolServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 

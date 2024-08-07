@@ -28,6 +28,8 @@ from .services.deployment_resource_pool_service import (
 )
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
+from .services.evaluation_service import EvaluationServiceClient
+from .services.evaluation_service import EvaluationServiceAsyncClient
 from .services.feature_online_store_admin_service import (
     FeatureOnlineStoreAdminServiceClient,
 )
@@ -200,6 +202,108 @@ from .types.env_var import EnvVar
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import BleuInput
+from .types.evaluation_service import BleuInstance
+from .types.evaluation_service import BleuMetricValue
+from .types.evaluation_service import BleuResults
+from .types.evaluation_service import BleuSpec
+from .types.evaluation_service import CoherenceInput
+from .types.evaluation_service import CoherenceInstance
+from .types.evaluation_service import CoherenceResult
+from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import EvaluateInstancesRequest
+from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import ExactMatchInput
+from .types.evaluation_service import ExactMatchInstance
+from .types.evaluation_service import ExactMatchMetricValue
+from .types.evaluation_service import ExactMatchResults
+from .types.evaluation_service import ExactMatchSpec
+from .types.evaluation_service import FluencyInput
+from .types.evaluation_service import FluencyInstance
+from .types.evaluation_service import FluencyResult
+from .types.evaluation_service import FluencySpec
+from .types.evaluation_service import FulfillmentInput
+from .types.evaluation_service import FulfillmentInstance
+from .types.evaluation_service import FulfillmentResult
+from .types.evaluation_service import FulfillmentSpec
+from .types.evaluation_service import GroundednessInput
+from .types.evaluation_service import GroundednessInstance
+from .types.evaluation_service import GroundednessResult
+from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import PairwiseMetricInput
+from .types.evaluation_service import PairwiseMetricInstance
+from .types.evaluation_service import PairwiseMetricResult
+from .types.evaluation_service import PairwiseMetricSpec
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInput
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInstance
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityResult
+from .types.evaluation_service import PairwiseQuestionAnsweringQualitySpec
+from .types.evaluation_service import PairwiseSummarizationQualityInput
+from .types.evaluation_service import PairwiseSummarizationQualityInstance
+from .types.evaluation_service import PairwiseSummarizationQualityResult
+from .types.evaluation_service import PairwiseSummarizationQualitySpec
+from .types.evaluation_service import PointwiseMetricInput
+from .types.evaluation_service import PointwiseMetricInstance
+from .types.evaluation_service import PointwiseMetricResult
+from .types.evaluation_service import PointwiseMetricSpec
+from .types.evaluation_service import QuestionAnsweringCorrectnessInput
+from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
+from .types.evaluation_service import QuestionAnsweringCorrectnessResult
+from .types.evaluation_service import QuestionAnsweringCorrectnessSpec
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInput
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInstance
+from .types.evaluation_service import QuestionAnsweringHelpfulnessResult
+from .types.evaluation_service import QuestionAnsweringHelpfulnessSpec
+from .types.evaluation_service import QuestionAnsweringQualityInput
+from .types.evaluation_service import QuestionAnsweringQualityInstance
+from .types.evaluation_service import QuestionAnsweringQualityResult
+from .types.evaluation_service import QuestionAnsweringQualitySpec
+from .types.evaluation_service import QuestionAnsweringRelevanceInput
+from .types.evaluation_service import QuestionAnsweringRelevanceInstance
+from .types.evaluation_service import QuestionAnsweringRelevanceResult
+from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RougeInput
+from .types.evaluation_service import RougeInstance
+from .types.evaluation_service import RougeMetricValue
+from .types.evaluation_service import RougeResults
+from .types.evaluation_service import RougeSpec
+from .types.evaluation_service import SafetyInput
+from .types.evaluation_service import SafetyInstance
+from .types.evaluation_service import SafetyResult
+from .types.evaluation_service import SafetySpec
+from .types.evaluation_service import SummarizationHelpfulnessInput
+from .types.evaluation_service import SummarizationHelpfulnessInstance
+from .types.evaluation_service import SummarizationHelpfulnessResult
+from .types.evaluation_service import SummarizationHelpfulnessSpec
+from .types.evaluation_service import SummarizationQualityInput
+from .types.evaluation_service import SummarizationQualityInstance
+from .types.evaluation_service import SummarizationQualityResult
+from .types.evaluation_service import SummarizationQualitySpec
+from .types.evaluation_service import SummarizationVerbosityInput
+from .types.evaluation_service import SummarizationVerbosityInstance
+from .types.evaluation_service import SummarizationVerbosityResult
+from .types.evaluation_service import SummarizationVerbositySpec
+from .types.evaluation_service import ToolCallValidInput
+from .types.evaluation_service import ToolCallValidInstance
+from .types.evaluation_service import ToolCallValidMetricValue
+from .types.evaluation_service import ToolCallValidResults
+from .types.evaluation_service import ToolCallValidSpec
+from .types.evaluation_service import ToolNameMatchInput
+from .types.evaluation_service import ToolNameMatchInstance
+from .types.evaluation_service import ToolNameMatchMetricValue
+from .types.evaluation_service import ToolNameMatchResults
+from .types.evaluation_service import ToolNameMatchSpec
+from .types.evaluation_service import ToolParameterKeyMatchInput
+from .types.evaluation_service import ToolParameterKeyMatchInstance
+from .types.evaluation_service import ToolParameterKeyMatchMetricValue
+from .types.evaluation_service import ToolParameterKeyMatchResults
+from .types.evaluation_service import ToolParameterKeyMatchSpec
+from .types.evaluation_service import ToolParameterKVMatchInput
+from .types.evaluation_service import ToolParameterKVMatchInstance
+from .types.evaluation_service import ToolParameterKVMatchMetricValue
+from .types.evaluation_service import ToolParameterKVMatchResults
+from .types.evaluation_service import ToolParameterKVMatchSpec
+from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
@@ -671,6 +775,7 @@ from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
+from .types.reservation_affinity import ReservationAffinity
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -812,6 +917,7 @@ __all__ = (
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
+    "EvaluationServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
     "FeatureOnlineStoreServiceAsyncClient",
     "FeatureRegistryServiceAsyncClient",
@@ -881,6 +987,11 @@ __all__ = (
     "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BleuInput",
+    "BleuInstance",
+    "BleuMetricValue",
+    "BleuResults",
+    "BleuSpec",
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
@@ -898,6 +1009,10 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "CoherenceInput",
+    "CoherenceInstance",
+    "CoherenceResult",
+    "CoherenceSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -1049,9 +1164,17 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateInstancesRequest",
+    "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationServiceClient",
     "Event",
+    "ExactMatchInput",
+    "ExactMatchInstance",
+    "ExactMatchMetricValue",
+    "ExactMatchResults",
+    "ExactMatchSpec",
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
@@ -1104,7 +1227,15 @@ __all__ = (
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
+    "FluencyInput",
+    "FluencyInstance",
+    "FluencyResult",
+    "FluencySpec",
     "FractionSplit",
+    "FulfillmentInput",
+    "FulfillmentInstance",
+    "FulfillmentResult",
+    "FulfillmentSpec",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
@@ -1163,6 +1294,10 @@ __all__ = (
     "GetTrialRequest",
     "GetTuningJobRequest",
     "GoogleSearchRetrieval",
+    "GroundednessInput",
+    "GroundednessInstance",
+    "GroundednessResult",
+    "GroundednessSpec",
     "GroundingChunk",
     "GroundingMetadata",
     "GroundingSupport",
@@ -1344,6 +1479,19 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "PairwiseChoice",
+    "PairwiseMetricInput",
+    "PairwiseMetricInstance",
+    "PairwiseMetricResult",
+    "PairwiseMetricSpec",
+    "PairwiseQuestionAnsweringQualityInput",
+    "PairwiseQuestionAnsweringQualityInstance",
+    "PairwiseQuestionAnsweringQualityResult",
+    "PairwiseQuestionAnsweringQualitySpec",
+    "PairwiseSummarizationQualityInput",
+    "PairwiseSummarizationQualityInstance",
+    "PairwiseSummarizationQualityResult",
+    "PairwiseSummarizationQualitySpec",
     "Part",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
@@ -1358,6 +1506,10 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "PointwiseMetricInput",
+    "PointwiseMetricInstance",
+    "PointwiseMetricResult",
+    "PointwiseMetricSpec",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
@@ -1387,6 +1539,22 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QuestionAnsweringCorrectnessInput",
+    "QuestionAnsweringCorrectnessInstance",
+    "QuestionAnsweringCorrectnessResult",
+    "QuestionAnsweringCorrectnessSpec",
+    "QuestionAnsweringHelpfulnessInput",
+    "QuestionAnsweringHelpfulnessInstance",
+    "QuestionAnsweringHelpfulnessResult",
+    "QuestionAnsweringHelpfulnessSpec",
+    "QuestionAnsweringQualityInput",
+    "QuestionAnsweringQualityInstance",
+    "QuestionAnsweringQualityResult",
+    "QuestionAnsweringQualitySpec",
+    "QuestionAnsweringRelevanceInput",
+    "QuestionAnsweringRelevanceInstance",
+    "QuestionAnsweringRelevanceResult",
+    "QuestionAnsweringRelevanceSpec",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",
@@ -1409,6 +1577,7 @@ __all__ = (
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
     "ResourceRuntimeSpec",
@@ -1418,8 +1587,17 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RougeInput",
+    "RougeInstance",
+    "RougeMetricValue",
+    "RougeResults",
+    "RougeSpec",
+    "SafetyInput",
+    "SafetyInstance",
     "SafetyRating",
+    "SafetyResult",
     "SafetySetting",
+    "SafetySpec",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
@@ -1470,6 +1648,18 @@ __all__ = (
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
+    "SummarizationHelpfulnessInput",
+    "SummarizationHelpfulnessInstance",
+    "SummarizationHelpfulnessResult",
+    "SummarizationHelpfulnessSpec",
+    "SummarizationQualityInput",
+    "SummarizationQualityInstance",
+    "SummarizationQualityResult",
+    "SummarizationQualitySpec",
+    "SummarizationVerbosityInput",
+    "SummarizationVerbosityInstance",
+    "SummarizationVerbosityResult",
+    "SummarizationVerbositySpec",
     "SupervisedHyperParameters",
     "SupervisedTuningDataStats",
     "SupervisedTuningDatasetDistribution",
@@ -1492,7 +1682,27 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolCallValidInput",
+    "ToolCallValidInstance",
+    "ToolCallValidMetricValue",
+    "ToolCallValidResults",
+    "ToolCallValidSpec",
     "ToolConfig",
+    "ToolNameMatchInput",
+    "ToolNameMatchInstance",
+    "ToolNameMatchMetricValue",
+    "ToolNameMatchResults",
+    "ToolNameMatchSpec",
+    "ToolParameterKVMatchInput",
+    "ToolParameterKVMatchInstance",
+    "ToolParameterKVMatchMetricValue",
+    "ToolParameterKVMatchResults",
+    "ToolParameterKVMatchSpec",
+    "ToolParameterKeyMatchInput",
+    "ToolParameterKeyMatchInstance",
+    "ToolParameterKeyMatchMetricValue",
+    "ToolParameterKeyMatchResults",
+    "ToolParameterKeyMatchSpec",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
