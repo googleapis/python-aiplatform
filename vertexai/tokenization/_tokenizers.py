@@ -18,11 +18,14 @@ from typing import (
     Iterable,
     List,
     Sequence,
+    Optional,
 )
 
 from vertexai.generative_models._generative_models import (
     ContentsType,
     Image,
+    Tool,
+    PartsType,
     _validate_contents_type_as_valid_sequence,
     _content_types_to_gapic_contents,
 )
@@ -35,8 +38,10 @@ from vertexai.tokenization._tokenizer_loading import (
 from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
     tool as gapic_tool_types,
+    openapi,
 )
 from sentencepiece import sentencepiece_model_pb2
+from google.protobuf import struct_pb2
 
 
 @dataclasses.dataclass(frozen=True)
@@ -185,13 +190,7 @@ def _assert_text_only_content_types_sequence(
 
 def _assert_text_only_gapic_part(value: gapic_content_types.Part):
     """Asserts that the gapic content part is a text content type."""
-    if (
-        gapic_content_types.FileData() != value.file_data
-        or gapic_content_types.Blob() != value.inline_data
-        or gapic_tool_types.FunctionCall() != value.function_call
-        or gapic_tool_types.FunctionResponse() != value.function_response
-        or gapic_content_types.VideoMetadata() != value.video_metadata
-    ):
+    if "file_data" in value or "inline_data" in value or "video_metadata" in value:
         raise ValueError("Tokenizers do not support non-text content types.")
 
 
@@ -207,6 +206,42 @@ def _to_canonical_contents_texts(contents: ContentsType) -> Iterable[str]:
         yield from _content_types_to_string_iterator(contents)
 
 
+def _to_function_calls(
+    contents: ContentsType,
+) -> Iterable[gapic_tool_types.FunctionCall]:
+    """Gets the function_calls from contents."""
+    if isinstance(contents, str):
+        pass
+    elif isinstance(contents, Sequence) and all(
+        isinstance(content, str) for content in contents
+    ):
+        pass
+    else:
+        gapic_contents = _to_gapic_contents(contents)
+        for content in gapic_contents:
+            for part in content.parts:
+                if "function_call" in part:
+                    yield part.function_call
+
+
+def _to_function_responses(
+    contents: ContentsType,
+) -> Iterable[gapic_tool_types.FunctionResponse]:
+    """Gets the function_responses from contents."""
+    if isinstance(contents, str):
+        pass
+    elif isinstance(contents, Sequence) and all(
+        isinstance(content, str) for content in contents
+    ):
+        pass
+    else:
+        gapic_contents = _to_gapic_contents(contents)
+        for content in gapic_contents:
+            for part in content.parts:
+                if "function_response" in part:
+                    yield part.function_response
+
+
 def _to_canonical_roles(contents: ContentsType) -> Iterable[str]:
     if isinstance(contents, str):
         yield "user"
@@ -218,20 +253,125 @@ def _to_canonical_roles(contents: ContentsType) -> Iterable[str]:
         yield from _content_types_to_role_iterator(contents)
 
 
+class _TextsAccumulator:
+    def __init__(self):
+        self._texts = []
+
+    def get_texts(self) -> Iterable[str]:
+        return self._texts
+
+    def add_texts(self, texts: Iterable[str]) -> None:
+        self._texts.extend(texts)
+
+    def add_function_call(self, function_call: gapic_tool_types.FunctionCall) -> None:
+        self._texts.append(function_call.name)
+        self._struct_traverse(function_call.args._pb)
+
+    def add_function_calls(
+        self, function_calls: Iterable[gapic_tool_types.FunctionCall]
+    ) -> None:
+        for function_call in function_calls:
+            self.add_function_call(function_call)
+
+    def add_tool(self, tool: gapic_tool_types.Tool) -> None:
+        for function_declaration in tool.function_declarations:
+            self._function_declaration_traverse(function_declaration)
+
+    def add_tools(self, tools: Iterable[gapic_tool_types.Tool]) -> None:
+        for tool in tools:
+            self.add_tool(tool)
+
+    def add_function_responses(
+        self, function_responses: Iterable[gapic_tool_types.FunctionResponse]
+    ) -> None:
+        for function_response in function_responses:
+            self.add_function_response(function_response)
+
+    def add_function_response(
+        self, function_response: gapic_tool_types.FunctionResponse
+    ) -> None:
+        self._texts.append(function_response.name)
+        self._struct_traverse(function_response.response._pb)
+
+    def _function_declaration_traverse(
+        self, function_declaration: gapic_tool_types.FunctionDeclaration
+    ) -> None:
+        self._texts.append(function_declaration.name)
+        if function_declaration.description:
+            self._texts.append(function_declaration.description)
+        if function_declaration.parameters:
+            self._schema_traverse(function_declaration.parameters)
+
+    def _schema_traverse(self, schema: openapi.Schema) -> None:
+        if schema.format:
+            self._texts.append(schema.format)
+        if schema.description:
+            self._texts.append(schema.description)
+        if schema.enum:
+            self._texts.extend(schema.enum)
+        if schema.required:
+            self._texts.extend(schema.required)
+        if schema.items:
+            self._schema_traverse(schema.items)
+        if schema.properties:
+            for key, value in schema.properties.items():
+                self._texts.append(key)
+                self._schema_traverse(value)
+        if schema.example:
+            self._value_traverse(schema.example)
+
+    def _struct_traverse(self, struct: struct_pb2.Struct) -> None:
+        self._texts.extend(list(struct.keys()))
+        for _, val in struct.items():
+            self._struct_fields_value_traverse(val)
+
+    def _value_traverse(self, value: struct_pb2.Value) -> None:
+        if isinstance(value, str):
+            self._texts.append(value)
+        elif isinstance(value, struct_pb2.Value):
+            if value.string_value:
+                self._value_traverse(value.string_value)
+            if value.list_value:
+                self._struct_fields_value_traverse(value.list_value)
+            if value.struct_value:
+                self._struct_traverse(value.struct_value)
+
+    def _struct_fields_value_traverse(self, value) -> None:
+        if isinstance(value, str):
+            self._texts.append(value)
+        elif isinstance(value, struct_pb2.Struct):
+            self._struct_traverse(value)
+        elif isinstance(value, struct_pb2.ListValue):
+            for item in value.values:
+                self._value_traverse(item)
+        elif isinstance(value, struct_pb2.Value):
+            self._value_traverse(value)
+
+
 class Tokenizer:
     """A tokenizer that can parse text into tokens."""
 
-    def __init__(self, tokenizer_name: str):
+    def __init__(
+        self, tokenizer_name: str, *, system_instruction: Optional[PartsType] = None
+    ):
         """Initializes the tokenizer.
 
         Do not use this constructor directly. Use get_tokenizer_for_model instead.
 
         Args:
             name: The name of the tokenizer.
+            system_instruction: Default system instruction in tokenization.
+
         """
         self._sentencepiece_adapter = _SentencePieceAdaptor(tokenizer_name)
+        self._system_instruction = system_instruction
 
-    def count_tokens(self, contents: ContentsType) -> CountTokensResult:
+    def count_tokens(
+        self,
+        contents: ContentsType,
+        *,
+        tools: Optional[List["Tool"]] = None,
+    ) -> CountTokensResult:
         r"""Counts the number of tokens in the text-only contents.
 
         Args:
@@ -251,9 +391,26 @@ class Tokenizer:
             the contents.
         """
 
-        return self._sentencepiece_adapter.count_tokens(
-            _to_canonical_contents_texts(contents)
-        )
+        text_accumulator = _TextsAccumulator()
+        text_accumulator.add_texts(_to_canonical_contents_texts(contents))
+        text_accumulator.add_function_calls(_to_function_calls(contents))
+        text_accumulator.add_function_responses(_to_function_responses(contents))
+
+        if tools:
+            text_accumulator.add_tools((tool._raw_tool for tool in tools))
+
+        if self._system_instruction:
+            text_accumulator.add_texts(
+                _to_canonical_contents_texts(self._system_instruction)
+            )
+            text_accumulator.add_function_calls(
+                _to_function_calls(self._system_instruction)
+            )
+            text_accumulator.add_function_responses(
+                _to_function_responses(self._system_instruction)
+            )
+
+        return self._sentencepiece_adapter.count_tokens(text_accumulator.get_texts())
 
     def compute_tokens(self, contents: ContentsType) -> ComputeTokensResult:
         r"""Computes the tokens ids and string pieces in the text-only contents.
@@ -279,7 +436,11 @@ class Tokenizer:
         )
 
 
-def get_tokenizer_for_model(model_name: str) -> Tokenizer:
+def get_tokenizer_for_model(
+    model_name: str,
+    *,
+    system_instruction: Optional[PartsType] = None,
+) -> Tokenizer:
     """Returns a tokenizer for the given tokenizer name.
 
     Usage:
@@ -290,8 +451,11 @@ def get_tokenizer_for_model(model_name: str) -> Tokenizer:
 
     Args:
         model_name: Specify the tokenizer is from which model.
+        system_instruction: Default system instruction when using the model.
     """
     if not model_name:
         raise ValueError("model_name must not be empty.")
 
-    return Tokenizer(get_tokenizer_name(model_name))
+    return Tokenizer(
+        get_tokenizer_name(model_name), system_instruction=system_instruction
+    )
