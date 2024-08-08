@@ -858,6 +858,14 @@ class TensorboardRun(_TensorboardServiceResource):
 
         return tensorboard_runs
 
+    def get_tensorboard_time_series_id(self, display_name: str) -> str:
+        """Returns the TensorboardTimeSeries with the given display name."""
+        if display_name not in self._time_series_display_name_to_id_mapping:
+            self._sync_time_series_display_name_to_id_mapping()
+
+        time_series_id = self._time_series_display_name_to_id_mapping.get(display_name)
+        return time_series_id
+
     def write_tensorboard_scalar_data(
         self,
         time_series_data: Dict[str, float],

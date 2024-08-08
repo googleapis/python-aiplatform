@@ -133,6 +133,18 @@ class AbortUploadError(Exception):
     """Exception used in testing to abort the upload process."""
 
 
+def _create_tensorboard_run_mock(
+    run_display_name=_TEST_RUN_NAME,
+    run_resource_name=_TEST_TENSORBOARD_RESOURCE_NAME,
+    time_series_name=_TEST_TIME_SERIES_NAME,
+):
+    tensorboard_run_mock = mock.create_autospec(tensorboard_resource.TensorboardRun)
+    tensorboard_run_mock.resource_name = run_resource_name
+    tensorboard_run_mock.display_name = run_display_name
+    tensorboard_run_mock.get_tensorboard_time_series_id.return_value = time_series_name
+    return tensorboard_run_mock
+
+
 def _create_mock_client():
     # Create a stub instance (using a test channel) in order to derive a mock
     # from it with autospec enabled. Mocking TensorBoardWriterServiceStub itself
@@ -177,6 +189,11 @@ def _create_mock_client():
             display_name=tensorboard_time_series.display_name,
         )
 
+    def get_tensorboard_time_series(
+        request=tensorboard_service.GetTensorboardTimeSeriesRequest,
+    ):  # pylint: disable=unused-argument
+        return None
+
     def parse_tensorboard_path_response(path):
         """Parses a tensorboard path into its component segments."""
         m = re.match(
@@ -201,6 +218,7 @@ def _create_mock_client():
         create_tensorboard_time_series
     )
     mock_client.parse_tensorboard_path.side_effect = parse_tensorboard_path_response
+    mock_client.get_tensorboard_time_series.side_effect = get_tensorboard_time_series
     return mock_client
 
 
@@ -508,6 +526,17 @@ class FileWriter(tf.compat.v1.summary.FileWriter):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
+    def setUp(self):
+        super(TensorboardUploaderTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_run_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.OnePlatformResourceManager,
+                "_get_or_create_run_resource",
+                autospec=True,
+            )
+        )
+
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
     def test_create_experiment(
@@ -519,7 +548,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = _TEST_LOG_DIR_NAME
-        uploader = _create_uploader(_create_mock_client(), logdir)
+        uploader = _create_uploader(self.mock_client, logdir)
         uploader.create_experiment()
         self.assertEqual(
             uploader._tensorboard_experiment_resource_name,
@@ -537,9 +566,8 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = _TEST_LOG_DIR_NAME
-        mock_client = _create_mock_client()
         new_name = "This is the new name"
-        uploader = _create_uploader(mock_client, logdir, experiment_name=new_name)
+        uploader = _create_uploader(self.mock_client, logdir, experiment_name=new_name)
         uploader.create_experiment()
 
     @patch.object(metadata, "_experiment_tracker", autospec=True)
@@ -553,12 +581,13 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = _TEST_LOG_DIR_NAME
-        mock_client = _create_mock_client()
         new_description = """
         **description**"
         may have "strange" unicode chars 🌴 \\/<>
         """
-        uploader = _create_uploader(mock_client, logdir, description=new_description)
+        uploader = _create_uploader(
+            self.mock_client, logdir, description=new_description
+        )
         uploader.create_experiment()
         self.assertEqual(uploader._experiment_name, _TEST_EXPERIMENT_NAME)
 
@@ -573,21 +602,22 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = _TEST_LOG_DIR_NAME
-        mock_client = _create_mock_client()
         new_description = """
         **description**"
         may have "strange" unicode chars 🌴 \\/<>
         """
         new_name = "This is a cool name."
         uploader = _create_uploader(
-            mock_client, logdir, experiment_name=new_name, description=new_description
+            self.mock_client,
+            logdir,
+            experiment_name=new_name,
+            description=new_description,
         )
         uploader.create_experiment()
         self.assertEqual(uploader._experiment_name, new_name)
 
     def test_start_uploading_without_create_experiment_fails(self):
-        mock_client = _create_mock_client()
-        uploader = _create_uploader(mock_client, _TEST_LOG_DIR_NAME)
+        uploader = _create_uploader(self.mock_client, _TEST_LOG_DIR_NAME)
         with self.assertRaisesRegex(RuntimeError, "call create_experiment()"):
             uploader.start_uploading()
 
@@ -602,11 +632,11 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self, experiment_resources_mock, experiment_tracker_mock, run_resource_mock
     ):
         experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
-        mock_client = _create_mock_client()
         mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tensor_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_blob_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
@@ -616,7 +646,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             upload_tracker, "UploadTracker", return_value=mock_tracker
         ):
             uploader = _create_uploader(
-                writer_client=mock_client,
+                writer_client=self.mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
                 # Send each Event below in a separate WriteScalarRequest
                 max_scalar_request_size=180,
@@ -653,7 +683,9 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             uploader, "_logdir_loader", mock_logdir_loader
         ), self.assertRaises(AbortUploadError):
             uploader.start_uploading()
-        self.assertEqual(5, mock_client.write_tensorboard_experiment_data.call_count)
+        self.assertEqual(
+            5, self.mock_client.write_tensorboard_experiment_data.call_count
+        )
         self.assertEqual(5, mock_rate_limiter.tick.call_count)
         self.assertEqual(0, mock_tensor_rate_limiter.tick.call_count)
         self.assertEqual(0, mock_blob_rate_limiter.tick.call_count)
@@ -666,33 +698,17 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
 
     @parameterized.parameters(
-        {"existing_experiment": None, "one_platform_run_name": None},
-        {"existing_experiment": None, "one_platform_run_name": "."},
-        {
-            "existing_experiment": _TEST_EXPERIMENT_NAME,
-            "one_platform_run_name": _TEST_ONE_PLATFORM_RUN_NAME,
-        },
-    )
-    @patch.object(
-        uploader_utils.OnePlatformResourceManager,
-        "get_run_resource_name",
-        autospec=True,
+        {"existing_experiment": None},
+        {"existing_experiment": None},
+        {"existing_experiment": _TEST_EXPERIMENT_NAME},
     )
     @patch.object(metadata, "_experiment_tracker", autospec=True)
-    @patch.object(
-        uploader_utils.OnePlatformResourceManager,
-        "_create_or_get_run_resource",
-        autospec=True,
-    )
     @patch.object(experiment_resources, "Experiment", autospec=True)
     def test_start_uploading_scalars_one_shot(
         self,
         experiment_resources_mock,
-        experiment_run_resource_mock,
         experiment_tracker_mock,
-        run_resource_mock,
         existing_experiment,
-        one_platform_run_name,
     ):
         """Check that one-shot uploading stops without AbortUploadError."""
 
@@ -724,29 +740,24 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
                 tensorboard_time_series=tb_time_series
             )
 
-        tensorboard_run_mock = mock.create_autospec(tensorboard_resource.TensorboardRun)
         experiment_resources_mock.get.return_value = existing_experiment
-        tensorboard_run_mock.resource_name = _TEST_TENSORBOARD_RESOURCE_NAME
-        tensorboard_run_mock.display_name = _TEST_RUN_NAME
-        experiment_run_resource_mock.return_value = tensorboard_run_mock
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
-        mock_client = _create_mock_client()
-        mock_client.batch_create_tensorboard_runs.side_effect = batch_create_runs
-        mock_client.batch_create_tensorboard_time_series.side_effect = (
+        self.mock_client.batch_create_tensorboard_runs.side_effect = batch_create_runs
+        self.mock_client.batch_create_tensorboard_time_series.side_effect = (
             batch_create_time_series
         )
 
         mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
-        run_resource_mock.return_value = one_platform_run_name
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
         ):
             uploader = _create_uploader(
-                writer_client=mock_client,
+                writer_client=self.mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
                 # Send each Event below in a separate WriteScalarRequest
                 max_scalar_request_size=200,
@@ -793,7 +804,9 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
                     uploader._end_experiment_runs.assert_called_once()
 
         self.assertEqual(existing_experiment is None, uploader._is_brand_new_experiment)
-        self.assertEqual(2, mock_client.write_tensorboard_experiment_data.call_count)
+        self.assertEqual(
+            2, self.mock_client.write_tensorboard_experiment_data.call_count
+        )
         self.assertEqual(2, mock_rate_limiter.tick.call_count)
 
         # Check upload tracker calls.
@@ -815,11 +828,10 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = self.get_temp_dir()
-        mock_client = _create_mock_client()
-        uploader = _create_uploader(mock_client, logdir)
+        uploader = _create_uploader(self.mock_client, logdir)
         uploader.create_experiment()
         uploader._upload_once()
-        mock_client.write_tensorboard_experiment_data.assert_not_called()
+        self.mock_client.write_tensorboard_experiment_data.assert_not_called()
         experiment_tracker_mock.set_experiment.assert_called_once()
 
     @parameterized.parameters(
@@ -846,6 +858,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         logdir = self.get_temp_dir()
         with FileWriter(logdir) as writer:
             writer.add_test_summary("foo")
@@ -881,6 +894,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         upload_call_count_box = [0]
 
@@ -917,17 +931,17 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         logdir = self.get_temp_dir()
         with FileWriter(logdir) as writer:
             writer.add_test_summary("foo")
-        mock_client = _create_mock_client()
-        uploader = _create_uploader(mock_client, logdir)
+        uploader = _create_uploader(self.mock_client, logdir)
         uploader.create_experiment()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
         error = _grpc_error(grpc.StatusCode.INTERNAL, "Failure")
-        mock_client.write_tensorboard_experiment_data.side_effect = error
+        self.mock_client.write_tensorboard_experiment_data.side_effect = error
         uploader._upload_once()
-        mock_client.write_tensorboard_experiment_data.assert_called_once()
+        self.mock_client.write_tensorboard_experiment_data.assert_called_once()
         experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
@@ -945,9 +959,9 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         logdir = self.get_temp_dir()
-        mock_client = _create_mock_client()
-        uploader = _create_uploader(mock_client, logdir)
+        uploader = _create_uploader(self.mock_client, logdir)
         uploader.create_experiment()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
 
@@ -978,14 +992,18 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         writer_a.add_test_summary("qux", simple_value=9.0, step=2)
         writer_a.flush()
         uploader._upload_once()
-        self.assertEqual(3, mock_client.create_tensorboard_time_series.call_count)
-        call_args_list = mock_client.create_tensorboard_time_series.call_args_list
+        self.assertEqual(3, self.mock_client.create_tensorboard_time_series.call_count)
+        call_args_list = self.mock_client.create_tensorboard_time_series.call_args_list
         request = call_args_list[1][1]["tensorboard_time_series"]
         self.assertEqual("scalars", request.plugin_name)
         self.assertEqual(b"12345", request.plugin_data)
 
-        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        self.assertEqual(
+            1, self.mock_client.write_tensorboard_experiment_data.call_count
+        )
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
         request1, request2 = (
             call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
             call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
@@ -1020,7 +1038,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertProtoEquals(expected_request1[1], request1[1])
         self.assertProtoEquals(expected_request2[0], request2[0])
 
-        mock_client.write_tensorboard_experiment_data.reset_mock()
+        self.mock_client.write_tensorboard_experiment_data.reset_mock()
 
         # Second round
         writer.add_test_summary("foo", simple_value=10.0, step=5)
@@ -1030,8 +1048,12 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         writer_b.add_test_summary("xyz", simple_value=12.0, step=1)
         writer_b.flush()
         uploader._upload_once()
-        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        self.assertEqual(
+            1, self.mock_client.write_tensorboard_experiment_data.call_count
+        )
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
         request3, request4 = (
             call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
             call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
@@ -1060,12 +1082,12 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertProtoEquals(expected_request3[0], request3[0])
         self.assertProtoEquals(expected_request3[1], request3[1])
         self.assertProtoEquals(expected_request4[0], request4[0])
-        mock_client.write_tensorboard_experiment_data.reset_mock()
+        self.mock_client.write_tensorboard_experiment_data.reset_mock()
         experiment_tracker_mock.set_experiment.assert_called_once()
 
         # Empty third round
         uploader._upload_once()
-        mock_client.write_tensorboard_experiment_data.assert_not_called()
+        self.mock_client.write_tensorboard_experiment_data.assert_not_called()
         experiment_tracker_mock.set_experiment.assert_called_once()
 
     @patch.object(
@@ -1083,14 +1105,14 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
-        mock_client = _create_mock_client()
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
         ) as mock_constructor:
             uploader = _create_uploader(
-                mock_client,
+                self.mock_client,
                 _TEST_LOG_DIR_NAME,
                 verbosity=0,  # Explicitly set verbosity to 0.
             )
@@ -1131,7 +1153,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
-        mock_client = _create_mock_client()
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
@@ -1145,12 +1167,12 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
                 display_name=tensorboard_time_series.display_name,
             )
 
-        mock_client.create_tensorboard_time_series.side_effect = create_time_series
+        self.mock_client.create_tensorboard_time_series.side_effect = create_time_series
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
         ):
             uploader = _create_uploader(
-                writer_client=mock_client,
+                writer_client=self.mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
                 max_blob_request_size=1000,
                 rpc_rate_limiter=mock_rate_limiter,
@@ -1201,7 +1223,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             actual_graph_def = graph_pb2.GraphDef.FromString(request)
             self.assertProtoEquals(expected_graph_def, actual_graph_def)
 
-        for call in mock_client.write_tensorboard_experiment_data.call_args_list:
+        for call in self.mock_client.write_tensorboard_experiment_data.call_args_list:
             kargs = call[1]
             time_series_data = kargs["write_run_data_requests"][0].time_series_data
             self.assertEqual(len(time_series_data), 1)
@@ -1235,6 +1257,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         # Three graphs: one short, one long, one corrupt.
         bytes_0 = _create_example_graph_bytes(123)
         bytes_1 = _create_example_graph_bytes(9999)
@@ -1255,7 +1278,6 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
         mock_bucket.blob.return_value = mock_blob
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
 
         def create_time_series(tensorboard_time_series, parent=None):
@@ -1264,9 +1286,9 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
                 display_name=tensorboard_time_series.display_name,
             )
 
-        mock_client.create_tensorboard_time_series.side_effect = create_time_series
+        self.mock_client.create_tensorboard_time_series.side_effect = create_time_series
         uploader = _create_uploader(
-            mock_client,
+            self.mock_client,
             logdir,
             logdir_poll_rate_limiter=limiter,
             blob_storage_bucket=mock_bucket,
@@ -1327,7 +1349,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             os.makedirs(prof_path)
 
             uploader = _create_uploader(
-                _create_mock_client(),
+                self.mock_client,
                 logdir,
                 one_shot=True,
                 run_name_prefix=run_name,
@@ -1355,9 +1377,8 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
         logdir = self.get_temp_dir()
-        mock_client = _create_mock_client()
 
-        uploader = _create_uploader(mock_client, logdir)
+        uploader = _create_uploader(self.mock_client, logdir)
         uploader.create_experiment()
         uploader._upload_once()
 
@@ -1369,6 +1390,24 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class _TensorBoardTrackerTest(tf.test.TestCase):
+    def setUp(self):
+        super(_TensorBoardTrackerTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_run_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.OnePlatformResourceManager,
+                "_get_or_create_run_resource",
+                autospec=True,
+            )
+        )
+        self.mock_time_series_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.TimeSeriesResourceManager,
+                "_get_run_resource",
+                autospec=True,
+            )
+        )
+
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
         "get_run_resource_name",
@@ -1386,13 +1425,16 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
         )
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
         logdir = self.get_temp_dir()
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
 
         builder = _create_dispatcher(
             experiment_resource_name=_TEST_ONE_PLATFORM_EXPERIMENT_NAME,
-            api=mock_client,
+            api=self.mock_client,
             allowed_plugins=_SCALARS_HISTOGRAMS_AND_PROFILE,
             logdir=logdir,
         )
@@ -1400,7 +1442,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         mock_bucket = _create_mock_blob_storage()
 
         uploader = _create_uploader(
-            mock_client,
+            self.mock_client,
             logdir,
             allowed_plugins=_SCALARS_HISTOGRAMS_AND_PROFILE,
             rpc_rate_limiter=mock_rate_limiter,
@@ -1454,8 +1496,8 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         time.sleep(5)
 
         # Check create_time_series calls
-        self.assertEqual(4, mock_client.create_tensorboard_time_series.call_count)
-        call_args_list = mock_client.create_tensorboard_time_series.call_args_list
+        self.assertEqual(4, self.mock_client.create_tensorboard_time_series.call_count)
+        call_args_list = self.mock_client.create_tensorboard_time_series.call_args_list
         request1, request2, request3, request4 = (
             call_args_list[0][1]["tensorboard_time_series"],
             call_args_list[1][1]["tensorboard_time_series"],
@@ -1470,8 +1512,12 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         experiment_tracker_mock.set_experiment.assert_called_once()
 
         # Check write_tensorboard_experiment_data calls
-        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        self.assertEqual(
+            1, self.mock_client.write_tensorboard_experiment_data.call_count
+        )
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
         request1, request2 = (
             call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
             call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
@@ -1511,11 +1557,11 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
             uploader._end_experiment_runs.assert_called_once()
         time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
-        mock_client.write_tensorboard_experiment_data.reset_mock()
+        self.mock_client.write_tensorboard_experiment_data.reset_mock()
 
         # Empty directory
         uploader._upload_once()
-        mock_client.write_tensorboard_experiment_data.assert_not_called()
+        self.mock_client.write_tensorboard_experiment_data.assert_not_called()
         with mock.patch.object(uploader, "_end_experiment_runs", return_value=None):
             uploader._end_uploading()
             uploader._end_experiment_runs.assert_called_once()
@@ -1526,17 +1572,29 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class BatchedRequestSenderTest(tf.test.TestCase):
+    def setUp(self):
+        super(BatchedRequestSenderTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_run_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.OnePlatformResourceManager,
+                "_get_or_create_run_resource",
+                autospec=True,
+            )
+        )
+
     def _populate_run_from_events(
         self, n_scalar_events, events, allowed_plugins=_USE_DEFAULT
     ):
-        mock_client = _create_mock_client()
         builder = _create_dispatcher(
             experiment_resource_name="123",
-            api=mock_client,
+            api=self.mock_client,
             allowed_plugins=allowed_plugins,
         )
         builder.dispatch_requests({"": _apply_compat(events)})
-        scalar_requests = mock_client.write_tensorboard_experiment_data.call_args_list
+        scalar_requests = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
         if scalar_requests:
             self.assertLen(scalar_requests, 1)
             self.assertLen(
@@ -1550,6 +1608,7 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self.assertProtoEquals(call_args_list, [])
 
     def test_scalar_events(self):
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         events = [
             event_pb2.Event(summary=scalar_v2_pb("scalar1", 5.0)),
             event_pb2.Event(summary=scalar_v2_pb("scalar2", 5.0)),
@@ -1559,6 +1618,7 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self.assertEqual(scalar_tag_counts, {"scalar1": 1, "scalar2": 1})
 
     def test_skips_non_scalar_events(self):
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         events = [
             event_pb2.Event(summary=scalar_v2_pb("scalar1", 5.0)),
             event_pb2.Event(file_version="brain.Event:2"),
@@ -1568,6 +1628,7 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self.assertEqual(scalar_tag_counts, {"scalar1": 1})
 
     def test_skips_non_scalar_events_in_scalar_time_series(self):
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         events = [
             event_pb2.Event(file_version="brain.Event:2"),
             event_pb2.Event(summary=scalar_v2_pb("scalar1", 5.0)),
@@ -1589,6 +1650,7 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self.assertEqual(call_args_lists, [])
 
     def test_remembers_first_metadata_in_time_series(self):
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         scalar_1 = event_pb2.Event(summary=scalar_v2_pb("loss", 4.0))
         scalar_2 = event_pb2.Event(summary=scalar_v2_pb("loss", 3.0))
         scalar_2.summary.value[0].ClearField("metadata")
@@ -1602,6 +1664,7 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self.assertEqual(scalar_tag_counts, {"loss": 2})
 
     def test_expands_multiple_values_in_event(self):
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         event = event_pb2.Event(step=1, wall_time=123.456)
         event.summary.value.add(tag="foo", simple_value=1.0)
         event.summary.value.add(tag="foo", simple_value=2.0)
@@ -1638,10 +1701,21 @@ class BatchedRequestSenderTest(tf.test.TestCase):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class ProfileRequestSenderTest(tf.test.TestCase):
-    def _create_builder(self, mock_client, logdir):
+    def setUp(self):
+        super(ProfileRequestSenderTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.TimeSeriesResourceManager,
+                "_get_run_resource",
+                autospec=True,
+            )
+        )
+
+    def _create_builder(self, logdir):
         return _create_dispatcher(
             experiment_resource_name=_TEST_ONE_PLATFORM_EXPERIMENT_NAME,
-            api=mock_client,
+            api=self.mock_client,
             logdir=logdir,
             allowed_plugins=frozenset({"profile"}),
         )
@@ -1650,17 +1724,13 @@ class ProfileRequestSenderTest(tf.test.TestCase):
         self,
         events,
         logdir,
-        mock_client=None,
         builder=None,
     ):
-        if not mock_client:
-            mock_client = _create_mock_client()
-
         if not builder:
-            builder = self._create_builder(mock_client, logdir)
+            builder = self._create_builder(logdir)
 
         builder.dispatch_requests({"": _apply_compat(events)})
-        profile_requests = mock_client.write_tensorboard_run_data.call_args_list
+        profile_requests = self.mock_client.write_tensorboard_run_data.call_args_list
 
         return profile_requests
 
@@ -1701,6 +1771,9 @@ class ProfileRequestSenderTest(tf.test.TestCase):
         ]
         prof_run_name = "2021_01_01_01_10_10"
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
 
         with tempfile.TemporaryDirectory() as logdir:
             prof_path = os.path.join(
@@ -1724,11 +1797,13 @@ class ProfileRequestSenderTest(tf.test.TestCase):
             event_pb2.Event(file_version="brain.Event:2"),
         ]
         prof_run_name = "2021_01_01_01_10_10"
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
 
         with tempfile.TemporaryDirectory() as logdir:
-            builder = self._create_builder(mock_client=mock_client, logdir=logdir)
+            builder = self._create_builder(logdir=logdir)
             prof_path = os.path.join(
                 logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
             )
@@ -1741,13 +1816,13 @@ class ProfileRequestSenderTest(tf.test.TestCase):
                 prefix="a", suffix=".xplane.pb", dir=run_path
             ):
                 call_args_list = self._populate_run_from_events(
-                    events, logdir, builder=builder, mock_client=mock_client
+                    events, logdir, builder=builder
                 )
                 with tempfile.NamedTemporaryFile(
                     prefix="b", suffix=".xplane.pb", dir=run_path
                 ):
                     call_args_list = self._populate_run_from_events(
-                        events, logdir, builder=builder, mock_client=mock_client
+                        events, logdir, builder=builder
                     )
 
         profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
@@ -1763,6 +1838,9 @@ class ProfileRequestSenderTest(tf.test.TestCase):
             "2021_02_02_02_20_20",
         ]
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
 
         with tempfile.TemporaryDirectory() as logdir:
             prof_path = os.path.join(
@@ -1798,10 +1876,12 @@ class ProfileRequestSenderTest(tf.test.TestCase):
         prof_run_name = "2021_01_01_01_10_10"
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
 
-        mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
 
         with tempfile.TemporaryDirectory() as logdir:
-            builder = self._create_builder(mock_client=mock_client, logdir=logdir)
+            builder = self._create_builder(logdir=logdir)
 
             prof_path = os.path.join(
                 logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
@@ -1819,7 +1899,6 @@ class ProfileRequestSenderTest(tf.test.TestCase):
                 call_args_list = self._populate_run_from_events(
                     events,
                     logdir,
-                    mock_client=mock_client,
                     builder=builder,
                 )
 
@@ -1833,13 +1912,12 @@ class ProfileRequestSenderTest(tf.test.TestCase):
 
             run_path = os.path.join(prof_path, prof_run_name_2)
             os.makedirs(run_path)
-            mock_client.write_tensorboard_run_data.reset_mock()
+            self.mock_client.write_tensorboard_run_data.reset_mock()
 
             with named_temp(dir=run_path):
                 call_args_list = self._populate_run_from_events(
                     events,
                     logdir,
-                    mock_client=mock_client,
                     builder=builder,
                 )
 
@@ -1852,21 +1930,31 @@ class ProfileRequestSenderTest(tf.test.TestCase):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class ScalarBatchedRequestSenderTest(tf.test.TestCase):
+    def setUp(self):
+        super(ScalarBatchedRequestSenderTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_run_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.OnePlatformResourceManager,
+                "_get_or_create_run_resource",
+                autospec=True,
+            )
+        )
+
     def _add_events(self, sender, events):
         for event in events:
             for value in event.summary.value:
                 sender.add_event(_TEST_RUN_NAME, event, value, value.metadata)
 
     def _add_events_and_flush(self, events, expected_n_time_series):
-        mock_client = _create_mock_client()
         sender = _create_scalar_request_sender(
             experiment_resource_id=_TEST_EXPERIMENT_NAME,
-            api=mock_client,
+            api=self.mock_client,
         )
         self._add_events(sender, events)
         sender.flush()
 
-        requests = mock_client.write_tensorboard_experiment_data.call_args_list
+        requests = self.mock_client.write_tensorboard_experiment_data.call_args_list
         self.assertLen(requests, 1)
         call_args = requests[0]
         self.assertLen(
@@ -1878,6 +1966,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_aggregation_by_tag(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
 
         def make_event(step, wall_time, tag, value):
             return event_pb2.Event(
@@ -1919,6 +2008,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_v1_summary(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         event = event_pb2.Event(step=1, wall_time=123.456)
         event.summary.value.add(tag="foo", simple_value=5.0)
         call_args = self._add_events_and_flush(_apply_compat([event]), 1)
@@ -1944,6 +2034,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_v1_summary_tb_summary(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         tf_summary = summary_v1.scalar_pb("foo", 5.0)
         tb_summary = summary_pb2.Summary.FromString(tf_summary.SerializeToString())
         event = event_pb2.Event(step=1, wall_time=123.456, summary=tb_summary)
@@ -1970,6 +2061,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_v2_summary(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         event = event_pb2.Event(
             step=1, wall_time=123.456, summary=scalar_v2_pb("foo", 5.0)
         )
@@ -1996,44 +2088,45 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_propagates_experiment_deletion(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         event = event_pb2.Event(step=1)
         event.summary.value.add(tag="foo", simple_value=1.0)
 
-        mock_client = _create_mock_client()
-        sender = _create_scalar_request_sender("123", mock_client)
+        sender = _create_scalar_request_sender("123", self.mock_client)
         self._add_events(sender, _apply_compat([event]))
 
         error = _grpc_error(grpc.StatusCode.NOT_FOUND, "nope")
-        mock_client.write_tensorboard_experiment_data.side_effect = error
+        self.mock_client.write_tensorboard_experiment_data.side_effect = error
         with self.assertRaises(uploader_lib.ExperimentNotFoundError):
             sender.flush()
 
     def test_no_budget_for_base_request(self):
-        mock_client = _create_mock_client()
         long_experiment_id = "A" * 12
         with self.assertRaises(uploader_lib._OutOfSpaceError) as cm:
             _create_scalar_request_sender(
                 experiment_resource_id=long_experiment_id,
-                api=mock_client,
+                api=self.mock_client,
                 max_request_size=12,
             )
         self.assertEqual(str(cm.exception), "Byte budget too small for base request")
 
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_no_room_for_single_point(self, run_resource_mock):
-        mock_client = _create_mock_client()
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
         event = event_pb2.Event(step=1, wall_time=123.456)
         event.summary.value.add(tag="foo", simple_value=1.0)
-        sender = _create_scalar_request_sender("123", mock_client, max_request_size=12)
+        sender = _create_scalar_request_sender(
+            "123", self.mock_client, max_request_size=12
+        )
         with self.assertRaises(RuntimeError) as cm:
             self._add_events(sender, [event])
         self.assertEqual(str(cm.exception), "add_event failed despite flush")
 
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_break_at_run_boundary(self, run_resource_mock):
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         # Choose run name sizes such that one run fits in a 1024 byte request,
         # but not two.
         long_run_1 = "A" * 768
@@ -2045,14 +2138,14 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         sender_1 = _create_scalar_request_sender(
             long_run_1,
-            mock_client,
+            self.mock_client,
             # Set a limit to request size
             max_request_size=1024,
         )
 
         sender_2 = _create_scalar_request_sender(
             long_run_2,
-            mock_client,
+            self.mock_client,
             # Set a limit to request size
             max_request_size=1024,
         )
@@ -2060,7 +2153,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         self._add_events(sender_2, _apply_compat([event_2]))
         sender_1.flush()
         sender_2.flush()
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
 
         for call_args in call_args_list:
             _clear_wall_times(
@@ -2105,8 +2200,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_break_at_tag_boundary(self, run_resource_mock):
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         # Choose tag name sizes such that one tag fits in a 1024 byte request,
         # but not two. Note that tag names appear in both `Tag.name` and the
         # summary metadata.
@@ -2118,13 +2213,15 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         sender = _create_scalar_request_sender(
             "train",
-            mock_client,
+            self.mock_client,
             # Set a limit to request size
             max_request_size=1024,
         )
         self._add_events(sender, _apply_compat([event]))
         sender.flush()
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
 
         request1 = call_args_list[0][1]["write_run_data_requests"][0].time_series_data
         _clear_wall_times(request1)
@@ -2151,8 +2248,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_break_at_scalar_point_boundary(self, run_resource_mock):
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         point_count = 2000  # comfortably saturates a single 1024-byte request
         events = []
         for step in range(point_count):
@@ -2163,13 +2260,15 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         sender = _create_scalar_request_sender(
             "train",
-            mock_client,
+            self.mock_client,
             # Set a limit to request size
             max_request_size=1024,
         )
         self._add_events(sender, _apply_compat(events))
         sender.flush()
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
 
         for call_args in call_args_list:
             _clear_wall_times(
@@ -2201,8 +2300,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_prunes_tags_and_runs(self, run_resource_mock):
-        mock_client = _create_mock_client()
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         event_1 = event_pb2.Event(step=1)
         event_1.summary.value.add(tag="foo", simple_value=1.0)
         event_2 = event_pb2.Event(step=2)
@@ -2222,12 +2321,14 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
             "add_point",
             mock_add_point,
         ):
-            sender = _create_scalar_request_sender("123", mock_client)
+            sender = _create_scalar_request_sender("123", self.mock_client)
             self._add_events(sender, _apply_compat([event_1]))
             self._add_events(sender, _apply_compat([event_2]))
             sender.flush()
 
-        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        call_args_list = (
+            self.mock_client.write_tensorboard_experiment_data.call_args_list
+        )
         request1, request2 = (
             call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
             call_args_list[1][1]["write_run_data_requests"][0].time_series_data,
@@ -2261,6 +2362,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
     def test_wall_time_precision(self, run_resource_mock):
         run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
         # Test a wall time that is exactly representable in float64 but has enough
         # digits to incur error if converted to nanoseconds the naive way (* 1e9).
         event1 = event_pb2.Event(step=1, wall_time=1567808404.765432119)
@@ -2292,10 +2394,20 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class FileRequestSenderTest(tf.test.TestCase):
+    def setUp(self):
+        super(FileRequestSenderTest, self).setUp()
+        self.mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock = self.enter_context(
+            patch.object(
+                uploader_utils.TimeSeriesResourceManager,
+                "_get_run_resource",
+                autospec=True,
+            )
+        )
+
     def test_empty_files_no_messages(self):
-        mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
@@ -2303,12 +2415,11 @@ class FileRequestSenderTest(tf.test.TestCase):
             files=[], tag="my_tag", plugin="test_plugin", event_timestamp=""
         )
 
-        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+        self.assertEmpty(self.mock_client.write_tensorboard_run_data.call_args_list)
 
     def test_fake_files_no_sent_messages(self):
-        mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
@@ -2320,12 +2431,14 @@ class FileRequestSenderTest(tf.test.TestCase):
                 event_timestamp="",
             )
 
-        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+        self.assertEmpty(self.mock_client.write_tensorboard_run_data.call_args_list)
 
     def test_files_too_large(self):
-        mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
             max_blob_size=10,
         )
@@ -2342,12 +2455,14 @@ class FileRequestSenderTest(tf.test.TestCase):
                 ),
             )
 
-        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+        self.assertEmpty(self.mock_client.write_tensorboard_run_data.call_args_list)
 
     def test_single_file_upload(self):
-        mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
@@ -2362,15 +2477,19 @@ class FileRequestSenderTest(tf.test.TestCase):
                 ),
             )
 
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list[0][1]
+        call_args_list = self.mock_client.write_tensorboard_run_data.call_args_list[0][
+            1
+        ]
         self.assertEqual(
             fn, call_args_list["time_series_data"][0].values[0].blobs.values[0].id
         )
 
     def test_multi_file_upload(self):
-        mock_client = _create_mock_client()
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
@@ -2386,7 +2505,9 @@ class FileRequestSenderTest(tf.test.TestCase):
                 ),
             )
 
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list[0][1]
+        call_args_list = self.mock_client.write_tensorboard_run_data.call_args_list[0][
+            1
+        ]
 
         self.assertEqual(
             files,
@@ -2397,11 +2518,13 @@ class FileRequestSenderTest(tf.test.TestCase):
         )
 
     def test_add_files_no_experiment(self):
-        mock_client = _create_mock_client()
-        mock_client.write_tensorboard_run_data.side_effect = grpc.RpcError
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
+        self.mock_client.write_tensorboard_run_data.side_effect = grpc.RpcError
 
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
@@ -2415,14 +2538,17 @@ class FileRequestSenderTest(tf.test.TestCase):
                 ),
             )
 
-        mock_client.write_tensorboard_run_data.assert_called_once()
+        self.mock_client.write_tensorboard_run_data.assert_called_once()
 
-    def test_add_files_from_local(self):
-        mock_client = _create_mock_client()
+    @patch.object(uploader_utils.OnePlatformResourceManager, "get_run_resource_name")
+    def test_add_files_from_local(self, run_resource_mock):
+        self.mock_time_series_resource_mock.return_value = (
+            _create_tensorboard_run_mock()
+        )
         bucket = _create_mock_blob_storage()
 
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
             blob_storage_bucket=bucket,
             source_bucket=None,
@@ -2432,7 +2558,7 @@ class FileRequestSenderTest(tf.test.TestCase):
             sender.add_files(
                 files=[f1.name],
                 tag="my_tag",
-                plugin="test_plugin",
+                plugin="profile",
                 event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
                     datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
                 ),
@@ -2441,9 +2567,8 @@ class FileRequestSenderTest(tf.test.TestCase):
         bucket.blob.assert_called_once()
 
     def test_copy_blobs(self):
-        mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client,
+            api=self.mock_client,
             run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
