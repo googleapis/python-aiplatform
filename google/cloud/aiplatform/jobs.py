@@ -25,6 +25,7 @@ import tempfile
 
 from google.auth import credentials as auth_credentials
 from google.api_core import exceptions as api_exceptions
+from google.cloud.aiplatform.metadata import metadata
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.rpc import status_pb2
@@ -2082,7 +2083,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         # if users enable autolog, automatically install SDK in their container image
         # otherwise users need to manually install SDK
         if enable_autolog:
-            experiment_requirements = [constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH]
+            experiment_requirements = ["google-cloud-aiplatform[autologging]==1.59.0"]
         else:
             experiment_requirements = []
 
@@ -2486,10 +2487,10 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         """
         if experiment and tensorboard:
             raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
-        if self._enable_autolog and (not experiment):
-            raise ValueError(
-                "'experiment' is required since you've enabled autolog in 'from_local_script'."
-            )
+        # if self._enable_autolog and (not experiment):
+        #     raise ValueError(
+        #         "'experiment' is required since you've enabled autolog in 'from_local_script'."
+        #     )
 
         service_account = service_account or initializer.global_config.service_account
         if service_account:
@@ -2534,6 +2535,16 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
 
         _LOGGER.info("View Custom Job:\n%s" % self._dashboard_uri())
 
+        # Create and set experiment to match Tensorboard
+        experiment = self.resource_name.split('/')[-1]
+        (
+            self._gca_resource.job_spec.experiment,
+            self._gca_resource.job_spec.experiment_run,
+        ) = self._get_experiment_and_run_resource_name(experiment, experiment_run)
+        print(f"experiment_tracker.experiment={metadata._experiment_tracker.experiment}")
+        if self._enable_autolog:
+            aiplatform.autolog()
+
         if tensorboard:
             _LOGGER.info(
                 "View Tensorboard:\n%s"
@@ -2550,16 +2561,30 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
     def _get_experiment_and_run_resource_name(
         experiment: Optional[Union["aiplatform.Experiment", str]] = None,
         experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
+        tensorboard: Optional[str] = None,
     ) -> Tuple[str, str]:
         """Helper method to get the experiment and run resource name for the custom job."""
         if not experiment:
             return None, None
 
-        experiment_resource = (
-            aiplatform.Experiment(experiment)
-            if isinstance(experiment, str)
-            else experiment
+        # experiment_resource = (
+        #     aiplatform.Experiment(experiment)
+        #     if isinstance(experiment, str)
+        #     else experiment
+        # )
+        metadata._experiment_tracker.set_experiment(
+            experiment=experiment,
+            backing_tensorboard=tensorboard,
         )
+        if tensorboard:
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=tensorboard,
+            )
+        experiment_resource = metadata._experiment_tracker.experiment
+
+        if not experiment_resource:
+            print('Experiment resource is not found')
+            return None, None
 
         if not experiment_run:
             return experiment_resource.resource_name, None
