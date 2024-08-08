@@ -16,7 +16,7 @@
 #
 import dataclasses
 from typing import Dict, List, Optional
-from google.cloud.aiplatform_v1.types import PersistentResource
+from google.cloud.aiplatform_v1beta1.types import PersistentResource
 
 
 @dataclasses.dataclass
@@ -69,6 +69,27 @@ class NodeImages:
 
 
 @dataclasses.dataclass
+class PscIConfig:
+    """PSC-I config.
+
+    Attributes:
+        network_attachment: Optional. The name or full name of the Compute Engine
+            `network attachment <https://cloud.google.com/vpc/docs/about-network-attachments>`
+            to attach to the resource. It has a format:
+            ``projects/{project}/regions/{region}/networkAttachments/{networkAttachment}``.
+            Where {project} is a project number, as in ``12345``, and
+            {networkAttachment} is a network attachment name. To specify
+            this field, you must have already [created a network
+            attachment]
+            (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments).
+            This field is only used for resources using PSC-I. Make sure you do not
+            specify the network here for VPC peering.
+    """
+
+    network_attachment: str = None
+
+
+@dataclasses.dataclass
 class Cluster:
     """Ray cluster (output only).
 
@@ -111,6 +132,9 @@ class Cluster:
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
     dashboard_address: str = None
+    ray_metric_enabled: bool = True
+    ray_logs_enabled: bool = True
+    psc_interface_config: PscIConfig = None
     labels: Dict[str, str] = None
 
 

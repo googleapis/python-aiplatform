@@ -23,17 +23,20 @@ from typing import Dict, List, Optional
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
-from google.cloud.aiplatform_v1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
+    RayLogsSpec,
     RaySpec,
     RayMetricSpec,
     ResourcePool,
     ResourceRuntimeSpec,
     ServiceAccountSpec,
 )
-
+from google.cloud.aiplatform_v1beta1.types.service_networking import (
+    PscInterfaceConfig,
+)
 from google.cloud.aiplatform.vertex_ray.util import (
     _gapic_utils,
     _validation_utils,
@@ -56,6 +59,8 @@ def create_ray_cluster(
     worker_node_types: Optional[List[resources.Resources]] = [resources.Resources()],
     custom_images: Optional[resources.NodeImages] = None,
     enable_metrics_collection: Optional[bool] = True,
+    enable_logging: Optional[bool] = True,
+    psc_interface_config: Optional[resources.PscIConfig] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -119,6 +124,8 @@ def create_ray_cluster(
             head/worker_node_type(s). Note that configuring `Resources.custom_image`
             will override `custom_images` here. Allowlist only.
         enable_metrics_collection: Enable Ray metrics collection for visualization.
+        enable_logging: Enable exporting Ray logs to Cloud Logging.
+        psc_interface_config: PSC-I config.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -258,10 +265,17 @@ def create_ray_cluster(
             i += 1
 
     resource_pools = [resource_pool_0] + worker_pools
-    disabled = not enable_metrics_collection
-    ray_metric_spec = RayMetricSpec(disabled=disabled)
+
+    metrics_collection_disabled = not enable_metrics_collection
+    ray_metric_spec = RayMetricSpec(disabled=metrics_collection_disabled)
+
+    logging_disabled = not enable_logging
+    ray_logs_spec = RayLogsSpec(disabled=logging_disabled)
+
     ray_spec = RaySpec(
-        resource_pool_images=resource_pool_images, ray_metric_spec=ray_metric_spec
+        resource_pool_images=resource_pool_images,
+        ray_metric_spec=ray_metric_spec,
+        ray_logs_spec=ray_logs_spec,
     )
     if service_account:
         service_account_spec = ServiceAccountSpec(
@@ -274,11 +288,18 @@ def create_ray_cluster(
         )
     else:
         resource_runtime_spec = ResourceRuntimeSpec(ray_spec=ray_spec)
+    if psc_interface_config:
+        gapic_psc_interface_config = PscInterfaceConfig(
+            network_attachment=psc_interface_config.network_attachment,
+        )
+    else:
+        gapic_psc_interface_config = None
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,
         network=network,
         labels=labels,
         resource_runtime_spec=resource_runtime_spec,
+        psc_interface_config=gapic_psc_interface_config,
     )
 
     location = initializer.global_config.location

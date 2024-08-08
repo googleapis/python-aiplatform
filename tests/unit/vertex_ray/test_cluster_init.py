@@ -22,10 +22,10 @@ from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
     NodeImages,
 )
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
+from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from google.cloud.aiplatform_v1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 import test_constants as tc
 import mock
 import pytest
@@ -352,6 +352,7 @@ class TestClusterManagement:
         self, create_persistent_resource_1_pool_mock
     ):
         """If head and worker nodes are duplicate, merge to head pool."""
+        # Also test disable logging and metrics collection.
         cluster_name = vertex_ray.create_ray_cluster(
             head_node_type=tc.ClusterConstants.TEST_HEAD_NODE_TYPE_1_POOL,
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_1_POOL,
@@ -359,6 +360,7 @@ class TestClusterManagement:
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             labels=tc.ClusterConstants.TEST_LABELS,
             enable_metrics_collection=False,
+            enable_logging=False,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
@@ -401,11 +403,15 @@ class TestClusterManagement:
         self, create_persistent_resource_2_pools_mock
     ):
         """If head and worker nodes are not duplicate, create separate resource_pools."""
+        # Also test PSC-I.
+        psc_interface_config = vertex_ray.PscIConfig(
+            network_attachment=tc.ClusterConstants.TEST_PSC_NETWORK_ATTACHMENT
+        )
         cluster_name = vertex_ray.create_ray_cluster(
             head_node_type=tc.ClusterConstants.TEST_HEAD_NODE_TYPE_2_POOLS,
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_2_POOLS,
-            network=tc.ProjectConstants.TEST_VPC_NETWORK,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+            psc_interface_config=psc_interface_config,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name

@@ -28,12 +28,13 @@ from google.cloud.aiplatform.utils import (
 from google.cloud.aiplatform.vertex_ray.util import _validation_utils
 from google.cloud.aiplatform.vertex_ray.util.resources import (
     Cluster,
+    PscIConfig,
     Resources,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource_service import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
 )
 
@@ -47,7 +48,7 @@ def create_persistent_resource_client():
     return initializer.global_config.create_client(
         client_class=PersistentResourceClientWithOverride,
         appended_gapic_version="vertex_ray",
-    )
+    ).select_version("v1beta1")
 
 
 def polling_delay(num_attempts: int, time_scale: float) -> datetime.timedelta:
@@ -159,6 +160,10 @@ def persistent_resource_to_cluster(
             % persistent_resource.name,
         )
         return
+    if persistent_resource.psc_interface_config:
+        cluster.psc_interface_config = PscIConfig(
+            network_attachment=persistent_resource.psc_interface_config.network_attachment
+        )
     resource_pools = persistent_resource.resource_pools
 
     head_resource_pool = resource_pools[0]
@@ -192,6 +197,12 @@ def persistent_resource_to_cluster(
             ray_version = None
     cluster.python_version = python_version
     cluster.ray_version = ray_version
+    cluster.ray_metric_enabled = not (
+        persistent_resource.resource_runtime_spec.ray_spec.ray_metric_spec.disabled
+    )
+    cluster.ray_logs_enabled = not (
+        persistent_resource.resource_runtime_spec.ray_spec.ray_logs_spec.disabled
+    )
 
     accelerator_type = head_resource_pool.machine_spec.accelerator_type
     if accelerator_type.value != 0:

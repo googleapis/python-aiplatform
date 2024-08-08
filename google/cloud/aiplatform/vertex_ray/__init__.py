@@ -38,6 +38,7 @@ from google.cloud.aiplatform.vertex_ray import data
 from google.cloud.aiplatform.vertex_ray.util.resources import (
     Resources,
     NodeImages,
+    PscIConfig,
 )
 
 from google.cloud.aiplatform.vertex_ray.dashboard_sdk import (
@@ -61,4 +62,5 @@ __all__ = (
     "update_ray_cluster",
     "Resources",
     "NodeImages",
+    "PscIConfig",
 )

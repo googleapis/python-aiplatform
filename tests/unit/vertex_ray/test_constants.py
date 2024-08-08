@@ -20,30 +20,35 @@ import sys
 
 from google.cloud.aiplatform.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.vertex_ray.util.resources import (
+    PscIConfig,
     Resources,
 )
-from google.cloud.aiplatform_v1.types.machine_resources import DiskSpec
-from google.cloud.aiplatform_v1.types.machine_resources import (
+from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
+from google.cloud.aiplatform_v1beta1.types.machine_resources import (
     MachineSpec,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+    RayLogsSpec,
     RayMetricSpec,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import RaySpec
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import RaySpec
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntime,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ServiceAccountSpec,
+)
+from google.cloud.aiplatform_v1beta1.types.service_networking import (
+    PscInterfaceConfig,
 )
 import pytest
 
@@ -93,6 +98,7 @@ class ClusterConstants:
     TEST_CPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest"
     TEST_GPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest"
     TEST_CUSTOM_IMAGE = "us-docker.pkg.dev/my-project/ray-custom-image.2.9:latest"
+    TEST_PSC_NETWORK_ATTACHMENT = "my-network-attachment"
     # RUNNING Persistent Cluster w/o Ray
     TEST_RESPONSE_NO_RAY_RUNNING = PersistentResource(
         name=TEST_VERTEX_RAY_PR_ADDRESS,
@@ -129,8 +135,10 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_GPU_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
     TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS = PersistentResource(
@@ -139,8 +147,10 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_GPU_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=True),
+                ray_logs_spec=RayLogsSpec(disabled=True),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
         labels=TEST_LABELS,
     )
@@ -150,8 +160,10 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_CUSTOM_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
     TEST_REQUEST_RUNNING_1_POOL_BYOSA = PersistentResource(
@@ -160,12 +172,14 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_GPU_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
             service_account_spec=ServiceAccountSpec(
                 enable_custom_service_account=True,
                 service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
             ),
         ),
+        psc_interface_config=None,
         network=None,
     )
     # Get response has generated name, and URIs
@@ -176,8 +190,10 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_GPU_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
             access_uris={
@@ -197,6 +213,7 @@ class ClusterConstants:
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
             access_uris={
@@ -219,6 +236,7 @@ class ClusterConstants:
                 service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
             ),
         ),
+        psc_interface_config=None,
         network=None,
         resource_runtime=ResourceRuntime(
             access_uris={
@@ -241,6 +259,7 @@ class ClusterConstants:
                 service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
             access_uris={
@@ -303,9 +322,12 @@ class ClusterConstants:
                     "worker-pool1": TEST_GPU_IMAGE,
                 },
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
         ),
-        network=ProjectConstants.TEST_VPC_NETWORK,
+        psc_interface_config=PscInterfaceConfig(
+            network_attachment=TEST_PSC_NETWORK_ATTACHMENT
+        ),
     )
     TEST_REQUEST_RUNNING_2_POOLS_CUSTOM_IMAGE = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_1, TEST_RESOURCE_POOL_2],
@@ -316,8 +338,10 @@ class ClusterConstants:
                     "worker-pool1": TEST_CUSTOM_IMAGE,
                 },
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                ray_logs_spec=RayLogsSpec(disabled=False),
             ),
         ),
+        psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
     TEST_RESPONSE_RUNNING_2_POOLS = PersistentResource(
@@ -332,11 +356,13 @@ class ClusterConstants:
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
-        network=ProjectConstants.TEST_VPC_NETWORK,
+        psc_interface_config=PscInterfaceConfig(
+            network_attachment=TEST_PSC_NETWORK_ATTACHMENT
+        ),
+        network=None,
         resource_runtime=ResourceRuntime(
             access_uris={
                 "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
-                "RAY_HEAD_NODE_INTERNAL_IP": TEST_VERTEX_RAY_HEAD_NODE_IP,
             }
         ),
         state="RUNNING",
@@ -372,17 +398,22 @@ class ClusterConstants:
         head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,
         worker_node_types=TEST_WORKER_NODE_TYPES_1_POOL,
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        ray_metric_enabled=True,
+        ray_logs_enabled=True,
     )
     TEST_CLUSTER_2 = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
         python_version="3.10",
         ray_version="2.9",
-        network=ProjectConstants.TEST_VPC_NETWORK,
+        network="",
         service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS,
         worker_node_types=TEST_WORKER_NODE_TYPES_2_POOLS,
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        ray_metric_enabled=True,
+        ray_logs_enabled=True,
+        psc_interface_config=PscIConfig(network_attachment=TEST_PSC_NETWORK_ATTACHMENT),
     )
     TEST_CLUSTER_CUSTOM_IMAGE = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
@@ -392,6 +423,8 @@ class ClusterConstants:
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS_CUSTOM_IMAGE,
         worker_node_types=TEST_WORKER_NODE_TYPES_2_POOLS_CUSTOM_IMAGE,
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        ray_metric_enabled=True,
+        ray_logs_enabled=True,
     )
     TEST_CLUSTER_BYOSA = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
@@ -403,6 +436,8 @@ class ClusterConstants:
         head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,
         worker_node_types=TEST_WORKER_NODE_TYPES_1_POOL,
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        ray_metric_enabled=True,
+        ray_logs_enabled=True,
     )
     TEST_BEARER_TOKEN = "test-bearer-token"
     TEST_HEADERS = {

@@ -19,16 +19,16 @@ from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.cloud import resourcemanager
 from google.cloud.aiplatform import vertex_ray
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
+from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntime,
 )
-from google.cloud.aiplatform_v1.types.persistent_resource_service import (
+from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     DeletePersistentResourceRequest,
 )
 import test_constants as tc
