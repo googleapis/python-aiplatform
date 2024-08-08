@@ -247,6 +247,10 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -305,6 +309,20 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 when the Future has completed.
             create_request_timeout (float):
                 Optional. The create request timeout in seconds.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
 
         Returns:
             DeploymentResourcePool
@@ -327,8 +345,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -348,8 +370,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         sync=True,
         create_request_timeout: Optional[float] = None,
     ) -> "DeploymentResourcePool":
@@ -398,6 +424,18 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 NVIDIA_TESLA_A100.
             accelerator_count (int):
                 Optional. The number of accelerators attached to each replica.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             autoscaling_target_cpu_utilization (int):
                 Optional. Target CPU utilization value for autoscaling. A
                 default value of 60 will be used if not specified.
@@ -406,6 +444,8 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 autoscaling. Must also set accelerator_type and accelerator
                 count if specified. A default value of 60 will be used if
                 accelerators are requested and this is not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If
                 False, this method will be executed in a concurrent Future and
@@ -425,6 +465,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         dedicated_resources = gca_machine_resources_compat.DedicatedResources(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            spot=spot,
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -457,6 +498,13 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 dedicated_resources.autoscaling_metric_specs.extend(
                     [autoscaling_metric_spec]
                 )
+
+        if reservation_affinity_type:
+            machine_spec.reservation_affinity = utils.get_reservation_affinity(
+                reservation_affinity_type,
+                reservation_affinity_key,
+                reservation_affinity_values,
+            )
 
         dedicated_resources.machine_spec = machine_spec
 
@@ -1226,6 +1274,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1319,6 +1371,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -1348,6 +1414,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -1355,6 +1424,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
@@ -1373,6 +1443,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1380,6 +1453,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1435,6 +1509,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1460,6 +1546,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -1490,12 +1578,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
@@ -1522,12 +1614,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1593,6 +1689,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1615,6 +1723,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -1743,6 +1853,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
+                    spot=spot,
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -1771,6 +1882,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                         dedicated_resources.autoscaling_metric_specs.extend(
                             [autoscaling_metric_spec]
                         )
+
+                if reservation_affinity_type:
+                    machine_spec.reservation_affinity = utils.get_reservation_affinity(
+                        reservation_affinity_type,
+                        reservation_affinity_key,
+                        reservation_affinity_values,
+                    )
 
                 if tpu_topology is not None:
                     machine_spec.tpu_topology = tpu_topology
@@ -3536,6 +3654,10 @@ class PrivateEndpoint(Endpoint):
         disable_container_logging: bool = False,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -3637,6 +3759,20 @@ class PrivateEndpoint(Endpoint):
                 map must be empty if the Endpoint is to not accept any traffic at
                 the moment. Key for model being deployed is "0". Should not be
                 provided if traffic_percentage is provided.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
         """
 
         if self.network:
@@ -3672,10 +3808,14 @@ class PrivateEndpoint(Endpoint):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
+            spot=spot,
             disable_container_logging=disable_container_logging,
         )
 
@@ -4719,6 +4859,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             PrivateEndpoint.PrivateServiceConnectConfig
         ] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -4834,6 +4978,20 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -4884,6 +5042,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -4894,6 +5055,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             private_service_connect_config=private_service_connect_config,
@@ -4913,6 +5075,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -4922,6 +5087,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         private_service_connect_config: Optional[
@@ -4980,6 +5146,18 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Requireid for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -5023,6 +5201,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -5081,12 +5261,16 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,

@@ -21,7 +21,7 @@ import datetime
 import pathlib
 import logging
 import re
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple, List
 import uuid
 
 from google.protobuf import timestamp_pb2
@@ -94,6 +94,7 @@ from google.cloud.aiplatform.compat.services import (
 
 from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
+    reservation_affinity_v1 as gca_reservation_affinity_v1,
 )
 
 VertexAiServiceClient = TypeVar(
@@ -391,6 +392,52 @@ def extract_project_and_location_from_parent(
         r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)(/|$)", parent
     )
     return parent_resources.groupdict() if parent_resources else {}
+
+
+def get_reservation_affinity(
+    reservation_affinity_type: str,
+    reservation_affinity_key: Optional[str] = None,
+    reservation_affinity_values: Optional[List[str]] = None,
+) -> gca_reservation_affinity_v1.ReservationAffinity:
+    """Given reservation affinity type and/or key, values, return a ReservationAffinity object.
+
+    Args:
+      reservation_affinity_type (str):
+        Required. The type of reservation affinity.
+        One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+        SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+      reservation_affinity_key (str):
+        Optional. Corresponds to the label key of a reservation resource.
+        To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+        and specify the name of your reservation as its value.
+      reservation_affinity_values (List[str]):
+        Optional. Corresponds to the label values of a reservation resource.
+        This must be the full resource name of the reservation.
+        Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+
+    Returns:
+        gca_reservation_affinity_v1.ReservationAffinity
+
+    Raises:
+      ValueError:
+        If reservation_affinity_key and reservation_affinity_values are not
+        specified when reservation_affinity_type is SPECIFIC_RESERVATION.
+    """
+    if reservation_affinity_type == "SPECIFIC_RESERVATION":
+        if not reservation_affinity_key or not reservation_affinity_values:
+            raise ValueError(
+                "reservation_affinity_key and reservation_affinity_values must be "
+                "specified when reservation_affinity_type is SPECIFIC_RESERVATION."
+            )
+        return gca_reservation_affinity_v1.ReservationAffinity(
+            reservation_affinity_type=reservation_affinity_type,
+            key=reservation_affinity_key,
+            values=reservation_affinity_values,
+        )
+    else:
+        return gca_reservation_affinity_v1.ReservationAffinity(
+            reservation_affinity_type=reservation_affinity_type,
+        )
 
 
 class ClientWithOverride:
