@@ -24,6 +24,9 @@ from typing import Dict, Iterable
 from unittest import mock
 import uuid
 
+from google import auth
+from google.auth import credentials as auth_credentials
+
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import compat
@@ -141,6 +144,16 @@ class MockTuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
         (compat.V1, MockGenAiTuningServiceClient),
         (compat.V1BETA1, MockGenAiTuningServiceClient),
     )
+
+
+@pytest.fixture(scope="module")
+def google_auth_mock():
+    with mock.patch.object(auth, "default") as auth_mock:
+        auth_mock.return_value = (
+            auth_credentials.AnonymousCredentials(),
+            "test-project",
+        )
+        yield auth_mock
 
 
 @pytest.fixture()
