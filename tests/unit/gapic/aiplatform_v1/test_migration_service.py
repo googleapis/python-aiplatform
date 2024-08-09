@@ -1343,22 +1343,23 @@ async def test_search_migratable_resources_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_migratable_resources
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.search_migratable_resources(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.search_migratable_resources(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1881,8 +1882,9 @@ def test_batch_migrate_resources_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.batch_migrate_resources(request)
@@ -1938,26 +1940,28 @@ async def test_batch_migrate_resources_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.batch_migrate_resources
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.batch_migrate_resources(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.batch_migrate_resources(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3556,8 +3560,31 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    location = "clam"
-    dataset = "whelk"
+    dataset = "clam"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "whelk",
+        "dataset": "octopus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -3569,31 +3596,8 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "dataset": "nudibranch",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "cuttlefish"
-    dataset = "mussel"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "winkle",
+        "project": "mussel",
+        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

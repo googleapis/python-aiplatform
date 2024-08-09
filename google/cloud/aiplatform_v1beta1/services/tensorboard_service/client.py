@@ -769,7 +769,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 Type[TensorboardServiceTransport],
                 Callable[..., TensorboardServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                TensorboardServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., TensorboardServiceTransport], transport)
             )

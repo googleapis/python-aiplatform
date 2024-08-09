@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -210,10 +209,7 @@ class SpecialistPoolServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(SpecialistPoolServiceClient).get_transport_class,
-        type(SpecialistPoolServiceClient),
-    )
+    get_transport_class = SpecialistPoolServiceClient.get_transport_class
 
     def __init__(
         self,

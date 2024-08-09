@@ -722,7 +722,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 Type[IndexEndpointServiceTransport],
                 Callable[..., IndexEndpointServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                IndexEndpointServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., IndexEndpointServiceTransport], transport)
             )

@@ -686,7 +686,7 @@ class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
                 Type[ModelGardenServiceTransport],
                 Callable[..., ModelGardenServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                ModelGardenServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., ModelGardenServiceTransport], transport)
             )

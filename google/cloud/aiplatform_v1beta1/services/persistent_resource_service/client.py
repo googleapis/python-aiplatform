@@ -772,7 +772,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 Type[PersistentResourceServiceTransport],
                 Callable[..., PersistentResourceServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                PersistentResourceServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., PersistentResourceServiceTransport], transport)
             )

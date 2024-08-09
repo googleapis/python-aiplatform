@@ -803,7 +803,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             transport_init: Union[
                 Type[DatasetServiceTransport], Callable[..., DatasetServiceTransport]
             ] = (
-                type(self).get_transport_class(transport)
+                DatasetServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., DatasetServiceTransport], transport)
             )

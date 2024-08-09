@@ -693,7 +693,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
             transport_init: Union[
                 Type[IndexServiceTransport], Callable[..., IndexServiceTransport]
             ] = (
-                type(self).get_transport_class(transport)
+                IndexServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., IndexServiceTransport], transport)
             )

@@ -812,7 +812,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             transport_init: Union[
                 Type[ScheduleServiceTransport], Callable[..., ScheduleServiceTransport]
             ] = (
-                type(self).get_transport_class(transport)
+                ScheduleServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., ScheduleServiceTransport], transport)
             )
