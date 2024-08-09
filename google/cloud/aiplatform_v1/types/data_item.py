@@ -70,6 +70,10 @@ class DataItem(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -99,6 +103,14 @@ class DataItem(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=11,
     )
 
 

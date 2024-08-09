@@ -76,6 +76,10 @@ class DeploymentResourcePool(proto.Message):
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             DeploymentResourcePool was created.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -104,6 +108,14 @@ class DeploymentResourcePool(proto.Message):
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=8,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=9,
     )
 
 

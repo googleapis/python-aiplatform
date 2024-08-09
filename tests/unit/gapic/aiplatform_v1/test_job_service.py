@@ -1160,6 +1160,8 @@ def test_create_custom_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_custom_job(request)
 
@@ -1174,6 +1176,8 @@ def test_create_custom_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_custom_job_empty_call():
@@ -1283,6 +1287,8 @@ async def test_create_custom_job_empty_call_async():
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_custom_job()
@@ -1356,6 +1362,8 @@ async def test_create_custom_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_custom_job(request)
@@ -1371,6 +1379,8 @@ async def test_create_custom_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -1563,6 +1573,8 @@ def test_get_custom_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_custom_job(request)
 
@@ -1577,6 +1589,8 @@ def test_get_custom_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_custom_job_empty_call():
@@ -1678,6 +1692,8 @@ async def test_get_custom_job_empty_call_async():
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_custom_job()
@@ -1749,6 +1765,8 @@ async def test_get_custom_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_custom_job(request)
@@ -1764,6 +1782,8 @@ async def test_get_custom_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -5492,6 +5512,8 @@ def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc")
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_hyperparameter_tuning_job(request)
 
@@ -5509,6 +5531,8 @@ def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc")
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_hyperparameter_tuning_job_empty_call():
@@ -5624,6 +5648,8 @@ async def test_create_hyperparameter_tuning_job_empty_call_async():
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_hyperparameter_tuning_job()
@@ -5701,6 +5727,8 @@ async def test_create_hyperparameter_tuning_job_async(
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_hyperparameter_tuning_job(request)
@@ -5719,6 +5747,8 @@ async def test_create_hyperparameter_tuning_job_async(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -5928,6 +5958,8 @@ def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_hyperparameter_tuning_job(request)
 
@@ -5945,6 +5977,8 @@ def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_hyperparameter_tuning_job_empty_call():
@@ -6060,6 +6094,8 @@ async def test_get_hyperparameter_tuning_job_empty_call_async():
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_hyperparameter_tuning_job()
@@ -6137,6 +6173,8 @@ async def test_get_hyperparameter_tuning_job_async(
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_hyperparameter_tuning_job(request)
@@ -6155,6 +6193,8 @@ async def test_get_hyperparameter_tuning_job_async(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -7705,6 +7745,8 @@ def test_create_nas_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_nas_job(request)
 
@@ -7720,6 +7762,8 @@ def test_create_nas_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_nas_job_empty_call():
@@ -7822,6 +7866,8 @@ async def test_create_nas_job_empty_call_async():
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_nas_job()
@@ -7894,6 +7940,8 @@ async def test_create_nas_job_async(
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_nas_job(request)
@@ -7910,6 +7958,8 @@ async def test_create_nas_job_async(
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -8091,6 +8141,8 @@ def test_get_nas_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_nas_job(request)
 
@@ -8106,6 +8158,8 @@ def test_get_nas_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_nas_job_empty_call():
@@ -8208,6 +8262,8 @@ async def test_get_nas_job_empty_call_async():
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_nas_job()
@@ -8280,6 +8336,8 @@ async def test_get_nas_job_async(
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_nas_job(request)
@@ -8296,6 +8354,8 @@ async def test_get_nas_job_async(
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -10736,6 +10796,8 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_batch_prediction_job(request)
 
@@ -10755,6 +10817,8 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_batch_prediction_job_empty_call():
@@ -10872,6 +10936,8 @@ async def test_create_batch_prediction_job_empty_call_async():
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_batch_prediction_job()
@@ -10951,6 +11017,8 @@ async def test_create_batch_prediction_job_async(
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_batch_prediction_job(request)
@@ -10971,6 +11039,8 @@ async def test_create_batch_prediction_job_async(
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -11178,6 +11248,8 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_batch_prediction_job(request)
 
@@ -11197,6 +11269,8 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_batch_prediction_job_empty_call():
@@ -11314,6 +11388,8 @@ async def test_get_batch_prediction_job_empty_call_async():
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_batch_prediction_job()
@@ -11393,6 +11469,8 @@ async def test_get_batch_prediction_job_async(
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_batch_prediction_job(request)
@@ -11413,6 +11491,8 @@ async def test_get_batch_prediction_job_async(
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -12967,6 +13047,8 @@ def test_create_model_deployment_monitoring_job(request_type, transport: str = "
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_model_deployment_monitoring_job(request)
 
@@ -12991,6 +13073,8 @@ def test_create_model_deployment_monitoring_job(request_type, transport: str = "
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_model_deployment_monitoring_job_empty_call():
@@ -13108,6 +13192,8 @@ async def test_create_model_deployment_monitoring_job_empty_call_async():
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job()
@@ -13187,6 +13273,8 @@ async def test_create_model_deployment_monitoring_job_async(
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job(request)
@@ -13212,6 +13300,8 @@ async def test_create_model_deployment_monitoring_job_async(
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -14093,6 +14183,8 @@ def test_get_model_deployment_monitoring_job(request_type, transport: str = "grp
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_model_deployment_monitoring_job(request)
 
@@ -14117,6 +14209,8 @@ def test_get_model_deployment_monitoring_job(request_type, transport: str = "grp
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_deployment_monitoring_job_empty_call():
@@ -14234,6 +14328,8 @@ async def test_get_model_deployment_monitoring_job_empty_call_async():
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job()
@@ -14313,6 +14409,8 @@ async def test_get_model_deployment_monitoring_job_async(
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job(request)
@@ -14338,6 +14436,8 @@ async def test_get_model_deployment_monitoring_job_async(
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -16750,6 +16850,8 @@ def test_create_custom_job_rest(request_type):
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "web_access_uris": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -16827,6 +16929,8 @@ def test_create_custom_job_rest(request_type):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -16845,6 +16949,8 @@ def test_create_custom_job_rest(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_custom_job_rest_use_cached_wrapped_rpc():
@@ -17146,6 +17252,8 @@ def test_get_custom_job_rest(request_type):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -17164,6 +17272,8 @@ def test_get_custom_job_rest(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_custom_job_rest_use_cached_wrapped_rpc():
@@ -20380,6 +20490,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
         },
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -20466,6 +20578,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -20489,6 +20603,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_hyperparameter_tuning_job_rest_use_cached_wrapped_rpc():
@@ -20812,6 +20928,8 @@ def test_get_hyperparameter_tuning_job_rest(request_type):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -20835,6 +20953,8 @@ def test_get_hyperparameter_tuning_job_rest(request_type):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_hyperparameter_tuning_job_rest_use_cached_wrapped_rpc():
@@ -22271,6 +22391,8 @@ def test_create_nas_job_rest(request_type):
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_restricted_image_training": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -22349,6 +22471,8 @@ def test_create_nas_job_rest(request_type):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -22368,6 +22492,8 @@ def test_create_nas_job_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_nas_job_rest_use_cached_wrapped_rpc():
@@ -22666,6 +22792,8 @@ def test_get_nas_job_rest(request_type):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -22685,6 +22813,8 @@ def test_get_nas_job_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_nas_job_rest_use_cached_wrapped_rpc():
@@ -24754,6 +24884,8 @@ def test_create_batch_prediction_job_rest(request_type):
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "disable_container_logging": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -24840,6 +24972,8 @@ def test_create_batch_prediction_job_rest(request_type):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -24863,6 +24997,8 @@ def test_create_batch_prediction_job_rest(request_type):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_batch_prediction_job_rest_use_cached_wrapped_rpc():
@@ -25179,6 +25315,8 @@ def test_get_batch_prediction_job_rest(request_type):
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -25202,6 +25340,8 @@ def test_get_batch_prediction_job_rest(request_type):
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_batch_prediction_job_rest_use_cached_wrapped_rpc():
@@ -26580,6 +26720,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_monitoring_pipeline_logs": True,
         "error": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -26670,6 +26812,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -26702,6 +26846,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_model_deployment_monitoring_job_rest_use_cached_wrapped_rpc():
@@ -27490,6 +27636,8 @@ def test_get_model_deployment_monitoring_job_rest(request_type):
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -27520,6 +27668,8 @@ def test_get_model_deployment_monitoring_job_rest(request_type):
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_deployment_monitoring_job_rest_use_cached_wrapped_rpc():
@@ -28333,6 +28483,8 @@ def test_update_model_deployment_monitoring_job_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_monitoring_pipeline_logs": True,
         "error": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

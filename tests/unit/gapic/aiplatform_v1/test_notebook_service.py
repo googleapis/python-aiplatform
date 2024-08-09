@@ -11960,6 +11960,7 @@ def test_create_notebook_execution_job_rest(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

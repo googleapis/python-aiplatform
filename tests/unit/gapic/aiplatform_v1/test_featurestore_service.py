@@ -1654,6 +1654,8 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
             etag="etag_value",
             state=featurestore.Featurestore.State.STABLE,
             online_storage_ttl_days=2460,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_featurestore(request)
 
@@ -1669,6 +1671,8 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
     assert response.online_storage_ttl_days == 2460
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_featurestore_empty_call():
@@ -1773,6 +1777,8 @@ async def test_get_featurestore_empty_call_async():
                 etag="etag_value",
                 state=featurestore.Featurestore.State.STABLE,
                 online_storage_ttl_days=2460,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_featurestore()
@@ -1846,6 +1852,8 @@ async def test_get_featurestore_async(
                 etag="etag_value",
                 state=featurestore.Featurestore.State.STABLE,
                 online_storage_ttl_days=2460,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_featurestore(request)
@@ -1862,6 +1870,8 @@ async def test_get_featurestore_async(
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
     assert response.online_storage_ttl_days == 2460
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -3841,6 +3851,8 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
             description="description_value",
             etag="etag_value",
             offline_storage_ttl_days=2554,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_entity_type(request)
 
@@ -3856,6 +3868,8 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_entity_type_empty_call():
@@ -3958,6 +3972,8 @@ async def test_get_entity_type_empty_call_async():
                 description="description_value",
                 etag="etag_value",
                 offline_storage_ttl_days=2554,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_entity_type()
@@ -4031,6 +4047,8 @@ async def test_get_entity_type_async(
                 description="description_value",
                 etag="etag_value",
                 offline_storage_ttl_days=2554,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_entity_type(request)
@@ -4047,6 +4065,8 @@ async def test_get_entity_type_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4818,6 +4838,8 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
             description="description_value",
             etag="etag_value",
             offline_storage_ttl_days=2554,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_entity_type(request)
 
@@ -4833,6 +4855,8 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_entity_type_empty_call():
@@ -4941,6 +4965,8 @@ async def test_update_entity_type_empty_call_async():
                 description="description_value",
                 etag="etag_value",
                 offline_storage_ttl_days=2554,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_entity_type()
@@ -5016,6 +5042,8 @@ async def test_update_entity_type_async(
                 description="description_value",
                 etag="etag_value",
                 offline_storage_ttl_days=2554,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_entity_type(request)
@@ -5032,6 +5060,8 @@ async def test_update_entity_type_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -10288,6 +10318,8 @@ def test_create_featurestore_rest(request_type):
         "state": 1,
         "online_storage_ttl_days": 2460,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10700,6 +10732,8 @@ def test_get_featurestore_rest(request_type):
             etag="etag_value",
             state=featurestore.Featurestore.State.STABLE,
             online_storage_ttl_days=2460,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -10719,6 +10753,8 @@ def test_get_featurestore_rest(request_type):
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
     assert response.online_storage_ttl_days == 2460
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_featurestore_rest_use_cached_wrapped_rpc():
@@ -11413,6 +11449,8 @@ def test_update_featurestore_rest(request_type):
         "state": 1,
         "online_storage_ttl_days": 2460,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12123,6 +12161,8 @@ def test_create_entity_type_rest(request_type):
             "categorical_threshold_config": {},
         },
         "offline_storage_ttl_days": 2554,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12538,6 +12578,8 @@ def test_get_entity_type_rest(request_type):
             description="description_value",
             etag="etag_value",
             offline_storage_ttl_days=2554,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -12557,6 +12599,8 @@ def test_get_entity_type_rest(request_type):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_entity_type_rest_use_cached_wrapped_rpc():
@@ -13256,6 +13300,8 @@ def test_update_entity_type_rest(request_type):
             "categorical_threshold_config": {},
         },
         "offline_storage_ttl_days": 2554,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13334,6 +13380,8 @@ def test_update_entity_type_rest(request_type):
             description="description_value",
             etag="etag_value",
             offline_storage_ttl_days=2554,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -13353,6 +13401,8 @@ def test_update_entity_type_rest(request_type):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.offline_storage_ttl_days == 2554
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_entity_type_rest_use_cached_wrapped_rpc():

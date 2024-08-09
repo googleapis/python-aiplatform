@@ -39,6 +39,11 @@ class PrivateServiceConnectConfig(proto.Message):
         project_allowlist (MutableSequence[str]):
             A list of Projects from which the forwarding
             rule will target the service attachment.
+        service_attachment (str):
+            Output only. The name of the generated
+            service attachment resource. This is only
+            populated if the endpoint is deployed with
+            PrivateServiceConnect.
     """
 
     enable_private_service_connect: bool = proto.Field(
@@ -48,6 +53,10 @@ class PrivateServiceConnectConfig(proto.Message):
     project_allowlist: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+    service_attachment: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

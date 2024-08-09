@@ -349,6 +349,12 @@ class SupervisedTuningDataStats(proto.Message):
         user_dataset_examples (MutableSequence[google.cloud.aiplatform_v1.types.Content]):
             Output only. Sample user messages in the
             training dataset uri.
+        total_truncated_example_count (int):
+            The number of examples in the dataset that
+            have been truncated by any amount.
+        truncated_example_indices (MutableSequence[int]):
+            A partial sample of the indices (starting
+            from 1) of the truncated examples.
     """
 
     tuning_dataset_example_count: int = proto.Field(
@@ -392,6 +398,14 @@ class SupervisedTuningDataStats(proto.Message):
         proto.MESSAGE,
         number=8,
         message=content.Content,
+    )
+    total_truncated_example_count: int = proto.Field(
+        proto.INT64,
+        number=10,
+    )
+    truncated_example_indices: MutableSequence[int] = proto.RepeatedField(
+        proto.INT64,
+        number=11,
     )
 
 

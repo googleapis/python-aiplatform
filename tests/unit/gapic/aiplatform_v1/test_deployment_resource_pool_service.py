@@ -1701,6 +1701,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
             name="name_value",
             service_account="service_account_value",
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_deployment_resource_pool(request)
 
@@ -1715,6 +1717,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.service_account == "service_account_value"
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_deployment_resource_pool_empty_call():
@@ -1832,6 +1836,8 @@ async def test_get_deployment_resource_pool_empty_call_async():
                 name="name_value",
                 service_account="service_account_value",
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_deployment_resource_pool()
@@ -1909,6 +1915,8 @@ async def test_get_deployment_resource_pool_async(
                 name="name_value",
                 service_account="service_account_value",
                 disable_container_logging=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_deployment_resource_pool(request)
@@ -1924,6 +1932,8 @@ async def test_get_deployment_resource_pool_async(
     assert response.name == "name_value"
     assert response.service_account == "service_account_value"
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4491,6 +4501,8 @@ def test_get_deployment_resource_pool_rest(request_type):
             name="name_value",
             service_account="service_account_value",
             disable_container_logging=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -4509,6 +4521,8 @@ def test_get_deployment_resource_pool_rest(request_type):
     assert response.name == "name_value"
     assert response.service_account == "service_account_value"
     assert response.disable_container_logging is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_deployment_resource_pool_rest_use_cached_wrapped_rpc():
@@ -5251,6 +5265,8 @@ def test_update_deployment_resource_pool_rest(request_type):
         "service_account": "service_account_value",
         "disable_container_logging": True,
         "create_time": {"seconds": 751, "nanos": 543},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
