@@ -126,6 +126,10 @@ class IndexEndpoint(proto.Message):
             spec for an IndexEndpoint. If set, this
             IndexEndpoint and all sub-resources of this
             IndexEndpoint will be secured by this key.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -191,6 +195,14 @@ class IndexEndpoint(proto.Message):
         proto.MESSAGE,
         number=15,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=17,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=18,
     )
 
 

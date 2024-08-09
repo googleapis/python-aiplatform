@@ -3038,6 +3038,8 @@ def test_create_tuning_job_rest(request_type):
                         ],
                     }
                 ],
+                "total_truncated_example_count": 3104,
+                "truncated_example_indices": [2644, 2645],
             },
             "distillation_data_stats": {
                 "training_dataset_stats": {

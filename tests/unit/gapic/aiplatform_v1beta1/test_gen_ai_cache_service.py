@@ -3469,7 +3469,7 @@ def test_create_cached_content_rest(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search_retrieval": {"disable_attribution": True},
+                "google_search_retrieval": {},
             }
         ],
         "tool_config": {
@@ -4280,7 +4280,7 @@ def test_update_cached_content_rest(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search_retrieval": {"disable_attribution": True},
+                "google_search_retrieval": {},
             }
         ],
         "tool_config": {

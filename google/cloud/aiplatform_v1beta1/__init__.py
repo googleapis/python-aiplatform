@@ -120,7 +120,6 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
-from .types.content import GroundingAttribution
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
@@ -1008,6 +1007,7 @@ from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import UploadRagFileConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
@@ -1487,7 +1487,6 @@ __all__ = (
     "GroundednessInstance",
     "GroundednessResult",
     "GroundednessSpec",
-    "GroundingAttribution",
     "GroundingChunk",
     "GroundingMetadata",
     "GroundingSupport",
@@ -1798,6 +1797,7 @@ __all__ = (
     "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "RagQuery",
     "RawPredictRequest",
     "RayLogsSpec",

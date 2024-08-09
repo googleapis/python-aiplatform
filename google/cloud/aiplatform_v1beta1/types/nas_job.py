@@ -91,6 +91,10 @@ class NasJob(proto.Message):
             Optional. Enable a separation of Custom model
             training and restricted image training for
             tenant project.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -154,6 +158,14 @@ class NasJob(proto.Message):
     enable_restricted_image_training: bool = proto.Field(
         proto.BOOL,
         number=14,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=15,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=16,
     )
 
 

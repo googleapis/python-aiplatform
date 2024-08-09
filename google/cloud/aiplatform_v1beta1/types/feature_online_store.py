@@ -106,6 +106,10 @@ class FeatureOnlineStore(proto.Message):
             Optional. Customer-managed encryption key
             spec for data storage. If set, online store will
             be secured by this key.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class State(proto.Enum):
@@ -298,6 +302,14 @@ class FeatureOnlineStore(proto.Message):
         proto.MESSAGE,
         number=13,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=15,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=16,
     )
 
 

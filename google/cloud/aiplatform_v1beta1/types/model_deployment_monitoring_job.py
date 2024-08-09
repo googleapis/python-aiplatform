@@ -198,6 +198,10 @@ class ModelDeploymentMonitoringJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when the job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class MonitoringScheduleState(proto.Enum):
@@ -356,6 +360,14 @@ class ModelDeploymentMonitoringJob(proto.Message):
         proto.MESSAGE,
         number=23,
         message=status_pb2.Status,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=26,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=27,
     )
 
 

@@ -106,6 +106,10 @@ class CustomJob(proto.Message):
             second worker pool.
 
             The values are the URIs for each node's interactive shell.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -165,6 +169,14 @@ class CustomJob(proto.Message):
         proto.STRING,
         proto.STRING,
         number=16,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=18,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
 
 
@@ -549,15 +561,15 @@ class Scheduling(proto.Message):
     """
 
     class Strategy(proto.Enum):
-        r"""Optional. This determines which type of scheduling strategy to use.
-        Right now users have two options such as ON_DEMAND which will use
-        regular on demand resources to schedule the job, the other is
-        LOW_COST which would leverage spot resources alongwith regular
-        resources to schedule the job.
+        r"""Optional. This determines which type of scheduling strategy
+        to use. Right now users have two options such as STANDARD which
+        will use regular on demand resources to schedule the job, the
+        other is SPOT which would leverage spot resources alongwith
+        regular resources to schedule the job.
 
         Values:
             STRATEGY_UNSPECIFIED (0):
-                Strategy will default to ON_DEMAND.
+                Strategy will default to STANDARD.
             ON_DEMAND (1):
                 Regular on-demand provisioning strategy.
             LOW_COST (2):

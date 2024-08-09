@@ -89,6 +89,10 @@ class Featurestore(proto.Message):
             spec for data storage. If set, both of the
             online and offline data storage will be secured
             by this key.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class State(proto.Enum):
@@ -229,6 +233,14 @@ class Featurestore(proto.Message):
         proto.MESSAGE,
         number=10,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=14,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=15,
     )
 
 
