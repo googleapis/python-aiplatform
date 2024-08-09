@@ -126,6 +126,8 @@ def _get_resource_name_from_model_name(
 ) -> str:
     """Returns the full resource name starting with projects/ given a model name."""
     if model_name.startswith("publishers/"):
+        if not project:
+            return model_name
         return f"projects/{project}/locations/{location}/{model_name}"
     elif model_name.startswith("projects/"):
         return model_name
@@ -337,7 +339,7 @@ class _GenerativeModel:
 
         location = aiplatform_utils.extract_project_and_location_from_parent(
             prediction_resource_name
-        )["location"]
+        ).get("location")
 
         self._model_name = model_name
         self._prediction_resource_name = prediction_resource_name
