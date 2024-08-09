@@ -1147,6 +1147,7 @@ from .vertex_rag_data import (
     RagEmbeddingModelConfig,
     RagFile,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     UploadRagFileConfig,
 )
 from .vertex_rag_data_service import (
@@ -2085,6 +2086,7 @@ __all__ = (
     "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "UploadRagFileConfig",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",

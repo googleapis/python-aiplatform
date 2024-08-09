@@ -1008,6 +1008,7 @@ from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import UploadRagFileConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
@@ -1798,6 +1799,7 @@ __all__ = (
     "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "RagQuery",
     "RawPredictRequest",
     "RayLogsSpec",
