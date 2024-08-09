@@ -93,6 +93,10 @@ class EntityType(proto.Message):
             ``offline_storage_ttl_days`` since the feature generation
             time. If unset (or explicitly set to 0), default to 4000
             days TTL.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -132,6 +136,14 @@ class EntityType(proto.Message):
     offline_storage_ttl_days: int = proto.Field(
         proto.INT32,
         number=10,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=11,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=12,
     )
 
 

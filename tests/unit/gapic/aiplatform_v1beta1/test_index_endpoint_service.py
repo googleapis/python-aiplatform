@@ -1641,6 +1641,8 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
             public_endpoint_domain_name="public_endpoint_domain_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_index_endpoint(request)
 
@@ -1660,6 +1662,8 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_index_endpoint_empty_call():
@@ -1776,6 +1780,8 @@ async def test_get_index_endpoint_empty_call_async():
                 enable_private_service_connect=True,
                 public_endpoint_enabled=True,
                 public_endpoint_domain_name="public_endpoint_domain_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_index_endpoint()
@@ -1854,6 +1860,8 @@ async def test_get_index_endpoint_async(
                 enable_private_service_connect=True,
                 public_endpoint_enabled=True,
                 public_endpoint_domain_name="public_endpoint_domain_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_index_endpoint(request)
@@ -1874,6 +1882,8 @@ async def test_get_index_endpoint_async(
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -2656,6 +2666,8 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
             public_endpoint_domain_name="public_endpoint_domain_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.update_index_endpoint(request)
 
@@ -2675,6 +2687,8 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_index_endpoint_empty_call():
@@ -2788,6 +2802,8 @@ async def test_update_index_endpoint_empty_call_async():
                 enable_private_service_connect=True,
                 public_endpoint_enabled=True,
                 public_endpoint_domain_name="public_endpoint_domain_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_index_endpoint()
@@ -2866,6 +2882,8 @@ async def test_update_index_endpoint_async(
                 enable_private_service_connect=True,
                 public_endpoint_enabled=True,
                 public_endpoint_domain_name="public_endpoint_domain_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.update_index_endpoint(request)
@@ -2886,6 +2904,8 @@ async def test_update_index_endpoint_async(
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4681,10 +4701,13 @@ def test_create_index_endpoint_rest(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "service_attachment": "service_attachment_value",
         },
         "public_endpoint_enabled": True,
         "public_endpoint_domain_name": "public_endpoint_domain_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5085,6 +5108,8 @@ def test_get_index_endpoint_rest(request_type):
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
             public_endpoint_domain_name="public_endpoint_domain_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5108,6 +5133,8 @@ def test_get_index_endpoint_rest(request_type):
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_index_endpoint_rest_use_cached_wrapped_rpc():
@@ -5865,10 +5892,13 @@ def test_update_index_endpoint_rest(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "service_attachment": "service_attachment_value",
         },
         "public_endpoint_enabled": True,
         "public_endpoint_domain_name": "public_endpoint_domain_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5953,6 +5983,8 @@ def test_update_index_endpoint_rest(request_type):
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
             public_endpoint_domain_name="public_endpoint_domain_name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5976,6 +6008,8 @@ def test_update_index_endpoint_rest(request_type):
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
     assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_update_index_endpoint_rest_use_cached_wrapped_rpc():

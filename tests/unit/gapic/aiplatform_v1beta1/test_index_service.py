@@ -1518,6 +1518,8 @@ def test_get_index(request_type, transport: str = "grpc"):
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
             index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_index(request)
 
@@ -1535,6 +1537,8 @@ def test_get_index(request_type, transport: str = "grpc"):
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
     assert response.index_update_method == index.Index.IndexUpdateMethod.BATCH_UPDATE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_index_empty_call():
@@ -1639,6 +1643,8 @@ async def test_get_index_empty_call_async():
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
                 index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_index()
@@ -1710,6 +1716,8 @@ async def test_get_index_async(
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
                 index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_index(request)
@@ -1728,6 +1736,8 @@ async def test_get_index_async(
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
     assert response.index_update_method == index.Index.IndexUpdateMethod.BATCH_UPDATE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -3796,6 +3806,8 @@ def test_create_index_rest(request_type):
         },
         "index_update_method": 1,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4186,6 +4198,8 @@ def test_get_index_rest(request_type):
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
             index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -4207,6 +4221,8 @@ def test_get_index_rest(request_type):
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
     assert response.index_update_method == index.Index.IndexUpdateMethod.BATCH_UPDATE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_index_rest_use_cached_wrapped_rpc():
@@ -4891,6 +4907,8 @@ def test_update_index_rest(request_type):
         },
         "index_update_method": 1,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

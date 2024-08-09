@@ -4700,6 +4700,7 @@ def test_create_endpoint_rest(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "service_attachment": "service_attachment_value",
         },
         "model_deployment_monitoring_job": "model_deployment_monitoring_job_value",
         "predict_request_response_logging_config": {
@@ -5909,6 +5910,7 @@ def test_update_endpoint_rest(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "service_attachment": "service_attachment_value",
         },
         "model_deployment_monitoring_job": "model_deployment_monitoring_job_value",
         "predict_request_response_logging_config": {

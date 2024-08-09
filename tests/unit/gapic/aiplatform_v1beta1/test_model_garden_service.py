@@ -1266,6 +1266,7 @@ def test_get_publisher_model_non_empty_request_with_auto_populated_field():
     request = model_garden_service.GetPublisherModelRequest(
         name="name_value",
         language_code="language_code_value",
+        hugging_face_token="hugging_face_token_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1281,6 +1282,7 @@ def test_get_publisher_model_non_empty_request_with_auto_populated_field():
         assert args[0] == model_garden_service.GetPublisherModelRequest(
             name="name_value",
             language_code="language_code_value",
+            hugging_face_token="hugging_face_token_value",
         )
 
 
@@ -2336,6 +2338,7 @@ def test_get_publisher_model_rest_required_fields(
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "hugging_face_token",
             "is_hugging_face_model",
             "language_code",
             "view",
@@ -2397,6 +2400,7 @@ def test_get_publisher_model_rest_unset_required_fields():
     assert set(unset_fields) == (
         set(
             (
+                "huggingFaceToken",
                 "isHuggingFaceModel",
                 "languageCode",
                 "view",

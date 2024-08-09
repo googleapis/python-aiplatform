@@ -120,7 +120,6 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
-from .types.content import GroundingAttribution
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
@@ -1488,7 +1487,6 @@ __all__ = (
     "GroundednessInstance",
     "GroundednessResult",
     "GroundednessSpec",
-    "GroundingAttribution",
     "GroundingChunk",
     "GroundingMetadata",
     "GroundingSupport",

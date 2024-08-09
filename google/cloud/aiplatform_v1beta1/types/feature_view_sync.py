@@ -54,6 +54,10 @@ class FeatureViewSync(proto.Message):
             FeatureViewSync.
         sync_summary (google.cloud.aiplatform_v1beta1.types.FeatureViewSync.SyncSummary):
             Output only. Summary of the sync job.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class SyncSummary(proto.Message):
@@ -101,6 +105,14 @@ class FeatureViewSync(proto.Message):
         proto.MESSAGE,
         number=6,
         message=SyncSummary,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=7,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=8,
     )
 
 
