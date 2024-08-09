@@ -100,7 +100,12 @@ _TEST_PSC_PROJECT_ALLOWLIST = ["project-1", "project-2"]
 _TEST_PSC_OPTIMIZED_FOS = types.feature_online_store_v1.FeatureOnlineStore(
     name=_TEST_PSC_OPTIMIZED_FOS_PATH,
     optimized=types.feature_online_store_v1.FeatureOnlineStore.Optimized(),
-    dedicated_serving_endpoint=types.feature_online_store_v1.FeatureOnlineStore.DedicatedServingEndpoint(),
+    dedicated_serving_endpoint=types.feature_online_store_v1.FeatureOnlineStore.DedicatedServingEndpoint(
+        private_service_connect_config=types.service_networking_v1.PrivateServiceConnectConfig(
+            enable_private_service_connect=True,
+            project_allowlist=_TEST_PSC_PROJECT_ALLOWLIST,
+        ),
+    ),
     labels=_TEST_PSC_OPTIMIZED_FOS_LABELS,
 )
 
