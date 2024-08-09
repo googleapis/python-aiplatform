@@ -717,7 +717,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
             transport_init: Union[
                 Type[VizierServiceTransport], Callable[..., VizierServiceTransport]
             ] = (
-                type(self).get_transport_class(transport)
+                VizierServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., VizierServiceTransport], transport)
             )

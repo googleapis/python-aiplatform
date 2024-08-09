@@ -735,7 +735,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 Type[FeaturestoreServiceTransport],
                 Callable[..., FeaturestoreServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                FeaturestoreServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., FeaturestoreServiceTransport], transport)
             )

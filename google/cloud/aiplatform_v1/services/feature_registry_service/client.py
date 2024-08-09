@@ -709,7 +709,7 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 Type[FeatureRegistryServiceTransport],
                 Callable[..., FeatureRegistryServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                FeatureRegistryServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., FeatureRegistryServiceTransport], transport)
             )

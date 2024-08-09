@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -206,10 +205,7 @@ class ReasoningEngineExecutionServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(ReasoningEngineExecutionServiceClient).get_transport_class,
-        type(ReasoningEngineExecutionServiceClient),
-    )
+    get_transport_class = ReasoningEngineExecutionServiceClient.get_transport_class
 
     def __init__(
         self,

@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -211,10 +210,7 @@ class VertexRagDataServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(VertexRagDataServiceClient).get_transport_class,
-        type(VertexRagDataServiceClient),
-    )
+    get_transport_class = VertexRagDataServiceClient.get_transport_class
 
     def __init__(
         self,

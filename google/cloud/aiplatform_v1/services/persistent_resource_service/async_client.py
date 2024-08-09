@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -225,10 +224,7 @@ class PersistentResourceServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(PersistentResourceServiceClient).get_transport_class,
-        type(PersistentResourceServiceClient),
-    )
+    get_transport_class = PersistentResourceServiceClient.get_transport_class
 
     def __init__(
         self,

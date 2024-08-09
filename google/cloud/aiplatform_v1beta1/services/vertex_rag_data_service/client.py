@@ -766,7 +766,7 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
                 Type[VertexRagDataServiceTransport],
                 Callable[..., VertexRagDataServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                VertexRagDataServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., VertexRagDataServiceTransport], transport)
             )

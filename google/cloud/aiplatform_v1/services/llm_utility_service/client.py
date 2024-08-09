@@ -669,7 +669,7 @@ class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
                 Type[LlmUtilityServiceTransport],
                 Callable[..., LlmUtilityServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                LlmUtilityServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., LlmUtilityServiceTransport], transport)
             )

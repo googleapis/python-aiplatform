@@ -697,7 +697,7 @@ class GenAiCacheServiceClient(metaclass=GenAiCacheServiceClientMeta):
                 Type[GenAiCacheServiceTransport],
                 Callable[..., GenAiCacheServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                GenAiCacheServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., GenAiCacheServiceTransport], transport)
             )

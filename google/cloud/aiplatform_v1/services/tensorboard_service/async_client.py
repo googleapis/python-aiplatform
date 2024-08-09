@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -231,10 +230,7 @@ class TensorboardServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(TensorboardServiceClient).get_transport_class,
-        type(TensorboardServiceClient),
-    )
+    get_transport_class = TensorboardServiceClient.get_transport_class
 
     def __init__(
         self,

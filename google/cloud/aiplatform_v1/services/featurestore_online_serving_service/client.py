@@ -685,7 +685,7 @@ class FeaturestoreOnlineServingServiceClient(
                 Type[FeaturestoreOnlineServingServiceTransport],
                 Callable[..., FeaturestoreOnlineServingServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                FeaturestoreOnlineServingServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(
                     Callable[..., FeaturestoreOnlineServingServiceTransport], transport
