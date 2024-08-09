@@ -19,6 +19,7 @@ import collections
 from concurrent import futures
 import time
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
+import warnings
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1beta1.types import (
@@ -113,6 +114,20 @@ def _validate_metrics(metrics: List[Union[str, metrics_base._Metric]]) -> None:
         if isinstance(metric, str):
             if metric in seen_strings:
                 raise ValueError(f"Duplicate string metric name found: '{metric}'")
+            if metric in constants.Metric.MODEL_BASED_METRIC_LIST:
+                warnings.warn(
+                    f"After google-cloud-aiplatform>1.61.0, using "
+                    f"metric name `{metric}` will result in an error. Please"
+                    f" use metric constant as Pointwise.{metric.upper()} or"
+                    " define a PointwiseMetric instead."
+                )
+            if metric in constants.Metric.PAIRWISE_METRIC_LIST:
+                warnings.warn(
+                    f"After google-cloud-aiplatform>1.61.0, using "
+                    f"metric name `{metric}` will result in an error. Please"
+                    f" use metric constant as Pairwise.{metric.upper()} or"
+                    " define a PairwiseMetric instead."
+                )
             seen_strings.add(metric)
         elif isinstance(metric, metrics_base._Metric):
             if metric.metric_name in seen_metric_names:
