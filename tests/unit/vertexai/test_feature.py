@@ -93,7 +93,7 @@ def test_init_with_feature_id_and_no_fg_id_raises_error(get_feature_mock):
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Since feature is not provided as a path, please specify"
+            "Since feature 'my_fg1_f1' is not provided as a path, please specify"
             + " feature_group_id."
         ),
     ):
@@ -106,7 +106,7 @@ def test_init_with_feature_path_and_fg_id_raises_error(get_feature_mock):
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Since feature is provided as a path, feature_group_id should not be specified."
+            "Since feature 'projects/test-project/locations/us-central1/featureGroups/my_fg1/features/my_fg1_f1' is provided as a path, feature_group_id should not be specified."
         ),
     ):
         Feature(_TEST_FG1_F1_PATH, feature_group_id=_TEST_FG1_ID)

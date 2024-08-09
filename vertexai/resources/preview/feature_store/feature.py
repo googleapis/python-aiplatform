@@ -80,7 +80,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         ):
             if feature_group_id:
                 raise ValueError(
-                    "Since feature is provided as a path, feature_group_id should not be specified."
+                    f"Since feature '{name}' is provided as a path, feature_group_id should not be specified."
                 )
             feature = name
         else:
@@ -90,8 +90,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             # feature group ID is provided.
             if not feature_group_id:
                 raise ValueError(
-                    "Since feature is not provided as a path, please specify"
-                    + " feature_group_id."
+                    f"Since feature '{name}' is not provided as a path, please specify feature_group_id."
                 )
 
             feature_group_path = utils.full_resource_name(
