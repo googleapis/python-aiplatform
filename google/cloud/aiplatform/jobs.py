@@ -2214,6 +2214,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2282,6 +2283,8 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
+                Optional. Indicates the job scheduling strategy.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -2299,6 +2302,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
+            scheduling_strategy=scheduling_strategy,
         )
 
     @base.optional_sync()
@@ -2316,6 +2320,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2382,6 +2387,8 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
+                Optional. Indicates the job scheduling strategy.
         """
         self.submit(
             service_account=service_account,
@@ -2395,6 +2402,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
+            scheduling_strategy=scheduling_strategy,
         )
 
         self._block_until_complete()
@@ -2413,6 +2421,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
+        scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -2476,6 +2485,8 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
+                Optional. Indicates the job scheduling strategy.
 
         Raises:
             ValueError:
@@ -2498,12 +2509,18 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         if network:
             self._gca_resource.job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart or disable_retries:
+        if (
+            timeout
+            or restart_job_on_worker_restart
+            or disable_retries
+            or scheduling_strategy
+        ):
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
                 disable_retries=disable_retries,
+                strategy=scheduling_strategy,
             )
 
         if enable_web_access:
@@ -2868,6 +2885,7 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2916,6 +2934,8 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
+                Optional. Indicates the job scheduling strategy.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -2930,6 +2950,7 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
             sync=sync,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            scheduling_strategy=scheduling_strategy,
         )
 
     @base.optional_sync()
@@ -2944,6 +2965,7 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2990,6 +3012,8 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
+                Optional. Indicates the job scheduling strategy.
         """
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
@@ -2997,13 +3021,19 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
         if network:
             self._gca_resource.trial_job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart or disable_retries:
+        if (
+            timeout
+            or restart_job_on_worker_restart
+            or disable_retries
+            or scheduling_strategy
+        ):
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.trial_job_spec.scheduling = (
                 gca_custom_job_compat.Scheduling(
                     timeout=duration,
                     restart_job_on_worker_restart=restart_job_on_worker_restart,
                     disable_retries=disable_retries,
+                    strategy=scheduling_strategy,
                 )
             )
 
