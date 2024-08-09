@@ -248,6 +248,7 @@ _TEST_DASHBOARD_ACCESS_URIS = {"workerpool0-0:8888": "uri"}
 _TEST_PERSISTENT_RESOURCE_ID = (
     test_constants.PersistentResourceConstants._TEST_PERSISTENT_RESOURCE_ID
 )
+_TEST_SPOT_STRATEGY = test_constants.TrainingJobConstants._TEST_SPOT_STRATEGY
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
     job_spec=gca_custom_job.CustomJobSpec(),
@@ -302,6 +303,15 @@ def _get_custom_job_proto_with_scheduling(state=None, name=None, version="v1"):
     )
     custom_job_proto.job_spec.scheduling.disable_retries = _TEST_DISABLE_RETRIES
 
+    return custom_job_proto
+
+
+def _get_custom_job_proto_with_spot_strategy(state=None, name=None, version="v1"):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+
+    custom_job_proto.job_spec.scheduling.strategy = _TEST_SPOT_STRATEGY
     return custom_job_proto
 
 
@@ -810,6 +820,21 @@ def make_training_pipeline_with_scheduling(state):
     return training_pipeline
 
 
+def make_training_pipeline_with_spot_strategy(state):
+    training_pipeline = gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        training_task_inputs={
+            "scheduling_strategy": _TEST_SPOT_STRATEGY,
+        },
+    )
+    if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
+        training_pipeline.training_task_metadata = {
+            "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+    return training_pipeline
+
+
 @pytest.fixture
 def mock_pipeline_service_get(make_call=make_training_pipeline):
     with mock.patch.object(
@@ -953,6 +978,35 @@ def mock_pipeline_service_get_with_scheduling():
 
 
 @pytest.fixture
+def mock_pipeline_service_get_with_spot_strategy():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.side_effect = [
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            ),
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_training_pipeline_with_spot_strategy(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
@@ -1020,6 +1074,19 @@ def mock_pipeline_service_create_with_scheduling():
     ) as mock_create_training_pipeline:
         mock_create_training_pipeline.return_value = (
             make_training_pipeline_with_scheduling(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_spot_strategy():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_spot_strategy(
                 state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
             )
         )
@@ -2386,6 +2453,58 @@ class TestCustomTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["disable_retries"]
             == _TEST_DISABLE_RETRIES
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_spot_strategy",
+        "mock_pipeline_service_get_with_spot_strategy",
+        "mock_python_package_to_gcs",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_spot_strategy(self, sync):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+        )
+
+        if not sync:
+            job.wait()
+
+        assert job._gca_resource == make_training_pipeline_with_spot_strategy(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        assert (
+            job._gca_resource.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        assert (
+            job._gca_resource.training_task_inputs["scheduling_strategy"]
+            == _TEST_SPOT_STRATEGY
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)

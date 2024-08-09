@@ -202,6 +202,22 @@ def _get_hyperparameter_tuning_job_proto_with_enable_web_access(
     return hyperparameter_tuning_job_proto
 
 
+def _get_hyperparameter_tuning_job_proto_with_spot_strategy(
+    state=None, name=None, error=None, trials=[]
+):
+    hyperparameter_tuning_job_proto = _get_hyperparameter_tuning_job_proto(
+        state=state,
+        name=name,
+        error=error,
+    )
+    hyperparameter_tuning_job_proto.trial_job_spec.scheduling.strategy = (
+        test_constants.TrainingJobConstants._TEST_SPOT_STRATEGY
+    )
+    if state == gca_job_state_compat.JobState.JOB_STATE_RUNNING:
+        hyperparameter_tuning_job_proto.trials = trials
+    return hyperparameter_tuning_job_proto
+
+
 @pytest.fixture
 def get_hyperparameter_tuning_job_mock():
     with patch.object(
@@ -332,6 +348,28 @@ def get_hyperparameter_tuning_job_mock_with_fail():
 
 
 @pytest.fixture
+def get_hyperparameter_tuning_job_mock_with_spot_strategy():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_hyperparameter_tuning_job"
+    ) as get_hyperparameter_tuning_job_mock:
+        get_hyperparameter_tuning_job_mock.side_effect = [
+            _get_hyperparameter_tuning_job_proto_with_spot_strategy(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            ),
+            _get_hyperparameter_tuning_job_proto_with_spot_strategy(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_hyperparameter_tuning_job_proto_with_spot_strategy(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_hyperparameter_tuning_job_mock
+
+
+@pytest.fixture
 def create_hyperparameter_tuning_job_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
@@ -382,6 +420,20 @@ def create_hyperparameter_tuning_job_mock_with_tensorboard():
         )
         create_hyperparameter_tuning_job_mock.return_value = (
             hyperparameter_tuning_job_proto
+        )
+        yield create_hyperparameter_tuning_job_mock
+
+
+@pytest.fixture
+def create_hyperparameter_tuning_job_mock_with_spot_strategy():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
+    ) as create_hyperparameter_tuning_job_mock:
+        create_hyperparameter_tuning_job_mock.return_value = (
+            _get_hyperparameter_tuning_job_proto_with_spot_strategy(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_hyperparameter_tuning_job_mock
 
@@ -907,4 +959,72 @@ class TestHyperparameterTuningJob:
         hp_job._block_until_complete()
         assert hp_job._logged_web_access_uris == set(
             test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS.values()
+        )
+
+    def test_create_hyperparameter_tuning_job_with_spot_strategy(
+        self,
+        create_hyperparameter_tuning_job_mock_with_spot_strategy,
+        get_hyperparameter_tuning_job_mock_with_spot_strategy,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        custom_job = aiplatform.CustomJob(
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
+        )
+
+        job = aiplatform.HyperparameterTuningJob(
+            display_name=_TEST_DISPLAY_NAME,
+            custom_job=custom_job,
+            metric_spec={_TEST_METRIC_SPEC_KEY: _TEST_METRIC_SPEC_VALUE},
+            parameter_spec={
+                "lr": hpt.DoubleParameterSpec(min=0.001, max=0.1, scale="log"),
+                "units": hpt.IntegerParameterSpec(min=4, max=1028, scale="linear"),
+                "activation": hpt.CategoricalParameterSpec(
+                    values=["relu", "sigmoid", "elu", "selu", "tanh"]
+                ),
+                "batch_size": hpt.DiscreteParameterSpec(
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
+                ),
+            },
+            parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
+            max_trial_count=_TEST_MAX_TRIAL_COUNT,
+            max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
+            search_algorithm=_TEST_SEARCH_ALGORITHM,
+            measurement_selection=_TEST_MEASUREMENT_SELECTION,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            scheduling_strategy=test_constants.TrainingJobConstants._TEST_SPOT_STRATEGY,
+        )
+
+        job.wait()
+
+        expected_hyperparameter_tuning_job = (
+            _get_hyperparameter_tuning_job_proto_with_spot_strategy()
+        )
+
+        create_hyperparameter_tuning_job_mock_with_spot_strategy.assert_called_once_with(
+            parent=_TEST_PARENT,
+            hyperparameter_tuning_job=expected_hyperparameter_tuning_job,
+            timeout=None,
         )
