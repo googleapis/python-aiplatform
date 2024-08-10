@@ -18,8 +18,9 @@
 # pylint: disable=protected-access,bad-continuation
 
 from vertexai.generative_models._prompts import Prompt
-from vertexai.generative_models import Content, Part
+from vertexai.generative_models import Content, Part, Image
 
+import io
 import pytest
 
 from typing import Any, List
@@ -42,6 +43,16 @@ def assert_prompt_contents_equal(
                 prompt_contents[i].parts[j]._raw_part.text
                 == expected_prompt_contents[i].parts[j]._raw_part.text
             )
+
+
+def create_image():
+    # Importing external library lazily to reduce the scope of import errors.
+    from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
+
+    pil_image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(200, 200))
+    image_bytes_io = io.BytesIO()
+    pil_image.save(image_bytes_io, format="jpeg")
+    return Image.from_bytes(image_bytes_io.getvalue())
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -88,6 +99,22 @@ class TestPrompt:
                 ],
             )
 
+    def test_partstype_prompt_constructor(self):
+        image = create_image()
+        # Create PartsType prompt with List[Part] variable values
+        prompt_data = [
+            "Compare the movie posters for The Avengers and {movie2}: ",
+            image,
+            "{movie2_poster}",
+        ]
+        prompt = Prompt(
+            prompt_data=prompt_data,
+            variables=[{"movie2": "Frozen", "movie2_poster": [Part.from_image(image)]}],
+        )
+        # Variables values should be List[Part]
+        assert is_list_of_type(prompt.variables[0]["movie2"], Part)
+        assert is_list_of_type(prompt.variables[0]["movie2_poster"], Part)
+
     def test_string_prompt_assemble_contents(self):
         prompt = Prompt(
             prompt_data="Which movie is better, {movie1} or {movie2}?",
@@ -103,6 +130,40 @@ class TestPrompt:
             Content(
                 parts=[
                     Part.from_text("Which movie is better, The Avengers or Frozen?"),
+                ],
+                role="user",
+            )
+        ]
+        assert_prompt_contents_equal(assembled_prompt_content, expected_content)
+
+    def test_partstype_prompt_assemble_contents(self):
+        image1 = create_image()
+        image2 = create_image()
+        prompt_data = [
+            "Compare the movie posters for The Avengers and {movie2}: ",
+            image1,
+            "{movie2_poster}",
+        ]
+        prompt = Prompt(
+            prompt_data=prompt_data,
+            variables=[
+                {
+                    "movie2": "Frozen",
+                    "movie2_poster": [Part.from_image(image=image2)],
+                }
+            ],
+        )
+
+        # Check assembled prompt content
+        assembled_prompt_content = prompt.assemble_contents(**prompt.variables[0])
+        expected_content = [
+            Content(
+                parts=[
+                    Part.from_text(
+                        "Compare the movie posters for The Avengers and Frozen: "
+                    ),
+                    Part.from_image(image=image1),
+                    Part.from_image(image=image2),
                 ],
                 role="user",
             )
