@@ -825,7 +825,7 @@ class _GenerativeModel:
     def compute_tokens(
         self, contents: ContentsType
     ) -> gapic_llm_utility_service_types.ComputeTokensResponse:
-        """Counts tokens.
+        """Computes tokens.
 
         Args:
             contents: Contents to send to the model.
@@ -837,9 +837,13 @@ class _GenerativeModel:
                 * List[Content]
 
         Returns:
-            A CountTokensResponse object that has the following attributes:
-                total_tokens: The total number of tokens counted across all instances from the request.
-                total_billable_characters: The total number of billable characters counted across all instances from the request.
+            A ComputeTokensResponse object that has the following attributes:
+                tokens_info: Lists of tokens_info from the input.
+                             The input `contents: ContentsType` could have
+                             multiple string instances and each tokens_info
+                             item represents each string instance. Each token
+                             info consists tokens list, token_ids list and
+                             a role.
         """
         return self._llm_utility_client.compute_tokens(
             request=gapic_llm_utility_service_types.ComputeTokensRequest(
@@ -852,7 +856,7 @@ class _GenerativeModel:
     async def compute_tokens_async(
         self, contents: ContentsType
     ) -> gapic_llm_utility_service_types.ComputeTokensResponse:
-        """Counts tokens asynchronously.
+        """Computes tokens asynchronously.
 
         Args:
             contents: Contents to send to the model.
@@ -864,9 +868,13 @@ class _GenerativeModel:
                 * List[Content]
 
         Returns:
-            And awaitable for a CountTokensResponse object that has the following attributes:
-                total_tokens: The total number of tokens counted across all instances from the request.
-                total_billable_characters: The total number of billable characters counted across all instances from the request.
+            And awaitable for a ComputeTokensResponse object that has the following attributes:
+                tokens_info: Lists of tokens_info from the input.
+                             The input `contents: ContentsType` could have
+                             multiple string instances and each tokens_info
+                             item represents each string instance. Each token
+                             info consists tokens list, token_ids list and
+                             a role.
         """
         return await self._llm_utility_async_client.compute_tokens(
             request=gapic_llm_utility_service_types.ComputeTokensRequest(
