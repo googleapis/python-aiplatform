@@ -22,6 +22,9 @@ import pathlib
 import re
 import shutil
 import warnings
+import time
+from typing import Optional, List
+
 
 import nox
 
@@ -163,14 +166,17 @@ def install_unittest_dependencies(session, *constraints):
         session.install("-e", ".", *constraints)
 
 
-def default(session):
+def default(session, *, extra_pytest_args: Optional[List[str]] = None):
     # Install all test dependencies, then install this package in-place.
 
     constraints_path = str(
         CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
     )
+    install_start_time = time.time()
     install_unittest_dependencies(session, "-c", constraints_path)
+    print("Install time: ", time.time() - install_start_time)
 
+    test_start_time = time.time()
     # Run py.test against the unit tests.
     session.run(
         "py.test",
@@ -184,10 +190,13 @@ def default(session):
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/architecture",
+        *extra_pytest_args,
         os.path.join("tests", "unit"),
         *session.posargs,
     )
+    print("Test time: ", time.time() - test_start_time)
 
+    test_start_time = time.time()
     # Run tests that require isolation.
     session.run(
         "py.test",
@@ -196,12 +205,31 @@ def default(session):
         os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
         *session.posargs,
     )
+    print("Test(isolation) time: ", time.time() - test_start_time)
 
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
     """Run the unit test suite."""
-    default(session)
+    default(
+        session,
+        extra_pytest_args=[
+            # Parallelize tests using 64 processes and group by class or module.
+            "-n=auto",
+            "--dist=loadscope",
+            # Parallelize tests end.
+
+            # Automatically retry failed tests 3 times with 60s delay.
+            # "--reruns=3",
+            # "--reruns-delay=60",
+            # Automatically retry tests end.
+
+            # Show all slowest tests which durations are over 60.0s long
+            "--durations=0",
+            "--durations-min=60.0",
+            # Show all slowest tests end.
+        ],
+    )
 
 
 @nox.session(python="3.10")
@@ -240,7 +268,7 @@ def unit_langchain(session):
     session.install(*standard_deps, "-c", constraints_path)
 
     # Install langchain extras
-    session.install("-e", ".[langchain_testing]", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
