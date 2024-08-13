@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.62.0](https://github.com/googleapis/python-aiplatform/compare/v1.61.0...v1.62.0) (2024-08-13)
+
+
+### Features
+
+* Add metadata to evaluation result. ([375095e](https://github.com/googleapis/python-aiplatform/commit/375095e72cc4f43611710372a1e36753a891a710))
+* Add Prompt class for multimodal prompt templating ([1bdc235](https://github.com/googleapis/python-aiplatform/commit/1bdc235ea64f8d63ce9d60d88cb873ee341d3ff9))
+* Add support for query method in Vertex AI Extension SDK ([0008735](https://github.com/googleapis/python-aiplatform/commit/0008735968606a716add88072cff76f2fc552d7b))
+* Add support for reservation affinity in custom training jobs. ([802609b](https://github.com/googleapis/python-aiplatform/commit/802609b1f5e5d8d41a77dafb5b1a2dbf01f2bd30))
+* Add support for strategy in custom training jobs. ([a076191](https://github.com/googleapis/python-aiplatform/commit/a076191b8726363e1f7c47ef8343eb86cebf9918))
+* Adding spot, reservation_affinity to Vertex SDK ([3e785bd](https://github.com/googleapis/python-aiplatform/commit/3e785bd9c9d3d11197ef930f563ee96231a67d84))
+* Support api keys in initializer and create_client ([7404f67](https://github.com/googleapis/python-aiplatform/commit/7404f679246e41e0009ec2d49f05d669eb357f71))
+* Support creating optimized online store with private service connect ([659ba3f](https://github.com/googleapis/python-aiplatform/commit/659ba3f287f9aa78840d4b9b9ca216002d5f1e6a))
+* Support disable Cloud logging in Ray on Vertex ([accaa97](https://github.com/googleapis/python-aiplatform/commit/accaa9750d98b7a37b08da3bd2058d9cdd03bd5c))
+* Support PSC-Interface in Ray on Vertex ([accaa97](https://github.com/googleapis/python-aiplatform/commit/accaa9750d98b7a37b08da3bd2058d9cdd03bd5c))
+
+
+### Bug Fixes
+
+* Added credentials, project, and location on PipelineJobSchedule init ([281c171](https://github.com/googleapis/python-aiplatform/commit/281c1710afc6cac49c02d926bee7a6c43b6ef851))
+* Avoid breakage of langchain from orjson 3.10.7 ([c990f73](https://github.com/googleapis/python-aiplatform/commit/c990f73845f38e58ba2dddb372ad2f84d4a05479))
+* Deprecate disable_attribution in GoogleSearchRetrieval. ([c68d559](https://github.com/googleapis/python-aiplatform/commit/c68d559b9d0fd7288b6775f57d05f474f5f7920a))
+
+
+### Documentation
+
+* Update the docstring for compute_tokens method. ([849e8d4](https://github.com/googleapis/python-aiplatform/commit/849e8d409e4838cad0a020231b806b0c9ef587ce))
+
 ## [1.61.0](https://github.com/googleapis/python-aiplatform/compare/v1.60.0...v1.61.0) (2024-08-05)
 
 
