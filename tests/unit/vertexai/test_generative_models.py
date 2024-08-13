@@ -1016,9 +1016,7 @@ class TestGenerativeModels:
         model = preview_generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
-                preview_generative_models.grounding.GoogleSearchRetrieval(
-                    disable_attribution=False
-                )
+                preview_generative_models.grounding.GoogleSearchRetrieval()
             )
         )
         response = model.generate_content(
