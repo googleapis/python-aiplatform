@@ -150,6 +150,25 @@ class TrainingJobConstants:
             },
         }
     ]
+    _TEST_RESERVATION_AFFINITY_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": "n1-standard-4",
+                "accelerator_type": "NVIDIA_TESLA_K80",
+                "accelerator_count": 1,
+                "reservation_affinity": {
+                    "reservation_affinity_type": "ANY_RESERVATION"
+                },
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "command": [],
+                "args": _TEST_RUN_ARGS,
+            },
+        }
+    ]
     _TEST_ID = "1028944691210842416"
     _TEST_NETWORK = (
         f"projects/{ProjectConstants._TEST_PROJECT}/global/networks/{_TEST_ID}"
