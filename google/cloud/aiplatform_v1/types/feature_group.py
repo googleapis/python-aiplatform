@@ -88,7 +88,31 @@ class FeatureGroup(proto.Message):
             entity_id_columns (MutableSequence[str]):
                 Optional. Columns to construct entity_id / row keys. If not
                 provided defaults to ``entity_id``.
+            time_series (google.cloud.aiplatform_v1.types.FeatureGroup.BigQuery.TimeSeries):
+                Optional. If the source is a time-series source, this can be
+                set to control how downstream sources (ex:
+                [FeatureView][google.cloud.aiplatform.v1.FeatureView] ) will
+                treat time-series sources. If not set, will treat the source
+                as a time-series source with ``feature_timestamp`` as
+                timestamp column and no scan boundary.
         """
+
+        class TimeSeries(proto.Message):
+            r"""
+
+            Attributes:
+                timestamp_column (str):
+                    Optional. Column hosting timestamp values for a time-series
+                    source. Will be used to determine the latest
+                    ``feature_values`` for each entity. Optional. If not
+                    provided, column named ``feature_timestamp`` of type
+                    ``TIMESTAMP`` will be used.
+            """
+
+            timestamp_column: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         big_query_source: io.BigQuerySource = proto.Field(
             proto.MESSAGE,
@@ -98,6 +122,11 @@ class FeatureGroup(proto.Message):
         entity_id_columns: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=2,
+        )
+        time_series: "FeatureGroup.BigQuery.TimeSeries" = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message="FeatureGroup.BigQuery.TimeSeries",
         )
 
     big_query: BigQuery = proto.Field(

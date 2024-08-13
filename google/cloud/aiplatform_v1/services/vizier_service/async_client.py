@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -205,9 +204,7 @@ class VizierServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(VizierServiceClient).get_transport_class, type(VizierServiceClient)
-    )
+    get_transport_class = VizierServiceClient.get_transport_class
 
     def __init__(
         self,

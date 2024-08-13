@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
         "RagCorpus",
         "RagFile",
         "RagFileChunkingConfig",
+        "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
     },
@@ -305,6 +306,20 @@ class RagFileChunkingConfig(proto.Message):
     )
 
 
+class RagFileParsingConfig(proto.Message):
+    r"""Specifies the parsing config for RagFiles.
+
+    Attributes:
+        use_advanced_pdf_parsing (bool):
+            Whether to use advanced PDF parsing.
+    """
+
+    use_advanced_pdf_parsing: bool = proto.Field(
+        proto.BOOL,
+        number=2,
+    )
+
+
 class UploadRagFileConfig(proto.Message):
     r"""Config for uploading RagFile.
 
@@ -360,6 +375,8 @@ class ImportRagFilesConfig(proto.Message):
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
+        rag_file_parsing_config (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig):
+            Specifies the parsing config for RagFiles.
         max_embedding_requests_per_min (int):
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -399,6 +416,11 @@ class ImportRagFilesConfig(proto.Message):
         proto.MESSAGE,
         number=4,
         message="RagFileChunkingConfig",
+    )
+    rag_file_parsing_config: "RagFileParsingConfig" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="RagFileParsingConfig",
     )
     max_embedding_requests_per_min: int = proto.Field(
         proto.INT32,

@@ -1266,6 +1266,7 @@ def test_get_publisher_model_non_empty_request_with_auto_populated_field():
     request = model_garden_service.GetPublisherModelRequest(
         name="name_value",
         language_code="language_code_value",
+        hugging_face_token="hugging_face_token_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1281,6 +1282,7 @@ def test_get_publisher_model_non_empty_request_with_auto_populated_field():
         assert args[0] == model_garden_service.GetPublisherModelRequest(
             name="name_value",
             language_code="language_code_value",
+            hugging_face_token="hugging_face_token_value",
         )
 
 
@@ -1377,22 +1379,23 @@ async def test_get_publisher_model_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_publisher_model
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_publisher_model(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_publisher_model(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1793,22 +1796,23 @@ async def test_list_publisher_models_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_publisher_models
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_publisher_models(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_publisher_models(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2336,6 +2340,7 @@ def test_get_publisher_model_rest_required_fields(
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "hugging_face_token",
             "is_hugging_face_model",
             "language_code",
             "view",
@@ -2397,6 +2402,7 @@ def test_get_publisher_model_rest_unset_required_fields():
     assert set(unset_fields) == (
         set(
             (
+                "huggingFaceToken",
                 "isHuggingFaceModel",
                 "languageCode",
                 "view",

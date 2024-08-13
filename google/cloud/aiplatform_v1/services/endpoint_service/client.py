@@ -782,7 +782,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             transport_init: Union[
                 Type[EndpointServiceTransport], Callable[..., EndpointServiceTransport]
             ] = (
-                type(self).get_transport_class(transport)
+                EndpointServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., EndpointServiceTransport], transport)
             )

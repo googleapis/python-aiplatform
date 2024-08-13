@@ -113,6 +113,10 @@ class FeatureView(proto.Message):
             be granted to this service account to allow
             Vertex AI Feature Store to sync data to the
             online store.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class ServiceAgentType(proto.Enum):
@@ -573,6 +577,14 @@ class FeatureView(proto.Message):
     service_account_email: str = proto.Field(
         proto.STRING,
         number=13,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
 
 

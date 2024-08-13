@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
@@ -201,10 +200,7 @@ class FeatureOnlineStoreServiceAsyncClient:
         """
         return self._client._universe_domain
 
-    get_transport_class = functools.partial(
-        type(FeatureOnlineStoreServiceClient).get_transport_class,
-        type(FeatureOnlineStoreServiceClient),
-    )
+    get_transport_class = FeatureOnlineStoreServiceClient.get_transport_class
 
     def __init__(
         self,

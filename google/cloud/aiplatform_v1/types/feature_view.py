@@ -95,6 +95,10 @@ class FeatureView(proto.Message):
             data, so that approximate nearest neighbor
             (a.k.a ANN) algorithms search can be performed
             during online serving.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class BigQuerySource(proto.Message):
@@ -374,6 +378,14 @@ class FeatureView(proto.Message):
         proto.MESSAGE,
         number=15,
         message=IndexConfig,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
 
 

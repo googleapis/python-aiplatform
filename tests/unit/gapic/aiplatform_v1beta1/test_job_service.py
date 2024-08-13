@@ -1163,6 +1163,8 @@ def test_create_custom_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_custom_job(request)
 
@@ -1177,6 +1179,8 @@ def test_create_custom_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_custom_job_empty_call():
@@ -1286,6 +1290,8 @@ async def test_create_custom_job_empty_call_async():
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_custom_job()
@@ -1317,22 +1323,23 @@ async def test_create_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_custom_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_custom_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1358,6 +1365,8 @@ async def test_create_custom_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_custom_job(request)
@@ -1373,6 +1382,8 @@ async def test_create_custom_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -1565,6 +1576,8 @@ def test_get_custom_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_custom_job(request)
 
@@ -1579,6 +1592,8 @@ def test_get_custom_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_custom_job_empty_call():
@@ -1680,6 +1695,8 @@ async def test_get_custom_job_empty_call_async():
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_custom_job()
@@ -1711,22 +1728,23 @@ async def test_get_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_custom_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_custom_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1750,6 +1768,8 @@ async def test_get_custom_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_custom_job(request)
@@ -1765,6 +1785,8 @@ async def test_get_custom_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -2085,22 +2107,23 @@ async def test_list_custom_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_custom_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_custom_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_custom_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2595,8 +2618,9 @@ def test_delete_custom_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_custom_job(request)
@@ -2652,26 +2676,28 @@ async def test_delete_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_custom_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_custom_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3030,22 +3056,23 @@ async def test_cancel_custom_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_custom_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.cancel_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.cancel_custom_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3432,22 +3459,23 @@ async def test_create_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_data_labeling_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_data_labeling_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3870,22 +3898,23 @@ async def test_get_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_data_labeling_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_data_labeling_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4279,22 +4308,23 @@ async def test_list_data_labeling_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_data_labeling_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_data_labeling_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_data_labeling_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4811,8 +4841,9 @@ def test_delete_data_labeling_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_data_labeling_job(request)
@@ -4868,26 +4899,28 @@ async def test_delete_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_data_labeling_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_data_labeling_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5250,22 +5283,23 @@ async def test_cancel_data_labeling_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_data_labeling_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.cancel_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.cancel_data_labeling_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5481,6 +5515,8 @@ def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc")
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_hyperparameter_tuning_job(request)
 
@@ -5498,6 +5534,8 @@ def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc")
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_hyperparameter_tuning_job_empty_call():
@@ -5613,6 +5651,8 @@ async def test_create_hyperparameter_tuning_job_empty_call_async():
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_hyperparameter_tuning_job()
@@ -5644,22 +5684,23 @@ async def test_create_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_hyperparameter_tuning_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_hyperparameter_tuning_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5689,6 +5730,8 @@ async def test_create_hyperparameter_tuning_job_async(
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_hyperparameter_tuning_job(request)
@@ -5707,6 +5750,8 @@ async def test_create_hyperparameter_tuning_job_async(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -5916,6 +5961,8 @@ def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_hyperparameter_tuning_job(request)
 
@@ -5933,6 +5980,8 @@ def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_hyperparameter_tuning_job_empty_call():
@@ -6048,6 +6097,8 @@ async def test_get_hyperparameter_tuning_job_empty_call_async():
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_hyperparameter_tuning_job()
@@ -6079,22 +6130,23 @@ async def test_get_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_hyperparameter_tuning_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_hyperparameter_tuning_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6124,6 +6176,8 @@ async def test_get_hyperparameter_tuning_job_async(
                 parallel_trial_count=2128,
                 max_failed_trial_count=2317,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_hyperparameter_tuning_job(request)
@@ -6142,6 +6196,8 @@ async def test_get_hyperparameter_tuning_job_async(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -6481,22 +6537,23 @@ async def test_list_hyperparameter_tuning_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_hyperparameter_tuning_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7021,8 +7078,9 @@ def test_delete_hyperparameter_tuning_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_hyperparameter_tuning_job(request)
@@ -7078,26 +7136,28 @@ async def test_delete_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_hyperparameter_tuning_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_hyperparameter_tuning_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7460,22 +7520,23 @@ async def test_cancel_hyperparameter_tuning_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_hyperparameter_tuning_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7687,6 +7748,8 @@ def test_create_nas_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_nas_job(request)
 
@@ -7702,6 +7765,8 @@ def test_create_nas_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_nas_job_empty_call():
@@ -7804,6 +7869,8 @@ async def test_create_nas_job_empty_call_async():
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_nas_job()
@@ -7835,22 +7902,23 @@ async def test_create_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_nas_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_nas_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_nas_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7875,6 +7943,8 @@ async def test_create_nas_job_async(
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_nas_job(request)
@@ -7891,6 +7961,8 @@ async def test_create_nas_job_async(
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -8072,6 +8144,8 @@ def test_get_nas_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_nas_job(request)
 
@@ -8087,6 +8161,8 @@ def test_get_nas_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_nas_job_empty_call():
@@ -8189,6 +8265,8 @@ async def test_get_nas_job_empty_call_async():
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_nas_job()
@@ -8220,22 +8298,23 @@ async def test_get_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_nas_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_nas_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_nas_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -8260,6 +8339,8 @@ async def test_get_nas_job_async(
                 display_name="display_name_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 enable_restricted_image_training=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_nas_job(request)
@@ -8276,6 +8357,8 @@ async def test_get_nas_job_async(
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -8590,22 +8673,23 @@ async def test_list_nas_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_nas_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_nas_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_nas_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9092,8 +9176,9 @@ def test_delete_nas_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_nas_job(request)
@@ -9147,26 +9232,28 @@ async def test_delete_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_nas_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_nas_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_nas_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9505,22 +9592,23 @@ async def test_cancel_nas_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_nas_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.cancel_nas_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.cancel_nas_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -9875,22 +9963,23 @@ async def test_get_nas_trial_detail_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_nas_trial_detail
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_nas_trial_detail(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_nas_trial_detail(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10266,22 +10355,23 @@ async def test_list_nas_trial_details_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_nas_trial_details
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_nas_trial_details(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_nas_trial_details(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -10882,22 +10972,23 @@ async def test_create_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_batch_prediction_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_batch_prediction_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -11333,22 +11424,23 @@ async def test_get_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_batch_prediction_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_batch_prediction_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -11743,22 +11835,23 @@ async def test_list_batch_prediction_jobs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_batch_prediction_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_batch_prediction_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_batch_prediction_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -12281,8 +12374,9 @@ def test_delete_batch_prediction_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_batch_prediction_job(request)
@@ -12338,26 +12432,28 @@ async def test_delete_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_batch_prediction_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_batch_prediction_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -12720,22 +12816,23 @@ async def test_cancel_batch_prediction_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.cancel_batch_prediction_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.cancel_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.cancel_batch_prediction_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -12953,6 +13050,8 @@ def test_create_model_deployment_monitoring_job(request_type, transport: str = "
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.create_model_deployment_monitoring_job(request)
 
@@ -12977,6 +13076,8 @@ def test_create_model_deployment_monitoring_job(request_type, transport: str = "
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_model_deployment_monitoring_job_empty_call():
@@ -13094,6 +13195,8 @@ async def test_create_model_deployment_monitoring_job_empty_call_async():
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job()
@@ -13125,22 +13228,23 @@ async def test_create_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.create_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -13172,6 +13276,8 @@ async def test_create_model_deployment_monitoring_job_async(
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job(request)
@@ -13197,6 +13303,8 @@ async def test_create_model_deployment_monitoring_job_async(
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -13584,22 +13692,23 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_use_cach
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.search_model_deployment_monitoring_stats_anomalies
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.search_model_deployment_monitoring_stats_anomalies(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.search_model_deployment_monitoring_stats_anomalies(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -14077,6 +14186,8 @@ def test_get_model_deployment_monitoring_job(request_type, transport: str = "grp
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_model_deployment_monitoring_job(request)
 
@@ -14101,6 +14212,8 @@ def test_get_model_deployment_monitoring_job(request_type, transport: str = "grp
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_deployment_monitoring_job_empty_call():
@@ -14218,6 +14331,8 @@ async def test_get_model_deployment_monitoring_job_empty_call_async():
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job()
@@ -14249,22 +14364,23 @@ async def test_get_model_deployment_monitoring_job_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -14296,6 +14412,8 @@ async def test_get_model_deployment_monitoring_job_async(
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
                 enable_monitoring_pipeline_logs=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job(request)
@@ -14321,6 +14439,8 @@ async def test_get_model_deployment_monitoring_job_async(
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -14666,22 +14786,23 @@ async def test_list_model_deployment_monitoring_jobs_async_use_cached_wrapped_rp
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_model_deployment_monitoring_jobs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_model_deployment_monitoring_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_model_deployment_monitoring_jobs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -15202,8 +15323,9 @@ def test_update_model_deployment_monitoring_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.update_model_deployment_monitoring_job(request)
@@ -15259,26 +15381,28 @@ async def test_update_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.update_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.update_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -15612,8 +15736,9 @@ def test_delete_model_deployment_monitoring_job_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_model_deployment_monitoring_job(request)
@@ -15669,26 +15794,28 @@ async def test_delete_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -16051,22 +16178,23 @@ async def test_pause_model_deployment_monitoring_job_async_use_cached_wrapped_rp
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.pause_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.pause_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.pause_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -16423,22 +16551,23 @@ async def test_resume_model_deployment_monitoring_job_async_use_cached_wrapped_r
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.resume_model_deployment_monitoring_job
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.resume_model_deployment_monitoring_job(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.resume_model_deployment_monitoring_job(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -16724,6 +16853,8 @@ def test_create_custom_job_rest(request_type):
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "web_access_uris": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -16801,6 +16932,8 @@ def test_create_custom_job_rest(request_type):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -16819,6 +16952,8 @@ def test_create_custom_job_rest(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_custom_job_rest_use_cached_wrapped_rpc():
@@ -17121,6 +17256,8 @@ def test_get_custom_job_rest(request_type):
             name="name_value",
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -17139,6 +17276,8 @@ def test_get_custom_job_rest(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_custom_job_rest_use_cached_wrapped_rpc():
@@ -20372,6 +20511,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
         },
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -20458,6 +20599,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -20481,6 +20624,8 @@ def test_create_hyperparameter_tuning_job_rest(request_type):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_hyperparameter_tuning_job_rest_use_cached_wrapped_rpc():
@@ -20804,6 +20949,8 @@ def test_get_hyperparameter_tuning_job_rest(request_type):
             parallel_trial_count=2128,
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -20827,6 +20974,8 @@ def test_get_hyperparameter_tuning_job_rest(request_type):
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_hyperparameter_tuning_job_rest_use_cached_wrapped_rpc():
@@ -22263,6 +22412,8 @@ def test_create_nas_job_rest(request_type):
         "labels": {},
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_restricted_image_training": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -22341,6 +22492,8 @@ def test_create_nas_job_rest(request_type):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -22360,6 +22513,8 @@ def test_create_nas_job_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_nas_job_rest_use_cached_wrapped_rpc():
@@ -22659,6 +22814,8 @@ def test_get_nas_job_rest(request_type):
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             enable_restricted_image_training=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -22678,6 +22835,8 @@ def test_get_nas_job_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.enable_restricted_image_training is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_nas_job_rest_use_cached_wrapped_rpc():
@@ -26657,6 +26816,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_monitoring_pipeline_logs": True,
         "error": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -26747,6 +26908,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -26779,6 +26942,8 @@ def test_create_model_deployment_monitoring_job_rest(request_type):
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_create_model_deployment_monitoring_job_rest_use_cached_wrapped_rpc():
@@ -27567,6 +27732,8 @@ def test_get_model_deployment_monitoring_job_rest(request_type):
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
             enable_monitoring_pipeline_logs=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -27597,6 +27764,8 @@ def test_get_model_deployment_monitoring_job_rest(request_type):
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
     assert response.enable_monitoring_pipeline_logs is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_model_deployment_monitoring_job_rest_use_cached_wrapped_rpc():
@@ -28410,6 +28579,8 @@ def test_update_model_deployment_monitoring_job_rest(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "enable_monitoring_pipeline_logs": True,
         "error": {},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

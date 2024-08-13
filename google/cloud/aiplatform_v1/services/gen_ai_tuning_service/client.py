@@ -742,7 +742,7 @@ class GenAiTuningServiceClient(metaclass=GenAiTuningServiceClientMeta):
                 Type[GenAiTuningServiceTransport],
                 Callable[..., GenAiTuningServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                GenAiTuningServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., GenAiTuningServiceTransport], transport)
             )

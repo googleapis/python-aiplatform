@@ -751,7 +751,7 @@ class FeatureOnlineStoreAdminServiceClient(
                 Type[FeatureOnlineStoreAdminServiceTransport],
                 Callable[..., FeatureOnlineStoreAdminServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                FeatureOnlineStoreAdminServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(
                     Callable[..., FeatureOnlineStoreAdminServiceTransport], transport

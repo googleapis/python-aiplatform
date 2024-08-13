@@ -436,18 +436,7 @@ class GoogleSearchRetrieval(proto.Message):
     r"""Tool to retrieve public web data for grounding, powered by
     Google.
 
-    Attributes:
-        disable_attribution (bool):
-            Optional. Disable using the result from this
-            tool in detecting grounding attribution. This
-            does not affect how the result is given to the
-            model for generation.
     """
-
-    disable_attribution: bool = proto.Field(
-        proto.BOOL,
-        number=1,
-    )
 
 
 class ToolConfig(proto.Message):
@@ -489,7 +478,7 @@ class FunctionCallingConfig(proto.Message):
             AUTO (1):
                 Default model behavior, model decides to
                 predict either a function call or a natural
-                language repspose.
+                language response.
             ANY (2):
                 Model is constrained to always predicting a function call
                 only. If "allowed_function_names" are set, the predicted

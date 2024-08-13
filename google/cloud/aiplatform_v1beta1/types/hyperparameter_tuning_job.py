@@ -106,6 +106,10 @@ class HyperparameterTuningJob(proto.Message):
             all resources created by the
             HyperparameterTuningJob will be encrypted with
             the provided encryption key.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -182,6 +186,14 @@ class HyperparameterTuningJob(proto.Message):
         proto.MESSAGE,
         number=17,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
 
 

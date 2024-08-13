@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state as gca_job_state
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -120,6 +121,11 @@ class NotebookExecutionJob(proto.Message):
             and examples of labels. System reserved label
             keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Customer-managed encryption key spec for the notebook
+            execution job. This field is auto-populated if the
+            [NotebookService.NotebookRuntimeTemplate][] has an
+            encryption spec.
     """
 
     class DataformRepositorySource(proto.Message):
@@ -259,6 +265,11 @@ class NotebookExecutionJob(proto.Message):
         proto.STRING,
         proto.STRING,
         number=19,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=22,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

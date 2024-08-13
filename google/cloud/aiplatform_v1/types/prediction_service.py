@@ -771,9 +771,14 @@ class GenerateContentRequest(proto.Message):
 
     Attributes:
         model (str):
-            Required. The name of the publisher model requested to serve
-            the prediction. Format:
+            Required. The fully qualified name of the publisher model or
+            tuned model endpoint to use.
+
+            Publisher model format:
             ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+            Tuned model endpoint format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
         contents (MutableSequence[google.cloud.aiplatform_v1.types.Content]):
             Required. The content of the current
             conversation with the model.

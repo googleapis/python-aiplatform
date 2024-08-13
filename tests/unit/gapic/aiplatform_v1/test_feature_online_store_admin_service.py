@@ -1375,8 +1375,9 @@ def test_create_feature_online_store_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.create_feature_online_store(request)
@@ -1435,26 +1436,28 @@ async def test_create_feature_online_store_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_feature_online_store
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_feature_online_store(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.create_feature_online_store(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1729,6 +1732,8 @@ def test_get_feature_online_store(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             state=feature_online_store.FeatureOnlineStore.State.STABLE,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_feature_online_store(request)
 
@@ -1743,6 +1748,8 @@ def test_get_feature_online_store(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == feature_online_store.FeatureOnlineStore.State.STABLE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_online_store_empty_call():
@@ -1859,6 +1866,8 @@ async def test_get_feature_online_store_empty_call_async():
                 name="name_value",
                 etag="etag_value",
                 state=feature_online_store.FeatureOnlineStore.State.STABLE,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_online_store()
@@ -1892,22 +1901,23 @@ async def test_get_feature_online_store_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_feature_online_store
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_feature_online_store(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_feature_online_store(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1934,6 +1944,8 @@ async def test_get_feature_online_store_async(
                 name="name_value",
                 etag="etag_value",
                 state=feature_online_store.FeatureOnlineStore.State.STABLE,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_online_store(request)
@@ -1949,6 +1961,8 @@ async def test_get_feature_online_store_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == feature_online_store.FeatureOnlineStore.State.STABLE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -2300,22 +2314,23 @@ async def test_list_feature_online_stores_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_feature_online_stores
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_feature_online_stores(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_feature_online_stores(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2846,8 +2861,9 @@ def test_update_feature_online_store_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.update_feature_online_store(request)
@@ -2906,26 +2922,28 @@ async def test_update_feature_online_store_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_feature_online_store
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.update_feature_online_store(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.update_feature_online_store(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3288,8 +3306,9 @@ def test_delete_feature_online_store_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_feature_online_store(request)
@@ -3348,26 +3367,28 @@ async def test_delete_feature_online_store_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_feature_online_store
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_feature_online_store(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_feature_online_store(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3690,8 +3711,9 @@ def test_create_feature_view_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.create_feature_view(request)
@@ -3747,26 +3769,28 @@ async def test_create_feature_view_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.create_feature_view
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.create_feature_view(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.create_feature_view(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4026,6 +4050,8 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
         call.return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_feature_view(request)
 
@@ -4039,6 +4065,8 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_view_empty_call():
@@ -4141,6 +4169,8 @@ async def test_get_feature_view_empty_call_async():
             feature_view.FeatureView(
                 name="name_value",
                 etag="etag_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_view()
@@ -4172,22 +4202,23 @@ async def test_get_feature_view_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_feature_view
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_feature_view(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_feature_view(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4211,6 +4242,8 @@ async def test_get_feature_view_async(
             feature_view.FeatureView(
                 name="name_value",
                 etag="etag_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_view(request)
@@ -4225,6 +4258,8 @@ async def test_get_feature_view_async(
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -4557,22 +4592,23 @@ async def test_list_feature_views_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_feature_views
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_feature_views(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_feature_views(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5090,8 +5126,9 @@ def test_update_feature_view_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.update_feature_view(request)
@@ -5147,26 +5184,28 @@ async def test_update_feature_view_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.update_feature_view
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.update_feature_view(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.update_feature_view(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5511,8 +5550,9 @@ def test_delete_feature_view_use_cached_wrapped_rpc():
         # Establish that the underlying gRPC stub method was called.
         assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         client.delete_feature_view(request)
@@ -5568,26 +5608,28 @@ async def test_delete_feature_view_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.delete_feature_view
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.delete_feature_view(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
         wrapper_fn.reset_mock()
 
         await client.delete_feature_view(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5956,22 +5998,23 @@ async def test_sync_feature_view_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.sync_feature_view
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.sync_feature_view(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.sync_feature_view(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6193,6 +6236,8 @@ def test_get_feature_view_sync(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = feature_view_sync.FeatureViewSync(
             name="name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_feature_view_sync(request)
 
@@ -6205,6 +6250,8 @@ def test_get_feature_view_sync(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view_sync.FeatureViewSync)
     assert response.name == "name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_view_sync_empty_call():
@@ -6315,6 +6362,8 @@ async def test_get_feature_view_sync_empty_call_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             feature_view_sync.FeatureViewSync(
                 name="name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_view_sync()
@@ -6346,22 +6395,23 @@ async def test_get_feature_view_sync_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.get_feature_view_sync
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.get_feature_view_sync(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.get_feature_view_sync(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6386,6 +6436,8 @@ async def test_get_feature_view_sync_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             feature_view_sync.FeatureViewSync(
                 name="name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_feature_view_sync(request)
@@ -6399,6 +6451,8 @@ async def test_get_feature_view_sync_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view_sync.FeatureViewSync)
     assert response.name == "name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -6748,22 +6802,23 @@ async def test_list_feature_view_syncs_async_use_cached_wrapped_rpc(
         )
 
         # Replace cached wrapped function with mock
-        mock_object = mock.AsyncMock()
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
         client._client._transport._wrapped_methods[
             client._client._transport.list_feature_view_syncs
-        ] = mock_object
+        ] = mock_rpc
 
         request = {}
         await client.list_feature_view_syncs(request)
 
         # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
+        assert mock_rpc.call_count == 1
 
         await client.list_feature_view_syncs(request)
 
         # Establish that a new wrapper was not created for this call
         assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
+        assert mock_rpc.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -7205,10 +7260,13 @@ def test_create_feature_online_store_rest(request_type):
                     "project_allowlist_value1",
                     "project_allowlist_value2",
                 ],
+                "service_attachment": "service_attachment_value",
             },
             "service_attachment": "service_attachment_value",
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7647,6 +7705,8 @@ def test_get_feature_online_store_rest(request_type):
             name="name_value",
             etag="etag_value",
             state=feature_online_store.FeatureOnlineStore.State.STABLE,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -7665,6 +7725,8 @@ def test_get_feature_online_store_rest(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == feature_online_store.FeatureOnlineStore.State.STABLE
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_online_store_rest_use_cached_wrapped_rpc():
@@ -8398,10 +8460,13 @@ def test_update_feature_online_store_rest(request_type):
                     "project_allowlist_value1",
                     "project_allowlist_value2",
                 ],
+                "service_attachment": "service_attachment_value",
             },
             "service_attachment": "service_attachment_value",
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9158,6 +9223,8 @@ def test_create_feature_view_rest(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9597,6 +9664,8 @@ def test_get_feature_view_rest(request_type):
         return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9614,6 +9683,8 @@ def test_get_feature_view_rest(request_type):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_view_rest_use_cached_wrapped_rpc():
@@ -10345,6 +10416,8 @@ def test_update_feature_view_rest(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11387,6 +11460,8 @@ def test_get_feature_view_sync_rest(request_type):
         # Designate an appropriate value for the returned response.
         return_value = feature_view_sync.FeatureViewSync(
             name="name_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -11403,6 +11478,8 @@ def test_get_feature_view_sync_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view_sync.FeatureViewSync)
     assert response.name == "name_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_feature_view_sync_rest_use_cached_wrapped_rpc():

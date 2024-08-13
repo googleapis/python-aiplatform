@@ -69,6 +69,9 @@ class GetPublisherModelRequest(proto.Message):
         is_hugging_face_model (bool):
             Optional. Boolean indicates whether the
             requested model is a Hugging Face model.
+        hugging_face_token (str):
+            Optional. Token used to access Hugging Face
+            gated models.
     """
 
     name: str = proto.Field(
@@ -87,6 +90,10 @@ class GetPublisherModelRequest(proto.Message):
     is_hugging_face_model: bool = proto.Field(
         proto.BOOL,
         number=5,
+    )
+    hugging_face_token: str = proto.Field(
+        proto.STRING,
+        number=6,
     )
 
 

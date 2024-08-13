@@ -846,7 +846,7 @@ class ModelMonitoringServiceClient(metaclass=ModelMonitoringServiceClientMeta):
                 Type[ModelMonitoringServiceTransport],
                 Callable[..., ModelMonitoringServiceTransport],
             ] = (
-                type(self).get_transport_class(transport)
+                ModelMonitoringServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
                 else cast(Callable[..., ModelMonitoringServiceTransport], transport)
             )

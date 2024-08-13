@@ -450,12 +450,19 @@ class PublisherModel(proto.Message):
                         Optional. Labels for the deployment. For
                         managing deployment config like verifying,
                         source of deployment config, etc.
+                    sample_request (str):
+                        Optional. Sample request for deployed
+                        endpoint.
                 """
 
                 labels: MutableMapping[str, str] = proto.MapField(
                     proto.STRING,
                     proto.STRING,
                     number=1,
+                )
+                sample_request: str = proto.Field(
+                    proto.STRING,
+                    number=2,
                 )
 
             dedicated_resources: machine_resources.DedicatedResources = proto.Field(

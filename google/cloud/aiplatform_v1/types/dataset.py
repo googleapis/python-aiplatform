@@ -116,6 +116,10 @@ class Dataset(proto.Message):
             Optional. Reference to the public base model
             last used by the dataset. Only set for prompt
             datasets.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -179,6 +183,14 @@ class Dataset(proto.Message):
     model_reference: str = proto.Field(
         proto.STRING,
         number=18,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
 
 
