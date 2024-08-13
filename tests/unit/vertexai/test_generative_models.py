@@ -213,35 +213,10 @@ def mock_generate_content(
     if has_retrieval and (not has_rag_retrieval) and request.contents[0].parts[0].text:
         grounding_metadata = gapic_content_types.GroundingMetadata(
             web_search_queries=[request.contents[0].parts[0].text],
-            grounding_attributions=[
-                gapic_content_types.GroundingAttribution(
-                    segment=gapic_content_types.Segment(
-                        start_index=0,
-                        end_index=67,
-                    ),
-                    confidence_score=0.69857746,
-                    web=gapic_content_types.GroundingAttribution.Web(
-                        uri="https://math.ucr.edu/home/baez/physics/General/BlueSky/blue_sky.html",
-                        title="Why is the sky blue? - UCR Math",
-                    ),
-                ),
-            ],
         )
     elif has_rag_retrieval and request.contents[0].parts[0].text:
         grounding_metadata = gapic_content_types.GroundingMetadata(
             retrieval_queries=[request.contents[0].parts[0].text],
-            grounding_attributions=[
-                gapic_content_types.GroundingAttribution(
-                    retrieved_context=gapic_content_types.GroundingAttribution.RetrievedContext(
-                        uri="gs://my-bucket/my-file.pdf",
-                    ),
-                    segment=gapic_content_types.Segment(
-                        start_index=0,
-                        end_index=67,
-                    ),
-                    confidence_score=0.69857746,
-                ),
-            ],
         )
     else:
         grounding_metadata = None
