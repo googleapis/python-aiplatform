@@ -31,6 +31,7 @@ from google.cloud.aiplatform import (
 )
 from google.cloud.aiplatform.compat.types import (
     feature_online_store as gca_feature_online_store,
+    service_networking as gca_service_networking,
     feature_view as gca_feature_view,
 )
 from vertexai.resources.preview.feature_store.feature_view import (
@@ -245,18 +246,30 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
 
         Example Usage:
 
+            ```
+            # Create optimized store with public endpoint.
             my_fos = vertexai.preview.FeatureOnlineStore.create_optimized_store('my_fos')
+            ```
+
+            ```
+            # Create optimized online store with private service connect.
+            my_fos = vertexai.preview.FeatureOnlineStore.create_optimized_store(
+                'my_fos',
+                enable_private_service_connect=True,
+                project_allowlist=['my-project'],
+            )
+            ```
 
         Args:
             name: The name of the feature online store.
-            enable_private_service_connect (bool):
+            enable_private_service_connect:
                 Optional. If true, expose the optimized online store
                 via private service connect. Otherwise the optimized online
-                store will be accessible through public endpoint
-            project_allowlist (MutableSequence[str]):
+                store will be accessible through public endpoint.
+            project_allowlist:
                 A list of Projects from which the forwarding
                 rule will target the service attachment. Only needed when
-                enable_private_service_connect is set to true.
+                `enable_private_service_connect` is set to true.
             labels:
                 The labels with user-defined metadata to organize your feature
                 online store. Label keys and values can be no longer than 64
@@ -290,7 +303,17 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
             FeatureOnlineStore - the FeatureOnlineStore resource object.
         """
         if enable_private_service_connect:
-            raise ValueError("private_service_connect is not supported")
+            if not project_allowlist:
+                raise ValueError(
+                    "`project_allowlist` cannot be empty when `enable_private_service_connect` is set to true."
+                )
+
+            dedicated_serving_endpoint = gca_feature_online_store.FeatureOnlineStore.DedicatedServingEndpoint(
+                private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=project_allowlist,
+                ),
+            )
         else:
             dedicated_serving_endpoint = (
                 gca_feature_online_store.FeatureOnlineStore.DedicatedServingEndpoint()

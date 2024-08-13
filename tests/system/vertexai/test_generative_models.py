@@ -298,9 +298,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
-                preview_generative_models.grounding.GoogleSearchRetrieval(
-                    disable_attribution=False
-                )
+                preview_generative_models.grounding.GoogleSearchRetrieval()
             )
         )
         response = model.generate_content(

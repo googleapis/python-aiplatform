@@ -2310,20 +2310,22 @@ class preview_grounding:  # pylint: disable=invalid-name
 
         def __init__(
             self,
-            disable_attribution: Optional[bool] = None,
+            disable_attribution: Optional[
+                bool
+            ] = None,  # pylint: disable=unused-argument
         ):
             """Initializes a Google Search Retrieval tool.
 
             Args:
                 disable_attribution (bool):
-                    Optional. Disable using the result from this
-                    tool in detecting grounding attribution. This
+                    Optional. This field is Deprecated. Disable using the result
+                    from this tool in detecting grounding attribution. This
                     does not affect how the result is given to the
                     model for generation.
             """
-            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
-                disable_attribution=disable_attribution,
-            )
+            if disable_attribution is not None:
+                warnings.warn("disable_attribution is deprecated.")
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
 
 
 def _to_content(
