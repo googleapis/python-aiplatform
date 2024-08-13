@@ -23,8 +23,13 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1beta1 import types
-from google.cloud.aiplatform_v1beta1.services import extension_execution_service
-from google.cloud.aiplatform_v1beta1.services import extension_registry_service
+from google.cloud.aiplatform_v1beta1.services import (
+    extension_execution_service,
+)
+from google.cloud.aiplatform_v1beta1.services import (
+    extension_registry_service,
+)
+from vertexai.generative_models import _generative_models
 from vertexai.preview import extensions
 from vertexai.reasoning_engines import _utils
 import pytest
@@ -181,6 +186,33 @@ def execute_extension_mock():
 
 
 @pytest.fixture
+def query_extension_mock():
+    with mock.patch.object(
+        extension_execution_service.ExtensionExecutionServiceClient, "query_extension"
+    ) as query_extension_mock:
+        query_extension_mock.return_value.steps = [
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part(
+                        text=_TEST_QUERY_PROMPT,
+                    )
+                ],
+            ),
+            types.Content(
+                role="extension",
+                parts=[
+                    types.Part(
+                        text=_TEST_RESPONSE_CONTENT,
+                    )
+                ],
+            ),
+        ]
+        query_extension_mock.return_value.failure_message = ""
+        yield query_extension_mock
+
+
+@pytest.fixture
 def delete_extension_mock():
     with mock.patch.object(
         extension_registry_service.ExtensionRegistryServiceClient,
@@ -322,6 +354,49 @@ class TestExtension:
                     _TEST_EXTENSION_OPERATION_PARAMS,
                 ),
                 runtime_auth_config=_TEST_AUTH_CONFIG,
+            ),
+        )
+
+    def test_query_extension(
+        self,
+        get_extension_mock,
+        query_extension_mock,
+        load_yaml_mock,
+    ):
+        test_extension = extensions.Extension(_TEST_RESOURCE_ID)
+        get_extension_mock.assert_called_once_with(
+            name=_TEST_EXTENSION_RESOURCE_NAME,
+            retry=aiplatform.base._DEFAULT_RETRY,
+        )
+        # Manually set _gca_resource here to prevent the mocks from propagating.
+        test_extension._gca_resource = _TEST_EXTENSION_OBJ
+        response = test_extension.query(
+            contents=[
+                _generative_models.Content(
+                    parts=[
+                        _generative_models.Part.from_text(
+                            _TEST_QUERY_PROMPT,
+                        )
+                    ],
+                    role="user",
+                )
+            ],
+        )
+        assert response.steps[-1].parts[0].text == _TEST_RESPONSE_CONTENT
+
+        query_extension_mock.assert_called_once_with(
+            types.QueryExtensionRequest(
+                name=_TEST_EXTENSION_RESOURCE_NAME,
+                contents=[
+                    types.Content(
+                        role="user",
+                        parts=[
+                            types.Part(
+                                text=_TEST_QUERY_PROMPT,
+                            )
+                        ],
+                    )
+                ],
             ),
         )
 

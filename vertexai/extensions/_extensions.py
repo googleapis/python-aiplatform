@@ -14,14 +14,14 @@
 # limitations under the License.
 #
 import json
-from typing import Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1beta1 import types
+from vertexai.generative_models import _generative_models
 from vertexai.reasoning_engines import _utils
-
 from google.protobuf import struct_pb2
 
 _LOGGER = base.Logger(__name__)
@@ -248,6 +248,36 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
         response = self.execution_api_client.execute_extension(request)
         return _try_parse_execution_response(response)
 
+    def query(
+        self,
+        contents: _generative_models.ContentsType,
+    ) -> "QueryExtensionResponse":
+        """Queries an extension with the specified contents.
+
+        Args:
+          contents (ContentsType):
+              Required. The content of the current
+              conversation with the model.
+              For single-turn queries, this is a single
+              instance. For multi-turn queries, this is a
+              repeated field that contains conversation
+              history + latest request.
+
+        Returns:
+            The result of querying the extension.
+
+        Raises:
+            RuntimeError: If the response contains an error.
+        """
+        request = types.QueryExtensionRequest(
+            name=self.resource_name,
+            contents=_generative_models._content_types_to_gapic_contents(contents),
+        )
+        response = self.execution_api_client.query_extension(request)
+        if response.failure_message:
+            raise RuntimeError(response.failure_message)
+        return QueryExtensionResponse._from_gapic(response)
+
     @classmethod
     def from_hub(
         cls,
@@ -314,6 +344,29 @@ class Extension(base.VertexAiResourceNounWithFutureManager):
             description=extension_info["description"],
             manifest=extension_info["manifest"],
             runtime_config=runtime_config,
+        )
+
+
+class QueryExtensionResponse:
+    """A class representing the response from querying an extension."""
+
+    def __init__(self, steps: List[_generative_models.Content]):
+        """Initializes the QueryExtensionResponse with the given steps."""
+        self.steps = steps
+
+    @classmethod
+    def _from_gapic(
+        cls, response: types.QueryExtensionResponse
+    ) -> "QueryExtensionResponse":
+        """Creates a QueryExtensionResponse from a gapic response."""
+        return cls(
+            steps=[
+                _generative_models.Content(
+                    parts=[_generative_models.Part._from_gapic(p) for p in c.parts],
+                    role=c.role,
+                )
+                for c in response.steps
+            ]
         )
 
 
