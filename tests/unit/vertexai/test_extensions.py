@@ -408,7 +408,7 @@ class TestExtension:
         )
         # Manually set _gca_resource here to prevent the mocks from propagating.
         test_extension._gca_resource = _TEST_EXTENSION_WITH_YAML_API_SPEC_OBJ
-        test_extension.api_spec() == {}
+        assert test_extension.api_spec() == {}
 
     def test_no_api_spec(self, get_extension_mock, load_yaml_mock):
         test_extension = extensions.Extension(_TEST_RESOURCE_ID)
@@ -418,7 +418,7 @@ class TestExtension:
         )
         # Manually set _gca_resource here to prevent the mocks from propagating.
         test_extension._gca_resource = _TEST_EXTENSION_WITH_NO_API_SPEC_OBJ
-        test_extension.api_spec() == {}
+        assert test_extension.api_spec() == {}
 
     def test_api_spec_from_gcs_uri(
         self,
