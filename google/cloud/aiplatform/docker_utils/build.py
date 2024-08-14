@@ -418,7 +418,7 @@ def build_image(
     pip_command: str = "pip",
     python_command: str = "python",
     no_cache: bool = True,
-    platform: str = "linux/amd64",
+    platform: Optional[str] = None,
     **kwargs,
 ) -> Image:
     """Builds a Docker image.
@@ -477,7 +477,7 @@ def build_image(
 
     tag_options = ["-t", output_image_name]
     cache_args = ["--no-cache"] if no_cache else []
-    platform_args = ["--platform", platform]
+    platform_args = ["--platform", platform] if platform is not None else []
 
     command = (
         ["docker", "build"]
