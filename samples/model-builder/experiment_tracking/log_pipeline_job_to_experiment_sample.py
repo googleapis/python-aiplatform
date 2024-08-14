@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_log_pipeline_job_to_experiment_sample]
 from typing import Any, Dict, Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_pipeline_job_to_experiment_sample]
 def log_pipeline_job_to_experiment_sample(
     experiment_name: str,
     pipeline_job_display_name: str,
     template_path: str,
     pipeline_root: str,
-    parameter_values: Optional[Dict[str, Any]],
     project: str,
     location: str,
+    parameter_values: Optional[Dict[str, Any]] = None,
 ):
     aiplatform.init(project=project, location=location)
 

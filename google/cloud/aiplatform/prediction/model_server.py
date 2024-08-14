@@ -19,6 +19,7 @@ import importlib
 import logging
 import multiprocessing
 import os
+import sys
 import traceback
 
 try:
@@ -118,6 +119,7 @@ class CprModelServer:
             format="%(asctime)s: %(message)s",
             datefmt="%m/%d/%Y %I:%M:%S %p",
             level=logging.INFO,
+            stream=sys.stdout,
         )
 
     def health(self):

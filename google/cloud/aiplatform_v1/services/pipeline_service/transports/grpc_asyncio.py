@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers_async
+from google.api_core import exceptions as core_exceptions
+from google.api_core import retry_async as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -33,7 +35,6 @@ from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_p
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from .base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
@@ -79,7 +80,6 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
                 the credentials from the environment.
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -109,7 +109,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: Optional[aio.Channel] = None,
+        channel: Optional[Union[aio.Channel, Callable[..., aio.Channel]]] = None,
         api_mtls_endpoint: Optional[str] = None,
         client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
@@ -123,21 +123,24 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
-            channel (Optional[aio.Channel]): A ``Channel`` instance through
-                which to make calls.
+            channel (Optional[Union[aio.Channel, Callable[..., aio.Channel]]]):
+                A ``Channel`` instance through which to make calls, or a Callable
+                that constructs and returns one. If set to None, ``self.create_channel``
+                is used to create the channel. If a Callable is given, it will be called
+                with the same arguments as used in ``self.create_channel``.
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
@@ -147,11 +150,11 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for the grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if a ``channel`` instance is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
                 both in PEM format. It is used to configure a mutual TLS channel. It is
-                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
+                ignored if a ``channel`` instance or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
@@ -178,9 +181,10 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         if client_cert_source:
             warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
-        if channel:
+        if isinstance(channel, aio.Channel):
             # Ignore credentials if a channel was passed.
-            credentials = False
+            credentials = None
+            self._ignore_credentials = True
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
@@ -218,7 +222,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         )
 
         if not self._grpc_channel:
-            self._grpc_channel = type(self).create_channel(
+            # initialize with the provided callable or the default channel
+            channel_init = channel or type(self).create_channel
+            self._grpc_channel = channel_init(
                 self._host,
                 # use the credentials which are saved
                 credentials=self._credentials,
@@ -536,6 +542,38 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         return self._stubs["delete_pipeline_job"]
 
     @property
+    def batch_delete_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchDeletePipelineJobsRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch delete pipeline jobs method over gRPC.
+
+        Batch deletes PipelineJobs
+        The Operation is atomic. If it fails, none of the
+        PipelineJobs are deleted. If it succeeds, all of the
+        PipelineJobs are deleted.
+
+        Returns:
+            Callable[[~.BatchDeletePipelineJobsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_delete_pipeline_jobs" not in self._stubs:
+            self._stubs["batch_delete_pipeline_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.PipelineService/BatchDeletePipelineJobs",
+                request_serializer=pipeline_service.BatchDeletePipelineJobsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_delete_pipeline_jobs"]
+
+    @property
     def cancel_pipeline_job(
         self,
     ) -> Callable[
@@ -574,6 +612,108 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
                 response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_pipeline_job"]
+
+    @property
+    def batch_cancel_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchCancelPipelineJobsRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch cancel pipeline jobs method over gRPC.
+
+        Batch cancel PipelineJobs.
+        Firstly the server will check if all the jobs are in
+        non-terminal states, and skip the jobs that are already
+        terminated.
+        If the operation failed, none of the pipeline jobs are
+        cancelled. The server will poll the states of all the
+        pipeline jobs periodically to check the cancellation
+        status.
+        This operation will return an LRO.
+
+        Returns:
+            Callable[[~.BatchCancelPipelineJobsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_cancel_pipeline_jobs" not in self._stubs:
+            self._stubs["batch_cancel_pipeline_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.PipelineService/BatchCancelPipelineJobs",
+                request_serializer=pipeline_service.BatchCancelPipelineJobsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_cancel_pipeline_jobs"]
+
+    def _prep_wrapped_messages(self, client_info):
+        """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
+        self._wrapped_methods = {
+            self.create_training_pipeline: gapic_v1.method_async.wrap_method(
+                self.create_training_pipeline,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_training_pipeline: gapic_v1.method_async.wrap_method(
+                self.get_training_pipeline,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_training_pipelines: gapic_v1.method_async.wrap_method(
+                self.list_training_pipelines,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_training_pipeline: gapic_v1.method_async.wrap_method(
+                self.delete_training_pipeline,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_training_pipeline: gapic_v1.method_async.wrap_method(
+                self.cancel_training_pipeline,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_pipeline_job: gapic_v1.method_async.wrap_method(
+                self.create_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_pipeline_job: gapic_v1.method_async.wrap_method(
+                self.get_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_pipeline_jobs: gapic_v1.method_async.wrap_method(
+                self.list_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_pipeline_job: gapic_v1.method_async.wrap_method(
+                self.delete_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_delete_pipeline_jobs: gapic_v1.method_async.wrap_method(
+                self.batch_delete_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_pipeline_job: gapic_v1.method_async.wrap_method(
+                self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_cancel_pipeline_jobs: gapic_v1.method_async.wrap_method(
+                self.batch_cancel_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+        }
 
     def close(self):
         return self.grpc_channel.close()

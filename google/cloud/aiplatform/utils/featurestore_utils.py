@@ -57,7 +57,7 @@ def validate_id(resource_id: str) -> None:
         ValueError if resource_id is invalid.
     """
     if not re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id):
-        raise ValueError("Resource ID {resource_id} is not a valied resource id.")
+        raise ValueError("Resource ID {resource_id} is not a valid resource id.")
 
 
 def validate_feature_id(feature_id: str) -> None:

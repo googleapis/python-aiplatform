@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ class Featurestore(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             on and examples of labels. No more than 64 user
             labels can be associated with one
@@ -88,6 +89,10 @@ class Featurestore(proto.Message):
             spec for data storage. If set, both of the
             online and offline data storage will be secured
             by this key.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class State(proto.Enum):
@@ -228,6 +233,14 @@ class Featurestore(proto.Message):
         proto.MESSAGE,
         number=10,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=14,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=15,
     )
 
 

@@ -12,15 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from google.cloud import aiplatform
+import vertexai
+from vertexai.resources import preview as preview_resources
 import pytest
 
 
 @pytest.fixture
 def mock_sdk_init():
     with patch.object(aiplatform, "init") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_vertexai_init():
+    with patch.object(vertexai, "init") as mock:
         yield mock
 
 
@@ -465,6 +474,19 @@ def mock_create_tensorboard(mock_tensorboard):
 
 
 @pytest.fixture
+def mock_get_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform, "Tensorboard") as mock_get_tensorboard:
+        mock_get_tensorboard.return_value = mock_tensorboard
+        yield mock_get_tensorboard
+
+
+@pytest.fixture
+def mock_tensorboard_delete(mock_tensorboard):
+    with patch.object(mock_tensorboard, "delete") as mock_tensorboard_delete:
+        yield mock_tensorboard_delete
+
+
+@pytest.fixture
 def mock_tensorboard_uploader_onetime():
     with patch.object(aiplatform, "upload_tb_log") as mock_tensorboard_uploader_onetime:
         mock_tensorboard_uploader_onetime.return_value = None
@@ -676,6 +698,72 @@ def mock_write_feature_values(mock_entity_type):
         mock_entity_type, "write_feature_values"
     ) as mock_write_feature_values:
         yield mock_write_feature_values
+
+
+@pytest.fixture
+def mock_feature_online_store():
+    mock = MagicMock(preview_resources.FeatureOnlineStore)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_feature_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "create_bigtable_store"
+    ) as mock_create_feature_online_store:
+        mock_create_feature_online_store.return_value = mock_feature_online_store
+        yield mock_create_feature_online_store
+
+
+@pytest.fixture
+def mock_create_optimized_public_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "create_optimized_store"
+    ) as mock_create_optimized_store:
+        mock_create_optimized_store.return_value = mock_feature_online_store
+        yield mock_create_optimized_store
+
+
+@pytest.fixture
+def mock_feature_group():
+    mock = MagicMock(preview_resources.FeatureGroup)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_feature_group(mock_feature_group):
+    with patch.object(
+        preview_resources.FeatureGroup, "create"
+    ) as mock_create_feature_group:
+        mock_create_feature_group.return_value = mock_feature_group
+        yield mock_create_feature_group
+
+
+@pytest.fixture
+def mock_get_feature_group(mock_feature_group):
+    with patch.object(
+        preview_resources.FeatureGroup, "__new__"
+    ) as mock_get_feature_group:
+        mock_get_feature_group.return_value = mock_feature_group
+        yield mock_get_feature_group
+
+
+@pytest.fixture
+def mock_create_optimized_private_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "create_optimized_store"
+    ) as mock_create_optimized_store:
+        mock_create_optimized_store.return_value = mock_feature_online_store
+        yield mock_create_optimized_store
+
+
+@pytest.fixture
+def mock_get_feature_online_store(mock_feature_online_store):
+    with patch.object(
+        preview_resources.FeatureOnlineStore, "__new__"
+    ) as mock_get_feature_online_store:
+        mock_get_feature_online_store.return_value = mock_feature_online_store
+        yield mock_get_feature_online_store
 
 
 """
@@ -1191,3 +1279,75 @@ def mock_autolog():
     with patch.object(aiplatform, "autolog") as mock_autolog_method:
         mock_autolog_method.return_value = None
         yield mock_autolog_method
+
+
+"""
+----------------------------------------------------------------------------
+Vector Search Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_index():
+    mock = MagicMock(aiplatform.MatchingEngineIndex)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint():
+    mock = MagicMock(aiplatform.MatchingEngineIndexEndpoint)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_init(mock_index):
+    with patch.object(aiplatform, "MatchingEngineIndex") as mock:
+        mock.return_value = mock_index
+        yield mock
+
+
+@pytest.fixture
+def mock_index_upsert_datapoints(mock_index):
+    with patch.object(mock_index, "upsert_datapoints") as mock_upsert:
+        mock_upsert.return_value = None
+        yield mock_upsert
+
+
+@pytest.fixture
+def mock_index_endpoint_init(mock_index_endpoint):
+    with patch.object(aiplatform, "MatchingEngineIndexEndpoint") as mock:
+        mock.return_value = mock_index_endpoint
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_find_neighbors(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "find_neighbors") as mock_find_neighbors:
+        mock_find_neighbors.return_value = None
+        yield mock_find_neighbors
+
+
+@pytest.fixture
+def mock_index_create_tree_ah_index(mock_index):
+    with patch.object(
+        aiplatform.MatchingEngineIndex, "create_tree_ah_index"
+    ) as mock_create_tree_ah_index:
+        mock_create_tree_ah_index.return_value = mock_index
+        yield mock_create_tree_ah_index
+
+
+@pytest.fixture
+def mock_index_endpoint_create(mock_index_endpoint):
+    with patch.object(
+        aiplatform.MatchingEngineIndexEndpoint, "create"
+    ) as mock_index_endpoint_create:
+        mock_index_endpoint_create.return_value = mock_index_endpoint
+        yield mock_index_endpoint_create
+
+
+@pytest.fixture
+def mock_index_endpoint_deploy_index(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "deploy_index") as mock_deploy_index:
+        mock_deploy_index.return_value = mock_index_endpoint
+        yield mock_deploy_index

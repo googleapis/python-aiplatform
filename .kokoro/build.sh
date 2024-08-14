@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2018 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ export GOOGLE_APPLICATION_CREDENTIALS=${KOKORO_GFILE_DIR}/service-account.json
 
 # Setup project id.
 export PROJECT_ID=$(cat "${KOKORO_GFILE_DIR}/project-id.json")
+
+# Setup staging endpoint.
+export STAGING_ENDPOINT=$(cat "${KOKORO_KEYSTORE_DIR}/73713_vertexai-staging-endpoint")
 
 # Remove old nox
 python3 -m pip uninstall --yes --quiet nox-automation

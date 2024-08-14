@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -260,6 +260,16 @@ class UpsertDatapointsRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexes/{index}``
         datapoints (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint]):
             A list of datapoints to be created/updated.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Optional. Update mask is used to specify the fields to be
+            overwritten in the datapoints by the update. The fields
+            specified in the update_mask are relative to each
+            IndexDatapoint inside datapoints, not the full request.
+
+            Updatable fields:
+
+            -  Use ``all_restricts`` to update both restricts and
+               numeric_restricts.
     """
 
     index: str = proto.Field(
@@ -270,6 +280,11 @@ class UpsertDatapointsRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_index.IndexDatapoint,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=field_mask_pb2.FieldMask,
     )
 
 
@@ -364,10 +379,36 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 INVALID_EMBEDDING_ID (5):
                     The embedding id is not valid.
                 EMBEDDING_SIZE_MISMATCH (6):
-                    The size of the embedding vectors does not
-                    match with the specified dimension.
+                    The size of the dense embedding vectors does
+                    not match with the specified dimension.
                 NAMESPACE_MISSING (7):
                     The ``namespace`` field is missing.
+                PARSING_ERROR (8):
+                    Generic catch-all error. Only used for
+                    validation failure where the root cause cannot
+                    be easily retrieved programmatically.
+                DUPLICATE_NAMESPACE (9):
+                    There are multiple restricts with the same ``namespace``
+                    value.
+                OP_IN_DATAPOINT (10):
+                    Numeric restrict has operator specified in
+                    datapoint.
+                MULTIPLE_VALUES (11):
+                    Numeric restrict has multiple values
+                    specified.
+                INVALID_NUMERIC_VALUE (12):
+                    Numeric restrict has invalid numeric value
+                    specified.
+                INVALID_ENCODING (13):
+                    File is not in UTF_8 format.
+                INVALID_SPARSE_DIMENSIONS (14):
+                    Error parsing sparse dimensions field.
+                INVALID_TOKEN_VALUE (15):
+                    Token restrict value is invalid.
+                INVALID_SPARSE_EMBEDDING (16):
+                    Invalid sparse embedding.
+                INVALID_EMBEDDING (17):
+                    Invalid dense embedding.
             """
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
@@ -377,6 +418,16 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             INVALID_EMBEDDING_ID = 5
             EMBEDDING_SIZE_MISMATCH = 6
             NAMESPACE_MISSING = 7
+            PARSING_ERROR = 8
+            DUPLICATE_NAMESPACE = 9
+            OP_IN_DATAPOINT = 10
+            MULTIPLE_VALUES = 11
+            INVALID_NUMERIC_VALUE = 12
+            INVALID_ENCODING = 13
+            INVALID_SPARSE_DIMENSIONS = 14
+            INVALID_TOKEN_VALUE = 15
+            INVALID_SPARSE_EMBEDDING = 16
+            INVALID_EMBEDDING = 17
 
         error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
             proto.ENUM,
@@ -418,6 +469,12 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 failures encountered for those invalid records
                 that couldn't be parsed. Up to 50 partial errors
                 will be reported.
+            valid_sparse_record_count (int):
+                Number of sparse records in this file that
+                were successfully processed.
+            invalid_sparse_record_count (int):
+                Number of sparse records in this file we
+                skipped due to validate errors.
         """
 
         source_gcs_uri: str = proto.Field(
@@ -438,6 +495,14 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             proto.MESSAGE,
             number=4,
             message="NearestNeighborSearchOperationMetadata.RecordError",
+        )
+        valid_sparse_record_count: int = proto.Field(
+            proto.INT64,
+            number=5,
+        )
+        invalid_sparse_record_count: int = proto.Field(
+            proto.INT64,
+            number=6,
         )
 
     content_validation_stats: MutableSequence[

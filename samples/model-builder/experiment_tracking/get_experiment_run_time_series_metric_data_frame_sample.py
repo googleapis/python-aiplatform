@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]
 from typing import Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]
 def get_experiment_run_time_series_metric_data_frame_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],

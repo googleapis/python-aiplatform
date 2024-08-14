@@ -28,7 +28,7 @@ from tests.system.aiplatform import e2e_base
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
-@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
+@pytest.mark.usefixtures("tear_down_resources")
 class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
@@ -58,8 +58,6 @@ class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
         ).bucket
         # Checking that the bucket is auto-generated
         assert "-vertex-staging-" in staging_bucket.name
-
-        shared_state["bucket"] = staging_bucket
 
         # Currently we need to explicitly specify machine type.
         # See https://github.com/googleapis/python-aiplatform/issues/773

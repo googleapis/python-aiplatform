@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -70,6 +70,10 @@ class DataItem(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -99,6 +103,14 @@ class DataItem(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=11,
     )
 
 

@@ -28,7 +28,7 @@ from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
 
 
-@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
+@pytest.mark.usefixtures("tear_down_resources")
 class TestVersionManagement(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
@@ -65,8 +65,6 @@ class TestVersionManagement(e2e_base.TestEndToEnd):
         ).bucket
         # Checking that the bucket is auto-generated
         assert "-vertex-staging-" in staging_bucket.name
-
-        shared_state["bucket"] = staging_bucket
 
         assert model.version_description == version_description
         assert model.version_aliases == version_aliases

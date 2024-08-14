@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_get_model_info_sample]
 from typing import Any, Dict
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_get_model_info_sample]
 def get_model_info_sample(
     artifact_id: str,
     project: str,

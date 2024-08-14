@@ -282,7 +282,9 @@ def teardown_batch_read_feature_values(shared_state, bigquery_client):
 def create_endpoint(shared_state, endpoint_client):
     def create(project, location, test_name="temp_deploy_model_test"):
         parent = f"projects/{project}/locations/{location}"
-        endpoint = aiplatform.gapic.Endpoint(display_name=f"{test_name}_{uuid4()}",)
+        endpoint = aiplatform.gapic.Endpoint(
+            display_name=f"{test_name}_{uuid4()}",
+        )
         create_endpoint_response = endpoint_client.create_endpoint(
             parent=parent, endpoint=endpoint
         )

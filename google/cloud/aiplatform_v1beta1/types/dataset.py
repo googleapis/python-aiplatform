@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ class Dataset(proto.Message):
 
     Attributes:
         name (str):
-            Output only. The resource name of the
-            Dataset.
+            Output only. Identifier. The resource name of
+            the Dataset.
         display_name (str):
             Required. The user-defined name of the
             Dataset. The name can be up to 128 characters
@@ -60,6 +60,9 @@ class Dataset(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
+        data_item_count (int):
+            Output only. The number of DataItems in this
+            Dataset. Only apply for non-structured Dataset.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Dataset was
             created.
@@ -108,6 +111,14 @@ class Dataset(proto.Message):
             created in MetadataStore when creating the Dataset. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
+        model_reference (str):
+            Optional. Reference to the public base model
+            last used by the dataset. Only set for prompt
+            datasets.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -130,6 +141,10 @@ class Dataset(proto.Message):
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
+    )
+    data_item_count: int = proto.Field(
+        proto.INT64,
+        number=10,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
@@ -163,6 +178,18 @@ class Dataset(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=17,
+    )
+    model_reference: str = proto.Field(
+        proto.STRING,
+        number=18,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
 
 

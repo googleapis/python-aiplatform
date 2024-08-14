@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ from typing import Dict, Type
 from .base import FeaturestoreServiceTransport
 from .grpc import FeaturestoreServiceGrpcTransport
 from .grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
+from .rest import FeaturestoreServiceRestTransport
+from .rest import FeaturestoreServiceRestInterceptor
 
 
 # Compile a registry of transports.
@@ -27,9 +29,12 @@ _transport_registry = (
 )  # type: Dict[str, Type[FeaturestoreServiceTransport]]
 _transport_registry["grpc"] = FeaturestoreServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = FeaturestoreServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = FeaturestoreServiceRestTransport
 
 __all__ = (
     "FeaturestoreServiceTransport",
     "FeaturestoreServiceGrpcTransport",
     "FeaturestoreServiceGrpcAsyncIOTransport",
+    "FeaturestoreServiceRestTransport",
+    "FeaturestoreServiceRestInterceptor",
 )

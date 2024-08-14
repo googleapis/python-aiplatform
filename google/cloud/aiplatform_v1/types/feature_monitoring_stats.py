@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,12 +68,13 @@ class FeatureStatsAnomaly(proto.Message):
             (https://github.com/tensorflow/metadata/blob/master/tensorflow_metadata/proto/v0/anomalies.proto).
         distribution_deviation (float):
             Deviation from the current stats to baseline
-            stats.   1. For categorical feature, the
-            distribution distance is calculated by
-            L-inifinity norm.
+            stats.
+              1. For categorical feature, the distribution
+                distance is calculated by      L-inifinity
+                norm.
               2. For numerical feature, the distribution
-            distance is calculated by      Jensen–Shannon
-            divergence.
+                distance is calculated by
+                Jensen–Shannon divergence.
         anomaly_detection_threshold (float):
             This is the threshold used when detecting anomalies. The
             threshold can be changed by user, so this one might be

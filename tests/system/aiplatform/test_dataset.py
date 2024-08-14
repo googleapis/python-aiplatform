@@ -21,7 +21,6 @@ import pytest
 import importlib
 
 import pandas as pd
-import pkg_resources
 import re
 
 from datetime import datetime
@@ -29,9 +28,8 @@ from datetime import datetime
 from google.api_core import exceptions
 from google.api_core import client_options
 
-from google.cloud import bigquery
-
 from google.cloud import aiplatform
+from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
@@ -51,7 +49,7 @@ TEST_BUCKET = os.environ.get(
 
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
-_TEST_IMAGE_DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
+_TEST_IMAGE_DATASET_ID = "1997950066622464000"  # permanent_50_flowers_dataset
 _TEST_TEXT_DATASET_ID = (
     "6203215905493614592"  # permanent_text_entity_extraction_dataset
 )
@@ -302,7 +300,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 == bigquery.SchemaField(name="datetime_col", field_type="DATETIME")
                 if re.match(
                     r"3.*",
-                    pkg_resources.get_distribution("google-cloud-bigquery").version,
+                    bigquery.__version__,
                 )
                 else bigquery.SchemaField(name="datetime_col", field_type="TIMESTAMP")
             )
@@ -381,6 +379,38 @@ class TestDataset(e2e_base.TestEndToEnd):
         blob = bucket.get_blob(prefix)
 
         assert blob  # Verify the returned GCS export path exists
+
+    def test_export_data_for_custom_training(self, staging_bucket):
+        """Get an existing dataset, export data to a newly created folder in
+        Google Cloud Storage, then verify data was successfully exported."""
+
+        # pylint: disable=protected-access
+        # Custom training data export should be generic, hence using the base
+        # _Dataset class here in test. In practice, users shuold be able to
+        # use this function in any inhericted classes of _Dataset.
+        dataset = aiplatform.datasets._Dataset(dataset_name=_TEST_IMAGE_DATASET_ID)
+
+        split = {
+            "training_filter": "labels.aiplatform.googleapis.com/ml_use=training",
+            "validation_filter": "labels.aiplatform.googleapis.com/ml_use=validation",
+            "test_filter": "labels.aiplatform.googleapis.com/ml_use=test",
+        }
+
+        export_data_response = dataset.export_data_for_custom_training(
+            output_dir=f"gs://{staging_bucket.name}",
+            annotation_schema_uri="gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml",
+            split=split,
+        )
+
+        # Ensure three output paths (training, validation and test) are provided
+        assert len(export_data_response["exportedFiles"]) == 3
+        # Ensure data stats are calculated and correct
+        assert int(export_data_response["dataStats"]["trainingDataItemsCount"]) == 40
+        assert int(export_data_response["dataStats"]["validationDataItemsCount"]) == 5
+        assert int(export_data_response["dataStats"]["testDataItemsCount"]) == 5
+        assert int(export_data_response["dataStats"]["trainingAnnotationsCount"]) == 40
+        assert int(export_data_response["dataStats"]["validationAnnotationsCount"]) == 5
+        assert int(export_data_response["dataStats"]["testAnnotationsCount"]) == 5
 
     def test_update_dataset(self):
         """Create a new dataset and use update() method to change its display_name, labels, and description.

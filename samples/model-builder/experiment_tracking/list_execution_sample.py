@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_execution_with_sdk_sample]
 from typing import Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_execution_with_sdk_sample]
 def list_execution_sample(
     project: str,
     location: str,
-    display_name_fitler: Optional[str] = "display_name=\"my_execution_*\"",
+    display_name_filter: Optional[str] = "display_name=\"my_execution_*\"",
     create_date_filter:  Optional[str] = "create_time>\"2022-06-11T12:30:00-08:00\"",
 ):
     aiplatform.init(
         project=project,
         location=location)
 
-    combined_filters = f"{display_name_fitler} AND {create_date_filter}"
+    combined_filters = f"{display_name_filter} AND {create_date_filter}"
 
     return aiplatform.Execution.list(filter=combined_filters)
 

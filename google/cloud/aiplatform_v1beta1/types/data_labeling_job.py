@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -130,6 +130,7 @@ class DataLabelingJob(proto.Message):
             Customer-managed encryption key spec for a
             DataLabelingJob. If set, this DataLabelingJob
             will be secured by this key.
+
             Note: Annotations created in the DataLabelingJob
             are associated with the EncryptionSpec of the
             Dataset they are exported to.

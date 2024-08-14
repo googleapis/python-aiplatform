@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,9 @@ class JobState(proto.Enum):
             The job is being updated. Only jobs in the ``RUNNING`` state
             can be updated. After updating, the job goes back to the
             ``RUNNING`` state.
+        JOB_STATE_PARTIALLY_SUCCEEDED (11):
+            The job is partially succeeded, some results
+            may be missing due to errors.
     """
     JOB_STATE_UNSPECIFIED = 0
     JOB_STATE_QUEUED = 1
@@ -71,6 +74,7 @@ class JobState(proto.Enum):
     JOB_STATE_PAUSED = 8
     JOB_STATE_EXPIRED = 9
     JOB_STATE_UPDATING = 10
+    JOB_STATE_PARTIALLY_SUCCEEDED = 11
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

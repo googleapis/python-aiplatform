@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_experiment_run_sample]
 from typing import Optional, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_experiment_run_sample]
 def create_experiment_run_sample(
     experiment_name: str,
     run_name: str,
@@ -25,7 +25,7 @@ def create_experiment_run_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+    aiplatform.init(experiment=experiment_name, project=project, location=location)
 
     aiplatform.start_run(run=run_name, tensorboard=experiment_run_tensorboard)
 

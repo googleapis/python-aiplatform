@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,6 +69,17 @@ class Explanation(proto.Message):
             [Attribution.output_index][google.cloud.aiplatform.v1.Attribution.output_index]
             can be used to identify which output this attribution is
             explaining.
+
+            By default, we provide Shapley values for the predicted
+            class. However, you can configure the explanation request to
+            generate Shapley values for any other classes too. For
+            example, if a model predicts a probability of ``0.4`` for
+            approving a loan application, the model's decision is to
+            reject the application since
+            ``p(reject) = 0.6 > p(approve) = 0.4``, and the default
+            Shapley values would be computed for rejection decision and
+            not approval, even though the latter might be the positive
+            class.
 
             If users set
             [ExplanationParameters.top_k][google.cloud.aiplatform.v1.ExplanationParameters.top_k],
@@ -368,6 +379,7 @@ class ExplanationParameters(proto.Message):
             differentiable structure. Refer to this paper
             for more details:
             https://arxiv.org/abs/1906.02825
+
             XRAI currently performs better on natural
             images, like a picture of a house or an animal.
             If the images are taken in artificial
@@ -483,11 +495,14 @@ class IntegratedGradientsAttribution(proto.Message):
             https://arxiv.org/pdf/1706.03825.pdf
         blur_baseline_config (google.cloud.aiplatform_v1.types.BlurBaselineConfig):
             Config for IG with blur baseline.
+
             When enabled, a linear path from the maximally
             blurred image to the input image is created.
             Using a blurred baseline instead of zero (black
             image) is motivated by the BlurIG approach
-            explained here: https://arxiv.org/abs/2004.03383
+            explained here:
+
+            https://arxiv.org/abs/2004.03383
     """
 
     step_count: int = proto.Field(
@@ -510,7 +525,9 @@ class XraiAttribution(proto.Message):
     r"""An explanation method that redistributes Integrated Gradients
     attributions to segmented regions, taking advantage of the
     model's fully differentiable structure. Refer to this paper for
-    more details: https://arxiv.org/abs/1906.02825
+    more details:
+
+    https://arxiv.org/abs/1906.02825
 
     Supported only by image Models.
 
@@ -533,11 +550,14 @@ class XraiAttribution(proto.Message):
             https://arxiv.org/pdf/1706.03825.pdf
         blur_baseline_config (google.cloud.aiplatform_v1.types.BlurBaselineConfig):
             Config for XRAI with blur baseline.
+
             When enabled, a linear path from the maximally
             blurred image to the input image is created.
             Using a blurred baseline instead of zero (black
             image) is motivated by the BlurIG approach
-            explained here: https://arxiv.org/abs/2004.03383
+            explained here:
+
+            https://arxiv.org/abs/2004.03383
     """
 
     step_count: int = proto.Field(
@@ -558,10 +578,12 @@ class XraiAttribution(proto.Message):
 
 class SmoothGradConfig(proto.Message):
     r"""Config for SmoothGrad approximation of gradients.
+
     When enabled, the gradients are approximated by averaging the
     gradients from noisy samples in the vicinity of the inputs.
     Adding noise can help improve the computed gradients. Refer to
     this paper for more details:
+
     https://arxiv.org/pdf/1706.03825.pdf
 
     This message has `oneof`_ fields (mutually exclusive fields).
@@ -671,10 +693,12 @@ class FeatureNoiseSigma(proto.Message):
 
 class BlurBaselineConfig(proto.Message):
     r"""Config for blur baseline.
+
     When enabled, a linear path from the maximally blurred image to
     the input image is created. Using a blurred baseline instead of
     zero (black image) is motivated by the BlurIG approach explained
     here:
+
     https://arxiv.org/abs/2004.03383
 
     Attributes:

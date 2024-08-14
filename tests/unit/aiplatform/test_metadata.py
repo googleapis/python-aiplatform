@@ -18,7 +18,7 @@
 import os
 import copy
 from importlib import reload
-from unittest import mock
+from unittest import TestCase, mock
 from unittest.mock import patch, call
 
 import numpy as np
@@ -74,6 +74,7 @@ from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import _ipython_utils
 
 import constants as test_constants
 
@@ -90,7 +91,10 @@ _TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
 _TEST_DISPLAY_NAME = "test-display-name"
-_TEST_CREDENTIALS = mock.Mock(spec=credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = mock.Mock(
+    spec=credentials.AnonymousCredentials(),
+    universe_domain="googleapis.com",
+)
 _TEST_BUCKET_NAME = "gs://test-bucket"
 
 # resource attributes
@@ -185,6 +189,22 @@ def get_metadata_store_mock_raise_not_found_exception():
         ]
 
         yield get_metadata_store_mock
+
+
+@pytest.fixture
+def ipython_is_available_mock():
+    with patch.object(_ipython_utils, "is_ipython_available") as ipython_available_mock:
+        ipython_available_mock.return_value = True
+        yield ipython_available_mock
+
+
+@pytest.fixture
+def ipython_is_not_available_mock():
+    with patch.object(
+        _ipython_utils, "is_ipython_available"
+    ) as ipython_not_available_mock:
+        ipython_not_available_mock.return_value = False
+        yield ipython_not_available_mock
 
 
 @pytest.fixture
@@ -557,6 +577,23 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def get_artifact_mock_with_metadata():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_ARTIFACT_ID,
+            schema_title=constants.SYSTEM_METRICS,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+            metadata={
+                google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
+                constants._STATE_KEY: gca_execution.Execution.State.RUNNING,
+            },
+        )
+        yield get_artifact_mock
+
+
+@pytest.fixture
 def get_artifact_not_found_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.side_effect = exceptions.NotFound("")
@@ -744,8 +781,22 @@ _EXPERIMENT_RUN_MOCK = GapicContext(
     },
 )
 
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK = GapicContext(
+    name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+    display_name=_TEST_RUN,
+    schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+    metadata={},
+)
+
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [_TEST_CONTEXT_NAME]
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(
+    _EXPERIMENT_RUN_EMPTY_METADATA_MOCK
+)
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [
+    _TEST_CONTEXT_NAME
+]
 
 _TEST_CUSTOM_JOB_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/12345"
@@ -795,6 +846,17 @@ def get_experiment_run_mock():
         get_context_mock.side_effect = [
             _EXPERIMENT_MOCK,
             _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT,
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_empty_experiment_run_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            _EXPERIMENT_MOCK,
+            _EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT,
         ]
 
         yield get_context_mock
@@ -994,7 +1056,15 @@ _TEST_PIPELINE_SYSTEM_RUN_EXECUTION = GapicExecution(
     name=_TEST_EXECUTION_NAME,
     schema_title=constants.SYSTEM_RUN,
     state=gca_execution.Execution.State.RUNNING,
-    metadata={f"input:{key}": value + 1 for key, value in _TEST_PARAMS.items()},
+    metadata={
+        f"input:{_TEST_PARAM_KEY_1}": _TEST_PARAMS[_TEST_PARAM_KEY_1] + 1,
+        f"input:{_TEST_PARAM_KEY_2}": _TEST_PARAMS[_TEST_PARAM_KEY_2] + 1,
+        # This is automatically logged by the pipeline run but will not be
+        # shown in experiment
+        "vertex-ai-pipelines-artifact-argument-binding": {
+            "output:trainer-metrics": ["artifact-path"]
+        },
+    },
 )
 
 _TEST_LEGACY_SYSTEM_RUN_EXECUTION = GapicExecution(
@@ -1085,6 +1155,38 @@ class TestExperiments:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_with_ipython_environment(
+        self,
+        list_default_tensorboard_mock,
+        assign_backing_tensorboard_mock,
+        ipython_is_available_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_with_no_ipython_environment(
+        self,
+        list_default_tensorboard_mock,
+        assign_backing_tensorboard_mock,
+        ipython_is_not_available_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
     @pytest.mark.usefixtures("get_or_create_default_tb_none_mock")
     def test_init_experiment_with_existing_metadataStore_and_context(
         self, get_metadata_store_mock, get_experiment_run_run_mock
@@ -1122,6 +1224,57 @@ class TestExperiments:
             }
         )
         assign_backing_tensorboard_mock.assert_called_once()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_false_doesNotSet_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=False,
+        )
+
+        list_default_tensorboard_mock.assert_not_called()
+        assign_backing_tensorboard_mock.assert_not_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_true_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=True,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_none_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=None,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     def test_create_experiment(self, create_experiment_context_mock):
@@ -1337,8 +1490,28 @@ class TestExperiments:
         "get_tensorboard_run_artifact_not_found_mock",
         "get_or_create_default_tb_none_mock",
     )
-    def test_init_experiment_run_from_env(self):
+    def test_init_experiment_run_from_env_run_name(self):
         os.environ["AIP_EXPERIMENT_RUN_NAME"] = _TEST_RUN
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        run = metadata._experiment_tracker.experiment_run
+        assert run.name == _TEST_RUN
+
+        del os.environ["AIP_EXPERIMENT_RUN_NAME"]
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+        "get_or_create_default_tb_none_mock",
+    )
+    def test_init_experiment_run_from_env_run_resource_name(self):
+        os.environ["AIP_EXPERIMENT_RUN_NAME"] = _TEST_EXPERIMENT_RUN_CONTEXT_NAME
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1420,7 +1593,6 @@ class TestExperiments:
         create_experiment_run_context_mock,
         add_context_children_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1451,7 +1623,6 @@ class TestExperiments:
         "get_or_create_default_tb_none_mock",
     )
     def test_start_run_fails_when_run_name_too_long(self):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1647,9 +1818,7 @@ class TestExperiments:
             parent=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             tensorboard_experiment_id=_TEST_CONTEXT_ID,
             tensorboard_experiment=gca_tensorboard_experiment.TensorboardExperiment(
-                display_name=experiment_run_resource.ExperimentRun._format_tensorboard_experiment_display_name(
-                    _TEST_CONTEXT_ID
-                ),
+                display_name=_TEST_CONTEXT_ID,
                 labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             ),
             metadata=(),
@@ -1770,7 +1939,6 @@ class TestExperiments:
             display_name=_TEST_DISPLAY_NAME,
             metadata=_TEST_METADATA,
         ) as exc:
-
             exc.assign_input_artifacts([in_artifact])
             exc.assign_output_artifacts([out_artifact])
 
@@ -1880,6 +2048,32 @@ class TestExperiments:
                 pipeline_job.gca_resource.job_detail.pipeline_run_context.name
             ],
         )
+
+    @pytest.mark.usefixtures(
+        "get_experiment_mock",
+    )
+    def test_get_experiment_df_passes_experiment_variable(
+        self,
+        list_context_mock_for_experiment_dataframe_mock,
+        list_artifact_mock_for_experiment_dataframe,
+        list_executions_mock_for_experiment_dataframe,
+        get_tensorboard_run_artifact_mock,
+        get_tensorboard_run_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with patch.object(
+            experiment_run_resource.ExperimentRun, "_query_experiment_row"
+        ) as query_experiment_row_mock:
+            row = experiment_resources._ExperimentRow(
+                experiment_run_type=constants.SYSTEM_EXPERIMENT_RUN,
+                name=_TEST_EXPERIMENT,
+            )
+            query_experiment_row_mock.return_value = row
+
+            aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+            _, kwargs = query_experiment_row_mock.call_args_list[0]
+            TestCase.assertTrue(self, kwargs["experiment"].name == _TEST_EXPERIMENT)
 
     @pytest.mark.usefixtures(
         "get_experiment_mock",
@@ -2011,6 +2205,21 @@ class TestExperiments:
             aiplatform.get_experiment_df(_TEST_EXPERIMENT)
 
     @pytest.mark.usefixtures(
+        "get_tensorboard_run_artifact_not_found_mock", "get_metadata_store_mock"
+    )
+    def test_run_metadata_not_set(self, get_empty_experiment_run_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        run = aiplatform.ExperimentRun.get(_TEST_RUN, experiment=_TEST_EXPERIMENT)
+
+        params = run.get_params()
+        metrics = run.get_metrics()
+        state = run.get_state()
+
+        assert params == {}
+        assert metrics == {}
+        assert state == gca_execution.Execution.State.STATE_UNSPECIFIED.name
+
+    @pytest.mark.usefixtures(
         "get_experiment_run_with_custom_jobs_mock",
         "get_metadata_store_mock",
         "get_tensorboard_run_artifact_not_found_mock",
@@ -2025,6 +2234,27 @@ class TestExperiments:
             name=_TEST_CUSTOM_JOB_NAME,
             retry=base._DEFAULT_RETRY,
         )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "get_experiment_run_mock",
+        "get_context_mock",
+        "list_contexts_mock",
+        "list_executions_mock",
+        "get_artifact_mock_with_metadata",
+        "update_context_mock",
+    )
+    def test_update_experiment_run_after_list(
+        self,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        experiment_run_list = aiplatform.ExperimentRun.list(experiment=_TEST_EXPERIMENT)
+        experiment_run_list[0].update_state(gca_execution.Execution.State.FAILED)
 
 
 class TestTensorboard:

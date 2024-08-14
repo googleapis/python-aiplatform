@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -28,6 +29,7 @@ from typing import (
     Union,
     cast,
 )
+import warnings
 
 from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
@@ -42,9 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -67,7 +69,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -75,6 +77,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MetadataServiceGrpcTransport
 from .transports.grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
+from .transports.rest import MetadataServiceRestTransport
 
 
 class MetadataServiceClientMeta(type):
@@ -90,6 +93,7 @@ class MetadataServiceClientMeta(type):
     )  # type: Dict[str, Type[MetadataServiceTransport]]
     _transport_registry["grpc"] = MetadataServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MetadataServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = MetadataServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -146,10 +150,14 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
 
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
     DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
         DEFAULT_ENDPOINT
     )
+
+    _DEFAULT_ENDPOINT_TEMPLATE = "aiplatform.{UNIVERSE_DOMAIN}"
+    _DEFAULT_UNIVERSE = "googleapis.com"
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -397,7 +405,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     def get_mtls_endpoint_and_cert_source(
         cls, client_options: Optional[client_options_lib.ClientOptions] = None
     ):
-        """Return the API endpoint and client cert source for mutual TLS.
+        """Deprecated. Return the API endpoint and client cert source for mutual TLS.
 
         The client cert source is determined in the following order:
         (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
@@ -427,6 +435,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Raises:
             google.auth.exceptions.MutualTLSChannelError: If any errors happen.
         """
+
+        warnings.warn(
+            "get_mtls_endpoint_and_cert_source is deprecated. Use the api_endpoint property instead.",
+            DeprecationWarning,
+        )
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
         use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
@@ -460,11 +473,187 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         return api_endpoint, client_cert_source
 
+    @staticmethod
+    def _read_environment_variables():
+        """Returns the environment variables used by the client.
+
+        Returns:
+            Tuple[bool, str, str]: returns the GOOGLE_API_USE_CLIENT_CERTIFICATE,
+            GOOGLE_API_USE_MTLS_ENDPOINT, and GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variables.
+
+        Raises:
+            ValueError: If GOOGLE_API_USE_CLIENT_CERTIFICATE is not
+                any of ["true", "false"].
+            google.auth.exceptions.MutualTLSChannelError: If GOOGLE_API_USE_MTLS_ENDPOINT
+                is not any of ["auto", "never", "always"].
+        """
+        use_client_cert = os.getenv(
+            "GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"
+        ).lower()
+        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto").lower()
+        universe_domain_env = os.getenv("GOOGLE_CLOUD_UNIVERSE_DOMAIN")
+        if use_client_cert not in ("true", "false"):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        if use_mtls_endpoint not in ("auto", "never", "always"):
+            raise MutualTLSChannelError(
+                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+            )
+        return use_client_cert == "true", use_mtls_endpoint, universe_domain_env
+
+    @staticmethod
+    def _get_client_cert_source(provided_cert_source, use_cert_flag):
+        """Return the client cert source to be used by the client.
+
+        Args:
+            provided_cert_source (bytes): The client certificate source provided.
+            use_cert_flag (bool): A flag indicating whether to use the client certificate.
+
+        Returns:
+            bytes or None: The client cert source to be used by the client.
+        """
+        client_cert_source = None
+        if use_cert_flag:
+            if provided_cert_source:
+                client_cert_source = provided_cert_source
+            elif mtls.has_default_client_cert_source():
+                client_cert_source = mtls.default_client_cert_source()
+        return client_cert_source
+
+    @staticmethod
+    def _get_api_endpoint(
+        api_override, client_cert_source, universe_domain, use_mtls_endpoint
+    ):
+        """Return the API endpoint used by the client.
+
+        Args:
+            api_override (str): The API endpoint override. If specified, this is always
+                the return value of this function and the other arguments are not used.
+            client_cert_source (bytes): The client certificate source used by the client.
+            universe_domain (str): The universe domain used by the client.
+            use_mtls_endpoint (str): How to use the mTLS endpoint, which depends also on the other parameters.
+                Possible values are "always", "auto", or "never".
+
+        Returns:
+            str: The API endpoint to be used by the client.
+        """
+        if api_override is not None:
+            api_endpoint = api_override
+        elif use_mtls_endpoint == "always" or (
+            use_mtls_endpoint == "auto" and client_cert_source
+        ):
+            _default_universe = MetadataServiceClient._DEFAULT_UNIVERSE
+            if universe_domain != _default_universe:
+                raise MutualTLSChannelError(
+                    f"mTLS is not supported in any universe other than {_default_universe}."
+                )
+            api_endpoint = MetadataServiceClient.DEFAULT_MTLS_ENDPOINT
+        else:
+            api_endpoint = MetadataServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=universe_domain
+            )
+        return api_endpoint
+
+    @staticmethod
+    def _get_universe_domain(
+        client_universe_domain: Optional[str], universe_domain_env: Optional[str]
+    ) -> str:
+        """Return the universe domain used by the client.
+
+        Args:
+            client_universe_domain (Optional[str]): The universe domain configured via the client options.
+            universe_domain_env (Optional[str]): The universe domain configured via the "GOOGLE_CLOUD_UNIVERSE_DOMAIN" environment variable.
+
+        Returns:
+            str: The universe domain to be used by the client.
+
+        Raises:
+            ValueError: If the universe domain is an empty string.
+        """
+        universe_domain = MetadataServiceClient._DEFAULT_UNIVERSE
+        if client_universe_domain is not None:
+            universe_domain = client_universe_domain
+        elif universe_domain_env is not None:
+            universe_domain = universe_domain_env
+        if len(universe_domain.strip()) == 0:
+            raise ValueError("Universe Domain cannot be an empty string.")
+        return universe_domain
+
+    @staticmethod
+    def _compare_universes(
+        client_universe: str, credentials: ga_credentials.Credentials
+    ) -> bool:
+        """Returns True iff the universe domains used by the client and credentials match.
+
+        Args:
+            client_universe (str): The universe domain configured via the client options.
+            credentials (ga_credentials.Credentials): The credentials being used in the client.
+
+        Returns:
+            bool: True iff client_universe matches the universe in credentials.
+
+        Raises:
+            ValueError: when client_universe does not match the universe in credentials.
+        """
+
+        default_universe = MetadataServiceClient._DEFAULT_UNIVERSE
+        credentials_universe = getattr(credentials, "universe_domain", default_universe)
+
+        if client_universe != credentials_universe:
+            raise ValueError(
+                "The configured universe domain "
+                f"({client_universe}) does not match the universe domain "
+                f"found in the credentials ({credentials_universe}). "
+                "If you haven't configured the universe domain explicitly, "
+                f"`{default_universe}` is the default."
+            )
+        return True
+
+    def _validate_universe_domain(self):
+        """Validates client's and credentials' universe domains are consistent.
+
+        Returns:
+            bool: True iff the configured universe domain is valid.
+
+        Raises:
+            ValueError: If the configured universe domain is not valid.
+        """
+        self._is_universe_domain_valid = (
+            self._is_universe_domain_valid
+            or MetadataServiceClient._compare_universes(
+                self.universe_domain, self.transport._credentials
+            )
+        )
+        return self._is_universe_domain_valid
+
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used by the client instance.
+        """
+        return self._universe_domain
+
     def __init__(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, MetadataServiceTransport]] = None,
+        transport: Optional[
+            Union[
+                str, MetadataServiceTransport, Callable[..., MetadataServiceTransport]
+            ]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -476,25 +665,37 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, MetadataServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
-            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
-                client. It won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+            transport (Optional[Union[str,MetadataServiceTransport,Callable[..., MetadataServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the MetadataServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that the ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
                 The client info used to send a user-agent string along with
                 API requests. If ``None``, then default info will be used.
@@ -505,17 +706,34 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-        if isinstance(client_options, dict):
-            client_options = client_options_lib.from_dict(client_options)
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-        client_options = cast(client_options_lib.ClientOptions, client_options)
-
-        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
-            client_options
+        self._client_options = client_options
+        if isinstance(self._client_options, dict):
+            self._client_options = client_options_lib.from_dict(self._client_options)
+        if self._client_options is None:
+            self._client_options = client_options_lib.ClientOptions()
+        self._client_options = cast(
+            client_options_lib.ClientOptions, self._client_options
         )
 
-        api_key_value = getattr(client_options, "api_key", None)
+        universe_domain_opt = getattr(self._client_options, "universe_domain", None)
+
+        (
+            self._use_client_cert,
+            self._use_mtls_endpoint,
+            self._universe_domain_env,
+        ) = MetadataServiceClient._read_environment_variables()
+        self._client_cert_source = MetadataServiceClient._get_client_cert_source(
+            self._client_options.client_cert_source, self._use_client_cert
+        )
+        self._universe_domain = MetadataServiceClient._get_universe_domain(
+            universe_domain_opt, self._universe_domain_env
+        )
+        self._api_endpoint = None  # updated below, depending on `transport`
+
+        # Initialize the universe domain validation.
+        self._is_universe_domain_valid = False
+
+        api_key_value = getattr(self._client_options, "api_key", None)
         if api_key_value and credentials:
             raise ValueError(
                 "client_options.api_key and credentials are mutually exclusive"
@@ -524,20 +742,33 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, MetadataServiceTransport):
+        transport_provided = isinstance(transport, MetadataServiceTransport)
+        if transport_provided:
             # transport is a MetadataServiceTransport instance.
-            if credentials or client_options.credentials_file or api_key_value:
+            if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
                 )
-            if client_options.scopes:
+            if self._client_options.scopes:
                 raise ValueError(
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = transport
-        else:
+            self._transport = cast(MetadataServiceTransport, transport)
+            self._api_endpoint = self._transport.host
+
+        self._api_endpoint = (
+            self._api_endpoint
+            or MetadataServiceClient._get_api_endpoint(
+                self._client_options.api_endpoint,
+                self._client_cert_source,
+                self._universe_domain,
+                self._use_mtls_endpoint,
+            )
+        )
+
+        if not transport_provided:
             import google.auth._default  # type: ignore
 
             if api_key_value and hasattr(
@@ -547,17 +778,24 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(transport)
-            self._transport = Transport(
+            transport_init: Union[
+                Type[MetadataServiceTransport], Callable[..., MetadataServiceTransport]
+            ] = (
+                MetadataServiceClient.get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., MetadataServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
-                credentials_file=client_options.credentials_file,
-                host=api_endpoint,
-                scopes=client_options.scopes,
-                client_cert_source_for_mtls=client_cert_source_func,
-                quota_project_id=client_options.quota_project_id,
+                credentials_file=self._client_options.credentials_file,
+                host=self._api_endpoint,
+                scopes=self._client_options.scopes,
+                client_cert_source_for_mtls=self._client_cert_source,
+                quota_project_id=self._client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
-                api_audience=client_options.api_audience,
+                api_audience=self._client_options.api_audience,
             )
 
     def create_metadata_store(
@@ -655,8 +893,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_store, metadata_store_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -664,10 +902,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.CreateMetadataStoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.CreateMetadataStoreRequest):
             request = metadata_service.CreateMetadataStoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -688,6 +924,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -771,8 +1010,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -780,10 +1019,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.GetMetadataStoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.GetMetadataStoreRequest):
             request = metadata_service.GetMetadataStoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -800,6 +1037,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -880,8 +1120,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -889,10 +1129,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.ListMetadataStoresRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.ListMetadataStoresRequest):
             request = metadata_service.ListMetadataStoresRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -910,6 +1148,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -924,6 +1165,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1009,8 +1252,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1018,10 +1261,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.DeleteMetadataStoreRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.DeleteMetadataStoreRequest):
             request = metadata_service.DeleteMetadataStoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1038,6 +1279,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1140,8 +1384,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, artifact, artifact_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1149,10 +1393,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.CreateArtifactRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.CreateArtifactRequest):
             request = metadata_service.CreateArtifactRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1173,6 +1415,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1245,8 +1490,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1254,10 +1499,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.GetArtifactRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.GetArtifactRequest):
             request = metadata_service.GetArtifactRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1274,6 +1517,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1352,8 +1598,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1361,10 +1607,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.ListArtifactsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.ListArtifactsRequest):
             request = metadata_service.ListArtifactsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1382,6 +1626,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -1396,6 +1643,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1472,8 +1721,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1481,10 +1730,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.UpdateArtifactRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.UpdateArtifactRequest):
             request = metadata_service.UpdateArtifactRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1505,6 +1752,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 (("artifact.name", request.artifact.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1593,8 +1843,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1602,10 +1852,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.DeleteArtifactRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.DeleteArtifactRequest):
             request = metadata_service.DeleteArtifactRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1622,6 +1870,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1711,8 +1962,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1720,10 +1971,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.PurgeArtifactsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.PurgeArtifactsRequest):
             request = metadata_service.PurgeArtifactsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1740,6 +1989,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1842,8 +2094,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, context, context_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1851,10 +2103,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.CreateContextRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.CreateContextRequest):
             request = metadata_service.CreateContextRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1875,6 +2125,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1947,8 +2200,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1956,10 +2209,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.GetContextRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.GetContextRequest):
             request = metadata_service.GetContextRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1976,6 +2227,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2054,8 +2308,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2063,10 +2317,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.ListContextsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.ListContextsRequest):
             request = metadata_service.ListContextsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2084,6 +2336,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -2098,6 +2353,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2173,8 +2430,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2182,10 +2439,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.UpdateContextRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.UpdateContextRequest):
             request = metadata_service.UpdateContextRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2206,6 +2461,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 (("context.name", request.context.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2294,8 +2552,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2303,10 +2561,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.DeleteContextRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.DeleteContextRequest):
             request = metadata_service.DeleteContextRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2323,6 +2579,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2412,8 +2671,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2421,10 +2680,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.PurgeContextsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.PurgeContextsRequest):
             request = metadata_service.PurgeContextsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2441,6 +2698,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2549,8 +2809,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, artifacts, executions])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2558,10 +2818,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.AddContextArtifactsAndExecutionsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, metadata_service.AddContextArtifactsAndExecutionsRequest
         ):
@@ -2586,6 +2844,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2675,8 +2936,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2684,10 +2945,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.AddContextChildrenRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.AddContextChildrenRequest):
             request = metadata_service.AddContextChildrenRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2706,6 +2965,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2793,8 +3055,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2802,10 +3064,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.RemoveContextChildrenRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.RemoveContextChildrenRequest):
             request = metadata_service.RemoveContextChildrenRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2824,6 +3084,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2909,8 +3172,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([context])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2918,10 +3181,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.QueryContextLineageSubgraphRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.QueryContextLineageSubgraphRequest):
             request = metadata_service.QueryContextLineageSubgraphRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2940,6 +3201,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3034,8 +3298,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, execution, execution_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3043,10 +3307,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.CreateExecutionRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.CreateExecutionRequest):
             request = metadata_service.CreateExecutionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3067,6 +3329,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3139,8 +3404,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3148,10 +3413,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.GetExecutionRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.GetExecutionRequest):
             request = metadata_service.GetExecutionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3168,6 +3431,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3246,8 +3512,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3255,10 +3521,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.ListExecutionsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.ListExecutionsRequest):
             request = metadata_service.ListExecutionsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3276,6 +3540,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -3290,6 +3557,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3366,8 +3635,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3375,10 +3644,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.UpdateExecutionRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.UpdateExecutionRequest):
             request = metadata_service.UpdateExecutionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3399,6 +3666,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 (("execution.name", request.execution.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3487,8 +3757,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3496,10 +3766,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.DeleteExecutionRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.DeleteExecutionRequest):
             request = metadata_service.DeleteExecutionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3516,6 +3784,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3605,8 +3876,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3614,10 +3885,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.PurgeExecutionsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.PurgeExecutionsRequest):
             request = metadata_service.PurgeExecutionsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3634,6 +3903,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3728,8 +4000,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, events])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3737,10 +4009,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.AddExecutionEventsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.AddExecutionEventsRequest):
             request = metadata_service.AddExecutionEventsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3761,6 +4031,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 (("execution", request.execution),)
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3841,8 +4114,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3850,10 +4123,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.QueryExecutionInputsAndOutputsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, metadata_service.QueryExecutionInputsAndOutputsRequest
         ):
@@ -3876,6 +4147,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 (("execution", request.execution),)
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3978,8 +4252,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_schema, metadata_schema_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3987,10 +4261,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.CreateMetadataSchemaRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.CreateMetadataSchemaRequest):
             request = metadata_service.CreateMetadataSchemaRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4011,6 +4283,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4085,8 +4360,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4094,10 +4369,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.GetMetadataSchemaRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.GetMetadataSchemaRequest):
             request = metadata_service.GetMetadataSchemaRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4114,6 +4387,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4194,8 +4470,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4203,10 +4479,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.ListMetadataSchemasRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, metadata_service.ListMetadataSchemasRequest):
             request = metadata_service.ListMetadataSchemasRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4224,6 +4498,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4238,6 +4515,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -4317,8 +4596,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4326,10 +4605,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a metadata_service.QueryArtifactLineageSubgraphRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, metadata_service.QueryArtifactLineageSubgraphRequest
         ):
@@ -4350,6 +4627,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("artifact", request.artifact),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4418,6 +4698,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4471,6 +4754,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4530,6 +4816,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         rpc(
             request,
@@ -4583,6 +4872,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -4640,6 +4932,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4760,6 +5055,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4882,6 +5180,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4941,6 +5242,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4995,6 +5299,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -5048,6 +5355,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(

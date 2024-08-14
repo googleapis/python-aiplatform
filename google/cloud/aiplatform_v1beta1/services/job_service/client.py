@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import os
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -28,6 +29,7 @@ from typing import (
     Union,
     cast,
 )
+import warnings
 
 from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
@@ -42,9 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -84,7 +86,7 @@ from google.cloud.aiplatform_v1beta1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -95,6 +97,7 @@ from google.type import money_pb2  # type: ignore
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import JobServiceGrpcTransport
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
+from .transports.rest import JobServiceRestTransport
 
 
 class JobServiceClientMeta(type):
@@ -108,6 +111,7 @@ class JobServiceClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
     _transport_registry["grpc"] = JobServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = JobServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -164,10 +168,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
 
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
     DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
         DEFAULT_ENDPOINT
     )
+
+    _DEFAULT_ENDPOINT_TEMPLATE = "aiplatform.{UNIVERSE_DOMAIN}"
+    _DEFAULT_UNIVERSE = "googleapis.com"
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -502,6 +510,50 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def persistent_resource_path(
+        project: str,
+        location: str,
+        persistent_resource: str,
+    ) -> str:
+        """Returns a fully-qualified persistent_resource string."""
+        return "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
+            project=project,
+            location=location,
+            persistent_resource=persistent_resource,
+        )
+
+    @staticmethod
+    def parse_persistent_resource_path(path: str) -> Dict[str, str]:
+        """Parses a persistent_resource path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/persistentResources/(?P<persistent_resource>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def reservation_path(
+        project_id_or_number: str,
+        zone: str,
+        reservation_name: str,
+    ) -> str:
+        """Returns a fully-qualified reservation string."""
+        return "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+            project_id_or_number=project_id_or_number,
+            zone=zone,
+            reservation_name=reservation_name,
+        )
+
+    @staticmethod
+    def parse_reservation_path(path: str) -> Dict[str, str]:
+        """Parses a reservation path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project_id_or_number>.+?)/zones/(?P<zone>.+?)/reservations/(?P<reservation_name>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def tensorboard_path(
         project: str,
         location: str,
@@ -630,7 +682,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def get_mtls_endpoint_and_cert_source(
         cls, client_options: Optional[client_options_lib.ClientOptions] = None
     ):
-        """Return the API endpoint and client cert source for mutual TLS.
+        """Deprecated. Return the API endpoint and client cert source for mutual TLS.
 
         The client cert source is determined in the following order:
         (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
@@ -660,6 +712,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Raises:
             google.auth.exceptions.MutualTLSChannelError: If any errors happen.
         """
+
+        warnings.warn(
+            "get_mtls_endpoint_and_cert_source is deprecated. Use the api_endpoint property instead.",
+            DeprecationWarning,
+        )
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
         use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
@@ -693,11 +750,185 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         return api_endpoint, client_cert_source
 
+    @staticmethod
+    def _read_environment_variables():
+        """Returns the environment variables used by the client.
+
+        Returns:
+            Tuple[bool, str, str]: returns the GOOGLE_API_USE_CLIENT_CERTIFICATE,
+            GOOGLE_API_USE_MTLS_ENDPOINT, and GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variables.
+
+        Raises:
+            ValueError: If GOOGLE_API_USE_CLIENT_CERTIFICATE is not
+                any of ["true", "false"].
+            google.auth.exceptions.MutualTLSChannelError: If GOOGLE_API_USE_MTLS_ENDPOINT
+                is not any of ["auto", "never", "always"].
+        """
+        use_client_cert = os.getenv(
+            "GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"
+        ).lower()
+        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto").lower()
+        universe_domain_env = os.getenv("GOOGLE_CLOUD_UNIVERSE_DOMAIN")
+        if use_client_cert not in ("true", "false"):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        if use_mtls_endpoint not in ("auto", "never", "always"):
+            raise MutualTLSChannelError(
+                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+            )
+        return use_client_cert == "true", use_mtls_endpoint, universe_domain_env
+
+    @staticmethod
+    def _get_client_cert_source(provided_cert_source, use_cert_flag):
+        """Return the client cert source to be used by the client.
+
+        Args:
+            provided_cert_source (bytes): The client certificate source provided.
+            use_cert_flag (bool): A flag indicating whether to use the client certificate.
+
+        Returns:
+            bytes or None: The client cert source to be used by the client.
+        """
+        client_cert_source = None
+        if use_cert_flag:
+            if provided_cert_source:
+                client_cert_source = provided_cert_source
+            elif mtls.has_default_client_cert_source():
+                client_cert_source = mtls.default_client_cert_source()
+        return client_cert_source
+
+    @staticmethod
+    def _get_api_endpoint(
+        api_override, client_cert_source, universe_domain, use_mtls_endpoint
+    ):
+        """Return the API endpoint used by the client.
+
+        Args:
+            api_override (str): The API endpoint override. If specified, this is always
+                the return value of this function and the other arguments are not used.
+            client_cert_source (bytes): The client certificate source used by the client.
+            universe_domain (str): The universe domain used by the client.
+            use_mtls_endpoint (str): How to use the mTLS endpoint, which depends also on the other parameters.
+                Possible values are "always", "auto", or "never".
+
+        Returns:
+            str: The API endpoint to be used by the client.
+        """
+        if api_override is not None:
+            api_endpoint = api_override
+        elif use_mtls_endpoint == "always" or (
+            use_mtls_endpoint == "auto" and client_cert_source
+        ):
+            _default_universe = JobServiceClient._DEFAULT_UNIVERSE
+            if universe_domain != _default_universe:
+                raise MutualTLSChannelError(
+                    f"mTLS is not supported in any universe other than {_default_universe}."
+                )
+            api_endpoint = JobServiceClient.DEFAULT_MTLS_ENDPOINT
+        else:
+            api_endpoint = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=universe_domain
+            )
+        return api_endpoint
+
+    @staticmethod
+    def _get_universe_domain(
+        client_universe_domain: Optional[str], universe_domain_env: Optional[str]
+    ) -> str:
+        """Return the universe domain used by the client.
+
+        Args:
+            client_universe_domain (Optional[str]): The universe domain configured via the client options.
+            universe_domain_env (Optional[str]): The universe domain configured via the "GOOGLE_CLOUD_UNIVERSE_DOMAIN" environment variable.
+
+        Returns:
+            str: The universe domain to be used by the client.
+
+        Raises:
+            ValueError: If the universe domain is an empty string.
+        """
+        universe_domain = JobServiceClient._DEFAULT_UNIVERSE
+        if client_universe_domain is not None:
+            universe_domain = client_universe_domain
+        elif universe_domain_env is not None:
+            universe_domain = universe_domain_env
+        if len(universe_domain.strip()) == 0:
+            raise ValueError("Universe Domain cannot be an empty string.")
+        return universe_domain
+
+    @staticmethod
+    def _compare_universes(
+        client_universe: str, credentials: ga_credentials.Credentials
+    ) -> bool:
+        """Returns True iff the universe domains used by the client and credentials match.
+
+        Args:
+            client_universe (str): The universe domain configured via the client options.
+            credentials (ga_credentials.Credentials): The credentials being used in the client.
+
+        Returns:
+            bool: True iff client_universe matches the universe in credentials.
+
+        Raises:
+            ValueError: when client_universe does not match the universe in credentials.
+        """
+
+        default_universe = JobServiceClient._DEFAULT_UNIVERSE
+        credentials_universe = getattr(credentials, "universe_domain", default_universe)
+
+        if client_universe != credentials_universe:
+            raise ValueError(
+                "The configured universe domain "
+                f"({client_universe}) does not match the universe domain "
+                f"found in the credentials ({credentials_universe}). "
+                "If you haven't configured the universe domain explicitly, "
+                f"`{default_universe}` is the default."
+            )
+        return True
+
+    def _validate_universe_domain(self):
+        """Validates client's and credentials' universe domains are consistent.
+
+        Returns:
+            bool: True iff the configured universe domain is valid.
+
+        Raises:
+            ValueError: If the configured universe domain is not valid.
+        """
+        self._is_universe_domain_valid = (
+            self._is_universe_domain_valid
+            or JobServiceClient._compare_universes(
+                self.universe_domain, self.transport._credentials
+            )
+        )
+        return self._is_universe_domain_valid
+
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used by the client instance.
+        """
+        return self._universe_domain
+
     def __init__(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, JobServiceTransport]] = None,
+        transport: Optional[
+            Union[str, JobServiceTransport, Callable[..., JobServiceTransport]]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -709,25 +940,37 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, JobServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
-            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
-                client. It won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+            transport (Optional[Union[str,JobServiceTransport,Callable[..., JobServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the JobServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that the ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
                 The client info used to send a user-agent string along with
                 API requests. If ``None``, then default info will be used.
@@ -738,17 +981,34 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-        if isinstance(client_options, dict):
-            client_options = client_options_lib.from_dict(client_options)
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-        client_options = cast(client_options_lib.ClientOptions, client_options)
-
-        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
-            client_options
+        self._client_options = client_options
+        if isinstance(self._client_options, dict):
+            self._client_options = client_options_lib.from_dict(self._client_options)
+        if self._client_options is None:
+            self._client_options = client_options_lib.ClientOptions()
+        self._client_options = cast(
+            client_options_lib.ClientOptions, self._client_options
         )
 
-        api_key_value = getattr(client_options, "api_key", None)
+        universe_domain_opt = getattr(self._client_options, "universe_domain", None)
+
+        (
+            self._use_client_cert,
+            self._use_mtls_endpoint,
+            self._universe_domain_env,
+        ) = JobServiceClient._read_environment_variables()
+        self._client_cert_source = JobServiceClient._get_client_cert_source(
+            self._client_options.client_cert_source, self._use_client_cert
+        )
+        self._universe_domain = JobServiceClient._get_universe_domain(
+            universe_domain_opt, self._universe_domain_env
+        )
+        self._api_endpoint = None  # updated below, depending on `transport`
+
+        # Initialize the universe domain validation.
+        self._is_universe_domain_valid = False
+
+        api_key_value = getattr(self._client_options, "api_key", None)
         if api_key_value and credentials:
             raise ValueError(
                 "client_options.api_key and credentials are mutually exclusive"
@@ -757,20 +1017,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, JobServiceTransport):
+        transport_provided = isinstance(transport, JobServiceTransport)
+        if transport_provided:
             # transport is a JobServiceTransport instance.
-            if credentials or client_options.credentials_file or api_key_value:
+            if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
                 )
-            if client_options.scopes:
+            if self._client_options.scopes:
                 raise ValueError(
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = transport
-        else:
+            self._transport = cast(JobServiceTransport, transport)
+            self._api_endpoint = self._transport.host
+
+        self._api_endpoint = self._api_endpoint or JobServiceClient._get_api_endpoint(
+            self._client_options.api_endpoint,
+            self._client_cert_source,
+            self._universe_domain,
+            self._use_mtls_endpoint,
+        )
+
+        if not transport_provided:
             import google.auth._default  # type: ignore
 
             if api_key_value and hasattr(
@@ -780,17 +1050,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                     api_key_value
                 )
 
-            Transport = type(self).get_transport_class(transport)
-            self._transport = Transport(
+            transport_init: Union[
+                Type[JobServiceTransport], Callable[..., JobServiceTransport]
+            ] = (
+                JobServiceClient.get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., JobServiceTransport], transport)
+            )
+            # initialize with the provided callable or the passed in class
+            self._transport = transport_init(
                 credentials=credentials,
-                credentials_file=client_options.credentials_file,
-                host=api_endpoint,
-                scopes=client_options.scopes,
-                client_cert_source_for_mtls=client_cert_source_func,
-                quota_project_id=client_options.quota_project_id,
+                credentials_file=self._client_options.credentials_file,
+                host=self._api_endpoint,
+                scopes=self._client_options.scopes,
+                client_cert_source_for_mtls=self._client_cert_source,
+                quota_project_id=self._client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
-                api_audience=client_options.api_audience,
+                api_audience=self._client_options.api_audience,
             )
 
     def create_custom_job(
@@ -873,8 +1150,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, custom_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -882,10 +1159,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateCustomJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CreateCustomJobRequest):
             request = job_service.CreateCustomJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -904,6 +1179,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -983,8 +1261,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -992,10 +1270,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetCustomJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetCustomJobRequest):
             request = job_service.GetCustomJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1012,6 +1288,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1090,8 +1369,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1099,10 +1378,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListCustomJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListCustomJobsRequest):
             request = job_service.ListCustomJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1120,6 +1397,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -1134,6 +1414,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1216,8 +1498,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1225,10 +1507,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteCustomJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.DeleteCustomJobRequest):
             request = job_service.DeleteCustomJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1245,6 +1525,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1329,8 +1612,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1338,10 +1621,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CancelCustomJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CancelCustomJobRequest):
             request = job_service.CancelCustomJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1358,6 +1639,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -1446,8 +1730,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, data_labeling_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1455,10 +1739,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateDataLabelingJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CreateDataLabelingJobRequest):
             request = job_service.CreateDataLabelingJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1477,6 +1759,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1551,8 +1836,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1560,10 +1845,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetDataLabelingJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetDataLabelingJobRequest):
             request = job_service.GetDataLabelingJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1580,6 +1863,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1657,8 +1943,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1666,10 +1952,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListDataLabelingJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListDataLabelingJobsRequest):
             request = job_service.ListDataLabelingJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1687,6 +1971,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -1701,6 +1988,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1783,8 +2072,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1792,10 +2081,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteDataLabelingJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.DeleteDataLabelingJobRequest):
             request = job_service.DeleteDataLabelingJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1812,6 +2099,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -1885,8 +2175,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1894,10 +2184,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CancelDataLabelingJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CancelDataLabelingJobRequest):
             request = job_service.CancelDataLabelingJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1914,6 +2202,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -2011,8 +2302,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, hyperparameter_tuning_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2020,10 +2311,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateHyperparameterTuningJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CreateHyperparameterTuningJobRequest):
             request = job_service.CreateHyperparameterTuningJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2044,6 +2333,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2122,8 +2414,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2131,10 +2423,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetHyperparameterTuningJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetHyperparameterTuningJobRequest):
             request = job_service.GetHyperparameterTuningJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2153,6 +2443,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2233,8 +2526,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2242,10 +2535,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListHyperparameterTuningJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListHyperparameterTuningJobsRequest):
             request = job_service.ListHyperparameterTuningJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2265,6 +2556,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -2279,6 +2573,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2363,8 +2659,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2372,10 +2668,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteHyperparameterTuningJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.DeleteHyperparameterTuningJobRequest):
             request = job_service.DeleteHyperparameterTuningJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2394,6 +2688,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2482,8 +2779,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2491,10 +2788,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CancelHyperparameterTuningJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CancelHyperparameterTuningJobRequest):
             request = job_service.CancelHyperparameterTuningJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2513,6 +2808,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -2597,8 +2895,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, nas_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2606,10 +2904,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateNasJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CreateNasJobRequest):
             request = job_service.CreateNasJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2628,6 +2924,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2701,8 +3000,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2710,10 +3009,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetNasJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetNasJobRequest):
             request = job_service.GetNasJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2730,6 +3027,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -2808,8 +3108,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2817,10 +3117,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListNasJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListNasJobsRequest):
             request = job_service.ListNasJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2838,6 +3136,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -2852,6 +3153,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2934,8 +3237,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2943,10 +3246,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteNasJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.DeleteNasJobRequest):
             request = job_service.DeleteNasJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2963,6 +3264,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3047,8 +3351,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3056,10 +3360,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CancelNasJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CancelNasJobRequest):
             request = job_service.CancelNasJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3076,6 +3378,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -3143,14 +3448,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.NasTrialDetail:
                 Represents a NasTrial details along
-                with it's parameters. If there is a
+                with its parameters. If there is a
                 corresponding train NasTrial, the train
                 NasTrial is also returned.
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3158,10 +3463,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetNasTrialDetailRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetNasTrialDetailRequest):
             request = job_service.GetNasTrialDetailRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3178,6 +3481,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3255,8 +3561,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3264,10 +3570,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListNasTrialDetailsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListNasTrialDetailsRequest):
             request = job_service.ListNasTrialDetailsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3285,6 +3589,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -3299,6 +3606,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3393,8 +3702,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, batch_prediction_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3402,10 +3711,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateBatchPredictionJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CreateBatchPredictionJobRequest):
             request = job_service.CreateBatchPredictionJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3426,6 +3733,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3505,8 +3815,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3514,10 +3824,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetBatchPredictionJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetBatchPredictionJobRequest):
             request = job_service.GetBatchPredictionJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3534,6 +3842,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3614,8 +3925,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3623,10 +3934,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListBatchPredictionJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.ListBatchPredictionJobsRequest):
             request = job_service.ListBatchPredictionJobsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3646,6 +3955,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -3660,6 +3972,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3745,8 +4059,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3754,10 +4068,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteBatchPredictionJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.DeleteBatchPredictionJobRequest):
             request = job_service.DeleteBatchPredictionJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3776,6 +4088,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3862,8 +4177,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3871,10 +4186,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CancelBatchPredictionJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.CancelBatchPredictionJobRequest):
             request = job_service.CancelBatchPredictionJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -3893,6 +4206,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -3985,8 +4301,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_deployment_monitoring_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3994,10 +4310,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.CreateModelDeploymentMonitoringJobRequest
         ):
@@ -4022,6 +4336,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4114,8 +4431,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4123,10 +4440,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest
         ):
@@ -4161,6 +4476,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             ),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4175,6 +4493,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -4248,8 +4568,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4257,10 +4577,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(request, job_service.GetModelDeploymentMonitoringJobRequest):
             request = job_service.GetModelDeploymentMonitoringJobRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -4279,6 +4597,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4359,8 +4680,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4368,10 +4689,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListModelDeploymentMonitoringJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.ListModelDeploymentMonitoringJobsRequest
         ):
@@ -4393,6 +4712,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -4407,6 +4729,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -4524,8 +4848,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4533,10 +4857,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.UpdateModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.UpdateModelDeploymentMonitoringJobRequest
         ):
@@ -4568,6 +4890,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 )
             ),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4666,8 +4991,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4675,10 +5000,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.DeleteModelDeploymentMonitoringJobRequest
         ):
@@ -4699,6 +5022,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -4777,8 +5103,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4786,10 +5112,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.PauseModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.PauseModelDeploymentMonitoringJobRequest
         ):
@@ -4810,6 +5134,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -4876,8 +5203,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4885,10 +5212,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ResumeModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
         if not isinstance(
             request, job_service.ResumeModelDeploymentMonitoringJobRequest
         ):
@@ -4909,6 +5234,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -4974,6 +5302,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -5027,6 +5358,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -5086,6 +5420,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         rpc(
             request,
@@ -5139,6 +5476,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         rpc(
@@ -5196,6 +5536,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -5316,6 +5659,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -5438,6 +5784,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -5497,6 +5846,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -5551,6 +5903,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
         # Send the request.
         response = rpc(
             request,
@@ -5604,6 +5959,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
 
         # Send the request.
         response = rpc(

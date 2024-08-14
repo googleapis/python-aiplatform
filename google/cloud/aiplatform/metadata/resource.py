@@ -285,6 +285,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        location: Optional[str] = None,
     ):
         """Updates an existing Metadata resource with new metadata.
 
@@ -297,6 +298,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
         """
+        if not hasattr(self, "_threading_lock"):
+            self._threading_lock = threading.Lock()
 
         with self._threading_lock:
             gca_resource = deepcopy(self._gca_resource)
@@ -307,7 +310,9 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             if description:
                 gca_resource.description = description
 
-            api_client = self._instantiate_client(credentials=credentials)
+            api_client = self._instantiate_client(
+                credentials=credentials, location=location
+            )
             # TODO: if etag is not valid sync and retry
             update_gca_resource = self._update_resource(
                 client=api_client,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ class AcceleratorType(proto.Enum):
             Unspecified accelerator type, which means no
             accelerator.
         NVIDIA_TESLA_K80 (1):
-            Nvidia Tesla K80 GPU.
+            Deprecated: Nvidia Tesla K80 GPU has reached
+            end of support, see
+            https://cloud.google.com/compute/docs/eol/k80-eol.
         NVIDIA_TESLA_P100 (2):
             Nvidia Tesla P100 GPU.
         NVIDIA_TESLA_V100 (3):
@@ -51,12 +53,16 @@ class AcceleratorType(proto.Enum):
             Nvidia A100 80GB GPU.
         NVIDIA_L4 (11):
             Nvidia L4 GPU.
+        NVIDIA_H100_80GB (13):
+            Nvidia H100 80Gb GPU.
         TPU_V2 (6):
             TPU v2.
         TPU_V3 (7):
             TPU v3.
         TPU_V4_POD (10):
             TPU v4.
+        TPU_V5_LITEPOD (12):
+            TPU v5.
     """
     ACCELERATOR_TYPE_UNSPECIFIED = 0
     NVIDIA_TESLA_K80 = 1
@@ -67,9 +73,11 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_A100 = 8
     NVIDIA_A100_80GB = 9
     NVIDIA_L4 = 11
+    NVIDIA_H100_80GB = 13
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10
+    TPU_V5_LITEPOD = 12
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

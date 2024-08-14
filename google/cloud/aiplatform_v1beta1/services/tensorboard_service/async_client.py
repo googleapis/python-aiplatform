@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -35,14 +35,15 @@ from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -66,7 +67,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -80,8 +81,12 @@ class TensorboardServiceAsyncClient:
 
     _client: TensorboardServiceClient
 
+    # Copy defaults from the synchronous client for use here.
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = TensorboardServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = TensorboardServiceClient.DEFAULT_MTLS_ENDPOINT
+    _DEFAULT_ENDPOINT_TEMPLATE = TensorboardServiceClient._DEFAULT_ENDPOINT_TEMPLATE
+    _DEFAULT_UNIVERSE = TensorboardServiceClient._DEFAULT_UNIVERSE
 
     tensorboard_path = staticmethod(TensorboardServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(
@@ -206,20 +211,42 @@ class TensorboardServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(TensorboardServiceClient).get_transport_class,
-        type(TensorboardServiceClient),
-    )
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._client._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used
+                by the client instance.
+        """
+        return self._client._universe_domain
+
+    get_transport_class = TensorboardServiceClient.get_transport_class
 
     def __init__(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, TensorboardServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                TensorboardServiceTransport,
+                Callable[..., TensorboardServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the tensorboard service client.
+        """Instantiates the tensorboard service async client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -227,25 +254,42 @@ class TensorboardServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.TensorboardServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
-            client_options (ClientOptions): Custom options for the client. It
-                won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+            transport (Optional[Union[str,TensorboardServiceTransport,Callable[..., TensorboardServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the TensorboardServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
+                your own client library.
 
         Raises:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
@@ -323,7 +367,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -340,8 +384,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -349,7 +393,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.CreateTensorboardRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.CreateTensorboardRequest):
+            request = tensorboard_service.CreateTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -360,17 +407,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_tensorboard,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_tensorboard
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -441,7 +489,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -458,8 +506,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -467,7 +515,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.GetTensorboardRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.GetTensorboardRequest):
+            request = tensorboard_service.GetTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -476,11 +527,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_tensorboard,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_tensorboard
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -488,112 +537,8 @@ class TensorboardServiceAsyncClient:
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
-        # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    async def read_tensorboard_usage(
-        self,
-        request: Optional[
-            Union[tensorboard_service.ReadTensorboardUsageRequest, dict]
-        ] = None,
-        *,
-        tensorboard: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> tensorboard_service.ReadTensorboardUsageResponse:
-        r"""Returns a list of monthly active users for a given
-        TensorBoard instance.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            async def sample_read_tensorboard_usage():
-                # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ReadTensorboardUsageRequest(
-                    tensorboard="tensorboard_value",
-                )
-
-                # Make the request
-                response = await client.read_tensorboard_usage(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageRequest, dict]]):
-                The request object. Request message for
-                [TensorboardService.GetTensorboardUsage][].
-            tensorboard (:class:`str`):
-                Required. The name of the Tensorboard resource. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
-
-                This corresponds to the ``tensorboard`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse:
-                Response message for
-                   [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        request = tensorboard_service.ReadTensorboardUsageRequest(request)
-
-        # If we have keyword arguments corresponding to fields on the
-        # request, apply these.
-        if tensorboard is not None:
-            request.tensorboard = tensorboard
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.read_tensorboard_usage,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("tensorboard", request.tensorboard),)
-            ),
-        )
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -677,7 +622,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -694,8 +639,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -703,7 +648,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.UpdateTensorboardRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.UpdateTensorboardRequest):
+            request = tensorboard_service.UpdateTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -714,11 +662,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_tensorboard,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_tensorboard
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -727,6 +673,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard.name", request.tensorboard.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -799,7 +748,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -815,8 +764,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -824,7 +773,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ListTensorboardsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.ListTensorboardsRequest):
+            request = tensorboard_service.ListTensorboardsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -833,17 +785,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_tensorboards,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_tensorboards
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -859,6 +812,8 @@ class TensorboardServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -920,7 +875,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -943,8 +898,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -952,7 +907,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.DeleteTensorboardRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.DeleteTensorboardRequest):
+            request = tensorboard_service.DeleteTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -961,17 +919,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_tensorboard,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_tensorboard
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -987,6 +946,228 @@ class TensorboardServiceAsyncClient:
             self._client._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def read_tensorboard_usage(
+        self,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardUsageRequest, dict]
+        ] = None,
+        *,
+        tensorboard: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardUsageResponse:
+        r"""Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_read_tensorboard_usage():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardUsageRequest(
+                    tensorboard="tensorboard_value",
+                )
+
+                # Make the request
+                response = await client.read_tensorboard_usage(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageRequest, dict]]):
+                The request object. Request message for
+                [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
+            tensorboard (:class:`str`):
+                Required. The name of the Tensorboard resource. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse:
+                Response message for
+                   [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.ReadTensorboardUsageRequest):
+            request = tensorboard_service.ReadTensorboardUsageRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard is not None:
+            request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.read_tensorboard_usage
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def read_tensorboard_size(
+        self,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardSizeRequest, dict]
+        ] = None,
+        *,
+        tensorboard: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardSizeResponse:
+        r"""Returns the storage size for a given TensorBoard
+        instance.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_read_tensorboard_size():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardSizeRequest(
+                    tensorboard="tensorboard_value",
+                )
+
+                # Make the request
+                response = await client.read_tensorboard_size(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeRequest, dict]]):
+                The request object. Request message for
+                [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize].
+            tensorboard (:class:`str`):
+                Required. The name of the Tensorboard resource. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeResponse:
+                Response message for
+                   [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.ReadTensorboardSizeRequest):
+            request = tensorboard_service.ReadTensorboardSizeRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard is not None:
+            request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.read_tensorboard_size
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1059,12 +1240,12 @@ class TensorboardServiceAsyncClient:
                 experiment's resource name.
 
                 This value should be 1-128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``tensorboard_experiment_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1079,8 +1260,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, tensorboard_experiment, tensorboard_experiment_id]
         )
@@ -1090,7 +1271,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.CreateTensorboardExperimentRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.CreateTensorboardExperimentRequest
+        ):
+            request = tensorboard_service.CreateTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1103,17 +1289,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_tensorboard_experiment,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1177,7 +1364,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1192,8 +1379,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1201,7 +1388,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.GetTensorboardExperimentRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.GetTensorboardExperimentRequest):
+            request = tensorboard_service.GetTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1210,17 +1400,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_tensorboard_experiment,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1299,7 +1490,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1314,8 +1505,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1323,7 +1514,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.UpdateTensorboardExperimentRequest
+        ):
+            request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1334,11 +1530,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_tensorboard_experiment,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1347,6 +1541,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_experiment.name", request.tensorboard_experiment.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1411,7 +1608,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1427,8 +1624,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1436,7 +1633,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ListTensorboardExperimentsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.ListTensorboardExperimentsRequest
+        ):
+            request = tensorboard_service.ListTensorboardExperimentsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1445,17 +1647,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_tensorboard_experiments,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_tensorboard_experiments
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1471,6 +1674,8 @@ class TensorboardServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1532,7 +1737,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1555,8 +1760,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1564,7 +1769,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.DeleteTensorboardExperimentRequest
+        ):
+            request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1573,17 +1783,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_tensorboard_experiment,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1675,12 +1886,12 @@ class TensorboardServiceAsyncClient:
                 resource name.
 
                 This value should be 1-128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``tensorboard_run_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1695,8 +1906,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1704,7 +1915,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.CreateTensorboardRunRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.CreateTensorboardRunRequest):
+            request = tensorboard_service.CreateTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1717,17 +1931,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_tensorboard_run,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_tensorboard_run
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1812,7 +2027,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1825,8 +2040,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1834,7 +2049,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.BatchCreateTensorboardRunsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.BatchCreateTensorboardRunsRequest
+        ):
+            request = tensorboard_service.BatchCreateTensorboardRunsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1845,17 +2065,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.batch_create_tensorboard_runs,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.batch_create_tensorboard_runs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1919,7 +2140,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1934,8 +2155,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1943,7 +2164,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.GetTensorboardRunRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.GetTensorboardRunRequest):
+            request = tensorboard_service.GetTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1952,17 +2176,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_tensorboard_run,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_tensorboard_run
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2042,7 +2267,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2057,8 +2282,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2066,7 +2291,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.UpdateTensorboardRunRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.UpdateTensorboardRunRequest):
+            request = tensorboard_service.UpdateTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2077,11 +2305,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_tensorboard_run,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_tensorboard_run
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2090,6 +2316,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_run.name", request.tensorboard_run.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2154,7 +2383,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2170,8 +2399,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2179,7 +2408,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ListTensorboardRunsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.ListTensorboardRunsRequest):
+            request = tensorboard_service.ListTensorboardRunsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2188,17 +2420,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_tensorboard_runs,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_tensorboard_runs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2214,6 +2447,8 @@ class TensorboardServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2275,7 +2510,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2298,8 +2533,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2307,7 +2542,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.DeleteTensorboardRunRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.DeleteTensorboardRunRequest):
+            request = tensorboard_service.DeleteTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2316,17 +2554,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_tensorboard_run,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_tensorboard_run
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2421,7 +2660,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2434,8 +2673,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2443,7 +2682,14 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.BatchCreateTensorboardTimeSeriesRequest
+        ):
+            request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2454,17 +2700,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.batch_create_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.batch_create_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2543,7 +2790,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2556,8 +2803,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2565,7 +2812,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.CreateTensorboardTimeSeriesRequest
+        ):
+            request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2576,17 +2828,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2650,7 +2903,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2663,8 +2916,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2672,7 +2925,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.GetTensorboardTimeSeriesRequest):
+            request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2681,17 +2937,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2775,7 +3032,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2788,8 +3045,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2797,7 +3054,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.UpdateTensorboardTimeSeriesRequest
+        ):
+            request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2808,11 +3070,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2826,6 +3086,9 @@ class TensorboardServiceAsyncClient:
                 )
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2890,7 +3153,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2906,8 +3169,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2915,7 +3178,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.ListTensorboardTimeSeriesRequest
+        ):
+            request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2924,17 +3192,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2950,6 +3219,8 @@ class TensorboardServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3011,7 +3282,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3034,8 +3305,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3043,7 +3314,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.DeleteTensorboardTimeSeriesRequest
+        ):
+            request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3052,17 +3328,18 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_tensorboard_time_series,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3144,7 +3421,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3157,8 +3434,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3166,7 +3443,14 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest
+        ):
+            request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3175,11 +3459,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.batch_read_tensorboard_time_series_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.batch_read_tensorboard_time_series_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3188,6 +3470,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard", request.tensorboard),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3255,7 +3540,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3268,8 +3553,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3277,7 +3562,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest
+        ):
+            request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3286,11 +3576,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.read_tensorboard_time_series_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.read_tensorboard_time_series_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3299,6 +3587,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_time_series", request.tensorboard_time_series),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3366,7 +3657,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3379,8 +3670,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3388,7 +3679,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.ReadTensorboardBlobDataRequest):
+            request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3397,11 +3691,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.read_tensorboard_blob_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.read_tensorboard_blob_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3410,6 +3702,9 @@ class TensorboardServiceAsyncClient:
                 (("time_series", request.time_series),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = rpc(
@@ -3491,7 +3786,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``write_run_data_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3504,8 +3799,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3513,7 +3808,12 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.WriteTensorboardExperimentDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.WriteTensorboardExperimentDataRequest
+        ):
+            request = tensorboard_service.WriteTensorboardExperimentDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3524,11 +3824,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.write_tensorboard_experiment_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.write_tensorboard_experiment_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3537,6 +3835,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_experiment", request.tensorboard_experiment),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3623,7 +3924,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``time_series_data`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3636,8 +3937,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3645,7 +3946,10 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.WriteTensorboardRunDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, tensorboard_service.WriteTensorboardRunDataRequest):
+            request = tensorboard_service.WriteTensorboardRunDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3656,11 +3960,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.write_tensorboard_run_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.write_tensorboard_run_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3669,6 +3971,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_run", request.tensorboard_run),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3734,7 +4039,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3750,8 +4055,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3759,7 +4064,14 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest
+        ):
+            request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3768,11 +4080,9 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.export_tensorboard_time_series_data,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.export_tensorboard_time_series_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3781,6 +4091,9 @@ class TensorboardServiceAsyncClient:
                 (("tensorboard_time_series", request.tensorboard_time_series),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3796,6 +4109,8 @@ class TensorboardServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3816,7 +4131,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3833,7 +4148,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3844,6 +4159,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3870,7 +4188,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3887,7 +4205,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3898,6 +4216,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3929,7 +4250,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3945,7 +4266,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -3956,6 +4277,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -3983,7 +4307,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3999,7 +4323,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4010,6 +4334,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -4039,7 +4366,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4056,7 +4383,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4067,6 +4394,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4095,7 +4425,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4176,7 +4506,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4187,6 +4517,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4216,7 +4549,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4297,7 +4630,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4308,6 +4641,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4338,7 +4674,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4356,7 +4692,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4367,6 +4703,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4393,7 +4732,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4410,7 +4749,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4421,6 +4760,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4447,7 +4789,7 @@ class TensorboardServiceAsyncClient:
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4464,7 +4806,7 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4475,6 +4817,9 @@ class TensorboardServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4487,7 +4832,7 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "TensorboardServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

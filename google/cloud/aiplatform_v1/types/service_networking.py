@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
         "PrivateServiceConnectConfig",
+        "PscAutomatedEndpoints",
     },
 )
 
@@ -38,6 +39,11 @@ class PrivateServiceConnectConfig(proto.Message):
         project_allowlist (MutableSequence[str]):
             A list of Projects from which the forwarding
             rule will target the service attachment.
+        service_attachment (str):
+            Output only. The name of the generated
+            service attachment resource. This is only
+            populated if the endpoint is deployed with
+            PrivateServiceConnect.
     """
 
     enable_private_service_connect: bool = proto.Field(
@@ -47,6 +53,39 @@ class PrivateServiceConnectConfig(proto.Message):
     project_allowlist: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+    service_attachment: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+
+
+class PscAutomatedEndpoints(proto.Message):
+    r"""PscAutomatedEndpoints defines the output of the forwarding
+    rule automatically created by each PscAutomationConfig.
+
+    Attributes:
+        project_id (str):
+            Corresponding project_id in pscAutomationConfigs
+        network (str):
+            Corresponding network in
+            pscAutomationConfigs.
+        match_address (str):
+            Ip Address created by the automated
+            forwarding rule.
+    """
+
+    project_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    network: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    match_address: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

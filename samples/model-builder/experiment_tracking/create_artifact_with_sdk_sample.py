@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 from typing import Dict, Optional
 
 from google.cloud.aiplatform.metadata.schema.system import artifact_schema
 
 
-#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 def create_artifact_sample(
     project: str,
     location: str,

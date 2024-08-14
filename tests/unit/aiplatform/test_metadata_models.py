@@ -50,7 +50,10 @@ _TEST_BUCKET_NAME = "gs://test-bucket"
 _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = mock.Mock(
+    spec=auth_credentials.AnonymousCredentials(),
+    universe_domain="googleapis.com",
+)
 
 
 # artifact
@@ -75,7 +78,7 @@ _TEST_MODEL_NAME = (
 
 @pytest.fixture
 def mock_datetime_now(monkeypatch):
-    class DateTime:
+    class DateTime(datetime.datetime):
         @classmethod
         def now(cls):
             return _TEST_DATETIME

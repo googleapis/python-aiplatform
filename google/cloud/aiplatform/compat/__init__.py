@@ -30,15 +30,28 @@ if DEFAULT_VERSION == V1BETA1:
         services.deployment_resource_pool_service_client_v1beta1
     )
     services.endpoint_service_client = services.endpoint_service_client_v1beta1
+    services.feature_online_store_admin_service_client = (
+        services.feature_online_store_admin_service_client_v1beta1
+    )
+    services.feature_online_store_service_client = (
+        services.feature_online_store_service_client_v1beta1
+    )
+    services.feature_registry_service_client = (
+        services.feature_registry_service_client_v1beta1
+    )
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1beta1
     )
     services.featurestore_service_client = services.featurestore_service_client_v1beta1
+    services.gen_ai_cache_service_client = services.gen_ai_cache_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1beta1
     services.model_service_client = services.model_service_client_v1beta1
     services.model_garden_service_client = services.model_garden_service_client_v1beta1
     services.pipeline_service_client = services.pipeline_service_client_v1beta1
     services.prediction_service_client = services.prediction_service_client_v1beta1
+    services.prediction_service_async_client = (
+        services.prediction_service_async_client_v1beta1
+    )
     services.schedule_service_client = services.schedule_service_client_v1beta1
     services.specialist_pool_service_client = (
         services.specialist_pool_service_client_v1beta1
@@ -57,6 +70,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.annotation_spec = types.annotation_spec_v1beta1
     types.artifact = types.artifact_v1beta1
     types.batch_prediction_job = types.batch_prediction_job_v1beta1
+    types.cached_content = types.cached_content_v1beta1
     types.completion_stats = types.completion_stats_v1beta1
     types.context = types.context_v1beta1
     types.custom_job = types.custom_job_v1beta1
@@ -66,6 +80,9 @@ if DEFAULT_VERSION == V1BETA1:
     types.dataset_service = types.dataset_service_v1beta1
     types.deployed_model_ref = types.deployed_model_ref_v1beta1
     types.deployment_resource_pool = types.deployment_resource_pool_v1beta1
+    types.deployment_resource_pool_service = (
+        types.deployment_resource_pool_service_v1beta1
+    )
     types.encryption_spec = types.encryption_spec_v1beta1
     types.endpoint = types.endpoint_v1beta1
     types.endpoint_service = types.endpoint_service_v1beta1
@@ -76,8 +93,17 @@ if DEFAULT_VERSION == V1BETA1:
     types.explanation = types.explanation_v1beta1
     types.explanation_metadata = types.explanation_metadata_v1beta1
     types.feature = types.feature_v1beta1
+    types.feature_group = types.feature_group_v1beta1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1beta1
+    types.feature_online_store = types.feature_online_store_v1beta1
+    types.feature_online_store_admin_service = (
+        types.feature_online_store_admin_service_v1beta1
+    )
+    types.feature_registry_service = types.feature_registry_service_v1beta1
+    types.feature_online_store_service = types.feature_online_store_service_v1beta1
     types.feature_selector = types.feature_selector_v1beta1
+    types.feature_view = types.feature_view_v1beta1
+    types.feature_view_sync = types.feature_view_sync_v1beta1
     types.featurestore = types.featurestore_v1beta1
     types.featurestore_monitoring = types.featurestore_monitoring_v1beta1
     types.featurestore_online_service = types.featurestore_online_service_v1beta1
@@ -85,6 +111,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1beta1
     types.index = types.index_v1beta1
     types.index_endpoint = types.index_endpoint_v1beta1
+    types.index_service = types.index_service_v1beta1
     types.io = types.io_v1beta1
     types.job_service = types.job_service_v1beta1
     types.job_state = types.job_state_v1beta1
@@ -108,6 +135,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.model_garden_service = types.model_garden_service_v1beta1
     types.model_monitoring = types.model_monitoring_v1beta1
     types.model_service = types.model_service_v1beta1
+    types.service_networking = types.service_networking_v1beta1
     types.operation = types.operation_v1beta1
     types.pipeline_failure_policy = types.pipeline_failure_policy_v1beta1
     types.pipeline_job = types.pipeline_job_v1beta1
@@ -134,16 +162,34 @@ if DEFAULT_VERSION == V1BETA1:
 if DEFAULT_VERSION == V1:
 
     services.dataset_service_client = services.dataset_service_client_v1
+    services.deployment_resource_pool_service_client = (
+        services.deployment_resource_pool_service_client_v1
+    )
     services.endpoint_service_client = services.endpoint_service_client_v1
+    services.feature_online_store_admin_service_client = (
+        services.feature_online_store_admin_service_client_v1
+    )
+    services.feature_registry_service_client = (
+        services.feature_registry_service_client_v1
+    )
+    services.feature_online_store_service_client = (
+        services.feature_online_store_service_client_v1
+    )
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1
     )
     services.featurestore_service_client = services.featurestore_service_client_v1
+    # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
+    services.gen_ai_cache_service_client = services.gen_ai_cache_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1
     services.model_garden_service_client = services.model_garden_service_client_v1
     services.model_service_client = services.model_service_client_v1
     services.pipeline_service_client = services.pipeline_service_client_v1
     services.prediction_service_client = services.prediction_service_client_v1
+    services.prediction_service_async_client = (
+        services.prediction_service_async_client_v1
+    )
+    services.schedule_service_client = services.schedule_service_client_v1
     services.specialist_pool_service_client = services.specialist_pool_service_client_v1
     services.tensorboard_service_client = services.tensorboard_service_client_v1
     services.index_service_client = services.index_service_client_v1
@@ -155,6 +201,8 @@ if DEFAULT_VERSION == V1:
     types.annotation_spec = types.annotation_spec_v1
     types.artifact = types.artifact_v1
     types.batch_prediction_job = types.batch_prediction_job_v1
+    # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
+    types.cached_content = types.cached_content_v1beta1
     types.completion_stats = types.completion_stats_v1
     types.context = types.context_v1
     types.custom_job = types.custom_job_v1
@@ -163,6 +211,8 @@ if DEFAULT_VERSION == V1:
     types.dataset = types.dataset_v1
     types.dataset_service = types.dataset_service_v1
     types.deployed_model_ref = types.deployed_model_ref_v1
+    types.deployment_resource_pool = types.deployment_resource_pool_v1
+    types.deployment_resource_pool_service = types.deployment_resource_pool_service_v1
     types.encryption_spec = types.encryption_spec_v1
     types.endpoint = types.endpoint_v1
     types.endpoint_service = types.endpoint_service_v1
@@ -173,14 +223,24 @@ if DEFAULT_VERSION == V1:
     types.explanation = types.explanation_v1
     types.explanation_metadata = types.explanation_metadata_v1
     types.feature = types.feature_v1
+    types.feature_group = types.feature_group_v1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1
+    types.feature_online_store = types.feature_online_store_v1
+    types.feature_online_store_admin_service = (
+        types.feature_online_store_admin_service_v1
+    )
+    types.feature_registry_service = types.feature_registry_service_v1
+    types.feature_online_store_service = types.feature_online_store_service_v1
     types.feature_selector = types.feature_selector_v1
+    types.feature_view = types.feature_view_v1
+    types.feature_view_sync = types.feature_view_sync_v1
     types.featurestore = types.featurestore_v1
     types.featurestore_online_service = types.featurestore_online_service_v1
     types.featurestore_service = types.featurestore_service_v1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1
     types.index = types.index_v1
     types.index_endpoint = types.index_endpoint_v1
+    types.index_service = types.index_service_v1
     types.io = types.io_v1
     types.job_service = types.job_service_v1
     types.job_state = types.job_state_v1
@@ -201,6 +261,7 @@ if DEFAULT_VERSION == V1:
     types.model_deployment_monitoring_job = types.model_deployment_monitoring_job_v1
     types.model_monitoring = types.model_monitoring_v1
     types.model_service = types.model_service_v1
+    types.service_networking = types.service_networking_v1
     types.operation = types.operation_v1
     types.pipeline_failure_policy = types.pipeline_failure_policy_v1
     types.pipeline_job = types.pipeline_job_v1
@@ -208,6 +269,8 @@ if DEFAULT_VERSION == V1:
     types.pipeline_state = types.pipeline_state_v1
     types.prediction_service = types.prediction_service_v1
     types.publisher_model = types.publisher_model_v1
+    types.schedule = types.schedule_v1
+    types.schedule_service = types.schedule_service_v1
     types.specialist_pool = types.specialist_pool_v1
     types.specialist_pool_service = types.specialist_pool_service_v1
     types.study = types.study_v1

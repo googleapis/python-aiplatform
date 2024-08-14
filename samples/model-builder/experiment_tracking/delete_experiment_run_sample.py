@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_delete_experiment_run_sample]
 from typing import Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_delete_experiment_run_sample]
 def delete_experiment_run_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],

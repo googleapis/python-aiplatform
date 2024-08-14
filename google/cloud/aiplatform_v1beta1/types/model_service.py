@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,11 +97,12 @@ class UploadModelRequest(proto.Message):
             Optional. The user-provided custom service account to use to
             do the model upload. If empty, `Vertex AI Service
             Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
-            will be used. Users uploading the Model must have the
-            ``iam.serviceAccounts.actAs`` permission on this service
-            account. Also, this account must belong to the project
-            specified in the ``parent`` field and have all necessary
-            read permissions.
+            will be used to access resources needed to upload the model.
+            This account must belong to the target project where the
+            model is uploaded to, i.e., the project specified in the
+            ``parent`` field of this request and have necessary read
+            permissions (to Google Cloud Storage, Artifact Registry,
+            etc.).
     """
 
     parent: str = proto.Field(
@@ -219,11 +220,14 @@ class ListModelsRequest(proto.Message):
                -  A key including a space must be quoted.
                   ``labels."a key"``.
 
+            -  ``base_model_name`` only supports =
+
             Some examples:
 
             -  ``model=1234``
             -  ``displayName="myDisplayName"``
             -  ``labels.myKey="myValue"``
+            -  ``baseModelName="text-bison"``
         page_size (int):
             The standard list page size.
         page_token (str):

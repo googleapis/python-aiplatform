@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_get_experiment_run_classification_metrics_sample]
 from typing import Dict, List, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_get_experiment_run_classification_metrics_sample]
 def get_experiment_run_classification_metrics_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],

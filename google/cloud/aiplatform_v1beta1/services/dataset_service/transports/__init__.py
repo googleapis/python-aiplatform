@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@ from typing import Dict, Type
 from .base import DatasetServiceTransport
 from .grpc import DatasetServiceGrpcTransport
 from .grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
+from .rest import DatasetServiceRestTransport
+from .rest import DatasetServiceRestInterceptor
 
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[DatasetServiceTransport]]
 _transport_registry["grpc"] = DatasetServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = DatasetServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = DatasetServiceRestTransport
 
 __all__ = (
     "DatasetServiceTransport",
     "DatasetServiceGrpcTransport",
     "DatasetServiceGrpcAsyncIOTransport",
+    "DatasetServiceRestTransport",
+    "DatasetServiceRestInterceptor",
 )

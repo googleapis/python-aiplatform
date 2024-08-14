@@ -15,9 +15,10 @@
 from random import randint
 from uuid import uuid4
 
+from google.protobuf import timestamp_pb2
 from google.auth import credentials
 from google.cloud import aiplatform
-from google.protobuf import timestamp_pb2
+import vertexai
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -208,7 +209,7 @@ PYTHON_PACKAGE_GCS_URI = (
 PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
-# Feature store constants
+# Feature store constants (legacy)
 FEATURESTORE_ID = "movie_prediction"
 FEATURESTORE_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
@@ -252,6 +253,39 @@ USERS_GCS_SOURCE_URI = (
 GCS_SOURCE_TYPE = "avro"
 WORKER_COUNT = 1
 
+# Feature online store constants
+FEATURE_ONLINE_STORE_ID = "sample_feature_online_store"
+FEATURE_VIEW_ID = "sample_feature_view"
+FEATURE_VIEW_BQ_URI = "bq://my_proj.my_dataset.my_table"
+FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS = ["id"]
+FEATURE_VIEW_BQ_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureViewBigQuerySource(
+        uri=FEATURE_VIEW_BQ_URI,
+        entity_id_columns=FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS,
+    )
+)
+FEATURE_VIEW_BQ_EMBEDDING_COLUMN = "embedding"
+FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS = 10
+FEATURE_VIEW_BQ_INDEX_CONFIG = (
+    vertexai.resources.preview.feature_store.utils.IndexConfig(
+        embedding_column=FEATURE_VIEW_BQ_EMBEDDING_COLUMN,
+        dimensions=FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS,
+        algorithm_config=vertexai.resources.preview.feature_store.utils.TreeAhConfig(),
+    )
+)
+FEATURE_GROUP_ID = "sample_feature_group"
+FEATURE_GROUP_BQ_URI = "bq://my_proj.my_dataset.my_table"
+FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS = ["id"]
+FEATURE_GROUP_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureGroupBigQuerySource(
+        uri=FEATURE_GROUP_BQ_URI,
+        entity_id_columns=FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS,
+    )
+)
+REGISTRY_FEATURE_ID = "sample_feature"
+VERSION_COLUMN_NAME = "feature_column"
+PROJECT_ALLOWLISTED = ["test-project"]
+
 TABULAR_TARGET_COLUMN = "target_column"
 FORECASTNG_TIME_COLUMN = "date"
 FORECASTNG_TIME_SERIES_IDENTIFIER_COLUMN = "time_series_id"
@@ -269,6 +303,7 @@ EXPORT_EVALUATED_DATA_ITEMS = True
 EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI = "bq://test:test:test"
 EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = True
 QUANTILES = [0, 0.5, 1]
+ENABLE_PROBABILISTIC_INFERENCE = True
 VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
 
@@ -336,3 +371,36 @@ TENSORBOARD_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
 )
 TENSORBOARD_EXPERIMENT_NAME = "my-tensorboard-experiment"
+TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
+
+# Vector Search
+VECTOR_SEARCH_INDEX = "123"
+VECTOR_SERACH_INDEX_DATAPOINTS = [
+    {"datapoint_id": "datapoint_id_1", "feature_vector": [0.1]}
+]
+VECTOR_SEARCH_INDEX_ENDPOINT = "456"
+VECTOR_SEARCH_DEPLOYED_INDEX_ID = "789"
+VECTOR_SERACH_INDEX_QUERIES = [[0.1]]
+VECTOR_SERACH_INDEX_HYBRID_QUERIES = [
+    aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+        dense_embedding=[1, 2, 3],
+        sparse_embedding_dimensions=[10, 20, 30],
+        sparse_embedding_values=[1.0, 1.0, 1.0],
+        rrf_ranking_alpha=0.5,
+    ),
+    aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+        dense_embedding=[1, 2, 3],
+        sparse_embedding_dimensions=[10, 20, 30],
+        sparse_embedding_values=[0.1, 0.2, 0.3],
+    ),
+    aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+        sparse_embedding_dimensions=[10, 20, 30],
+        sparse_embedding_values=[0.1, 0.2, 0.3],
+    ),
+    aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+        dense_embedding=[1, 2, 3]
+    ),
+]
+VECTOR_SEARCH_INDEX_DISPLAY_NAME = "my-vector-search-index"
+VECTOR_SEARCH_GCS_URI = "gs://fake-dir"
+VECTOR_SEARCH_INDEX_ENDPOINT_DISPLAY_NAME = "my-vector-search-index-endpoint"

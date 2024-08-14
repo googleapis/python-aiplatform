@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import NamedTuple, Optional, Dict, Union, List
+from typing import NamedTuple, Optional, Dict, Union, List, Literal
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
@@ -45,6 +45,9 @@ class _WorkerPoolSpec(NamedTuple):
                 accelerator_type='NVIDIA_TESLA_K80',
                 boot_disk_type='pd-ssd',
                 boot_disk_size_gb=100,
+                reservation_affinity_type=reservation_affinity_type,
+                reservation_affinity_key=reservation_affinity_key,
+                reservation_affinity_values=reservation_affinity_values,
             )
 
     Note that container and python package specs are not stored with this spec.
@@ -56,6 +59,12 @@ class _WorkerPoolSpec(NamedTuple):
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
     boot_disk_type: str = "pd-ssd"
     boot_disk_size_gb: int = 100
+    tpu_topology: Optional[str] = None
+    reservation_affinity_type: Optional[
+        Literal["NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"]
+    ] = None
+    reservation_affinity_key: Optional[str] = None
+    reservation_affinity_values: Optional[List[str]] = None
 
     def _get_accelerator_type(self) -> Optional[str]:
         """Validates accelerator_type and returns the name of the accelerator.
@@ -96,6 +105,21 @@ class _WorkerPoolSpec(NamedTuple):
         if accelerator_type and self.accelerator_count:
             spec["machine_spec"]["accelerator_type"] = accelerator_type
             spec["machine_spec"]["accelerator_count"] = self.accelerator_count
+
+        if self.tpu_topology:
+            spec["machine_spec"]["tpu_topology"] = self.tpu_topology
+
+        if self.reservation_affinity_type:
+            spec["machine_spec"]["reservation_affinity"] = {
+                "reservation_affinity_type": self.reservation_affinity_type,
+            }
+            if self.reservation_affinity_type == "SPECIFIC_RESERVATION":
+                spec["machine_spec"]["reservation_affinity"][
+                    "key"
+                ] = self.reservation_affinity_key
+                spec["machine_spec"]["reservation_affinity"][
+                    "values"
+                ] = self.reservation_affinity_values
 
         return spec
 
@@ -185,6 +209,12 @@ class _DistributedTrainingSpec(NamedTuple):
         boot_disk_size_gb: int = 100,
         reduction_server_replica_count: int = 0,
         reduction_server_machine_type: str = None,
+        tpu_topology: str = None,
+        reservation_affinity_type: Optional[
+            Literal["NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"]
+        ] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
     ) -> "_DistributedTrainingSpec":
         """Parametrizes Config to support only chief with worker replicas.
 
@@ -214,6 +244,27 @@ class _DistributedTrainingSpec(NamedTuple):
                 The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 The type of machine to use for reduction server, default is `n1-highcpu-16`.
+            tpu_topology (str):
+                TPU topology for the TPU type. This field is
+                required for the TPU v5 versions. This field is only passed to the
+                chief replica as TPU jobs only allow 1 replica.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity. One of:
+                * "NO_RESERVATION" : No reservation is used.
+                * "ANY_RESERVATION" : Any reservation that matches machine spec
+                can be used.
+                * "SPECIFIC_RESERVATION" : A specific reservation must be use
+                used. See reservation_affinity_key and
+                reservation_affinity_values for how to specify the reservation.
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use
+                `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
 
         Returns:
             _DistributedTrainingSpec representing one chief and n workers all of
@@ -230,6 +281,10 @@ class _DistributedTrainingSpec(NamedTuple):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
         )
 
         worker_spec = _WorkerPoolSpec(
@@ -239,11 +294,17 @@ class _DistributedTrainingSpec(NamedTuple):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
         )
 
         reduction_server_spec = _WorkerPoolSpec(
             replica_count=reduction_server_replica_count,
             machine_type=reduction_server_machine_type,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
         )
 
         return cls(

@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_context_with_sdk_sample]
 from typing import Any, Dict, Optional
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.metadata.schema.system import context_schema
 
 
-#  [START aiplatform_sdk_create_context_with_sdk_sample]
 def create_context_sample(
     display_name: str,
     project: str,

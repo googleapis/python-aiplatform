@@ -15,14 +15,17 @@
 # limitations under the License.
 #
 
-from google.auth import credentials as auth_credentials
+from typing import List, Optional
 
-from google.cloud.aiplatform import base
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform import models
 from google.protobuf import struct_pb2
 
-from typing import Optional
+from google.auth import credentials as auth_credentials
+
+from google.cloud import aiplatform
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform import models
+from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform import utils
 
 
 class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
@@ -36,13 +39,35 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "model_evaluation_path"
 
     @property
-    def metrics(self) -> Optional[struct_pb2.Value]:
+    def metrics(self) -> struct_pb2.Value:
         """Gets the evaluation metrics from the Model Evaluation.
+
         Returns:
-            A dict with model metrics created from the Model Evaluation or
-            None if the metrics for this evaluation are empty.
+            A struct_pb2.Value with model metrics created from the Model Evaluation
+        Raises:
+            ValueError: If the Model Evaluation doesn't have metrics.
         """
-        return self._gca_resource.metrics
+        if self._gca_resource.metrics:
+            return self._gca_resource.metrics
+
+        raise ValueError(
+            "This ModelEvaluation does not have any metrics, this could be because the Evaluation job failed. Check the logs for details."
+        )
+
+    @property
+    def _backing_pipeline_job(self) -> Optional["pipeline_jobs.PipelineJob"]:
+        """The managed pipeline for this model evaluation job.
+        Returns:
+            The PipelineJob resource if this evaluation ran from a managed pipeline or None.
+        """
+        if (
+            "metadata" in self._gca_resource
+            and "pipeline_job_resource_name" in self._gca_resource.metadata
+        ):
+            return aiplatform.PipelineJob.get(
+                resource_name=self._gca_resource.metadata["pipeline_job_resource_name"],
+                credentials=self.credentials,
+            )
 
     def __init__(
         self,
@@ -90,4 +115,64 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     def delete(self):
         raise NotImplementedError(
             "Deleting a model evaluation has not been implemented yet."
+        )
+
+    @classmethod
+    def list(
+        cls,
+        model: str,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        enable_simple_view: bool = False,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["ModelEvaluation"]:
+        """List all ModelEvaluation resources on the provided model.
+
+        Example Usage:
+
+        aiplatform.ModelEvaluation.list(
+            model="projects/123/locations/us-central1/models/456",
+        )
+
+        aiplatform.Model.list(
+            model="projects/123/locations/us-central1/models/456",
+            order_by="create_time desc, display_name"
+        )
+
+        Args:
+            model (str):
+                Required. The resource name of the model to list evaluations for.
+                For example: "projects/123/locations/us-central1/models/456".
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve list from.
+
+        Returns:
+            List[VertexAiResourceNoun] - A list of SDK resource objects
+        """
+
+        return super()._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+            parent=model,
         )

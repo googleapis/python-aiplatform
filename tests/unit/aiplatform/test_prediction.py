@@ -111,6 +111,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
+_TEST_SERVING_CONTAINER_GRPC_PORTS = [7777, 7000]
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent"]
@@ -140,7 +141,7 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
 
 _TEST_IMAGE_URI = "test_image:latest"
 
-_DEFAULT_BASE_IMAGE = "python:3.7"
+_DEFAULT_BASE_IMAGE = "python:3.10"
 _MODEL_SERVER_FILE = "cpr_model_server.py"
 _TEST_SRC_DIR = "user_code"
 _TEST_PREDICTOR_FILE = "predictor.py"
@@ -1112,6 +1113,10 @@ class TestLocalModel:
             gca_model_compat.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
+        grpc_ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_GRPC_PORTS
+        ]
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
@@ -1120,6 +1125,7 @@ class TestLocalModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            grpc_ports=grpc_ports,
         )
 
         local_model = LocalModel(
@@ -1139,6 +1145,9 @@ class TestLocalModel:
         assert local_model.serving_container_spec.args == container_spec.args
         assert local_model.serving_container_spec.env == container_spec.env
         assert local_model.serving_container_spec.ports == container_spec.ports
+        assert (
+            local_model.serving_container_spec.grpc_ports == container_spec.grpc_ports
+        )
 
     def test_init_with_serving_container_spec_but_not_image_uri_throws_exception(self):
         env = [
@@ -1149,6 +1158,10 @@ class TestLocalModel:
             gca_model_compat.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
+        grpc_ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_GRPC_PORTS
+        ]
         container_spec = gca_model_compat.ModelContainerSpec(
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -1156,6 +1169,7 @@ class TestLocalModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            grpc_ports=grpc_ports,
         )
         expected_message = "Image uri is required for the serving container spec to initialize a LocalModel instance."
 
@@ -1175,6 +1189,7 @@ class TestLocalModel:
             serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
             serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            serving_container_grpc_ports=_TEST_SERVING_CONTAINER_GRPC_PORTS,
         )
 
         env = [
@@ -1187,6 +1202,11 @@ class TestLocalModel:
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
+        grpc_ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_GRPC_PORTS
+        ]
+
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
@@ -1195,6 +1215,7 @@ class TestLocalModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            grpc_ports=grpc_ports,
         )
 
         assert local_model.serving_container_spec.image_uri == container_spec.image_uri
@@ -1210,6 +1231,9 @@ class TestLocalModel:
         assert local_model.serving_container_spec.args == container_spec.args
         assert local_model.serving_container_spec.env == container_spec.env
         assert local_model.serving_container_spec.ports == container_spec.ports
+        assert (
+            local_model.serving_container_spec.grpc_ports == container_spec.grpc_ports
+        )
 
     def test_init_with_separate_args_but_not_image_uri_throws_exception(self):
         expected_message = "Serving container image uri is required to initialize a LocalModel instance."
@@ -1222,6 +1246,7 @@ class TestLocalModel:
                 serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
                 serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
                 serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+                serving_container_grpc_ports=_TEST_SERVING_CONTAINER_GRPC_PORTS,
             )
 
         assert str(exception.value) == expected_message

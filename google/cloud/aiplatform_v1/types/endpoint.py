@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_s
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -62,6 +63,7 @@ class Endpoint(proto.Message):
             A map from a DeployedModel's ID to the
             percentage of this Endpoint's traffic that
             should be forwarded to that DeployedModel.
+
             If a DeployedModel's ID is not listed in this
             map, then it receives no traffic.
 
@@ -80,6 +82,7 @@ class Endpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -119,6 +122,12 @@ class Endpoint(proto.Message):
             [network][google.cloud.aiplatform.v1.Endpoint.network] or
             [enable_private_service_connect][google.cloud.aiplatform.v1.Endpoint.enable_private_service_connect],
             can be set.
+        private_service_connect_config (google.cloud.aiplatform_v1.types.PrivateServiceConnectConfig):
+            Optional. Configuration for private service connect.
+
+            [network][google.cloud.aiplatform.v1.Endpoint.network] and
+            [private_service_connect_config][google.cloud.aiplatform.v1.Endpoint.private_service_connect_config]
+            are mutually exclusive.
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
@@ -128,6 +137,23 @@ class Endpoint(proto.Message):
         predict_request_response_logging_config (google.cloud.aiplatform_v1.types.PredictRequestResponseLoggingConfig):
             Configures the request-response logging for
             online prediction.
+        dedicated_endpoint_enabled (bool):
+            If true, the endpoint will be exposed through a dedicated
+            DNS [Endpoint.dedicated_endpoint_dns]. Your request to the
+            dedicated DNS will be isolated from other users' traffic and
+            will have better performance and reliability. Note: Once you
+            enabled dedicated endpoint, you won't be able to send
+            request to the shared DNS
+            {region}-aiplatform.googleapis.com. The limitation will be
+            removed soon.
+        dedicated_endpoint_dns (str):
+            Output only. DNS of the dedicated endpoint. Will only be
+            populated if dedicated_endpoint_enabled is true. Format:
+            ``https://{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog``.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     name: str = proto.Field(
@@ -184,6 +210,13 @@ class Endpoint(proto.Message):
         proto.BOOL,
         number=17,
     )
+    private_service_connect_config: service_networking.PrivateServiceConnectConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=21,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
+    )
     model_deployment_monitoring_job: str = proto.Field(
         proto.STRING,
         number=14,
@@ -194,6 +227,22 @@ class Endpoint(proto.Message):
             number=18,
             message="PredictRequestResponseLoggingConfig",
         )
+    )
+    dedicated_endpoint_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=24,
+    )
+    dedicated_endpoint_dns: str = proto.Field(
+        proto.STRING,
+        number=25,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=27,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=28,
     )
 
 
@@ -221,12 +270,18 @@ class DeployedModel(proto.Message):
             only a modest additional configuration.
 
             This field is a member of `oneof`_ ``prediction_resources``.
+        shared_resources (str):
+            The resource name of the shared DeploymentResourcePool to
+            deploy on. Format:
+            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+
+            This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Immutable. The ID of the DeployedModel. If not provided upon
             deployment, Vertex AI will generate a value for this ID.
 
             This value should be 1-10 characters, and valid characters
-            are /[0-9]/.
+            are ``/[0-9]/``.
         model (str):
             Required. The resource name of the Model that this is the
             deployment of. Note that the Model may be in a different
@@ -266,6 +321,12 @@ class DeployedModel(proto.Message):
             is not populated, all fields of the
             [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
+        disable_explanations (bool):
+            If true, deploy the model without explainable feature,
+            regardless the existence of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec].
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -292,6 +353,7 @@ class DeployedModel(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
+
             Note that logs may incur a cost, especially if
             your project receives prediction requests at a
             high queries per second rate (QPS). Estimate
@@ -316,6 +378,11 @@ class DeployedModel(proto.Message):
         number=8,
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
+    )
+    shared_resources: str = proto.Field(
+        proto.STRING,
+        number=17,
+        oneof="prediction_resources",
     )
     id: str = proto.Field(
         proto.STRING,
@@ -342,6 +409,10 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=9,
         message=explanation.ExplanationSpec,
+    )
+    disable_explanations: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
     service_account: str = proto.Field(
         proto.STRING,

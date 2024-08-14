@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ def sample_batch_create_features():
     # Initialize request argument(s)
     requests = aiplatform_v1.CreateFeatureRequest()
     requests.parent = "parent_value"
-    requests.feature.value_type = "BYTES"
     requests.feature_id = "feature_id_value"
 
     request = aiplatform_v1.BatchCreateFeaturesRequest(

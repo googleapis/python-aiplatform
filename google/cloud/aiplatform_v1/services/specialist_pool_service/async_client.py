@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -33,14 +33,15 @@ from google.cloud.aiplatform_v1 import gapic_version as package_version
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -52,7 +53,7 @@ from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
@@ -71,8 +72,12 @@ class SpecialistPoolServiceAsyncClient:
 
     _client: SpecialistPoolServiceClient
 
+    # Copy defaults from the synchronous client for use here.
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = SpecialistPoolServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = SpecialistPoolServiceClient.DEFAULT_MTLS_ENDPOINT
+    _DEFAULT_ENDPOINT_TEMPLATE = SpecialistPoolServiceClient._DEFAULT_ENDPOINT_TEMPLATE
+    _DEFAULT_UNIVERSE = SpecialistPoolServiceClient._DEFAULT_UNIVERSE
 
     specialist_pool_path = staticmethod(
         SpecialistPoolServiceClient.specialist_pool_path
@@ -185,20 +190,42 @@ class SpecialistPoolServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(SpecialistPoolServiceClient).get_transport_class,
-        type(SpecialistPoolServiceClient),
-    )
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._client._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used
+                by the client instance.
+        """
+        return self._client._universe_domain
+
+    get_transport_class = SpecialistPoolServiceClient.get_transport_class
 
     def __init__(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[
+                str,
+                SpecialistPoolServiceTransport,
+                Callable[..., SpecialistPoolServiceTransport],
+            ]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the specialist pool service client.
+        """Instantiates the specialist pool service async client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -206,25 +233,42 @@ class SpecialistPoolServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.SpecialistPoolServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
-            client_options (ClientOptions): Custom options for the client. It
-                won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+            transport (Optional[Union[str,SpecialistPoolServiceTransport,Callable[..., SpecialistPoolServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the SpecialistPoolServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
+                your own client library.
 
         Raises:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
@@ -305,7 +349,7 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -326,8 +370,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, specialist_pool])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -335,7 +379,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.CreateSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.CreateSpecialistPoolRequest):
+            request = specialist_pool_service.CreateSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -346,17 +393,18 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_specialist_pool,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -428,7 +476,7 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -451,8 +499,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -460,7 +508,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.GetSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.GetSpecialistPoolRequest):
+            request = specialist_pool_service.GetSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -469,17 +520,18 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_specialist_pool,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -544,7 +596,7 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -560,8 +612,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -569,7 +621,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.ListSpecialistPoolsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.ListSpecialistPoolsRequest):
+            request = specialist_pool_service.ListSpecialistPoolsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -578,17 +633,18 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_specialist_pools,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_specialist_pools
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -604,6 +660,8 @@ class SpecialistPoolServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -666,7 +724,7 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -689,8 +747,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -698,7 +756,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.DeleteSpecialistPoolRequest):
+            request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -707,17 +768,18 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_specialist_pool,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -804,7 +866,7 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -825,8 +887,8 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([specialist_pool, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -834,7 +896,10 @@ class SpecialistPoolServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, specialist_pool_service.UpdateSpecialistPoolRequest):
+            request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -845,11 +910,9 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_specialist_pool,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_specialist_pool
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -858,6 +921,9 @@ class SpecialistPoolServiceAsyncClient:
                 (("specialist_pool.name", request.specialist_pool.name),)
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -892,7 +958,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -909,7 +975,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -920,6 +986,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -946,7 +1015,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -963,7 +1032,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -974,6 +1043,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1005,7 +1077,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1021,7 +1093,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1032,6 +1104,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -1059,7 +1134,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1075,7 +1150,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1086,6 +1161,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -1115,7 +1193,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1132,7 +1210,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1143,6 +1221,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1171,7 +1252,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1252,7 +1333,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1263,6 +1344,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1292,7 +1376,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1373,7 +1457,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1384,6 +1468,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1414,7 +1501,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1432,7 +1519,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1443,6 +1530,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1469,7 +1559,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1486,7 +1576,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1497,6 +1587,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1523,7 +1616,7 @@ class SpecialistPoolServiceAsyncClient:
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1540,7 +1633,7 @@ class SpecialistPoolServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1551,6 +1644,9 @@ class SpecialistPoolServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1563,7 +1659,7 @@ class SpecialistPoolServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "SpecialistPoolServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

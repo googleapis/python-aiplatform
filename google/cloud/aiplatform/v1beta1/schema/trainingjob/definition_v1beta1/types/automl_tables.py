@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -109,7 +109,9 @@ class AutoMlTablesInputs(proto.Message):
             The supported optimization objectives depend on
             the prediction type. If the field is not set, a
             default objective function is used.
+
             classification (binary):
+
               "maximize-au-roc" (default) - Maximize the
             area under the receiver
             operating characteristic (ROC) curve.
@@ -121,10 +123,14 @@ class AutoMlTablesInputs(proto.Message):
             recall value.   "maximize-recall-at-precision" -
             Maximize recall for a specified
             precision value.
+
             classification (multi-class):
+
               "minimize-log-loss" (default) - Minimize log
             loss.
+
             regression:
+
               "minimize-rmse" (default) - Minimize
             root-mean-squared error (RMSE).   "minimize-mae"
             - Minimize mean-absolute error (MAE).
@@ -134,6 +140,7 @@ class AutoMlTablesInputs(proto.Message):
             Required. The train budget of creating this
             model, expressed in milli node hours i.e. 1,000
             value in this field means 1 node hour.
+
             The training cost of the model will not exceed
             this budget. The final cost will be attempted to
             be close to the budget, though may end up being
@@ -141,6 +148,7 @@ class AutoMlTablesInputs(proto.Message):
             discretion. This especially may happen when
             further model training ceases to provide any
             improvements.
+
             If the budget is set to a value known to be
             insufficient to train a model for the given
             dataset, the training won't be attempted and

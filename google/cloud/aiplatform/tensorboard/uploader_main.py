@@ -103,6 +103,12 @@ def main(argv):
         experiment_name, FLAGS.experiment_display_name, project_id, region
     )
 
+    plugins = (
+        uploader_constants.ALLOWED_PLUGINS.union(FLAGS.allowed_plugins)
+        if FLAGS.allowed_plugins
+        else uploader_constants.ALLOWED_PLUGINS
+    )
+
     tb_uploader = uploader.TensorBoardUploader(
         experiment_name=experiment_name,
         experiment_display_name=experiment_display_name,
@@ -110,7 +116,7 @@ def main(argv):
         tensorboard_resource_name=FLAGS.tensorboard_resource_name,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
-        allowed_plugins=FLAGS.allowed_plugins,
+        allowed_plugins=plugins,
         writer_client=api_client,
         logdir=FLAGS.logdir,
         one_shot=FLAGS.one_shot,

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_load_experiment_model_sample]
 from typing import Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_load_experiment_model_sample]
 def load_experiment_model_sample(
     artifact_id: str,
     project: str,

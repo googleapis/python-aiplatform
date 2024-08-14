@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@ from typing import Dict, Type
 from .base import JobServiceTransport
 from .grpc import JobServiceGrpcTransport
 from .grpc_asyncio import JobServiceGrpcAsyncIOTransport
+from .rest import JobServiceRestTransport
+from .rest import JobServiceRestInterceptor
 
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
 _transport_registry["grpc"] = JobServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = JobServiceRestTransport
 
 __all__ = (
     "JobServiceTransport",
     "JobServiceGrpcTransport",
     "JobServiceGrpcAsyncIOTransport",
+    "JobServiceRestTransport",
+    "JobServiceRestInterceptor",
 )

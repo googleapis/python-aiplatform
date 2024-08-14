@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -55,7 +55,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: Optional[grpc.Channel] = None,
+        channel: Optional[Union[grpc.Channel, Callable[..., grpc.Channel]]] = None,
         api_mtls_endpoint: Optional[str] = None,
         client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
@@ -69,20 +69,23 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
-                ignored if ``channel`` is provided.
-            channel (Optional[grpc.Channel]): A ``Channel`` instance through
-                which to make calls.
+                ignored if a ``channel`` instance is provided.
+            channel (Optional[Union[grpc.Channel, Callable[..., grpc.Channel]]]):
+                A ``Channel`` instance through which to make calls, or a Callable
+                that constructs and returns one. If set to None, ``self.create_channel``
+                is used to create the channel. If a Callable is given, it will be called
+                with the same arguments as used in ``self.create_channel``.
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
@@ -92,11 +95,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for the grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if a ``channel`` instance is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
                 both in PEM format. It is used to configure a mutual TLS channel. It is
-                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
+                ignored if a ``channel`` instance or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
@@ -122,9 +125,10 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         if client_cert_source:
             warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
-        if channel:
+        if isinstance(channel, grpc.Channel):
             # Ignore credentials if a channel was passed.
-            credentials = False
+            credentials = None
+            self._ignore_credentials = True
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
@@ -163,7 +167,9 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         )
 
         if not self._grpc_channel:
-            self._grpc_channel = type(self).create_channel(
+            # initialize with the provided callable or the default channel
+            channel_init = channel or type(self).create_channel
+            self._grpc_channel = channel_init(
                 self._host,
                 # use the credentials which are saved
                 credentials=self._credentials,
@@ -299,6 +305,245 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         return self._stubs["raw_predict"]
 
     @property
+    def stream_raw_predict(
+        self,
+    ) -> Callable[[prediction_service.StreamRawPredictRequest], httpbody_pb2.HttpBody]:
+        r"""Return a callable for the stream raw predict method over gRPC.
+
+        Perform a streaming online prediction with an
+        arbitrary HTTP payload.
+
+        Returns:
+            Callable[[~.StreamRawPredictRequest],
+                    ~.HttpBody]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_raw_predict" not in self._stubs:
+            self._stubs["stream_raw_predict"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamRawPredict",
+                request_serializer=prediction_service.StreamRawPredictRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["stream_raw_predict"]
+
+    @property
+    def direct_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectPredictRequest],
+        prediction_service.DirectPredictResponse,
+    ]:
+        r"""Return a callable for the direct predict method over gRPC.
+
+        Perform an unary online prediction request to a gRPC
+        model server for Vertex first-party products and
+        frameworks.
+
+        Returns:
+            Callable[[~.DirectPredictRequest],
+                    ~.DirectPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "direct_predict" not in self._stubs:
+            self._stubs["direct_predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/DirectPredict",
+                request_serializer=prediction_service.DirectPredictRequest.serialize,
+                response_deserializer=prediction_service.DirectPredictResponse.deserialize,
+            )
+        return self._stubs["direct_predict"]
+
+    @property
+    def direct_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectRawPredictRequest],
+        prediction_service.DirectRawPredictResponse,
+    ]:
+        r"""Return a callable for the direct raw predict method over gRPC.
+
+        Perform an unary online prediction request to a gRPC
+        model server for custom containers.
+
+        Returns:
+            Callable[[~.DirectRawPredictRequest],
+                    ~.DirectRawPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "direct_raw_predict" not in self._stubs:
+            self._stubs["direct_raw_predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/DirectRawPredict",
+                request_serializer=prediction_service.DirectRawPredictRequest.serialize,
+                response_deserializer=prediction_service.DirectRawPredictResponse.deserialize,
+            )
+        return self._stubs["direct_raw_predict"]
+
+    @property
+    def stream_direct_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamDirectPredictRequest],
+        prediction_service.StreamDirectPredictResponse,
+    ]:
+        r"""Return a callable for the stream direct predict method over gRPC.
+
+        Perform a streaming online prediction request to a
+        gRPC model server for Vertex first-party products and
+        frameworks.
+
+        Returns:
+            Callable[[~.StreamDirectPredictRequest],
+                    ~.StreamDirectPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_direct_predict" not in self._stubs:
+            self._stubs["stream_direct_predict"] = self.grpc_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamDirectPredict",
+                request_serializer=prediction_service.StreamDirectPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamDirectPredictResponse.deserialize,
+            )
+        return self._stubs["stream_direct_predict"]
+
+    @property
+    def stream_direct_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamDirectRawPredictRequest],
+        prediction_service.StreamDirectRawPredictResponse,
+    ]:
+        r"""Return a callable for the stream direct raw predict method over gRPC.
+
+        Perform a streaming online prediction request to a
+        gRPC model server for custom containers.
+
+        Returns:
+            Callable[[~.StreamDirectRawPredictRequest],
+                    ~.StreamDirectRawPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_direct_raw_predict" not in self._stubs:
+            self._stubs["stream_direct_raw_predict"] = self.grpc_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamDirectRawPredict",
+                request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
+            )
+        return self._stubs["stream_direct_raw_predict"]
+
+    @property
+    def streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        prediction_service.StreamingPredictResponse,
+    ]:
+        r"""Return a callable for the streaming predict method over gRPC.
+
+        Perform a streaming online prediction request for
+        Vertex first-party products and frameworks.
+
+        Returns:
+            Callable[[~.StreamingPredictRequest],
+                    ~.StreamingPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "streaming_predict" not in self._stubs:
+            self._stubs["streaming_predict"] = self.grpc_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamingPredict",
+                request_serializer=prediction_service.StreamingPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
+            )
+        return self._stubs["streaming_predict"]
+
+    @property
+    def server_streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        prediction_service.StreamingPredictResponse,
+    ]:
+        r"""Return a callable for the server streaming predict method over gRPC.
+
+        Perform a server-side streaming online prediction
+        request for Vertex LLM streaming.
+
+        Returns:
+            Callable[[~.StreamingPredictRequest],
+                    ~.StreamingPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "server_streaming_predict" not in self._stubs:
+            self._stubs["server_streaming_predict"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/ServerStreamingPredict",
+                request_serializer=prediction_service.StreamingPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
+            )
+        return self._stubs["server_streaming_predict"]
+
+    @property
+    def streaming_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingRawPredictRequest],
+        prediction_service.StreamingRawPredictResponse,
+    ]:
+        r"""Return a callable for the streaming raw predict method over gRPC.
+
+        Perform a streaming online prediction request through
+        gRPC.
+
+        Returns:
+            Callable[[~.StreamingRawPredictRequest],
+                    ~.StreamingRawPredictResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "streaming_raw_predict" not in self._stubs:
+            self._stubs["streaming_raw_predict"] = self.grpc_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamingRawPredict",
+                request_serializer=prediction_service.StreamingRawPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamingRawPredictResponse.deserialize,
+            )
+        return self._stubs["streaming_raw_predict"]
+
+    @property
     def explain(
         self,
     ) -> Callable[
@@ -335,6 +580,120 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
+
+    @property
+    def count_tokens(
+        self,
+    ) -> Callable[
+        [prediction_service.CountTokensRequest], prediction_service.CountTokensResponse
+    ]:
+        r"""Return a callable for the count tokens method over gRPC.
+
+        Perform a token counting.
+
+        Returns:
+            Callable[[~.CountTokensRequest],
+                    ~.CountTokensResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "count_tokens" not in self._stubs:
+            self._stubs["count_tokens"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/CountTokens",
+                request_serializer=prediction_service.CountTokensRequest.serialize,
+                response_deserializer=prediction_service.CountTokensResponse.deserialize,
+            )
+        return self._stubs["count_tokens"]
+
+    @property
+    def generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        prediction_service.GenerateContentResponse,
+    ]:
+        r"""Return a callable for the generate content method over gRPC.
+
+        Generate content with multimodal inputs.
+
+        Returns:
+            Callable[[~.GenerateContentRequest],
+                    ~.GenerateContentResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "generate_content" not in self._stubs:
+            self._stubs["generate_content"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/GenerateContent",
+                request_serializer=prediction_service.GenerateContentRequest.serialize,
+                response_deserializer=prediction_service.GenerateContentResponse.deserialize,
+            )
+        return self._stubs["generate_content"]
+
+    @property
+    def stream_generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        prediction_service.GenerateContentResponse,
+    ]:
+        r"""Return a callable for the stream generate content method over gRPC.
+
+        Generate content with multimodal inputs with
+        streaming support.
+
+        Returns:
+            Callable[[~.GenerateContentRequest],
+                    ~.GenerateContentResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_generate_content" not in self._stubs:
+            self._stubs["stream_generate_content"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamGenerateContent",
+                request_serializer=prediction_service.GenerateContentRequest.serialize,
+                response_deserializer=prediction_service.GenerateContentResponse.deserialize,
+            )
+        return self._stubs["stream_generate_content"]
+
+    @property
+    def chat_completions(
+        self,
+    ) -> Callable[[prediction_service.ChatCompletionsRequest], httpbody_pb2.HttpBody]:
+        r"""Return a callable for the chat completions method over gRPC.
+
+        Exposes an OpenAI-compatible endpoint for chat
+        completions.
+
+        Returns:
+            Callable[[~.ChatCompletionsRequest],
+                    ~.HttpBody]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "chat_completions" not in self._stubs:
+            self._stubs["chat_completions"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/ChatCompletions",
+                request_serializer=prediction_service.ChatCompletionsRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["chat_completions"]
 
     def close(self):
         self.grpc_channel.close()

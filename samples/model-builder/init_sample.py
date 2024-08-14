@@ -14,7 +14,7 @@
 
 from typing import Optional
 
-from google.auth import credentials as auth_credentials
+import google.auth.credentials
 
 
 #  [START aiplatform_sdk_init_sample]
@@ -23,19 +23,21 @@ def init_sample(
     location: Optional[str] = None,
     experiment: Optional[str] = None,
     staging_bucket: Optional[str] = None,
-    credentials: Optional[auth_credentials.Credentials] = None,
+    credentials: Optional[google.auth.credentials.Credentials] = None,
     encryption_spec_key_name: Optional[str] = None,
+    service_account: Optional[str] = None,
 ):
 
-    from google.cloud import aiplatform
+    import vertexai
 
-    aiplatform.init(
+    vertexai.init(
         project=project,
         location=location,
         experiment=experiment,
         staging_bucket=staging_bucket,
         credentials=credentials,
         encryption_spec_key_name=encryption_spec_key_name,
+        service_account=service_account,
     )
 
 

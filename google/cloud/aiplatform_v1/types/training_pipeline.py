@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -151,6 +151,7 @@ class TrainingPipeline(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -269,17 +270,20 @@ class InputDataConfig(proto.Message):
             This field is a member of `oneof`_ ``split``.
         predefined_split (google.cloud.aiplatform_v1.types.PredefinedSplit):
             Supported only for tabular Datasets.
+
             Split based on a predefined key.
 
             This field is a member of `oneof`_ ``split``.
         timestamp_split (google.cloud.aiplatform_v1.types.TimestampSplit):
             Supported only for tabular Datasets.
+
             Split based on the timestamp of the input data
             pieces.
 
             This field is a member of `oneof`_ ``split``.
         stratified_split (google.cloud.aiplatform_v1.types.StratifiedSplit):
             Supported only for tabular Datasets.
+
             Split based on the distribution of the specified
             column.
 
@@ -594,6 +598,7 @@ class TimestampSplit(proto.Message):
     based on a provided timestamps. The youngest data pieces are
     assigned to training set, next to validation set, and the oldest
     to the test set.
+
     Supported only for tabular Datasets.
 
     Attributes:

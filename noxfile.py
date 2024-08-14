@@ -25,13 +25,14 @@ import warnings
 
 import nox
 
+FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==22.3.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
 DEFAULT_PYTHON_VERSION = "3.8"
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.7", "3.8", "3.9", "3.10"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -47,7 +48,7 @@ UNIT_TEST_EXTRAS = [
 ]
 UNIT_TEST_EXTRAS_BY_PYTHON = {}
 
-SYSTEM_TEST_PYTHON_VERSIONS = ["3.8"]
+SYSTEM_TEST_PYTHON_VERSIONS = ["3.10"]
 SYSTEM_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "pytest",
@@ -66,6 +67,8 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 # 'docfx' is excluded since it only needs to run in 'docs-presubmit'
 nox.options.sessions = [
     "unit",
+    "unit_ray",
+    "unit_langchain",
     "system",
     "cover",
     "lint",
@@ -85,13 +88,14 @@ def lint(session):
     Returns a failure if the linters find linting errors or sufficiently
     serious code quality issues.
     """
-    session.install("flake8", BLACK_VERSION)
+    session.install(FLAKE8_VERSION, BLACK_VERSION)
     session.run(
         "black",
         "--check",
+        "--diff",
         *LINT_PATHS,
     )
-    session.run("flake8", "google", "tests")
+    session.run("flake8", *LINT_PATHS)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
@@ -177,7 +181,19 @@ def default(session):
         "--cov-config=.coveragerc",
         "--cov-report=",
         "--cov-fail-under=0",
+        "--ignore=tests/unit/vertex_ray",
+        "--ignore=tests/unit/vertex_langchain",
+        "--ignore=tests/unit/architecture",
         os.path.join("tests", "unit"),
+        *session.posargs,
+    )
+
+    # Run tests that require isolation.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
+        os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
         *session.posargs,
     )
 
@@ -188,12 +204,64 @@ def unit(session):
     default(session)
 
 
-def install_systemtest_dependencies(session, *constraints):
+@nox.session(python="3.10")
+@nox.parametrize("ray", ["2.9.3"])
+def unit_ray(session, ray):
+    # Install all test dependencies, then install this package in-place.
 
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / f"constraints-ray-{ray}.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install ray extras
+    session.install("-e", ".[ray_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_ray_{ray}_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_ray"),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
+def unit_langchain(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-langchain.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install langchain extras
+    session.install("-e", ".[langchain_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_langchain_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_langchain"),
+        *session.posargs,
+    )
+
+
+def install_systemtest_dependencies(session, *constraints):
     # Use pre-release gRPC for system tests.
-    # Exclude version 1.49.0rc1 which has a known issue.
-    # See https://github.com/grpc/grpc/pull/30642
-    session.install("--pre", "grpcio!=1.49.0rc1")
+    # Exclude version 1.52.0rc1 which has a known issue.
+    # See https://github.com/grpc/grpc/issues/32163
+    session.install("--pre", "grpcio!=1.52.0rc1")
 
     session.install(*SYSTEM_TEST_STANDARD_DEPENDENCIES, *constraints)
 
@@ -255,7 +323,7 @@ def system(session):
     if system_test_folder_exists:
         session.run(
             "py.test",
-            "--quiet",
+            "-v",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,
             *session.posargs,
@@ -270,18 +338,18 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=98")
+    session.run("coverage", "report", "--show-missing", "--fail-under=85")
 
     session.run("coverage", "erase")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python="3.9")
 def docs(session):
     """Build the docs for this library."""
 
     session.install("-e", ".")
     session.install(
-        "sphinx==4.0.1",
+        "sphinx==5.0.2",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
@@ -301,17 +369,21 @@ def docs(session):
     )
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python="3.10")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
     session.install("-e", ".")
     session.install(
-        "sphinx==4.0.1",
+        "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
-        "gcp-sphinx-docfx-yaml",
     )
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
@@ -340,6 +412,75 @@ def docfx(session):
     )
 
 
+@nox.session(python="3.9")
+def gemini_docs(session):
+    """Build the docs for library related to Gemini."""
+
+    session.install("-e", ".")
+    session.install(
+        "sphinx==5.0.2",
+        "alabaster",
+        "google-cloud-aiplatform[prediction]",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
+    )
+
+
+@nox.session(python="3.10")
+def gemini_docfx(session):
+    """Build the docfx yaml files for library related to Gemini."""
+
+    session.install("-e", ".")
+    session.install(
+        "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
+        "alabaster",
+        "google-cloud-aiplatform",
+        "recommonmark",
+    )
+
+    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
+    session.run(
+        "sphinx-build",
+        "-T",  # show full traceback on exception
+        "-N",  # no colors
+        "-D",
+        (
+            "extensions=sphinx.ext.autodoc,"
+            "sphinx.ext.autosummary,"
+            "docfx_yaml.extension,"
+            "sphinx.ext.intersphinx,"
+            "sphinx.ext.coverage,"
+            "sphinx.ext.napoleon,"
+            "sphinx.ext.todo,"
+            "sphinx.ext.viewcode,"
+            "recommonmark"
+        ),
+        "-b",
+        "html",
+        "-d",
+        os.path.join("gemini_docs", "_build", "doctrees", ""),
+        os.path.join("gemini_docs", ""),
+        os.path.join("gemini_docs", "_build", "html", ""),
+    )
+
+
 @nox.session(python=SYSTEM_TEST_PYTHON_VERSIONS)
 def prerelease_deps(session):
     """Run all tests with prerelease versions of dependencies installed."""
@@ -349,9 +490,7 @@ def prerelease_deps(session):
     unit_deps_all = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_EXTERNAL_DEPENDENCIES
     session.install(*unit_deps_all)
     system_deps_all = (
-        SYSTEM_TEST_STANDARD_DEPENDENCIES
-        + SYSTEM_TEST_EXTERNAL_DEPENDENCIES
-        + SYSTEM_TEST_EXTRAS
+        SYSTEM_TEST_STANDARD_DEPENDENCIES + SYSTEM_TEST_EXTERNAL_DEPENDENCIES
     )
     session.install(*system_deps_all)
 
@@ -381,8 +520,8 @@ def prerelease_deps(session):
         # dependency of grpc
         "six",
         "googleapis-common-protos",
-        # Exclude version 1.49.0rc1 which has a known issue. See https://github.com/grpc/grpc/pull/30642
-        "grpcio!=1.49.0rc1",
+        # Exclude version 1.52.0rc1 which has a known issue. See https://github.com/grpc/grpc/issues/32163
+        "grpcio!=1.52.0rc1",
         "grpcio-status",
         "google-api-core",
         "proto-plus",

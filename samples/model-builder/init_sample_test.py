@@ -17,7 +17,7 @@ import init_sample
 import test_constants as constants
 
 
-def test_init_sample(mock_sdk_init):
+def test_init_sample(mock_vertexai_init):
 
     init_sample.init_sample(
         project=constants.PROJECT,
@@ -26,13 +26,15 @@ def test_init_sample(mock_sdk_init):
         staging_bucket=constants.STAGING_BUCKET,
         credentials=constants.CREDENTIALS,
         encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )
 
-    mock_sdk_init.assert_called_once_with(
+    mock_vertexai_init.assert_called_once_with(
         project=constants.PROJECT,
         location=constants.LOCATION_EUROPE,
         experiment=constants.EXPERIMENT_NAME,
         staging_bucket=constants.STAGING_BUCKET,
         credentials=constants.CREDENTIALS,
         encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )

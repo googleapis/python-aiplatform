@@ -31,6 +31,7 @@ _TEST_OTHER_DATASOURCE = ""
 _TEST_DRIFT_TRESHOLD = {"key": 0.2}
 _TEST_EMAIL1 = "test1"
 _TEST_EMAIL2 = "test2"
+_TEST_NOTIFICATION_CHANNEL = "projects/123/notificationChannels/456"
 _TEST_VALID_DATA_FORMATS = ["tf-record", "csv", "jsonl"]
 _TEST_SAMPLING_RATE = 0.8
 _TEST_MONITORING_INTERVAL = 1
@@ -105,8 +106,14 @@ class TestModelMonitoringConfigs:
             monitor_interval=_TEST_MONITORING_INTERVAL
         )
 
-        alert_config = model_monitoring.EmailAlertConfig(
+        email_alert_config = model_monitoring.EmailAlertConfig(
             user_emails=[_TEST_EMAIL1, _TEST_EMAIL2]
+        )
+
+        alert_config = model_monitoring.AlertConfig(
+            user_emails=[_TEST_EMAIL1, _TEST_EMAIL2],
+            enable_logging=True,
+            notification_channels=[_TEST_NOTIFICATION_CHANNEL],
         )
 
         prediction_drift_config = model_monitoring.DriftDetectionConfig(
@@ -149,8 +156,17 @@ class TestModelMonitoringConfigs:
             == prediction_drift_config.as_proto()
         )
         assert objective_config.as_proto().explanation_config == xai_config.as_proto()
+        assert (
+            _TEST_EMAIL1 in email_alert_config.as_proto().email_alert_config.user_emails
+        )
+        assert (
+            _TEST_EMAIL2 in email_alert_config.as_proto().email_alert_config.user_emails
+        )
         assert _TEST_EMAIL1 in alert_config.as_proto().email_alert_config.user_emails
         assert _TEST_EMAIL2 in alert_config.as_proto().email_alert_config.user_emails
+        assert (
+            _TEST_NOTIFICATION_CHANNEL in alert_config.as_proto().notification_channels
+        )
         assert (
             random_sample_config.as_proto().random_sample_config.sample_rate
             == _TEST_SAMPLING_RATE

@@ -17,5 +17,5 @@
 
 import_error_msg = (
     "Could not load the cloud profiler. To use the profiler, "
-    "install the SDK using 'pip install google-cloud-aiplatform[cloud-profiler]'"
+    "install the SDK using 'pip install google-cloud-aiplatform[cloud_profiler]'"
 )

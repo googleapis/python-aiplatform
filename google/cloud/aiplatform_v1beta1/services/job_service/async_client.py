@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import functools
 import re
 from typing import (
     Dict,
+    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -33,14 +33,15 @@ from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -80,7 +81,7 @@ from google.cloud.aiplatform_v1beta1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -98,8 +99,12 @@ class JobServiceAsyncClient:
 
     _client: JobServiceClient
 
+    # Copy defaults from the synchronous client for use here.
+    # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
     DEFAULT_ENDPOINT = JobServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = JobServiceClient.DEFAULT_MTLS_ENDPOINT
+    _DEFAULT_ENDPOINT_TEMPLATE = JobServiceClient._DEFAULT_ENDPOINT_TEMPLATE
+    _DEFAULT_UNIVERSE = JobServiceClient._DEFAULT_UNIVERSE
 
     batch_prediction_job_path = staticmethod(JobServiceClient.batch_prediction_job_path)
     parse_batch_prediction_job_path = staticmethod(
@@ -143,6 +148,12 @@ class JobServiceAsyncClient:
     parse_notification_channel_path = staticmethod(
         JobServiceClient.parse_notification_channel_path
     )
+    persistent_resource_path = staticmethod(JobServiceClient.persistent_resource_path)
+    parse_persistent_resource_path = staticmethod(
+        JobServiceClient.parse_persistent_resource_path
+    )
+    reservation_path = staticmethod(JobServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(JobServiceClient.parse_reservation_path)
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)
@@ -244,19 +255,38 @@ class JobServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(JobServiceClient).get_transport_class, type(JobServiceClient)
-    )
+    @property
+    def api_endpoint(self):
+        """Return the API endpoint used by the client instance.
+
+        Returns:
+            str: The API endpoint used by the client instance.
+        """
+        return self._client._api_endpoint
+
+    @property
+    def universe_domain(self) -> str:
+        """Return the universe domain used by the client instance.
+
+        Returns:
+            str: The universe domain used
+                by the client instance.
+        """
+        return self._client._universe_domain
+
+    get_transport_class = JobServiceClient.get_transport_class
 
     def __init__(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, JobServiceTransport] = "grpc_asyncio",
+        transport: Optional[
+            Union[str, JobServiceTransport, Callable[..., JobServiceTransport]]
+        ] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the job service client.
+        """Instantiates the job service async client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -264,25 +294,42 @@ class JobServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.JobServiceTransport]): The
-                transport to use. If set to None, a transport is chosen
-                automatically.
-            client_options (ClientOptions): Custom options for the client. It
-                won't take effect if a ``transport`` instance is provided.
-                (1) The ``api_endpoint`` property can be used to override the
-                default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
-                environment variable can also be used to override the endpoint:
+            transport (Optional[Union[str,JobServiceTransport,Callable[..., JobServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
+                If a Callable is given, it will be called with the same set of initialization
+                arguments as used in the JobServiceTransport constructor.
+                If set to None, a transport is chosen automatically.
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
+                Custom options for the client.
+
+                1. The ``api_endpoint`` property can be used to override the
+                default endpoint provided by the client when ``transport`` is
+                not explicitly provided. Only if this property is not set and
+                ``transport`` was not explicitly provided, the endpoint is
+                determined by the GOOGLE_API_USE_MTLS_ENDPOINT environment
+                variable, which have one of the following values:
                 "always" (always use the default mTLS endpoint), "never" (always
-                use the default regular endpoint) and "auto" (auto switch to the
-                default mTLS endpoint if client certificate is present, this is
-                the default value). However, the ``api_endpoint`` property takes
-                precedence if provided.
-                (2) If GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
+                use the default regular endpoint) and "auto" (auto-switch to the
+                default mTLS endpoint if client certificate is present; this is
+                the default value).
+
+                2. If the GOOGLE_API_USE_CLIENT_CERTIFICATE environment variable
                 is "true", then the ``client_cert_source`` property can be used
-                to provide client certificate for mutual TLS transport. If
+                to provide a client certificate for mTLS transport. If
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
+
+                3. The ``universe_domain`` property can be used to override the
+                default "googleapis.com" universe. Note that ``api_endpoint``
+                property still takes precedence; and ``universe_domain`` is
+                currently not supported for mTLS.
+
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
+                your own client library.
 
         Raises:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
@@ -356,7 +403,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``custom_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -375,8 +422,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, custom_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -384,7 +431,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateCustomJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CreateCustomJobRequest):
+            request = job_service.CreateCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -395,17 +445,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_custom_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_custom_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -466,7 +517,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -485,8 +536,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -494,7 +545,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetCustomJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetCustomJobRequest):
+            request = job_service.GetCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -503,17 +557,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_custom_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_custom_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -576,7 +631,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -592,8 +647,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -601,7 +656,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListCustomJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListCustomJobsRequest):
+            request = job_service.ListCustomJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -610,17 +668,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_custom_jobs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_custom_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -636,6 +695,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -695,7 +756,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -718,8 +779,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -727,7 +788,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteCustomJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.DeleteCustomJobRequest):
+            request = job_service.DeleteCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -736,17 +800,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_custom_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_custom_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -824,15 +889,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -840,7 +905,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CancelCustomJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CancelCustomJobRequest):
+            request = job_service.CancelCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -849,17 +917,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.cancel_custom_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.cancel_custom_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -934,7 +1003,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``data_labeling_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -948,8 +1017,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, data_labeling_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -957,7 +1026,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateDataLabelingJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CreateDataLabelingJobRequest):
+            request = job_service.CreateDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -968,17 +1040,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_data_labeling_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_data_labeling_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1039,7 +1112,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1053,8 +1126,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1062,7 +1135,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetDataLabelingJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetDataLabelingJobRequest):
+            request = job_service.GetDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1071,17 +1147,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_data_labeling_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_data_labeling_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1143,7 +1220,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1159,8 +1236,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1168,7 +1245,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListDataLabelingJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListDataLabelingJobsRequest):
+            request = job_service.ListDataLabelingJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1177,17 +1257,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_data_labeling_jobs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_data_labeling_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1203,6 +1284,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1262,7 +1345,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1285,8 +1368,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1294,7 +1377,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteDataLabelingJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.DeleteDataLabelingJobRequest):
+            request = job_service.DeleteDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1303,17 +1389,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_data_labeling_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_data_labeling_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1380,15 +1467,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1396,7 +1483,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CancelDataLabelingJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CancelDataLabelingJobRequest):
+            request = job_service.CancelDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1405,17 +1495,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.cancel_data_labeling_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.cancel_data_labeling_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -1498,7 +1589,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``hyperparameter_tuning_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1513,8 +1604,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, hyperparameter_tuning_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1522,7 +1613,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateHyperparameterTuningJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CreateHyperparameterTuningJobRequest):
+            request = job_service.CreateHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1533,17 +1627,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_hyperparameter_tuning_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_hyperparameter_tuning_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1607,7 +1702,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1622,8 +1717,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1631,7 +1726,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetHyperparameterTuningJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetHyperparameterTuningJobRequest):
+            request = job_service.GetHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1640,17 +1738,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_hyperparameter_tuning_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_hyperparameter_tuning_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1715,7 +1814,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1731,8 +1830,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1740,7 +1839,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListHyperparameterTuningJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListHyperparameterTuningJobsRequest):
+            request = job_service.ListHyperparameterTuningJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1749,17 +1851,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_hyperparameter_tuning_jobs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_hyperparameter_tuning_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1775,6 +1878,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -1836,7 +1941,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1859,8 +1964,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1868,7 +1973,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteHyperparameterTuningJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.DeleteHyperparameterTuningJobRequest):
+            request = job_service.DeleteHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1877,17 +1985,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_hyperparameter_tuning_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_hyperparameter_tuning_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -1969,15 +2078,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1985,7 +2094,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CancelHyperparameterTuningJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CancelHyperparameterTuningJobRequest):
+            request = job_service.CancelHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1994,17 +2106,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.cancel_hyperparameter_tuning_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.cancel_hyperparameter_tuning_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -2076,7 +2189,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``nas_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2089,8 +2202,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, nas_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2098,7 +2211,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateNasJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CreateNasJobRequest):
+            request = job_service.CreateNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2109,17 +2225,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_nas_job,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_nas_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2180,7 +2297,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2193,8 +2310,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2202,7 +2319,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetNasJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetNasJobRequest):
+            request = job_service.GetNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2211,17 +2331,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_nas_job,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_nas_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2284,7 +2405,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2300,8 +2421,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2309,7 +2430,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListNasJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListNasJobsRequest):
+            request = job_service.ListNasJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2318,17 +2442,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_nas_jobs,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_nas_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2344,6 +2469,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2403,7 +2530,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2426,8 +2553,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2435,7 +2562,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteNasJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.DeleteNasJobRequest):
+            request = job_service.DeleteNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2444,17 +2574,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_nas_job,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_nas_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2532,15 +2663,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2548,7 +2679,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CancelNasJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CancelNasJobRequest):
+            request = job_service.CancelNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2557,17 +2691,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.cancel_nas_job,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.cancel_nas_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -2626,7 +2761,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2635,14 +2770,14 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.NasTrialDetail:
                 Represents a NasTrial details along
-                with it's parameters. If there is a
+                with its parameters. If there is a
                 corresponding train NasTrial, the train
                 NasTrial is also returned.
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2650,7 +2785,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetNasTrialDetailRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetNasTrialDetailRequest):
+            request = job_service.GetNasTrialDetailRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2659,17 +2797,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_nas_trial_detail,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_nas_trial_detail
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2731,7 +2870,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2747,8 +2886,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2756,7 +2895,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListNasTrialDetailsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListNasTrialDetailsRequest):
+            request = job_service.ListNasTrialDetailsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2765,17 +2907,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_nas_trial_details,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_nas_trial_details
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2791,6 +2934,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -2867,7 +3012,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``batch_prediction_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2885,8 +3030,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, batch_prediction_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2894,7 +3039,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateBatchPredictionJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CreateBatchPredictionJobRequest):
+            request = job_service.CreateBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2905,17 +3053,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_batch_prediction_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_batch_prediction_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -2977,7 +3126,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2995,8 +3144,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3004,7 +3153,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetBatchPredictionJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetBatchPredictionJobRequest):
+            request = job_service.GetBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3013,17 +3165,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_batch_prediction_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_batch_prediction_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3088,7 +3241,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3104,8 +3257,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3113,7 +3266,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListBatchPredictionJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.ListBatchPredictionJobsRequest):
+            request = job_service.ListBatchPredictionJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3122,17 +3278,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_batch_prediction_jobs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_batch_prediction_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3148,6 +3305,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3210,7 +3369,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3233,8 +3392,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3242,7 +3401,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteBatchPredictionJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.DeleteBatchPredictionJobRequest):
+            request = job_service.DeleteBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3251,17 +3413,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_batch_prediction_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_batch_prediction_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3341,15 +3504,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3357,7 +3520,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CancelBatchPredictionJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.CancelBatchPredictionJobRequest):
+            request = job_service.CancelBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3366,17 +3532,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.cancel_batch_prediction_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.cancel_batch_prediction_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -3453,7 +3620,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``model_deployment_monitoring_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3469,8 +3636,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_deployment_monitoring_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3478,7 +3645,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.CreateModelDeploymentMonitoringJobRequest
+        ):
+            request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3489,17 +3661,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.create_model_deployment_monitoring_job,
-            default_timeout=60.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3576,7 +3749,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3592,8 +3765,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3601,9 +3774,14 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-            request
-        )
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest
+        ):
+            request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+                request
+            )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3614,11 +3792,9 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.search_model_deployment_monitoring_stats_anomalies,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.search_model_deployment_monitoring_stats_anomalies
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3632,6 +3808,9 @@ class JobServiceAsyncClient:
                 )
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3647,6 +3826,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3704,7 +3885,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3720,8 +3901,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3729,7 +3910,10 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.GetModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, job_service.GetModelDeploymentMonitoringJobRequest):
+            request = job_service.GetModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3738,17 +3922,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.get_model_deployment_monitoring_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3813,7 +3998,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3829,8 +4014,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3838,7 +4023,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.ListModelDeploymentMonitoringJobsRequest
+        ):
+            request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3847,17 +4037,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.list_model_deployment_monitoring_jobs,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_model_deployment_monitoring_jobs
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -3873,6 +4064,8 @@ class JobServiceAsyncClient:
             method=rpc,
             request=request,
             response=response,
+            retry=retry,
+            timeout=timeout,
             metadata=metadata,
         )
 
@@ -3974,7 +4167,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -3990,8 +4183,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3999,7 +4192,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.UpdateModelDeploymentMonitoringJobRequest
+        ):
+            request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4010,11 +4208,9 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.update_model_deployment_monitoring_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4028,6 +4224,9 @@ class JobServiceAsyncClient:
                 )
             ),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4103,7 +4302,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4126,8 +4325,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4135,7 +4334,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.DeleteModelDeploymentMonitoringJobRequest
+        ):
+            request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4144,17 +4348,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.delete_model_deployment_monitoring_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4226,15 +4431,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4242,7 +4447,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.PauseModelDeploymentMonitoringJobRequest
+        ):
+            request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4251,17 +4461,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.pause_model_deployment_monitoring_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.pause_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -4321,15 +4532,15 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4337,7 +4548,12 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, job_service.ResumeModelDeploymentMonitoringJobRequest
+        ):
+            request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4346,17 +4562,18 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.resume_model_deployment_monitoring_job,
-            default_timeout=5.0,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.resume_model_deployment_monitoring_job
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -4380,7 +4597,7 @@ class JobServiceAsyncClient:
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4397,7 +4614,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4408,6 +4625,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4434,7 +4654,7 @@ class JobServiceAsyncClient:
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4451,7 +4671,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4462,6 +4682,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4493,7 +4716,7 @@ class JobServiceAsyncClient:
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4509,7 +4732,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4520,6 +4743,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -4547,7 +4773,7 @@ class JobServiceAsyncClient:
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4563,7 +4789,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4574,6 +4800,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         await rpc(
@@ -4603,7 +4832,7 @@ class JobServiceAsyncClient:
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4620,7 +4849,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4631,6 +4860,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4659,7 +4891,7 @@ class JobServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4740,7 +4972,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4751,6 +4983,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4780,7 +5015,7 @@ class JobServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4861,7 +5096,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4872,6 +5107,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4902,7 +5140,7 @@ class JobServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4920,7 +5158,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4931,6 +5169,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -4957,7 +5198,7 @@ class JobServiceAsyncClient:
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -4974,7 +5215,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -4985,6 +5226,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -5011,7 +5255,7 @@ class JobServiceAsyncClient:
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -5028,7 +5272,7 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -5039,6 +5283,9 @@ class JobServiceAsyncClient:
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
 
         # Send the request.
         response = await rpc(
@@ -5051,7 +5298,7 @@ class JobServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "JobServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

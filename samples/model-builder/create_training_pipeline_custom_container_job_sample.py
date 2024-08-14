@@ -36,6 +36,8 @@ def create_training_pipeline_custom_container_job_sample(
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
     sync: bool = True,
+    tensorboard_resource_name: Optional[str] = None,
+    service_account: Optional[str] = None,
 ):
     aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
 
@@ -60,6 +62,8 @@ def create_training_pipeline_custom_container_job_sample(
         validation_fraction_split=validation_fraction_split,
         test_fraction_split=test_fraction_split,
         sync=sync,
+        tensorboard=tensorboard_resource_name,
+        service_account=service_account,
     )
 
     model.wait()

@@ -21,9 +21,11 @@ import re
 import tempfile
 import time
 from typing import Any, Callable, Dict, List, Optional, Union
+from google.api_core import operation
 
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
+from google.cloud import aiplatform_v1
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -44,6 +46,12 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
 )
+from google.cloud.aiplatform_v1.types import (
+    pipeline_service as PipelineServiceV1,
+)
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    PipelineServiceClient as PipelineServiceClientGa,
+)
 
 _LOGGER = base.Logger(__name__)
 
@@ -61,6 +69,12 @@ _VALID_AR_URL = pipeline_constants._VALID_AR_URL
 _VALID_HTTPS_URL = pipeline_constants._VALID_HTTPS_URL
 
 _READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
+
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
 
 def _get_current_time() -> datetime.datetime:
@@ -288,8 +302,10 @@ class PipelineJob(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -303,18 +319,25 @@ class PipelineJob(
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
                 Otherwise, the job is not peered with any network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC network that can be used for this PipelineJob's workload.
+                For example: ['vertex-ai-ip-range'].
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         network = network or initializer.global_config.network
 
         self._run(
             service_account=service_account,
             network=network,
+            reserved_ip_ranges=reserved_ip_ranges,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            enable_preflight_validations=enable_preflight_validations,
         )
 
     @base.optional_sync()
@@ -322,8 +345,10 @@ class PipelineJob(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Helper method to ensure network synchronization and to run
         the configured PipelineJob and monitor the job until completion.
@@ -336,26 +361,56 @@ class PipelineJob(
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC network that can be used for this PipelineJob's workload.
+                For example: ['vertex-ai-ip-range'].
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         self.submit(
             service_account=service_account,
             network=network,
+            reserved_ip_ranges=reserved_ip_ranges,
             create_request_timeout=create_request_timeout,
+            enable_preflight_validations=enable_preflight_validations,
         )
 
         self._block_until_complete()
+
+        # AutoSxS view model evaluations
+        for details in self.task_details:
+            if details.task_name == "model-evaluation-text-generation-pairwise":
+                model_a_eval = details.execution.metadata[
+                    "output:model_a_evaluation_path"
+                ]
+                model_b_eval = details.execution.metadata[
+                    "output:model_b_evaluation_path"
+                ]
+                if model_a_eval:
+                    _LOGGER.info("Model A")
+                    utils._ipython_utils.display_model_evaluation_button(
+                        aiplatform.ModelEvaluation(model_a_eval),
+                    )
+                if model_b_eval:
+                    _LOGGER.info("Model B")
+                    utils._ipython_utils.display_model_evaluation_button(
+                        aiplatform.ModelEvaluation(model_b_eval),
+                    )
+                break
 
     def submit(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         create_request_timeout: Optional[float] = None,
         *,
         experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -370,6 +425,12 @@ class PipelineJob(
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
                 Otherwise, the job is not peered with any network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC
+                network that can be used for this PipelineJob's workload. For example: ['vertex-ai-ip-range'].
+
+                If left unspecified, the job will be deployed to any IP ranges under
+                the provided VPC network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
             experiment (Union[str, experiments_resource.Experiment]):
@@ -380,14 +441,20 @@ class PipelineJob(
 
                 Pipeline parameters will be associated as parameters to the
                 current Experiment Run.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         if service_account:
             self._gca_resource.service_account = service_account
 
         if network:
             self._gca_resource.network = network
+
+        if reserved_ip_ranges:
+            self._gca_resource.reserved_ip_ranges = reserved_ip_ranges
 
         try:
             output_artifacts_gcs_dir = (
@@ -402,7 +469,7 @@ class PipelineJob(
                 credentials=self.credentials,
             )
         except:  # noqa: E722
-            _LOGGER._logger.exception(
+            _LOGGER.exception(
                 "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
             )
 
@@ -415,12 +482,47 @@ class PipelineJob(
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.create_pipeline_job(
-            parent=self._parent,
-            pipeline_job=self._gca_resource,
-            pipeline_job_id=self.job_id,
-            timeout=create_request_timeout,
-        )
+        if enable_preflight_validations:
+            self._gca_resource.preflight_validations = True
+
+        def extract_error_messages(error_string):
+            """
+            Extracts error messages from a string containing structured errors.
+
+            Args:
+                error_string: The string containing the error data.
+
+            Returns:
+                A list of formatted error messages.
+            """
+
+            message_pattern = (
+                r"CreatePipelineJobApiErrorDetail\"\n.*message=(.*),\ cause=null"
+            )
+
+            matches = re.findall(message_pattern, error_string)
+
+            formatted_errors = [
+                f"{i+1}. {message}" for i, message in enumerate(matches)
+            ]
+
+            return formatted_errors
+
+        try:
+            self._gca_resource = self.api_client.create_pipeline_job(
+                parent=self._parent,
+                pipeline_job=self._gca_resource,
+                pipeline_job_id=self.job_id,
+                timeout=create_request_timeout,
+            )
+        except Exception as e:
+            preflight_validations_error_messages = extract_error_messages(str(e))
+            if preflight_validations_error_messages:
+                raise Exception(
+                    "PipelineJob Preflight validations failed with the following errors:\n"
+                    + "\n".join(preflight_validations_error_messages)
+                ) from e
+            raise
 
         _LOGGER.log_create_complete_with_getter(
             self.__class__, self._gca_resource, "pipeline_job"
@@ -431,12 +533,201 @@ class PipelineJob(
         if experiment:
             self._associate_to_experiment(experiment)
 
+    def create_schedule(
+        self,
+        cron: str,
+        display_name: str,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        allow_queueing: bool = False,
+        max_run_count: Optional[int] = None,
+        max_concurrent_run_count: int = 1,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> "aiplatform.PipelineJobSchedule":
+        """Creates a PipelineJobSchedule directly from a PipelineJob.
+
+        Example Usage:
+
+        pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+        )
+        pipeline_job.run()
+        pipeline_job_schedule = pipeline_job.create_schedule(
+            cron='* * * * *',
+            display_name='schedule_display_name',
+        )
+
+        Args:
+            cron (str):
+                Required. Time specification (cron schedule expression) to launch scheduled runs.
+                To explicitly set a timezone to the cron tab, apply a prefix: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".
+                The ${IANA_TIME_ZONE} may only be a valid string from IANA time zone database.
+                For example, "CRON_TZ=America/New_York 1 * * * *", or "TZ=America/New_York 1 * * * *".
+            display_name (str):
+                Required. The user-defined name of this PipelineJobSchedule.
+            start_time (str):
+                Optional. Timestamp after which the first run can be scheduled.
+                If unspecified, it defaults to the schedule creation timestamp.
+            end_time (str):
+                Optional. Timestamp after which no more runs will be scheduled.
+                If unspecified, then runs will be scheduled indefinitely.
+            allow_queueing (bool):
+                Optional. Whether new scheduled runs can be queued when max_concurrent_runs limit is reached.
+            max_run_count (int):
+                Optional. Maximum run count of the schedule.
+                If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
+            max_concurrent_run_count (int):
+                Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+
+        Returns:
+            A Vertex AI PipelineJobSchedule.
+        """
+        if not display_name:
+            display_name = self._generate_display_name(prefix="PipelineJobSchedule")
+        utils.validate_display_name(display_name)
+
+        pipeline_job_schedule = aiplatform.PipelineJobSchedule(
+            pipeline_job=self,
+            display_name=display_name,
+            credentials=self.credentials,
+            project=self.project,
+            location=self.location,
+        )
+
+        pipeline_job_schedule.create(
+            cron=cron,
+            start_time=start_time,
+            end_time=end_time,
+            allow_queueing=allow_queueing,
+            max_run_count=max_run_count,
+            max_concurrent_run_count=max_concurrent_run_count,
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
+        return pipeline_job_schedule
+
     def wait(self):
         """Wait for this PipelineJob to complete."""
         if self._latest_future is None:
             self._block_until_complete()
         else:
             super().wait()
+
+    def batch_delete(
+        self,
+        project: str,
+        location: str,
+        names: List[str],
+    ) -> PipelineServiceV1.BatchDeletePipelineJobsResponse:
+        """
+        Example Usage:
+          pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+         )
+          pipeline_job.batch_delete(
+            project='your_project_id',
+            location='your_location',
+            names=['pipeline_job_name',
+          'pipeline_job_name2']
+          )
+
+        Args:
+          project: Required. The project id of the PipelineJobs to batch delete.
+          location: Required. The location of the PipelineJobs to batch delete.
+          names: Required. The names of the PipelineJobs to delete. A
+               maximum of 32 PipelineJobs can be deleted in a batch.
+
+        Returns:
+          BatchDeletePipelineJobsResponse contains PipelineJobs deleted.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1.BatchDeletePipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        operation = self.api_client.batch_delete_pipeline_jobs(request)
+        return operation.result()
+
+    def batch_cancel(
+        self,
+        project: str,
+        location: str,
+        names: List[str],
+    ) -> operation.Operation:
+        """
+        Example Usage:
+          pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+         )
+          pipeline_job.batch_cancel(
+            project='your_project_id',
+            location='your_location',
+            names=['pipeline_job_name',
+          'pipeline_job_name2']
+          )
+
+        Args:
+          project: Required. The project id of the PipelineJobs to batch delete.
+          location: Required. The location of the PipelineJobs to batch delete.
+          names: Required. The names of the PipelineJobs to cancel. A
+               maximum of 32 PipelineJobs can be cancelled in a batch.
+
+        Returns:
+          operation (Operation):
+                An object representing a long-running operation.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1.BatchCancelPipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        return self.api_client.batch_cancel_pipeline_jobs(request)
 
     @property
     def pipeline_spec(self):
@@ -475,10 +766,10 @@ class PipelineJob(
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
         # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        wait = _JOB_WAIT_TIME  # start at five seconds
+        log_wait = _LOG_WAIT_TIME
+        max_wait = _MAX_WAIT_TIME  # 5 minute wait
+        multiplier = _WAIT_TIME_MULTIPLIER  # scale wait by 2 every iteration
 
         previous_time = time.time()
         while self.state not in _PIPELINE_COMPLETE_STATES:
@@ -666,17 +957,27 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context.Context
+        cls,
+        node: context.Context,
+        experiment: Optional[experiment_resources.Experiment] = None,
+        include_time_series: bool = True,
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
-        Parameters are retrieved from the system.Run Execution.metadata of the PipelineJob.
+        Parameters are retrieved from the system.Run Execution.metadata of the
+        PipelineJob.
 
-        Metrics are retrieved from the system.Metric Artifacts.metadata produced by this PipelineJob.
+        Metrics are retrieved from the system.Metric Artifacts.metadata produced
+        by this PipelineJob.
 
         Args:
             node (context._Context):
                 Required. System.PipelineRun context that represents a PipelineJob Run.
+            experiment:
+                Optional. Experiment associated with this run.
+            include_time_series (bool):
+                Optional. Whether or not to include time series metrics in df.
+                Default is True.
         Returns:
             Experiment run row representing this PipelineJob.
         """
@@ -710,10 +1011,12 @@ class PipelineJob(
         )
 
         if system_run_executions:
-            row.params = {
-                key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
-                for key, value in system_run_executions[0].metadata.items()
-            }
+            row.params = {}
+            for key, value in system_run_executions[0].metadata.items():
+                if key.startswith(metadata_constants.PIPELINE_PARAM_PREFIX):
+                    row.params[
+                        key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]
+                    ] = value
             row.state = system_run_executions[0].state.name
 
         for metric_artifact in metric_artifacts:

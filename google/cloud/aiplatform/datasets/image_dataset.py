@@ -27,7 +27,34 @@ from google.cloud.aiplatform import utils
 
 
 class ImageDataset(datasets._Dataset):
-    """Managed image dataset resource for Vertex AI."""
+    """A managed image dataset resource for Vertex AI.
+
+    Use this class to work with a managed image dataset. To create a managed
+    image dataset, you need a datasource file in CSV format and a schema file in
+    YAML format. A schema is optional for a custom model. You put the CSV file
+    and the schema into Cloud Storage buckets.
+
+    Use image data for the following objectives:
+
+    * Single-label classification. For more information, see
+    [Prepare image training data for single-label classification](https://cloud.google.com/vertex-ai/docs/image-data/classification/prepare-data#single-label-classification).
+    * Multi-label classification. For more information, see [Prepare image training data for multi-label classification](https://cloud.google.com/vertex-ai/docs/image-data/classification/prepare-data#multi-label-classification).
+    * Object detection. For more information, see [Prepare image training data
+      for object detection](https://cloud.google.com/vertex-ai/docs/image-data/object-detection/prepare-data).
+
+    The following code shows you how to create an image dataset by importing data from
+    a CSV datasource file and a YAML schema file. The schema file you use
+    depends on whether your image dataset is used for single-label
+    classification, multi-label classification, or object detection.
+
+    ```py
+    my_dataset = aiplatform.ImageDataset.create(
+        display_name="my-image-dataset",
+        gcs_source=['gs://path/to/my/image-dataset.csv'],
+        import_schema_uri=['gs://path/to/my/schema.yaml']
+    )
+    ```
+    """
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.image,
@@ -49,84 +76,88 @@ class ImageDataset(datasets._Dataset):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> "ImageDataset":
-        """Creates a new image dataset and optionally imports data into dataset
-        when source and import_schema_uri are passed.
+        """Creates a new image dataset.
+
+        Optionally imports data into the dataset when a source and
+        `import_schema_uri` are passed in.
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
+                Optional. The user-defined name of the dataset. The name must
+                contain 128 or fewer UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
-                Google Cloud Storage URI(-s) to the
-                input file(s).
-
-                Examples:
-                    str: "gs://bucket/file.csv"
-                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+                Optional. The URI to one or more Google Cloud Storage buckets
+                that contain your datasets. For example, `str:
+                "gs://bucket/file.csv"` or `Sequence[str]:
+                ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]`.
             import_schema_uri (str):
-                Points to a YAML file stored on Google Cloud
-                Storage describing the import format. Validation will be
-                done against the schema. The schema is defined as an
-                `OpenAPI 3.0.2 Schema
-                Object <https://tinyurl.com/y538mdwt>`__.
+                Optional. A URI for a YAML file stored in Cloud Storage that
+                describes the import schema used to validate the
+                dataset. The schema is an
+                [OpenAPI 3.0.2 Schema](https://tinyurl.com/y538mdwt) object.
             data_item_labels (Dict):
-                Labels that will be applied to newly imported DataItems. If
-                an identical DataItem as one being imported already exists
-                in the Dataset, then these labels will be appended to these
-                of the already existing one, and if labels with identical
-                key is imported before, the old label value will be
-                overwritten. If two DataItems are identical in the same
-                import data operation, the labels will be combined and if
-                key collision happens in this case, one of the values will
-                be picked randomly. Two DataItems are considered identical
-                if their content bytes are identical (e.g. image bytes or
-                pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file referenced by
-                ``import_schema_uri``,
-                e.g. jsonl file.
+                Optional. A dictionary of label information. Each dictionary
+                item contains a label and a label key. Each image in the dataset
+                includes one dictionary of label information. If a data item is
+                added or merged into a dataset, and that data item contains an
+                image that's identical to an image that’s already in the
+                dataset, then the data items are merged. If two identical labels
+                are detected during the merge, each with a different label key,
+                then one of the label and label key dictionary items is randomly
+                chosen to be into the merged data item. Images and documents are
+                compared using their binary data (bytes), not on their content.
+                If annotation labels are referenced in a schema specified by the
+                `import_schema_url` parameter, then the labels in the
+                `data_item_labels` dictionary are overriden by the annotations.
             project (str):
-                Project to upload this dataset to. Overrides project set in
-                aiplatform.init.
+                Optional. The name of the Google Cloud project to which this
+                `ImageDataset` is uploaded. This overrides the project that
+                was set by `aiplatform.init`.
             location (str):
-                Location to upload this dataset to. Overrides location set in
-                aiplatform.init.
+                Optional. The Google Cloud region where this dataset is uploaded. This
+                region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this dataset. Overrides
-                credentials set in aiplatform.init.
+                Optional. The credentials that are used to upload the
+                `ImageDataset`. These credentials override the credentials set
+                by `aiplatform.init`.
             request_metadata (Sequence[Tuple[str, str]]):
-                Strings which should be sent along with the request as metadata.
+                Optional. Strings that contain metadata that's sent with the request.
             labels (Dict[str, str]):
-                Optional. Labels with user-defined metadata to organize your Tensorboards.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters, numeric
-                characters, underscores and dashes. International characters are allowed.
-                No more than 64 user labels can be associated with one Tensorboard
-                (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples of labels.
-                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
-                and are immutable.
+                Optional. Labels with user-defined metadata to organize your
+                Vertex AI Tensorboards. The maximum length of a key and of a
+                value is 64 unicode characters. Labels and keys can contain only
+                lowercase letters, numeric characters, underscores, and dashes.
+                International characters are allowed. No more than 64 user
+                labels can be associated with one Tensorboard (system labels are
+                excluded). For more information and examples of using labels, see
+                [Using labels to organize Google Cloud Platform resources](https://goo.gl/xmQnxf).
+                System reserved label keys are prefixed with
+                `aiplatform.googleapis.com/` and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the dataset. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                managed encryption key that's used to protect the dataset. The
+                format of the key is
+                `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If `encryption_spec_key_name` is set, this image dataset and
+                all of its sub-resources are secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
+                This `encryption_spec_key_name` overrides the
+                `encryption_spec_key_name` set by `aiplatform.init`.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                If `true`, the `create` method creates an image dataset
+                synchronously. If `false`, the `create` method creates an image
+                dataset asynchronously.
             create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
+                Optional. The number of seconds for the timeout of the create
+                request.
 
         Returns:
             image_dataset (ImageDataset):
-                Instantiated representation of the managed image dataset resource.
+                An instantiated representation of the managed `ImageDataset`
+                resource.
         """
         if not display_name:
             display_name = cls._generate_display_name()

@@ -78,11 +78,11 @@ Windows
 
 Supported Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Python >= 3.7
+Python >= 3.8
 
 Deprecated Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Python == 3.6.
+Python <= 3.7.
 
 The last version of this library compatible with Python 3.6 is google-cloud-aiplatform==1.12.1.
 
@@ -107,12 +107,23 @@ If none of the above scenarios could help you find the right tools for your task
 
 Importing
 ^^^^^^^^^
-SDK functionality can be used from the root of the package:
+Vertex AI SDK resource based functionality can be used by importing the following namespace:
 
 .. code-block:: Python
 
     from google.cloud import aiplatform
 
+Vertex AI SDK preview functionality can be used by importing the following namespace:
+
+.. code-block:: Python
+
+    from vertexai import preview
+
+Vertex AI SDK general availability (GA) functionality can be used by importing the following namespace:
+
+.. code-block:: Python
+
+    import vertexai
 
 Initialization
 ^^^^^^^^^^^^^^
@@ -170,8 +181,8 @@ You can also create and import a dataset in separate steps:
     my_dataset = aiplatform.TextDataset.create(
         display_name="my-dataset")
 
-    my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
+    my_dataset.import_data(
+        gcs_source=['gs://path/to/my/dataset.csv'],
         import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
     )
 

@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import itertools
 import json
 import pathlib
 import re
@@ -23,6 +24,7 @@ import requests
 from typing import (
     Any,
     Dict,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -36,6 +38,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+from google.protobuf import duration_pb2
 import proto
 
 from google.cloud import aiplatform
@@ -48,10 +51,16 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import _explanation_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform import model_evaluation
 from google.cloud.aiplatform.compat.services import endpoint_service_client
+from google.cloud.aiplatform.compat.services import (
+    deployment_resource_pool_service_client,
+)
 
 from google.cloud.aiplatform.compat.types import (
+    deployment_resource_pool as gca_deployment_resource_pool_compat,
+    deployed_model_ref as gca_deployed_model_ref_compat,
     encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint_compat,
     explanation as gca_explanation_compat,
@@ -60,6 +69,7 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     model_service as gca_model_service_compat,
     env_var as gca_env_var_compat,
+    service_networking as gca_service_networking,
 )
 
 from google.cloud.aiplatform.constants import (
@@ -91,6 +101,11 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "model.mar",
     "saved_model.pb",
     "saved_model.pbtxt",
+]
+
+_SUPPORTED_EVAL_PREDICTION_TYPES = [
+    "classification",
+    "regression",
 ]
 
 
@@ -138,6 +153,8 @@ class Prediction(NamedTuple):
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
+        metadata:
+            The metadata that is the output of the predictions call.
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
@@ -149,13 +166,448 @@ class Prediction(NamedTuple):
 
     predictions: List[Any]
     deployed_model_id: str
+    metadata: Optional[Any] = None
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
-class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
+class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
+    client_class = utils.DeploymentResourcePoolClientWithOverride
+    _resource_noun = "deploymentResourcePools"
+    _getter_method = "get_deployment_resource_pool"
+    _list_method = "list_deployment_resource_pools"
+    _delete_method = "delete_deployment_resource_pool"
+    _parse_resource_name_method = "parse_deployment_resource_pool_path"
+    _format_resource_name_method = "deployment_resource_pool_path"
 
+    def __init__(
+        self,
+        deployment_resource_pool_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves a DeploymentResourcePool.
+
+        Args:
+            deployment_resource_pool_name (str):
+                Required. The fully-qualified resource name or ID of the
+                deployment resource pool. Example:
+                "projects/123/locations/us-central1/deploymentResourcePools/456"
+                or "456" when project and location are initialized or passed.
+            project (str):
+                Optional. Project containing the deployment resource pool to
+                retrieve. If not set, the project given to `aiplatform.init`
+                will be used.
+            location (str):
+                Optional. Location containing the deployment resource pool to
+                retrieve. If not set, the location given to `aiplatform.init`
+                will be used.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to use to retrieve the deployment resource
+                pool. If not set, the credentials given to `aiplatform.init`
+                will be used.
+        """
+
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=deployment_resource_pool_name,
+        )
+
+        deployment_resource_pool_name = utils.full_resource_name(
+            resource_name=deployment_resource_pool_name,
+            resource_noun=self._resource_noun,
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
+            project=project,
+            location=location,
+        )
+
+        self._gca_resource = self._get_gca_resource(
+            resource_name=deployment_resource_pool_name
+        )
+
+    @classmethod
+    def create(
+        cls,
+        deployment_resource_pool_id: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+        credentials: Optional[auth_credentials.Credentials] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        sync=True,
+        create_request_timeout: Optional[float] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
+    ) -> "DeploymentResourcePool":
+        """Creates a new DeploymentResourcePool.
+
+        Args:
+            deployment_resource_pool_id (str):
+                Required. User-specified name for the new deployment resource
+                pool.
+            project (str):
+                Optional. Project containing the deployment resource pool to
+                retrieve. If not set, the project given to `aiplatform.init`
+                will be used.
+            location (str):
+                Optional. Location containing the deployment resource pool to
+                retrieve. If not set, the location given to `aiplatform.init`
+                will be used.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Optional. Custom credentials to use to retrieve the deployment
+                resource pool. If not set, the credentials given to
+                `aiplatform.init` will be used.
+            machine_type (str):
+                Optional. Machine type to use for the deployment resource pool.
+                If not set, the default machine type of `n1-standard-2` is
+                used.
+            min_replica_count (int):
+                Optional. The minimum replica count of the new deployment
+                resource pool. Each replica serves a copy of each model deployed
+                on the deployment resource pool. If this value is less than
+                `max_replica_count`, then autoscaling is enabled, and the actual
+                number of replicas will be adjusted to bring resource usage in
+                line with the autoscaling targets.
+            max_replica_count (int):
+                Optional. The maximum replica count of the new deployment
+                resource pool.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_
+                count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, or
+                NVIDIA_TESLA_A100.
+            accelerator_count (int):
+                Optional. The number of accelerators attached to each replica.
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU utilization value for autoscaling. A
+                default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target accelerator duty cycle percentage to use for
+                autoscaling. Must also set accelerator_type and accelerator
+                count if specified. A default value of 60 will be used if
+                accelerators are requested and this is not specified.
+            sync (bool):
+                Optional. Whether to execute this method synchronously. If
+                False, this method will be executed in a concurrent Future and
+                any downstream object will be immediately returned and synced
+                when the Future has completed.
+            create_request_timeout (float):
+                Optional. The create request timeout in seconds.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
+
+        Returns:
+            DeploymentResourcePool
+        """
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        project = project or initializer.global_config.project
+        location = location or initializer.global_config.location
+
+        return cls._create(
+            api_client=api_client,
+            deployment_resource_pool_id=deployment_resource_pool_id,
+            project=project,
+            location=location,
+            metadata=metadata,
+            credentials=credentials,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @classmethod
+    @base.optional_sync()
+    def _create(
+        cls,
+        api_client: deployment_resource_pool_service_client.DeploymentResourcePoolServiceClient,
+        deployment_resource_pool_id: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+        credentials: Optional[auth_credentials.Credentials] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
+        sync=True,
+        create_request_timeout: Optional[float] = None,
+    ) -> "DeploymentResourcePool":
+        """Creates a new DeploymentResourcePool.
+
+        Args:
+            api_client (DeploymentResourcePoolServiceClient):
+                Required. DeploymentResourcePoolServiceClient used to make the
+                underlying CreateDeploymentResourcePool API call.
+            deployment_resource_pool_id (str):
+                Required. User-specified name for the new deployment resource
+                pool.
+            project (str):
+                Optional. Project containing the deployment resource pool to
+                retrieve. If not set, the project given to `aiplatform.init`
+                will be used.
+            location (str):
+                Optional. Location containing the deployment resource pool to
+                retrieve. If not set, the location given to `aiplatform.init`
+                will be used.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Optional. Custom credentials to use to retrieve the deployment
+                resource pool. If not set, the credentials given to
+                `aiplatform.init` will be used.
+            machine_type (str):
+                Optional. Machine type to use for the deployment resource pool.
+                If not set, the default machine type of `n1-standard-2` is
+                used.
+            min_replica_count (int):
+                Optional. The minimum replica count of the new deployment
+                resource pool. Each replica serves a copy of each model deployed
+                on the deployment resource pool. If this value is less than
+                `max_replica_count`, then autoscaling is enabled, and the actual
+                number of replicas will be adjusted to bring resource usage in
+                line with the autoscaling targets.
+            max_replica_count (int):
+                Optional. The maximum replica count of the new deployment
+                resource pool.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_
+                count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, or
+                NVIDIA_TESLA_A100.
+            accelerator_count (int):
+                Optional. The number of accelerators attached to each replica.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU utilization value for autoscaling. A
+                default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target accelerator duty cycle percentage to use for
+                autoscaling. Must also set accelerator_type and accelerator
+                count if specified. A default value of 60 will be used if
+                accelerators are requested and this is not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
+            sync (bool):
+                Optional. Whether to execute this method synchronously. If
+                False, this method will be executed in a concurrent Future and
+                any downstream object will be immediately returned and synced
+                when the Future has completed.
+            create_request_timeout (float):
+                Optional. The create request timeout in seconds.
+
+        Returns:
+            DeploymentResourcePool
+        """
+
+        parent = initializer.global_config.common_location_path(
+            project=project, location=location
+        )
+
+        dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            spot=spot,
+        )
+
+        machine_spec = gca_machine_resources_compat.MachineSpec(
+            machine_type=machine_type
+        )
+
+        if autoscaling_target_cpu_utilization:
+            autoscaling_metric_spec = (
+                gca_machine_resources_compat.AutoscalingMetricSpec(
+                    metric_name=(
+                        "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+                    ),
+                    target=autoscaling_target_cpu_utilization,
+                )
+            )
+            dedicated_resources.autoscaling_metric_specs.extend(
+                [autoscaling_metric_spec]
+            )
+
+        if accelerator_type and accelerator_count:
+            utils.validate_accelerator_type(accelerator_type)
+            machine_spec.accelerator_type = accelerator_type
+            machine_spec.accelerator_count = accelerator_count
+
+            if autoscaling_target_accelerator_duty_cycle:
+                autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                    metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
+                    target=autoscaling_target_accelerator_duty_cycle,
+                )
+                dedicated_resources.autoscaling_metric_specs.extend(
+                    [autoscaling_metric_spec]
+                )
+
+        if reservation_affinity_type:
+            machine_spec.reservation_affinity = utils.get_reservation_affinity(
+                reservation_affinity_type,
+                reservation_affinity_key,
+                reservation_affinity_values,
+            )
+
+        dedicated_resources.machine_spec = machine_spec
+
+        gapic_drp = gca_deployment_resource_pool_compat.DeploymentResourcePool(
+            dedicated_resources=dedicated_resources
+        )
+
+        operation_future = api_client.create_deployment_resource_pool(
+            parent=parent,
+            deployment_resource_pool=gapic_drp,
+            deployment_resource_pool_id=deployment_resource_pool_id,
+            metadata=metadata,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_with_lro(cls, operation_future)
+
+        created_drp = operation_future.result()
+
+        _LOGGER.log_create_complete(cls, created_drp, "deployment resource pool")
+
+        return cls._construct_sdk_resource_from_gapic(
+            gapic_resource=created_drp,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+    def query_deployed_models(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[gca_deployed_model_ref_compat.DeployedModelRef]:
+        """Lists the deployed models using this resource pool.
+
+        Args:
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List of DeployedModelRef objects containing the endpoint ID and
+            deployed model ID of the deployed models using this resource pool.
+        """
+        location = location or initializer.global_config.location
+        api_client = DeploymentResourcePool._instantiate_client(
+            location=location, credentials=credentials
+        )
+        response = api_client.query_deployed_models(
+            deployment_resource_pool=self.resource_name
+        )
+        return list(
+            itertools.chain(page.deployed_model_refs for page in response.pages)
+        )
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.DeploymentResourcePool"]:
+        """Lists the deployment resource pools.
+
+        filter (str):
+            Optional. An expression for filtering the results of the request.
+            For field names both snake_case and camelCase are supported.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by, sorted in
+            ascending order. Use "desc" after a field name for descending.
+            Supported fields: `display_name`, `create_time`, `update_time`
+        project (str):
+            Optional. Project to retrieve list from. If not set, project
+            set in aiplatform.init will be used.
+        location (str):
+            Optional. Location to retrieve list from. If not set, location
+            set in aiplatform.init will be used.
+        credentials (auth_credentials.Credentials):
+            Optional. Custom credentials to use to retrieve list. Overrides
+            credentials set in aiplatform.init.
+
+        Returns:
+            List of deployment resource pools.
+        """
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+
+class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
@@ -221,12 +673,39 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
-        self._prediction_client = self._instantiate_prediction_client(
-            location=self.location,
-            credentials=credentials,
-        )
         self.authorized_session = None
         self.raw_predict_request_url = None
+        self.stream_raw_predict_request_url = None
+
+    @property
+    def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_client_value", None):
+            self._prediction_client_value = initializer.global_config.create_client(
+                client_class=utils.PredictionClientWithOverride,
+                credentials=self.credentials,
+                location_override=self.location,
+                prediction_client=True,
+            )
+        return self._prediction_client_value
+
+    @property
+    def _prediction_async_client(self) -> utils.PredictionAsyncClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_async_client_value", None):
+            self._prediction_async_client_value = (
+                initializer.global_config.create_client(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=self.credentials,
+                    location_override=self.location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_async_client_value
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -278,6 +757,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "network", None)
 
+    @property
+    def private_service_connect_config(
+        self,
+    ) -> Optional[gca_service_networking.PrivateServiceConnectConfig]:
+        """The Private Service Connect configuration for this Endpoint."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.private_service_connect_config
+
     @classmethod
     def create(
         cls,
@@ -319,10 +806,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
+                Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
@@ -428,6 +915,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         predict_request_response_logging_config: Optional[
             gca_endpoint_compat.PredictRequestResponseLoggingConfig
         ] = None,
+        private_service_connect_config: Optional[
+            gca_service_networking.PrivateServiceConnectConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -440,11 +930,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
+                Required. Project to retrieve endpoint from.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
+                Required. Location to retrieve endpoint from.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -473,8 +961,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
+                Cannot be specified when private_service_connect is enabled.
                 Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
@@ -492,6 +981,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 that are not included in either the URI or the body.
             predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
                 Optional. The request response logging configuration for online prediction.
+            private_service_connect_config (aiplatform.service_network.PrivateServiceConnectConfig):
+                If enabled, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be enabled when network is specified.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -509,6 +1001,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             encryption_spec=encryption_spec,
             network=network,
             predict_request_response_logging_config=predict_request_response_logging_config,
+            private_service_connect_config=private_service_connect_config,
         )
 
         operation_future = api_client.create_endpoint(
@@ -566,13 +1059,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             location=location,
             credentials=credentials,
         )
-
-        endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location,
-            credentials=credentials,
-        )
         endpoint.authorized_session = None
         endpoint.raw_predict_request_url = None
+        endpoint.stream_raw_predict_request_url = None
 
         return endpoint
 
@@ -657,12 +1146,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     @staticmethod
     def _validate_deploy_args(
-        min_replica_count: int,
-        max_replica_count: int,
+        min_replica_count: Optional[int],
+        max_replica_count: Optional[int],
         accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: Optional[int],
+        deployment_resource_pool: Optional[DeploymentResourcePool],
     ):
         """Helper method to validate deploy arguments.
 
@@ -705,15 +1195,45 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 not be provided. Traffic of previously deployed models at the endpoint
                 will be scaled down to accommodate new deployed model's traffic.
                 Should not be provided if traffic_split is provided.
+            deployment_resource_pool (DeploymentResourcePool): Optional.
+                Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
 
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
         """
-        if min_replica_count < 0:
-            raise ValueError("Min replica cannot be negative.")
-        if max_replica_count < 0:
-            raise ValueError("Max replica cannot be negative.")
+        if deployment_resource_pool:
+            # Validate that replica count and deployment resource pool are not
+            # both specified.
+            if (
+                min_replica_count
+                and min_replica_count != 1
+                or max_replica_count
+                and max_replica_count != 1
+            ):
+                raise ValueError(
+                    "Ignoring explicitly specified replica counts, "
+                    "since deployment_resource_pool was also given."
+                )
+            if accelerator_type:
+                raise ValueError(
+                    "Conflicting deployment parameters were given."
+                    "deployment_resource_pool may not be specified at the same"
+                    "time as accelerator_type. "
+                )
+        else:
+            # Validate that a non-negative replica count is given, and validate
+            # the accelerator type.
+            if min_replica_count < 0:
+                raise ValueError("Min replica cannot be negative.")
+            if max_replica_count < 0:
+                raise ValueError("Max replica cannot be negative.")
+            if accelerator_type:
+                utils.validate_accelerator_type(accelerator_type)
+
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
 
@@ -729,10 +1249,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-        # Raises ValueError if invalid accelerator
-        if accelerator_type:
-            utils.validate_accelerator_type(accelerator_type)
-
     def deploy(
         self,
         model: "Model",
@@ -744,6 +1260,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -755,6 +1272,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
+        deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -804,6 +1327,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -837,6 +1363,28 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
+            deployment_resource_pool (DeploymentResourcePool):
+                Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -847,6 +1395,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -864,6 +1413,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -871,7 +1424,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
     @base.optional_sync()
@@ -886,6 +1442,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -893,7 +1453,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
+        deployment_resource_pool: Optional[DeploymentResourcePool] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -943,6 +1506,21 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -968,8 +1546,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
+            deployment_resource_pool (DeploymentResourcePool):
+                Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -989,13 +1577,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1018,13 +1613,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
+        deployment_resource_pool: Optional[DeploymentResourcePool] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1084,6 +1686,21 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1091,6 +1708,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
+                If not specified, uses the service account set in aiplatform.init.
             explanation_spec (aiplatform.explain.ExplanationSpec):
                 Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
@@ -1105,123 +1723,193 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
+            deployment_resource_pool (DeploymentResourcePool):
+                Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
             ValueError: If model does not support deployment.
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
+            ValueError: If `deployment_resource_pool` and a custom machine spec
+                are both present.
+            ValueError: If both `explanation_spec` and `deployment_resource_pool`
+                are present.
         """
+        service_account = service_account or initializer.global_config.service_account
 
-        max_replica_count = max(min_replica_count, max_replica_count)
-
-        if bool(accelerator_type) != bool(accelerator_count):
-            raise ValueError(
-                "Both `accelerator_type` and `accelerator_count` should be specified or None."
+        if deployment_resource_pool:
+            deployed_model = gca_endpoint_compat.DeployedModel(
+                model=model.versioned_resource_name,
+                display_name=deployed_model_display_name,
+                service_account=service_account,
+                disable_container_logging=disable_container_logging,
             )
 
-        if autoscaling_target_accelerator_duty_cycle is not None and (
-            not accelerator_type or not accelerator_count
-        ):
-            raise ValueError(
-                "Both `accelerator_type` and `accelerator_count` should be set "
-                "when specifying autoscaling_target_accelerator_duty_cycle`"
+            supports_shared_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
+                in model.supported_deployment_resources_types
             )
 
-        deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model.versioned_resource_name,
-            display_name=deployed_model_display_name,
-            service_account=service_account,
-            enable_access_logging=enable_access_logging,
-        )
-
-        supports_automatic_resources = (
-            gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
-            in model.supported_deployment_resources_types
-        )
-        supports_dedicated_resources = (
-            gca_model_compat.Model.DeploymentResourcesType.DEDICATED_RESOURCES
-            in model.supported_deployment_resources_types
-        )
-        provided_custom_machine_spec = (
-            machine_type
-            or accelerator_type
-            or accelerator_count
-            or autoscaling_target_accelerator_duty_cycle
-            or autoscaling_target_cpu_utilization
-        )
-
-        # If the model supports both automatic and dedicated deployment resources,
-        # decide based on the presence of machine spec customizations
-        use_dedicated_resources = supports_dedicated_resources and (
-            not supports_automatic_resources or provided_custom_machine_spec
-        )
-
-        if provided_custom_machine_spec and not use_dedicated_resources:
-            _LOGGER.info(
-                "Model does not support dedicated deployment resources. "
-                "The machine_type, accelerator_type and accelerator_count,"
-                "autoscaling_target_accelerator_duty_cycle,"
-                "autoscaling_target_cpu_utilization parameters are ignored."
-            )
-
-        if use_dedicated_resources and not machine_type:
-            machine_type = _DEFAULT_MACHINE_TYPE
-            _LOGGER.info(f"Using default machine_type: {machine_type}")
-
-        if use_dedicated_resources:
-
-            dedicated_resources = gca_machine_resources_compat.DedicatedResources(
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
-            )
-
-            machine_spec = gca_machine_resources_compat.MachineSpec(
-                machine_type=machine_type
-            )
-
-            if autoscaling_target_cpu_utilization:
-                autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
-                    metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
-                    target=autoscaling_target_cpu_utilization,
-                )
-                dedicated_resources.autoscaling_metric_specs.extend(
-                    [autoscaling_metric_spec]
+            if not supports_shared_resources:
+                raise ValueError(
+                    "`deployment_resource_pool` may only be specified for models "
+                    " which support shared resources."
                 )
 
-            if accelerator_type and accelerator_count:
-                utils.validate_accelerator_type(accelerator_type)
-                machine_spec.accelerator_type = accelerator_type
-                machine_spec.accelerator_count = accelerator_count
+            provided_custom_machine_spec = (
+                machine_type
+                or accelerator_type
+                or accelerator_count
+                or autoscaling_target_accelerator_duty_cycle
+                or autoscaling_target_cpu_utilization
+            )
 
-                if autoscaling_target_accelerator_duty_cycle:
+            if provided_custom_machine_spec:
+                raise ValueError(
+                    "Conflicting parameters in deployment request. "
+                    "The machine_type, accelerator_type and accelerator_count,"
+                    "autoscaling_target_accelerator_duty_cycle,"
+                    "autoscaling_target_cpu_utilization parameters may not be set "
+                    "when `deployment_resource_pool` is specified."
+                )
+
+            deployed_model.shared_resources = deployment_resource_pool.resource_name
+
+            if explanation_spec:
+                raise ValueError(
+                    "Model explanation is not supported for deployments using "
+                    "shared resources."
+                )
+        else:
+            max_replica_count = max(min_replica_count, max_replica_count)
+
+            if bool(accelerator_type) != bool(accelerator_count):
+                raise ValueError(
+                    "Both `accelerator_type` and `accelerator_count` should be specified or None."
+                )
+
+            if autoscaling_target_accelerator_duty_cycle is not None and (
+                not accelerator_type or not accelerator_count
+            ):
+                raise ValueError(
+                    "Both `accelerator_type` and `accelerator_count` should be set "
+                    "when specifying autoscaling_target_accelerator_duty_cycle`"
+                )
+
+            deployed_model = gca_endpoint_compat.DeployedModel(
+                model=model.versioned_resource_name,
+                display_name=deployed_model_display_name,
+                service_account=service_account,
+                enable_access_logging=enable_access_logging,
+                disable_container_logging=disable_container_logging,
+            )
+
+            supports_automatic_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+                in model.supported_deployment_resources_types
+            )
+            supports_dedicated_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+                in model.supported_deployment_resources_types
+            )
+            provided_custom_machine_spec = (
+                machine_type
+                or accelerator_type
+                or accelerator_count
+                or autoscaling_target_accelerator_duty_cycle
+                or autoscaling_target_cpu_utilization
+            )
+
+            # If the model supports both automatic and dedicated deployment resources,
+            # decide based on the presence of machine spec customizations
+            use_dedicated_resources = supports_dedicated_resources and (
+                not supports_automatic_resources or provided_custom_machine_spec
+            )
+
+            if provided_custom_machine_spec and not use_dedicated_resources:
+                _LOGGER.info(
+                    "Model does not support dedicated deployment resources. "
+                    "The machine_type, accelerator_type and accelerator_count,"
+                    "autoscaling_target_accelerator_duty_cycle,"
+                    "autoscaling_target_cpu_utilization parameters are ignored."
+                )
+
+            if use_dedicated_resources and not machine_type:
+                machine_type = _DEFAULT_MACHINE_TYPE
+                _LOGGER.info(f"Using default machine_type: {machine_type}")
+
+            if use_dedicated_resources:
+                dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                    spot=spot,
+                )
+
+                machine_spec = gca_machine_resources_compat.MachineSpec(
+                    machine_type=machine_type
+                )
+
+                if autoscaling_target_cpu_utilization:
                     autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
-                        metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
-                        target=autoscaling_target_accelerator_duty_cycle,
+                        metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
+                        target=autoscaling_target_cpu_utilization,
                     )
                     dedicated_resources.autoscaling_metric_specs.extend(
                         [autoscaling_metric_spec]
                     )
 
-            dedicated_resources.machine_spec = machine_spec
-            deployed_model.dedicated_resources = dedicated_resources
+                if accelerator_type and accelerator_count:
+                    utils.validate_accelerator_type(accelerator_type)
+                    machine_spec.accelerator_type = accelerator_type
+                    machine_spec.accelerator_count = accelerator_count
 
-        elif supports_automatic_resources:
-            deployed_model.automatic_resources = (
-                gca_machine_resources_compat.AutomaticResources(
-                    min_replica_count=min_replica_count,
-                    max_replica_count=max_replica_count,
+                    if autoscaling_target_accelerator_duty_cycle:
+                        autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
+                            target=autoscaling_target_accelerator_duty_cycle,
+                        )
+                        dedicated_resources.autoscaling_metric_specs.extend(
+                            [autoscaling_metric_spec]
+                        )
+
+                if reservation_affinity_type:
+                    machine_spec.reservation_affinity = utils.get_reservation_affinity(
+                        reservation_affinity_type,
+                        reservation_affinity_key,
+                        reservation_affinity_values,
+                    )
+
+                if tpu_topology is not None:
+                    machine_spec.tpu_topology = tpu_topology
+
+                dedicated_resources.machine_spec = machine_spec
+                deployed_model.dedicated_resources = dedicated_resources
+
+            elif supports_automatic_resources:
+                deployed_model.automatic_resources = (
+                    gca_machine_resources_compat.AutomaticResources(
+                        min_replica_count=min_replica_count,
+                        max_replica_count=max_replica_count,
+                    )
                 )
-            )
-        else:
-            _LOGGER.warning(
-                "Model does not support deployment. "
-                "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
-            )
+            else:
+                _LOGGER.warning(
+                    "Model does not support deployment. "
+                    "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
+                )
 
-        deployed_model.explanation_spec = explanation_spec
+            deployed_model.explanation_spec = explanation_spec
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
@@ -1375,31 +2063,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # update local resource
         self._sync_gca_resource()
 
-    @staticmethod
-    def _instantiate_prediction_client(
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.PredictionClientWithOverride:
-        """Helper method to instantiates prediction client with optional
-        overrides for this endpoint.
-
-        Args:
-            location (str): The location of this endpoint.
-            credentials (google.auth.credentials.Credentials):
-                Optional custom credentials to use when accessing interacting with
-                the prediction client.
-
-        Returns:
-            prediction_client (prediction_service_client.PredictionServiceClient):
-                Initialized prediction client with optional overrides.
-        """
-        return initializer.global_config.create_client(
-            client_class=utils.PredictionClientWithOverride,
-            credentials=credentials,
-            location_override=location,
-            prediction_client=True,
-        )
-
     def update(
         self,
         display_name: Optional[str] = None,
@@ -1545,6 +2208,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
+                metadata=json_response.get("metadata"),
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
@@ -1562,16 +2226,85 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
+            if prediction_response._pb.metadata:
+                metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            else:
+                metadata = None
 
             return Prediction(
                 predictions=[
                     json_format.MessageToDict(item)
                     for item in prediction_response.predictions.pb
                 ],
+                metadata=metadata,
                 deployed_model_id=prediction_response.deployed_model_id,
                 model_version_id=prediction_response.model_version_id,
                 model_resource_name=prediction_response.model,
             )
+
+    async def predict_async(
+        self,
+        instances: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make an asynchronous prediction against this Endpoint.
+        Example usage:
+            ```
+            response = await my_endpoint.predict_async(instances=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.predict(
+            endpoint=self._gca_resource.name,
+            instances=instances,
+            parameters=parameters,
+            timeout=timeout,
+        )
+        if prediction_response._pb.metadata:
+            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+        else:
+            metadata = None
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.predictions.pb
+            ],
+            metadata=metadata,
+            deployed_model_id=prediction_response.deployed_model_id,
+            model_version_id=prediction_response.model_version_id,
+            model_resource_name=prediction_response.model,
+        )
 
     def raw_predict(
         self, body: bytes, headers: Dict[str, str]
@@ -1601,11 +2334,377 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             self.authorized_session = google_auth_requests.AuthorizedSession(
                 self.credentials
             )
+
+        if self.raw_predict_request_url is None:
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
         return self.authorized_session.post(
             url=self.raw_predict_request_url, data=body, headers=headers
         )
+
+    def stream_raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> Iterator[requests.models.Response]:
+        """Makes a streaming prediction request using arbitrary headers.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            for stream_response in my_endpoint.stream_raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            ):
+                status_code = response.status_code
+                stream_result = json.dumps(response.text)
+            ```
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not
+                exceed 10 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no
+                restrictions on the header.
+
+        Yields:
+            predictions (Iterator[requests.models.Response]):
+                The streaming prediction results.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+
+        if self.stream_raw_predict_request_url is None:
+            self.stream_raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
+
+        with self.authorized_session.post(
+            url=self.stream_raw_predict_request_url,
+            data=body,
+            headers=headers,
+            stream=True,
+        ) as resp:
+            for line in resp.iter_lines():
+                yield line
+
+    def direct_predict(
+        self,
+        inputs: List,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Args:
+            inputs (List):
+                Required. The inputs that are the input to the prediction call.
+                A DeployedModel may have an upper limit on the number of
+                instances it supports per request, and when it is exceeded the
+                prediction call errors in case of AutoML Models, or, in case of
+                customer created Models, the behaviour is as documented by that
+                Model. The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = self._prediction_client.direct_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "inputs": inputs,
+                "parameters": parameters,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.outputs.pb
+            ],
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    async def direct_predict_async(
+        self,
+        inputs: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes an asynchronous direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Example usage:
+            ```
+            response = await my_endpoint.direct_predict_async(inputs=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            inputs (List):
+                Required. The inputs that are the input to the prediction call.
+                A DeployedModel may have an upper limit on the number of
+                instances it supports per request, and when it is exceeded the
+                prediction call errors in case of AutoML Models, or, in case of
+                customer created Models, the behaviour is as documented by that
+                Model. The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.direct_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "inputs": inputs,
+                "parameters": parameters,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.outputs.pb
+            ],
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    def stream_direct_predict(
+        self,
+        inputs_iterator: Iterator[List],
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Iterator[Prediction]:
+        """Makes a streaming direct (gRPC) prediction against this Endpoint for a pre-built image.
+
+        Args:
+            inputs_iterator (Iterator[List]):
+                Required. An iterator of the inputs that are the input to the
+                prediction call. A DeployedModel may have an upper limit on the
+                number of instances it supports per request, and when it is
+                exceeded the prediction call errors in case of AutoML Models, or,
+                in case of customer created Models, the behaviour is as
+                documented by that Model. The schema of any single instance may
+                be specified via Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema
+                of the parameters may be specified via Endpoint's
+                DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Yields:
+            predictions (Iterator[aiplatform.Prediction]):
+                The resulting streamed predictions.
+        """
+        self.wait()
+        for resp in self._prediction_client.stream_direct_predict(
+            requests=(
+                {
+                    "endpoint": self._gca_resource.name,
+                    "inputs": inputs,
+                    "parameters": parameters,
+                }
+                for inputs in inputs_iterator
+            ),
+            timeout=timeout,
+        ):
+            yield Prediction(
+                predictions=[
+                    json_format.MessageToDict(item) for item in resp.outputs.pb
+                ],
+                metadata=None,
+                deployed_model_id=None,
+                model_version_id=None,
+                model_resource_name=None,
+            )
+
+    def direct_raw_predict(
+        self,
+        method_name: str,
+        request: bytes,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction request using arbitrary headers for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = my_endpoint.direct_raw_predict(request=b'...')
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            request (bytes):
+                The body of the prediction request in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = self._prediction_client.direct_raw_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "method_name": method_name,
+                "input": request,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=prediction_response.output,
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    async def direct_raw_predict_async(
+        self,
+        method_name: str,
+        request: bytes,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Makes a direct (gRPC) prediction request for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = await my_endpoint.direct_raw_predict(request=b'...')
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            request (bytes):
+                The body of the prediction request in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                The resulting prediction.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.direct_raw_predict(
+            request={
+                "endpoint": self._gca_resource.name,
+                "method_name": method_name,
+                "input": request,
+            },
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=prediction_response.output,
+            metadata=None,
+            deployed_model_id=None,
+            model_version_id=None,
+            model_resource_name=None,
+        )
+
+    def stream_direct_raw_predict(
+        self,
+        method_name: str,
+        requests: Iterator[bytes],
+        timeout: Optional[float] = None,
+    ) -> Iterator[Prediction]:
+        """Makes a direct (gRPC) streaming prediction request for a custom container.
+
+        Example usage:
+            ```
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            for stream_response in my_endpoint.stream_direct_raw_predict(
+                request=b'...'
+            ):
+                yield stream_response
+            ```
+
+        Args:
+            method_name (str):
+                Fully qualified name of the API method being invoked to perform
+                prediction.
+            requests (Iterator[bytes]):
+                The body of the prediction requests in bytes.
+            timeout (Optional[float]):
+                Optional. The timeout for this request in seconds.
+
+        Yields:
+            predictions (Iterator[aiplatform.Prediction]):
+                The resulting streamed predictions.
+        """
+        self.wait()
+
+        for resp in self._prediction_client.stream_direct_raw_predict(
+            requests=(
+                {
+                    "endpoint": self._gca_resource.name,
+                    "method_name": method_name,
+                    "input": request,
+                }
+                for request in requests
+            ),
+            timeout=timeout,
+        ):
+            yield Prediction(
+                predictions=resp.output,
+                metadata=None,
+                deployed_model_id=None,
+                model_version_id=None,
+                model_resource_name=None,
+            )
 
     def explain(
         self,
@@ -1668,6 +2767,70 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             explanations=explain_response.explanations,
         )
 
+    async def explain_async(
+        self,
+        instances: List[Dict],
+        *,
+        parameters: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make a prediction with explanations against this Endpoint.
+
+        Example usage:
+            ```
+            response = await my_endpoint.explain_async(instances=[...])
+            my_explanations = response.explanations
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            deployed_model_id (str):
+                Optional. If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions, explanations, and Model ID.
+        """
+        self.wait()
+
+        explain_response = await self._prediction_async_client.explain(
+            endpoint=self.resource_name,
+            instances=instances,
+            parameters=parameters,
+            deployed_model_id=deployed_model_id,
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=explain_response.explanations,
+        )
+
     @classmethod
     def list(
         cls,
@@ -1708,9 +2871,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
 
         return cls._list_with_local_order(
-            cls_filter=lambda ep: not bool(
-                ep.network
-            ),  # `network` is empty for public Endpoints
+            cls_filter=lambda ep: not bool(ep.network)
+            and not bool(ep.private_service_connect_config),
+            # `network` is empty and private_service_connect is not enabled for public Endpoints
             filter=filter,
             order_by=order_by,
             project=project,
@@ -1841,12 +3004,12 @@ class PrivateEndpoint(Endpoint):
             credentials=credentials,
         )
 
-        if not self.network:
+        if not self.network and not self.private_service_connect_config:
             raise ValueError(
                 "Please ensure the Endpoint being retrieved is a PrivateEndpoint."
             )
 
-        self._http_client = urllib3.PoolManager()
+        self._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
 
     @property
     def predict_http_uri(self) -> Optional[str]:
@@ -1869,6 +3032,30 @@ class PrivateEndpoint(Endpoint):
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
+    class PrivateServiceConnectConfig:
+        """Represents a Vertex AI PrivateServiceConnectConfig resource."""
+
+        _gapic_private_service_connect_config: gca_service_networking.PrivateServiceConnectConfig
+
+        def __init__(
+            self,
+            project_allowlist: Optional[Sequence[str]] = None,
+        ):
+            """PrivateServiceConnectConfig for a PrivateEndpoint.
+
+            Args:
+                project_allowlist (Sequence[str]):
+                    Optional. List of projects from which traffic can be accepted
+                    by the endpoint via [ServiceAttachment](https://cloud.google.com/vpc/docs/private-service-connect#service-attachments).
+                    If not set, the endpoint's project will be used.
+            """
+            self._gapic_private_service_connect_config = (
+                gca_service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=project_allowlist,
+                )
+            )
+
     @classmethod
     def create(
         cls,
@@ -1881,10 +3068,12 @@ class PrivateEndpoint(Endpoint):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
+        private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
     ) -> "PrivateEndpoint":
         """Creates a new PrivateEndpoint.
 
         Example usage:
+            For PSA based private endpoint:
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name="my_endpoint_name",
                 project="my_project_id",
@@ -1899,6 +3088,22 @@ class PrivateEndpoint(Endpoint):
                 network="projects/123456789123/global/networks/my_vpc"
             )
 
+        For PSC based private endpoint:
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                project="my_project_id",
+                location="us-central1",
+                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                    project_allowlist=["test-project"]),
+            )
+
+            or (when project and location are initialized)
+
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                    project_allowlist=["test-project"]),
+            )
         Args:
             display_name (str):
                 Required. The user-defined name of the Endpoint.
@@ -1915,6 +3120,7 @@ class PrivateEndpoint(Endpoint):
                 this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
                 If left unspecified, the network set with aiplatform.init will be used.
+                Cannot be set together with private_service_connect_config.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -1945,6 +3151,9 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            private_service_connect_config (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig):
+                [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect) configuration for the endpoint.
+                Cannot be set when network is specified.
 
         Returns:
             endpoint (aiplatform.PrivateEndpoint):
@@ -1963,10 +3172,22 @@ class PrivateEndpoint(Endpoint):
         location = location or initializer.global_config.location
         network = network or initializer.global_config.network
 
-        if not network:
+        if not network and not private_service_connect_config:
             raise ValueError(
-                "Please provide required argument `network` or set network"
+                "Please provide required argument `network` or"
+                "`private_service_connect_config`. You can also set network"
                 "using aiplatform.init(network=...)"
+            )
+        if network and private_service_connect_config:
+            raise ValueError(
+                "Argument `network` and `private_service_connect_config` enabled"
+                " mutually exclusive. You can only set one of them."
+            )
+
+        config = None
+        if private_service_connect_config:
+            config = (
+                private_service_connect_config._gapic_private_service_connect_config
             )
 
         return cls._create(
@@ -1982,6 +3203,7 @@ class PrivateEndpoint(Endpoint):
             ),
             network=network,
             sync=sync,
+            private_service_connect_config=config,
         )
 
     @classmethod
@@ -2029,7 +3251,7 @@ class PrivateEndpoint(Endpoint):
             credentials=credentials,
         )
 
-        endpoint._http_client = urllib3.PoolManager()
+        endpoint._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
 
         return endpoint
 
@@ -2091,13 +3313,42 @@ class PrivateEndpoint(Endpoint):
                 f"and that {url} is a valid URL."
             ) from exc
 
-    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+    def _validate_endpoint_override(self, endpoint_override: str) -> bool:
+        regex = re.compile("^[a-zA-Z0-9-.]+$")
+        return regex.match(endpoint_override) is not None
+
+    def predict(
+        self,
+        instances: List,
+        parameters: Optional[Dict] = None,
+        endpoint_override: Optional[str] = None,
+    ) -> Prediction:
         """Make a prediction against this PrivateEndpoint using a HTTP request.
-        This method must be called within the network the PrivateEndpoint is peered to.
-        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
+        For PSA based private endpoint, this method must be called within the
+        network the PrivateEndpoint is peered to. Otherwise, the predict() call
+        will fail with error code 404. To check, use `PrivateEndpoint.network`.
+
+        For PSC based priviate endpoint, the project where caller credential are
+        from must be allowlisted.
 
         Example usage:
+            PSA based private endpoint:
+
             response = my_private_endpoint.predict(instances=[...])
+            my_predictions = response.predictions
+
+            PSC based private endpoint:
+
+            After creating PSC Endpoint pointing to the endpoint's
+            ServiceAttachment, use the PSC Endpoint IP Address or DNS as
+            endpoint_override.
+
+            psc_endpoint_address = "10.0.1.23"
+            or
+            psc_endpoint_address = "test.my.prediction"
+
+            response = my_private_endpoint.predict(instances=[...],
+                endpoint_override=psc_endpoint_address)
             my_predictions = response.predictions
 
         Args:
@@ -2121,39 +3372,90 @@ class PrivateEndpoint(Endpoint):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
 
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction object with returned predictions and Model ID.
 
         Raises:
-            RuntimeError: If a model has not been deployed a request cannot be made.
+            RuntimeError: If a model has not been deployed a request cannot be
+                made for PSA based endpoint.
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                "Cannot make a predict request because a model has not been deployed on this Private"
-                "Endpoint. Please ensure a model has been deployed."
+        if self.network:
+            if not self._gca_resource.deployed_models:
+                raise RuntimeError(
+                    "Cannot make a predict request because a model has not been"
+                    "deployed on this Private Endpoint. Please ensure a model"
+                    "has been deployed."
+                )
+            response = self._http_request(
+                method="POST",
+                url=self.predict_http_uri,
+                body=json.dumps({"instances": instances}),
+                headers={"Content-Type": "application/json"},
+            )
+            prediction_response = json.loads(response.data)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=self._gca_resource.deployed_models[0].id,
             )
 
-        response = self._http_request(
-            method="POST",
-            url=self.predict_http_uri,
-            body=json.dumps({"instances": instances}),
-            headers={"Content-Type": "application/json"},
-        )
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make a predict request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
 
-        prediction_response = json.loads(response.data)
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
 
-        return Prediction(
-            predictions=prediction_response.get("predictions"),
-            deployed_model_id=self._gca_resource.deployed_models[0].id,
-        )
+            token = self.credentials.token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:predict"
+            response = self._http_request(
+                method="POST",
+                url=url,
+                body=json.dumps({"instances": instances}),
+                headers=headers,
+            )
+
+            prediction_response = json.loads(response.data)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=prediction_response.get("deployedModelId"),
+                model_resource_name=prediction_response.get("model"),
+                model_version_id=prediction_response.get("modelVersionId"),
+            )
 
     def raw_predict(
-        self, body: bytes, headers: Dict[str, str]
+        self,
+        body: bytes,
+        headers: Dict[str, str],
+        endpoint_override: Optional[str] = None,
     ) -> requests.models.Response:
         """Make a prediction request using arbitrary headers.
         This method must be called within the network the PrivateEndpoint is peered to.
@@ -2161,29 +3463,78 @@ class PrivateEndpoint(Endpoint):
 
         Example usage:
             my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+
+            # PSA based private endpint
             response = my_endpoint.raw_predict(
-                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
                 headers = {'Content-Type':'application/json'}
             )
+            # PSC based private endpoint
+
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
+                headers = {'Content-Type':'application/json'},
+                endpoint_override = "10.1.0.23"
+            )
+
             status_code = response.status_code
             results = json.dumps(response.text)
 
         Args:
             body (bytes):
-                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+                The body of the prediction request in bytes. This must not
+                exceed 1.5 mb per request.
             headers (Dict[str, str]):
-                The header of the request as a dictionary. There are no restrictions on the header.
+                The header of the request as a dictionary. There are no
+                restrictions on the header.
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
 
         Returns:
-            A requests.models.Response object containing the status code and prediction results.
+            A requests.models.Response object containing the status code and
+            prediction results.
+
+        Raises:
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
         """
         self.wait()
-        return self._http_request(
-            method="POST",
-            url=self.predict_http_uri,
-            body=body,
-            headers=headers,
-        )
+        if self.network:
+            return self._http_request(
+                method="POST",
+                url=self.predict_http_uri,
+                body=body,
+                headers=headers,
+            )
+
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make a predict request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
+
+            token = self.credentials.token
+            headers_with_token = dict(headers)
+            headers_with_token["Authorization"] = f"Bearer {token}"
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+            return self._http_request(
+                method="POST",
+                url=url,
+                body=body,
+                headers=headers_with_token,
+            )
 
     def explain(self):
         raise NotImplementedError(
@@ -2194,6 +3545,7 @@ class PrivateEndpoint(Endpoint):
         """
         Makes a request to this PrivateEndpoint's health check URI. Must be within network
         that this PrivateEndpoint is in.
+        This is only supported by PSA based private endpoint.
 
         Example Usage:
             if my_private_endpoint.health_check():
@@ -2205,9 +3557,15 @@ class PrivateEndpoint(Endpoint):
 
         Raises:
             RuntimeError: If a model has not been deployed a request cannot be made.
+            RuntimeError: If the endpoint is PSC based private endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
+
+        if self.private_service_connect_config:
+            raise RuntimeError(
+                "Health check request is not supported on PSC based Private Endpoint."
+            )
 
         if not self._gca_resource.deployed_models:
             raise RuntimeError(
@@ -2266,9 +3624,9 @@ class PrivateEndpoint(Endpoint):
         """
 
         return cls._list_with_local_order(
-            cls_filter=lambda ep: bool(
-                ep.network
-            ),  # Only PrivateEndpoints have a network set
+            cls_filter=lambda ep: bool(ep.network)
+            or bool(ep.private_service_connect_config),
+            # Only PrivateEndpoints have a network or private_service_connect_config
             filter=filter,
             order_by=order_by,
             project=project,
@@ -2285,6 +3643,7 @@ class PrivateEndpoint(Endpoint):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -2292,12 +3651,38 @@ class PrivateEndpoint(Endpoint):
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
+        disable_container_logging: bool = False,
+        traffic_percentage: Optional[int] = 0,
+        traffic_split: Optional[Dict[str, int]] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
         Example Usage:
+            PSA based private endpoint
             my_private_endpoint.deploy(
                 model=my_model
+            )
+
+            PSC based private endpoint
+
+            psc_endpoint.deploy(
+                model=first_model,
+            )
+            psc_endpoint.deploy(
+                model=second_model,
+                traffic_percentage=50,
+            )
+            psc_endpoint.deploy(
+                model=third_model,
+                traffic_percentage={
+                    'first_model_id': 40,
+                    'second_model_id': 30,
+                    'third_model_id': 30
+                },
             )
 
         Args:
@@ -2331,6 +3716,9 @@ class PrivateEndpoint(Endpoint):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -2353,14 +3741,55 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model.
+                Defaults to 0 if there are pre-existing deployed models.
+                Defaults to 100 if there are no pre-existing deployed models.
+                Defaults to 100 for PSA based private endpoint.
+                Negative values should not be provided. Traffic of previously
+                deployed models at the endpoint will be scaled down to
+                accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC base private endpoint.
+                A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
         """
+
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based PrivateEndpoint."
+                )
+            traffic_percentage = 100
+
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
-            traffic_split=None,
-            traffic_percentage=100,
+            traffic_split=traffic_split,
+            traffic_percentage=traffic_percentage,
+            deployment_resource_pool=None,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -2371,27 +3800,109 @@ class PrivateEndpoint(Endpoint):
         self._deploy(
             model=model,
             deployed_model_display_name=deployed_model_display_name,
-            traffic_percentage=100,
-            traffic_split=None,
+            traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
+            spot=spot,
+            disable_container_logging=disable_container_logging,
         )
+
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
+    ) -> "PrivateEndpoint":
+        """Updates a PrivateEndpoint.
+
+        Example usage:
+            PSC based private endpoint
+
+            my_endpoint = my_endpoint.update(
+                display_name='my-updated-endpoint',
+                description='my updated description',
+                labels={'key': 'value'},
+                traffic_split={
+                    '123456': 20,
+                    '234567': 80,
+                },
+            )
+
+        Args:
+            display_name (str):
+                Optional. The display name of the Endpoint.
+                The name can be up to 128 characters long and can be consist of any UTF-8
+                characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your Endpoints.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC based private endpoint
+                A map from a DeployedModel's ID to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+                The traffic percentage values must add up to 100, or map must be empty if
+                the Endpoint is to not accept any traffic at a moment.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            Endpoint (aiplatform.Prediction):
+                Updated endpoint resource.
+
+        Raises:
+            ValueError: If `traffic_split` is set for PSA based private endpoint.
+        """
+
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based Private Endpoint."
+                )
+
+        super().update(
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            traffic_split=traffic_split,
+            request_metadata=request_metadata,
+            update_request_timeout=update_request_timeout,
+        )
+
+        return self
 
     def undeploy(
         self,
         deployed_model_id: str,
         sync=True,
+        traffic_split: Optional[Dict[str, int]] = None,
     ) -> None:
         """Undeploys a deployed model from the PrivateEndpoint.
 
         Example Usage:
+            PSA based private endpoint:
             my_private_endpoint.undeploy(
                 deployed_model_id="1234567891232567891"
             )
@@ -2412,15 +3923,61 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            traffic_split (Dict[str, int]):
+                Optional. Only supported by PSC based private endpoint.
+                A map of DeployedModel IDs to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                Required if undeploying a model with non-zero traffic from an Endpoint
+                with multiple deployed models. The traffic percentage values must
+                add up to 100, or map must be empty if the Endpoint is to not
+                accept any traffic at the moment. If a DeployedModel's ID is not
+                listed in this map, then it receives no traffic.
         """
         self._sync_gca_resource_if_skipped()
 
-        # TODO(b/211351292): Add traffic splitting for PrivateEndpoint
-        self._undeploy(
-            deployed_model_id=deployed_model_id,
-            traffic_split=None,
-            sync=sync,
-        )
+        if self.network:
+            if traffic_split is not None:
+                raise ValueError(
+                    "Traffic split is not supported for PSA based PrivateEndpoint."
+                )
+            # PSA based private endpoint
+            self._undeploy(
+                deployed_model_id=deployed_model_id,
+                traffic_split=None,
+                sync=sync,
+            )
+
+        # PSC based private endpoint
+        if self.private_service_connect_config:
+            super().undeploy(
+                deployed_model_id=deployed_model_id,
+                traffic_split=traffic_split,
+                sync=sync,
+            )
+
+    def undeploy_all(self, sync: bool = True) -> "PrivateEndpoint":
+        """Undeploys every model deployed to this PrivateEndpoint.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        if self.network:
+            self._sync_gca_resource()
+            # PSA based private endpoint
+            self._undeploy(
+                deployed_model_id=self._gca_resource.deployed_models[0].id,
+                traffic_split=None,
+                sync=sync,
+            )
+
+        if self.private_service_connect_config:
+            # PSC based private endpoint
+            super().undeploy_all(sync=sync)
+
+        return self
 
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Vertex AI PrivateEndpoint resource. If force is set to True,
@@ -2439,16 +3996,12 @@ class PrivateEndpoint(Endpoint):
             FailedPrecondition: If models are deployed on this Endpoint and force = False.
         """
         if force and self._gca_resource.deployed_models:
-            self.undeploy(
-                deployed_model_id=self._gca_resource.deployed_models[0].id,
-                sync=sync,
-            )
+            self.undeploy_all(sync=sync)
 
         super().delete(force=False, sync=sync)
 
 
 class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
-
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
     _getter_method = "get_model"
@@ -2619,7 +4172,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         projects/{project}/locations/{location}/models/{model_id}@{version_id}).
         The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to distinguish from
         version_id. A default version alias will be created for the first version
-        of the model, and there must be exactly one default version alias for a model."""
+        of the model, and there must be exactly one default version alias for a model.
+        """
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_aliases")
 
@@ -2832,6 +4386,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        serving_container_grpc_ports: Optional[Sequence[int]] = None,
         local_model: Optional["LocalModel"] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2847,6 +4402,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         staging_bucket: Optional[str] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
+        serving_container_deployment_timeout: Optional[int] = None,
+        serving_container_shared_memory_size_mb: Optional[int] = None,
+        serving_container_startup_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_startup_probe_period_seconds: Optional[int] = None,
+        serving_container_startup_probe_timeout_seconds: Optional[int] = None,
+        serving_container_health_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_health_probe_period_seconds: Optional[int] = None,
+        serving_container_health_probe_timeout_seconds: Optional[int] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -2930,6 +4493,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            serving_container_grpc_ports: Optional[Sequence[int]]=None,
+                Declaration of ports that are exposed by the container. Vertex AI sends gRPC
+                prediction requests that it receives to the first port on this list. Vertex
+                AI also sends liveness and health checks to this port.
+                If you do not specify this field, gRPC requests to the container will be
+                disabled.
+                Vertex AI does not use ports other than the first one listed. This field
+                corresponds to the `ports` field of the Kubernetes Containers v1 core API.
             local_model (Optional[LocalModel]):
                 Optional. A LocalModel instance that includes a `serving_container_spec`.
                 If provided, the `serving_container_spec` of the LocalModel instance
@@ -3026,6 +4597,31 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
+            serving_container_deployment_timeout (int):
+                Optional. Deployment timeout in seconds.
+            serving_container_shared_memory_size_mb (int):
+                Optional. The amount of the VM memory to reserve as the shared
+                memory for the model in megabytes.
+            serving_container_startup_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by startup
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the startup probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the startup probe times
+                out. Defaults to 1 second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by health
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the health probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the health probe times
+                out. Defaults to 1 second. Minimum value is 1.
 
         Returns:
             model (aiplatform.Model):
@@ -3051,6 +4647,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if local_model:
             container_spec = local_model.get_serving_container_spec()
             appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
+        elif not serving_container_image_uri and not artifact_uri:
+            # It's a referenced/place holder model.
+            container_spec = None
         else:
             if not serving_container_image_uri:
                 raise ValueError(
@@ -3060,6 +4659,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
             env = None
             ports = None
+            grpc_ports = None
+            deployment_timeout = (
+                duration_pb2.Duration(seconds=serving_container_deployment_timeout)
+                if serving_container_deployment_timeout
+                else None
+            )
+            startup_probe = None
+            health_probe = None
 
             if serving_container_environment_variables:
                 env = [
@@ -3071,6 +4678,41 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     gca_model_compat.Port(container_port=port)
                     for port in serving_container_ports
                 ]
+            if serving_container_grpc_ports:
+                grpc_ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_grpc_ports
+                ]
+            if (
+                serving_container_startup_probe_exec
+                or serving_container_startup_probe_period_seconds
+                or serving_container_startup_probe_timeout_seconds
+            ):
+                startup_probe_exec = None
+                if serving_container_startup_probe_exec:
+                    startup_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_startup_probe_exec
+                    )
+                startup_probe = gca_model_compat.Probe(
+                    exec=startup_probe_exec,
+                    period_seconds=serving_container_startup_probe_period_seconds,
+                    timeout_seconds=serving_container_startup_probe_timeout_seconds,
+                )
+            if (
+                serving_container_health_probe_exec
+                or serving_container_health_probe_period_seconds
+                or serving_container_health_probe_timeout_seconds
+            ):
+                health_probe_exec = None
+                if serving_container_health_probe_exec:
+                    health_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_health_probe_exec
+                    )
+                health_probe = gca_model_compat.Probe(
+                    exec=health_probe_exec,
+                    period_seconds=serving_container_health_probe_period_seconds,
+                    timeout_seconds=serving_container_health_probe_timeout_seconds,
+                )
 
             container_spec = gca_model_compat.ModelContainerSpec(
                 image_uri=serving_container_image_uri,
@@ -3078,8 +4720,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 args=serving_container_args,
                 env=env,
                 ports=ports,
+                grpc_ports=grpc_ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                deployment_timeout=deployment_timeout,
+                shared_memory_size_mb=serving_container_shared_memory_size_mb,
+                startup_probe=startup_probe,
+                health_probe=health_probe,
             )
 
         model_predict_schemata = None
@@ -3193,6 +4840,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -3206,6 +4854,15 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
+        private_service_connect_config: Optional[
+            PrivateEndpoint.PrivateServiceConnectConfig
+        ] = None,
+        deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
+        spot: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3255,6 +4912,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3286,11 +4946,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             network (str):
                 Optional. The full name of the Compute Engine network to which
-                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
+                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC"
                 Private services access must already be configured for the network.
                 If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created.
                 If left unspecified, an Endpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                Cannot be set together with private_service_connect_config.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3306,6 +4967,31 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
+            private_service_connect_config (PrivateEndpoint.PrivateServiceConnectConfig):
+                If true, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be set together with network.
+            deployment_resource_pool (DeploymentResourcePool):
+                Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3323,12 +5009,19 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
         if isinstance(endpoint, PrivateEndpoint):
-            if traffic_split:
+            if deployment_resource_pool:
                 raise ValueError(
-                    "Traffic splitting is not yet supported for PrivateEndpoint. "
+                    "Model co-hosting is not supported for PrivateEndpoint. "
+                    "Try calling deploy() without providing `deployment_resource_pool`."
+                )
+
+            if traffic_split and endpoint.network:
+                raise ValueError(
+                    "Traffic splitting is not yet supported for PSA based PrivateEndpoint. "
                     "Try calling deploy() without providing `traffic_split`. "
                     "A maximum of one model can be deployed to each private Endpoint."
                 )
@@ -3348,6 +5041,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -3358,7 +5055,11 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
+            private_service_connect_config=private_service_connect_config,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3373,6 +5074,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -3382,7 +5087,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        spot: bool = False,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
+        private_service_connect_config: Optional[
+            PrivateEndpoint.PrivateServiceConnectConfig
+        ] = None,
+        deployment_resource_pool: Optional[DeploymentResourcePool] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3432,6 +5143,21 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3461,6 +5187,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Private services access must already be configured for the network.
                 Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                Cannot be set together with private_service_connect_config.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3474,8 +5201,21 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            spot (bool):
+                Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
+            private_service_connect_config (PrivateEndpoint.PrivateServiceConnectConfig):
+                If true, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
+                Cannot be set together with network.
+            deployment_resource_pool (DeploymentResourcePool):
+                Optional. Resource pool where the model will be deployed. All models that
+                are deployed to the same DeploymentResourcePool will be hosted in
+                a shared model server. If provided, will override replica count
+                arguments.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3485,7 +5225,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
 
-            if not network:
+            if not network and not private_service_connect_config:
                 endpoint = Endpoint.create(
                     display_name=display_name,
                     project=self.project,
@@ -3501,6 +5241,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     location=self.location,
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
+                    private_service_connect_config=private_service_connect_config,
                 )
 
         _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
@@ -3519,13 +5260,20 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            spot=spot,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
+            deployment_resource_pool=deployment_resource_pool,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -4880,7 +6628,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 _LOGGER.warning(
                     f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
                 )
-            return evaluations[0] if evaluations else evaluations
+            _ipython_utils.display_model_evaluation_button(evaluations[0])
+            return evaluations[0]
         else:
             resource_uri_parts = self._parse_resource_name(self.resource_name)
             evaluation_resource_name = (
@@ -4890,10 +6639,237 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 )
             )
 
-            return model_evaluation.ModelEvaluation(
+            evaluation = model_evaluation.ModelEvaluation(
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+            _ipython_utils.display_model_evaluation_button(evaluation)
+            return evaluation
+
+    def evaluate(
+        self,
+        prediction_type: str,
+        target_field_name: str,
+        gcs_source_uris: Optional[List[str]] = None,
+        bigquery_source_uri: Optional[str] = None,
+        bigquery_destination_output_uri: Optional[str] = None,
+        class_labels: Optional[List[str]] = None,
+        prediction_label_column: Optional[str] = None,
+        prediction_score_column: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        service_account: Optional[str] = None,
+        generate_feature_attributions: bool = False,
+        evaluation_pipeline_display_name: Optional[str] = None,
+        evaluation_metrics_display_name: Optional[str] = None,
+        network: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+    ) -> "model_evaluation._ModelEvaluationJob":
+        """Creates a model evaluation job running on Vertex Pipelines and returns the resulting
+        ModelEvaluationJob resource.
+
+        Example usage:
+
+            ```
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+            my_evaluation_job = my_model.evaluate(
+                prediction_type="classification",
+                target_field_name="type",
+                data_source_uris=["gs://sdk-model-eval/my-prediction-data.csv"],
+                staging_bucket="gs://my-staging-bucket/eval_pipeline_root",
+            )
+            my_evaluation_job.wait()
+            my_evaluation = my_evaluation_job.get_model_evaluation()
+            my_evaluation.metrics
+            ```
+
+        Args:
+            prediction_type (str):
+                Required. The problem type being addressed by this evaluation run. 'classification' and 'regression'
+                are the currently supported problem types.
+            target_field_name (str):
+                Required. The column name of the field containing the label for this prediction task.
+            gcs_source_uris (List[str]):
+                Optional. A list of Cloud Storage data files containing the ground truth data to use for this
+                evaluation job. These files should contain your model's prediction column. Currently only Google Cloud Storage
+                urls are supported, for example: "gs://path/to/your/data.csv". The provided data files must be
+                either CSV or JSONL. One of `gcs_source_uris` or `bigquery_source_uri` is required.
+            bigquery_source_uri (str):
+                Optional. A bigquery table URI containing the ground truth data to use for this evaluation job. This uri should
+                be in the format 'bq://my-project-id.dataset.table'. One of `gcs_source_uris` or `bigquery_source_uri` is
+                required.
+            bigquery_destination_output_uri (str):
+                Optional. A bigquery table URI where the Batch Prediction job associated with your Model Evaluation will write
+                prediction output. This can be a BigQuery URI to a project ('bq://my-project'), a dataset
+                ('bq://my-project.my-dataset'), or a table ('bq://my-project.my-dataset.my-table'). Required if `bigquery_source_uri`
+                is provided.
+            class_labels (List[str]):
+                Optional. For custom (non-AutoML) classification models, a list of possible class names, in the
+                same order that predictions are generated. This argument is required when prediction_type is 'classification'.
+                For example, in a classification model with 3 possible classes that are outputted in the format: [0.97, 0.02, 0.01]
+                with the class names "cat", "dog", and "fish", the value of `class_labels` should be `["cat", "dog", "fish"]` where
+                the class "cat" corresponds with 0.97 in the example above.
+            prediction_label_column (str):
+                Optional. The column name of the field containing classes the model is scoring. Formatted to be able to find nested
+                columns, delimited by `.`. If not set, defaulted to `prediction.classes` for classification.
+            prediction_score_column (str):
+                Optional. The column name of the field containing batch prediction scores. Formatted to be able to find nested columns,
+                delimited by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
+                for a `regression` problem_type.
+            staging_bucket (str):
+                Optional. The GCS directory to use for staging files from this evaluation job. Defaults to the value set in
+                aiplatform.init(staging_bucket=...) if not provided. Required if staging_bucket is not set in aiplatform.init().
+            service_account (str):
+                Specifies the service account for workload run-as account for this Model Evaluation PipelineJob.
+                Users submitting jobs must have act-as permission on this run-as account. The service account running
+                this Model Evaluation job needs the following permissions: Dataflow Worker, Storage Admin,
+                Vertex AI Administrator, and Vertex AI Service Agent.
+            generate_feature_attributions (boolean):
+                Optional. Whether the model evaluation job should generate feature attributions. Defaults to False if not specified.
+            evaluation_pipeline_display_name (str):
+                Optional. The display name of your model evaluation job. This is the display name that will be applied to the
+                Vertex Pipeline run for your evaluation job. If not set, a display name will be generated automatically.
+            evaluation_metrics_display_name (str):
+                Optional. The display name of the model evaluation resource uploaded to Vertex from your Model Evaluation pipeline.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer managed encryption key used to protect the job. Has the
+                form: ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``. The key needs to be in the same
+                region as where the compute resource is created. If this is set, then all
+                resources created by the PipelineJob for this Model Evaluation will be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to the PipelineJob executing
+                this model evaluation job. Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the provided experiment, and parameters from this PipelineJob
+                will be associated as parameters to the provided experiment.
+        Returns:
+            model_evaluation.ModelEvaluationJob: Instantiated representation of the
+            _ModelEvaluationJob.
+        Raises:
+            ValueError:
+                If staging_bucket was not set in aiplatform.init() and staging_bucket was not provided.
+                If the provided `prediction_type` is not valid.
+                If the provided `data_source_uris` don't start with 'gs://'.
+        """
+
+        if (gcs_source_uris is None) == (bigquery_source_uri is None):
+            raise ValueError(
+                "Exactly one of `gcs_source_uris` or `bigquery_source_uri` must be provided."
+            )
+
+        if isinstance(gcs_source_uris, str):
+            gcs_source_uris = [gcs_source_uris]
+
+        if bigquery_source_uri and not isinstance(bigquery_source_uri, str):
+            raise ValueError("The provided `bigquery_source_uri` must be a string.")
+
+        if bigquery_source_uri and not bigquery_destination_output_uri:
+            raise ValueError(
+                "`bigquery_destination_output_uri` must be provided if `bigquery_source_uri` is used as the data source."
+            )
+
+        if gcs_source_uris is not None and not all(
+            uri.startswith("gs://") for uri in gcs_source_uris
+        ):
+            raise ValueError("`gcs_source_uris` must start with 'gs://'.")
+
+        if bigquery_source_uri is not None and not bigquery_source_uri.startswith(
+            "bq://"
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        if (
+            bigquery_destination_output_uri is not None
+            and not bigquery_destination_output_uri.startswith("bq://")
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS = [".jsonl", ".csv"]
+
+        if not staging_bucket and initializer.global_config.staging_bucket:
+            staging_bucket = initializer.global_config.staging_bucket
+        elif not staging_bucket and not initializer.global_config.staging_bucket:
+            raise ValueError(
+                "Please provide `evaluation_staging_bucket` when calling evaluate or set one using aiplatform.init(staging_bucket=...)"
+            )
+
+        if prediction_type not in _SUPPORTED_EVAL_PREDICTION_TYPES:
+            raise ValueError(
+                f"Please provide a supported model prediction type, one of: {_SUPPORTED_EVAL_PREDICTION_TYPES}."
+            )
+
+        if generate_feature_attributions:
+            if not self._gca_resource.explanation_spec:
+                raise ValueError(
+                    "To generate feature attributions with your evaluation, call evaluate on a model with an explanation spec. To run evaluation on the current model, call evaluate with `generate_feature_attributions=False`."
+                )
+
+        instances_format = None
+
+        if gcs_source_uris:
+            data_file_path_obj = pathlib.Path(gcs_source_uris[0])
+
+            data_file_extension = data_file_path_obj.suffix
+            if data_file_extension not in SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS:
+                _LOGGER.warning(
+                    f"Only the following data file extensions are currently supported: '{SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS}'"
+                )
+            else:
+                instances_format = data_file_extension[1:]
+
+        elif bigquery_source_uri:
+            instances_format = "bigquery"
+
+        if (
+            self._gca_resource.metadata_schema_uri
+            == "https://storage.googleapis.com/google-cloud-aiplatform/schema/model/metadata/automl_tabular_1.0.0.yaml"
+        ):
+            model_type = "automl_tabular"
+        else:
+            model_type = "other"
+
+        if (
+            model_type == "other"
+            and prediction_type == "classification"
+            and not class_labels
+        ):
+            raise ValueError(
+                "Please provide `class_labels` when running evaluation on a custom classification model."
+            )
+
+        return model_evaluation._ModelEvaluationJob.submit(
+            model_name=self.versioned_resource_name,
+            prediction_type=prediction_type,
+            target_field_name=target_field_name,
+            gcs_source_uris=gcs_source_uris,
+            bigquery_source_uri=bigquery_source_uri,
+            batch_predict_bigquery_destination_output_uri=bigquery_destination_output_uri,
+            class_labels=class_labels,
+            prediction_label_column=prediction_label_column,
+            prediction_score_column=prediction_score_column,
+            service_account=service_account,
+            pipeline_root=staging_bucket,
+            instances_format=instances_format,
+            model_type=model_type,
+            generate_feature_attributions=generate_feature_attributions,
+            evaluation_pipeline_display_name=evaluation_pipeline_display_name,
+            evaluation_metrics_display_name=evaluation_metrics_display_name,
+            network=network,
+            encryption_spec_key_name=encryption_spec_key_name,
+            credentials=self.credentials,
+            experiment=experiment,
+        )
 
 
 # TODO (b/232546878): Async support

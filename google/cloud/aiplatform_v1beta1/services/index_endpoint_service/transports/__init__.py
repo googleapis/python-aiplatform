@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ from typing import Dict, Type
 from .base import IndexEndpointServiceTransport
 from .grpc import IndexEndpointServiceGrpcTransport
 from .grpc_asyncio import IndexEndpointServiceGrpcAsyncIOTransport
+from .rest import IndexEndpointServiceRestTransport
+from .rest import IndexEndpointServiceRestInterceptor
 
 
 # Compile a registry of transports.
@@ -27,9 +29,12 @@ _transport_registry = (
 )  # type: Dict[str, Type[IndexEndpointServiceTransport]]
 _transport_registry["grpc"] = IndexEndpointServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = IndexEndpointServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = IndexEndpointServiceRestTransport
 
 __all__ = (
     "IndexEndpointServiceTransport",
     "IndexEndpointServiceGrpcTransport",
     "IndexEndpointServiceGrpcAsyncIOTransport",
+    "IndexEndpointServiceRestTransport",
+    "IndexEndpointServiceRestInterceptor",
 )

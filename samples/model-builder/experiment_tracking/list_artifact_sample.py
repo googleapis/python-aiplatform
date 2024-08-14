@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 from typing import Optional
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_artifact_with_sdk_sample]
 def list_artifact_sample(
     project: str,
     location: str,
-    display_name_fitler: Optional[str] = "display_name=\"my_model_*\"",
+    display_name_filter: Optional[str] = "display_name=\"my_model_*\"",
     create_date_filter: Optional[str] = "create_time>\"2022-06-11\"",
     order_by: Optional[str] = None,
 ):
     aiplatform.init(project=project, location=location)
 
-    combined_filters = f"{display_name_fitler} AND {create_date_filter}"
+    combined_filters = f"{display_name_filter} AND {create_date_filter}"
     return aiplatform.Artifact.list(
         filter=combined_filters,
         order_by=order_by,

@@ -26,7 +26,9 @@ from unittest import mock
 from google.cloud import aiplatform
 from google.cloud.aiplatform.utils import source_utils
 import constants as test_constants
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.compat.services import (
+    metadata_service_client_v1,
     model_service_client,
     tensorboard_service_client,
     pipeline_service_client,
@@ -35,6 +37,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     context,
     endpoint,
+    metadata_store,
     endpoint_service,
     model,
     model_service,
@@ -461,3 +464,52 @@ def mock_pipeline_service_create_and_get_with_fail():
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
+
+
+# Experiment fixtures
+@pytest.fixture
+def get_experiment_mock():
+    with mock.patch.object(
+        metadata_service_client_v1.MetadataServiceClient, "get_context"
+    ) as get_context_mock:
+        get_context_mock.return_value = (
+            test_constants.ExperimentConstants._EXPERIMENT_MOCK
+        )
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_metadata_store_mock():
+    with mock.patch.object(
+        metadata_service_client_v1.MetadataServiceClient, "get_metadata_store"
+    ) as get_metadata_store_mock:
+        get_metadata_store_mock.return_value = metadata_store.MetadataStore(
+            name=test_constants.ExperimentConstants._TEST_METADATASTORE,
+        )
+        yield get_metadata_store_mock
+
+
+@pytest.fixture
+def get_context_mock():
+    with mock.patch.object(
+        metadata_service_client_v1.MetadataServiceClient, "get_context"
+    ) as get_context_mock:
+        get_context_mock.return_value = context.Context(
+            name=test_constants.ExperimentConstants._TEST_CONTEXT_NAME,
+            display_name=test_constants.ExperimentConstants._TEST_EXPERIMENT,
+            description=test_constants.ExperimentConstants._TEST_EXPERIMENT_DESCRIPTION,
+            schema_title=metadata_constants.SYSTEM_EXPERIMENT,
+            schema_version=metadata_constants.SCHEMA_VERSIONS[
+                metadata_constants.SYSTEM_EXPERIMENT
+            ],
+            metadata=metadata_constants.EXPERIMENT_METADATA,
+        )
+        yield get_context_mock
+
+
+@pytest.fixture
+def add_context_children_mock():
+    with mock.patch.object(
+        metadata_service_client_v1.MetadataServiceClient, "add_context_children"
+    ) as add_context_children_mock:
+        yield add_context_children_mock
