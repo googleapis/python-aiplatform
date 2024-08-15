@@ -211,14 +211,12 @@ def _separate_custom_metrics(
 def _aggregate_summary_metrics(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
     metrics_table: "pd.DataFrame",
-    error_list: List[Tuple[str, int, str]],
 ) -> Dict[str, Any]:
     """Computes summary metrics.
 
     Args:
         evaluation_run_config: Evaluation Run Configurations.
         metrics_table: A dataframe containing per-instance metrics results.
-        error_list: A list of (metric_name, row_index, error_message) tuples.
 
     Returns:
         A dictionary containing summary metrics results and statistics.
@@ -679,9 +677,7 @@ def _compute_metrics(
     metrics_table = _parse_metric_results_to_dataframe(instance_df, results_dict)
 
     # Aggregate the summary metrics.
-    summary_metrics = _aggregate_summary_metrics(
-        evaluation_run_config, metrics_table, error_list
-    )
+    summary_metrics = _aggregate_summary_metrics(evaluation_run_config, metrics_table)
 
     return evaluation_base.EvalResult(
         summary_metrics=summary_metrics, metrics_table=metrics_table
