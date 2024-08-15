@@ -281,7 +281,7 @@ def _generate_response_from_gemini(
             candidate = response.candidates[0]
             if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
                 raise RuntimeError(
-                    "The model response did not completed successfully.\n"
+                    "The model response did not complete successfully.\n"
                     f"Finish reason: {candidate.finish_reason}.\n"
                     f"Finish message: {candidate.finish_message}.\n"
                     f"Safety ratings: {candidate.safety_ratings}.\n"
