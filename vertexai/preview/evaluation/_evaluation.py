@@ -163,12 +163,14 @@ def _replace_metric_bundle_with_metrics(
 def _compute_custom_metrics(
     row_dict: Dict[str, Any],
     custom_metrics: List[metrics_base.CustomMetric],
+    pbar: tqdm,
 ) -> Dict[str, Any]:
     """Computes custom metrics for a row.
 
     Args:
         row_dict: A dictionary of an instance in the eval dataset.
         custom_metrics: A list of CustomMetrics.
+        pbar: A tqdm progress bar.
 
     Returns:
         A dictionary of an instance containing custom metric results.
@@ -178,6 +180,7 @@ def _compute_custom_metrics(
     """
     for custom_metric in custom_metrics:
         metric_output = custom_metric.metric_function(row_dict)
+        pbar.update(1)
         if custom_metric.name in metric_output:
             row_dict[custom_metric.name] = metric_output[custom_metric.name]
         else:
@@ -228,19 +231,26 @@ def _aggregate_summary_metrics(
         try:
             if isinstance(metric, metrics_base.PairwiseMetric):
                 summary_metrics[f"{metric.metric_name}/candidate_model_win_rate"] = (
-                    metrics_table[f"{metric.metric_name}/pairwise_choice"]
+                    metrics_table[
+                        f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+                    ]
                     == "CANDIDATE"
                 ).mean()
                 summary_metrics[f"{metric.metric_name}/baseline_model_win_rate"] = (
-                    metrics_table[f"{metric.metric_name}/pairwise_choice"] == "BASELINE"
+                    metrics_table[
+                        f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+                    ]
+                    == "BASELINE"
                 ).mean()
             else:
                 # TODO(b/325078638): implement additional aggregate methods.
                 summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
-                    :, str(metric)
+                    :,
+                    f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}",
                 ].mean()
                 summary_metrics[f"{str(metric)}/std"] = metrics_table.loc[
-                    :, str(metric)
+                    :,
+                    f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}",
                 ].std()
         except (ValueError, KeyError) as e:
             _LOGGER.warning(
@@ -613,6 +623,9 @@ def _compute_metrics(
     )
     row_count = len(evaluation_run_config.dataset)
     api_request_count = len(api_metrics) * row_count
+    custom_metric_request_count = len(custom_metrics) * row_count
+    total_request_count = api_request_count + custom_metric_request_count
+
     _LOGGER.info(
         f"Computing metrics with a total of {api_request_count} Vertex online"
         " evaluation service requests."
@@ -622,10 +635,10 @@ def _compute_metrics(
     futures_by_metric = collections.defaultdict(list)
 
     rate_limiter = utils.RateLimiter(evaluation_run_config.evaluation_service_qps)
-    with tqdm(total=api_request_count) as pbar:
+    with tqdm(total=total_request_count) as pbar:
         with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for idx, row in evaluation_run_config.dataset.iterrows():
-                row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics)
+                row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics, pbar)
 
                 instance_list.append(row_dict)
 
