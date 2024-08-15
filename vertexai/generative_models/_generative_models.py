@@ -935,7 +935,7 @@ def _validate_response(
         candidate = response.candidates[0]
         if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
             message = (
-                "The model response did not completed successfully.\n"
+                "The model response did not complete successfully.\n"
                 f"Finish reason: {candidate.finish_reason}.\n"
                 f"Finish message: {candidate.finish_message}.\n"
                 f"Safety ratings: {candidate.safety_ratings}.\n"
