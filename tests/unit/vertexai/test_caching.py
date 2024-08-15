@@ -43,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.services import (
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _CREATED_CONTENT_ID = "contents-id-mocked"
+_TEST_DISPLAY_NAME = "test-display-name"
 
 
 @pytest.fixture
@@ -53,6 +54,7 @@ def mock_create_cached_content():
         response = GapicCachedContent(
             name=f"{request.parent}/cachedContents/{_CREATED_CONTENT_ID}",
             model=f"{request.cached_content.model}",
+            display_name=f"{request.cached_content.display_name}",
             create_time=datetime.datetime(
                 year=2024,
                 month=2,
@@ -199,6 +201,7 @@ class TestCaching:
             tool_config=GapicToolConfig(),
             contents=[GapicContent(role="user")],
             ttl=datetime.timedelta(days=1),
+            display_name=_TEST_DISPLAY_NAME,
         )
 
         # parent is automantically set to align with the current project and location.
@@ -211,6 +214,7 @@ class TestCaching:
             cache.model_name
             == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
         )
+        assert cache.display_name == _TEST_DISPLAY_NAME
 
     def test_create_with_real_payload_and_wrapped_type(
         self, mock_create_cached_content, mock_get_cached_content
@@ -222,6 +226,7 @@ class TestCaching:
             tool_config=GapicToolConfig(),
             contents=["user content"],
             ttl=datetime.timedelta(days=1),
+            display_name=_TEST_DISPLAY_NAME,
         )
 
         # parent is automantically set to align with the current project and location.
@@ -231,6 +236,7 @@ class TestCaching:
             == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
         )
         assert cache.name == _CREATED_CONTENT_ID
+        assert cache.display_name == _TEST_DISPLAY_NAME
 
     def test_list(self, mock_list_cached_contents):
         cached_contents = caching.CachedContent.list()
@@ -248,6 +254,7 @@ class TestCaching:
             tool_config=GapicToolConfig(),
             contents=["user content"],
             ttl=datetime.timedelta(days=1),
+            display_name=_TEST_DISPLAY_NAME,
         )
         f = io.StringIO()
         with redirect_stdout(f):
@@ -261,6 +268,7 @@ class TestCaching:
                     "createTime": "2024-02-01T01:01:01Z",
                     "updateTime": "2024-02-01T01:01:01Z",
                     "expireTime": "2024-02-01T02:01:01Z",
+                    "displayName": "test-display-name",
                 },
                 indent=2,
             )

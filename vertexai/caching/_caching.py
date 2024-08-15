@@ -56,6 +56,7 @@ def _prepare_create_request(
     contents: Optional[ContentsType] = None,
     expire_time: Optional[datetime.datetime] = None,
     ttl: Optional[datetime.timedelta] = None,
+    display_name: Optional[str] = None,
 ) -> CreateCachedContentRequest:
     """Prepares the request create_cached_content RPC."""
     (
@@ -97,6 +98,7 @@ def _prepare_create_request(
             contents=contents,
             expire_time=expire_time,
             ttl=ttl,
+            display_name=display_name,
         ),
     )
     return request
@@ -158,6 +160,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         contents: Optional[List[Content]] = None,
         expire_time: Optional[datetime.datetime] = None,
         ttl: Optional[datetime.timedelta] = None,
+        display_name: Optional[str] = None,
     ) -> "CachedContent":
         """Creates a new cached content through the gen ai cache service.
 
@@ -194,6 +197,8 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
 
                 At most one of expire_time and ttl can be set. If neither is set,
                 default TTL on the API side will be used (currently 1 hour).
+            display_name:
+                The user-generated meaningful display name of the cached content.
         Returns:
             A CachedContent object with only name and model_name specified.
         Raises:
@@ -217,6 +222,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
             contents=contents,
             expire_time=expire_time,
             ttl=ttl,
+            display_name=display_name,
         )
         client = cls._instantiate_client(location=location)
         cached_content_resource = client.create_cached_content(request)
@@ -292,6 +298,4 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
     @property
     def display_name(self) -> str:
         """Display name of this resource."""
-        # TODO(b/345335749): remove this override when the feature is available
-        # in the API.
-        raise NotImplementedError("Display name is not available.")
+        return self._gca_resource.display_name
