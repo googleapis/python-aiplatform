@@ -164,6 +164,7 @@ def _compute_custom_metrics(
     row_dict: Dict[str, Any],
     custom_metrics: List[metrics_base.CustomMetric],
     pbar: tqdm,
+    executor: futures.ThreadPoolExecutor,
 ) -> Dict[str, Any]:
     """Computes custom metrics for a row.
 
@@ -171,6 +172,7 @@ def _compute_custom_metrics(
         row_dict: A dictionary of an instance in the eval dataset.
         custom_metrics: A list of CustomMetrics.
         pbar: A tqdm progress bar.
+        executor: A thread pool executor.
 
     Returns:
         A dictionary of an instance containing custom metric results.
@@ -178,22 +180,30 @@ def _compute_custom_metrics(
     Raises:
         KeyError: If the custom metric function does not return a valid output.
     """
+    futures_by_metric = collections.defaultdict(list)
     for custom_metric in custom_metrics:
-        metric_output = custom_metric.metric_function(row_dict)
-        pbar.update(1)
-        if custom_metric.name in metric_output:
-            row_dict[custom_metric.name] = metric_output[custom_metric.name]
-        else:
-            raise KeyError(
-                f"Custom metric score `{custom_metric.name}` not found in the metric"
-                f" output {metric_output}. Please make sure the custom metric"
-                " function is valid, and the output dictionary uses"
-                f" `{custom_metric.name}` as the key for metric value."
-            )
-        # Include additional metric results like explanation.
-        for key, value in metric_output.items():
-            if key != custom_metric.name:
-                row_dict[f"{custom_metric.name}/{key}"] = value
+        future = executor.submit(custom_metric.metric_function, row_dict)
+        future.add_done_callback(lambda _: pbar.update(1))
+        futures_by_metric[custom_metric].append(future)
+
+    for custom_metric, futures_list in futures_by_metric.items():
+        for future in futures_list:
+            metric_output = future.result()
+            try:
+                row_dict[
+                    f"{custom_metric.name}/{constants.MetricResult.SCORE_KEY}"
+                ] = metric_output[custom_metric.name]
+            except KeyError:
+                raise KeyError(
+                    f"Custom metric score `{custom_metric.name}` not found in the metric"
+                    f" output {metric_output}. Please make sure the custom metric"
+                    " function is valid, and the output dictionary uses"
+                    f" `{custom_metric.name}` as the key for metric value."
+                )
+            # Include additional metric results like explanation.
+            for key, value in metric_output.items():
+                if key != custom_metric.name:
+                    row_dict[f"{custom_metric.name}/{key}"] = value
     return row_dict
 
 
@@ -638,7 +648,9 @@ def _compute_metrics(
     with tqdm(total=total_request_count) as pbar:
         with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for idx, row in evaluation_run_config.dataset.iterrows():
-                row_dict = _compute_custom_metrics(row.to_dict(), custom_metrics, pbar)
+                row_dict = _compute_custom_metrics(
+                    row.to_dict(), custom_metrics, pbar, executor
+                )
 
                 instance_list.append(row_dict)
 
