@@ -324,28 +324,34 @@ def _generate_response_from_gemini_model(
         constants.Dataset.COMPLETED_PROMPT_COLUMN
         in evaluation_run_config.dataset.columns
     ):
-        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
-            for _, row in df.iterrows():
-                tasks.append(
-                    executor.submit(
+        with tqdm(total=len(df)) as pbar:
+            with futures.ThreadPoolExecutor(
+                max_workers=constants.MAX_WORKERS
+            ) as executor:
+                for _, row in df.iterrows():
+                    task = executor.submit(
                         _generate_response_from_gemini,
                         prompt=row[constants.Dataset.COMPLETED_PROMPT_COLUMN],
                         model=model,
                     )
-                )
+                    task.add_done_callback(lambda _: pbar.update(1))
+                    tasks.append(task)
     else:
         content_column_name = evaluation_run_config.column_map[
             constants.Dataset.CONTENT_COLUMN
         ]
-        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
-            for _, row in df.iterrows():
-                tasks.append(
-                    executor.submit(
+        with tqdm(total=len(df)) as pbar:
+            with futures.ThreadPoolExecutor(
+                max_workers=constants.MAX_WORKERS
+            ) as executor:
+                for _, row in df.iterrows():
+                    task = executor.submit(
                         _generate_response_from_gemini,
                         prompt=row[content_column_name],
                         model=model,
                     )
-                )
+                    task.add_done_callback(lambda _: pbar.update(1))
+                    tasks.append(task)
     responses = [future.result() for future in tasks]
     if is_baseline_model:
         evaluation_run_config.dataset = df.assign(baseline_model_response=responses)
@@ -384,13 +390,14 @@ def _generate_response_from_custom_model_fn(
             constants.Dataset.COMPLETED_PROMPT_COLUMN
             in evaluation_run_config.dataset.columns
         ):
-            with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                for _, row in df.iterrows():
-                    tasks.append(
-                        executor.submit(
+            with tqdm(total=len(df)) as pbar:
+                with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    for _, row in df.iterrows():
+                        task = executor.submit(
                             model_fn, row[constants.Dataset.COMPLETED_PROMPT_COLUMN]
                         )
-                    )
+                        task.add_done_callback(lambda _: pbar.update(1))
+                        tasks.append(task)
         else:
             content_column_name = evaluation_run_config.column_map[
                 constants.Dataset.CONTENT_COLUMN
