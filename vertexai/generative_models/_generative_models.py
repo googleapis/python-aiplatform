@@ -2296,36 +2296,7 @@ class preview_grounding:  # pylint: disable=invalid-name
                 datastore=datastore,
             )
 
-    class GoogleSearchRetrieval:
-        r"""Tool to retrieve public web data for grounding, powered by
-        Google Search.
-
-        Attributes:
-            disable_attribution (bool):
-                Optional. Disable using the result from this
-                tool in detecting grounding attribution. This
-                does not affect how the result is given to the
-                model for generation.
-        """
-
-        def __init__(
-            self,
-            disable_attribution: Optional[
-                bool
-            ] = None,  # pylint: disable=unused-argument
-        ):
-            """Initializes a Google Search Retrieval tool.
-
-            Args:
-                disable_attribution (bool):
-                    Optional. This field is Deprecated. Disable using the result
-                    from this tool in detecting grounding attribution. This
-                    does not affect how the result is given to the
-                    model for generation.
-            """
-            if disable_attribution is not None:
-                warnings.warn("disable_attribution is deprecated.")
-            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+    GoogleSearchRetrieval = grounding.GoogleSearchRetrieval
 
 
 def _to_content(
