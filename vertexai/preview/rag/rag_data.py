@@ -374,6 +374,8 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and source is not None:
+        raise ValueError("use_advanced_pdf_parsing is not supported for Slack or Jira")
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -493,6 +495,8 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and source is not None:
+        raise ValueError("use_advanced_pdf_parsing is not supported for Slack or Jira")
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,

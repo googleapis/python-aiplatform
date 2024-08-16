@@ -453,6 +453,17 @@ class TestRagDataManagement:
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_SLACK_SOURCE)
 
+    def test_prepare_import_slack_request_advanced_pdf_parsing_enabled_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                source=tc.TEST_SLACK_SOURCE,
+                chunk_size=tc.TEST_CHUNK_SIZE,
+                chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+                use_advanced_pdf_parsing=True,
+            )
+        e.match("use_advanced_pdf_parsing is not supported for Slack or Jira")
+
     def test_prepare_import_files_request_jira_source(self):
         request = prepare_import_files_request(
             corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -461,6 +472,17 @@ class TestRagDataManagement:
             chunk_overlap=tc.TEST_CHUNK_OVERLAP,
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_JIRA_SOURCE)
+
+    def test_prepare_import_jira_request_advanced_pdf_parsing_enabled_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                source=tc.TEST_JIRA_SOURCE,
+                chunk_size=tc.TEST_CHUNK_SIZE,
+                chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+                use_advanced_pdf_parsing=True,
+            )
+        e.match("use_advanced_pdf_parsing is not supported for Slack or Jira")
 
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.EmbeddingModelConfig(
