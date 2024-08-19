@@ -19,11 +19,11 @@ from typing import Set
 
 
 class PromptTemplate:
-    """A prompt template for creating prompts with placeholders.
+    """A prompt template for creating prompts with variables.
 
     The `PromptTemplate` class allows users to define a template string with
-    placeholders represented in curly braces `{placeholder}`. The placeholder
-    names cannot contain spaces. These placeholders can be replaced with specific
+    variables represented in curly braces `{variable}`. The variable
+    names cannot contain spaces. These variables can be replaced with specific
     values using the `assemble` method, providing flexibility in generating
     dynamic prompts.
 
@@ -41,14 +41,14 @@ class PromptTemplate:
         """Initializes the PromptTemplate with a given template.
 
         Args:
-            template: The template string with placeholders. Placeholders should be
-              represented in curly braces `{placeholder}`.
+            template: The template string with variables. Variables should be
+              represented in curly braces `{variable}`.
         """
         self.template = str(template)
-        self.placeholders = self._get_placeholders()
+        self.variables = self._get_variables()
 
-    def _get_placeholders(self) -> Set[str]:
-        """Extracts and return a set of placeholder names from the template."""
+    def _get_variables(self) -> Set[str]:
+        """Extracts and return a set of variable names from the template."""
         return set(
             field_name
             for _, field_name, _, _ in string.Formatter().parse(self.template)
@@ -56,7 +56,7 @@ class PromptTemplate:
         )
 
     def assemble(self, **kwargs) -> "PromptTemplate":
-        """Replaces only the provided placeholders in the template with specific values.
+        """Replaces only the provided variables in the template with specific values.
 
         Args:
             **kwargs: Keyword arguments where keys are placeholder names and values
@@ -66,7 +66,7 @@ class PromptTemplate:
             A new PromptTemplate instance with the updated template string.
         """
         replaced_values = {
-            key: kwargs.get(key, "{" + key + "}") for key in self.placeholders
+            key: kwargs.get(key, "{" + key + "}") for key in self.variables
         }
         new_template = self.template.format(**replaced_values)
         return PromptTemplate(new_template)

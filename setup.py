@@ -149,7 +149,7 @@ reasoning_engine_extra_require = [
     "pydantic >= 2.6.3, < 3",
 ]
 
-rapid_evaluation_extra_require = [
+evaluation_extra_require = [
     "pandas >= 1.0.0, < 2.2.0",
     "tqdm>=4.23.0",
 ]
@@ -190,7 +190,7 @@ full_extra_require = list(
         + autologging_extra_require
         + preview_extra_require
         + ray_extra_require
-        + rapid_evaluation_extra_require
+        + evaluation_extra_require
     )
 )
 testing_extra_require = (
@@ -276,7 +276,7 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
-        "rapid_evaluation": rapid_evaluation_extra_require,
+        "evaluation": evaluation_extra_require,
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import re
 import threading
 import time
 from unittest import mock
@@ -34,16 +35,12 @@ from vertexai.preview import evaluation
 from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import _evaluation
 from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation.metrics import (
-    _pairwise_question_answering_quality,
-)
-from vertexai.preview.evaluation.metrics import (
-    _pairwise_summarization_quality,
-)
 from vertexai.preview.evaluation.metrics import _rouge
 from vertexai.preview.evaluation.metrics import (
-    _summarization_quality,
+    metric_prompt_template_examples,
 )
+from vertexai.preview.evaluation.metrics import pairwise_metric
+from vertexai.preview.evaluation.metrics import pointwise_metric
 import numpy as np
 import pandas as pd
 import pytest
@@ -58,18 +55,6 @@ _TEST_METRICS = (
     "rouge_2",
     "rouge_l",
     "rouge_l_sum",
-    "coherence",
-    "fluency",
-    "safety",
-    "groundedness",
-    "fulfillment",
-    "summarization_quality",
-    "summarization_helpfulness",
-    "summarization_verbosity",
-    "question_answering_quality",
-    "question_answering_relevance",
-    "question_answering_helpfulness",
-    "question_answering_correctness",
 )
 _TEST_EVAL_DATASET = pd.DataFrame(
     {
@@ -156,45 +141,30 @@ _MOCK_ROUGE_RESULT = (
         )
     ),
 )
-_MOCK_FLUENCY_RESULT = (
+_MOCK_POINTWISE_METRIC_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
-        fluency_result=gapic_evaluation_service_types.FluencyResult(
-            score=5, explanation="explanation", confidence=1.0
+        pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
+            score=5, explanation="explanation"
         )
     ),
     gapic_evaluation_service_types.EvaluateInstancesResponse(
-        fluency_result=gapic_evaluation_service_types.FluencyResult(
-            score=4, explanation="explanation", confidence=0.5
-        )
-    ),
-)
-_MOCK_SUMMARIZATION_QUALITY_RESULT = (
-    gapic_evaluation_service_types.EvaluateInstancesResponse(
-        summarization_quality_result=gapic_evaluation_service_types.SummarizationQualityResult(
-            score=5, explanation="explanation", confidence=1.0
-        )
-    ),
-    gapic_evaluation_service_types.EvaluateInstancesResponse(
-        summarization_quality_result=gapic_evaluation_service_types.SummarizationQualityResult(
-            score=4, explanation="explanation", confidence=0.5
+        pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
+            score=4, explanation="explanation"
         )
     ),
 )
 
-
-_MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT = (
+_MOCK_PAIRWISE_METRIC_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
-        pairwise_summarization_quality_result=gapic_evaluation_service_types.PairwiseSummarizationQualityResult(
+        pairwise_metric_result=gapic_evaluation_service_types.PairwiseMetricResult(
             pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.BASELINE,
             explanation="explanation",
-            confidence=1.0,
         )
     ),
     gapic_evaluation_service_types.EvaluateInstancesResponse(
-        pairwise_summarization_quality_result=gapic_evaluation_service_types.PairwiseSummarizationQualityResult(
+        pairwise_metric_result=gapic_evaluation_service_types.PairwiseMetricResult(
             pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.CANDIDATE,
             explanation="explanation",
-            confidence=0.5,
         )
     ),
 )
@@ -243,25 +213,15 @@ class TestEvaluation:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_eval_task(self):
-        test_content_column_name = "test_content_column_name"
-        test_reference_column_name = "test_reference_column_name"
-        test_response_column_name = "test_response_column_name"
-
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET,
             metrics=_TEST_METRICS,
             experiment=_TEST_EXPERIMENT,
-            content_column_name=test_content_column_name,
-            reference_column_name=test_reference_column_name,
-            response_column_name=test_response_column_name,
         )
 
         assert test_eval_task.dataset.equals(_TEST_EVAL_DATASET)
         assert test_eval_task.metrics == _TEST_METRICS
         assert test_eval_task.experiment == _TEST_EXPERIMENT
-        assert test_eval_task.content_column_name == test_content_column_name
-        assert test_eval_task.reference_column_name == test_reference_column_name
-        assert test_eval_task.response_column_name == test_response_column_name
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_automatic_metrics(self, api_transport):
@@ -292,10 +252,10 @@ class TestEvaluation:
         assert list(test_result.metrics_table.columns.values) == [
             "response",
             "reference",
-            "exact_match",
+            "exact_match/score",
         ]
         assert test_result.metrics_table[["response", "reference"]].equals(eval_dataset)
-        assert list(test_result.metrics_table["exact_match"].values) == [1.0, 0.0]
+        assert list(test_result.metrics_table["exact_match/score"].values) == [1.0, 0.0]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_pointwise_metrics(self, api_transport):
@@ -309,9 +269,13 @@ class TestEvaluation:
                 "response": ["test", "text"],
             }
         )
-        test_metrics = ["fluency"]
+        fluency_metric = pointwise_metric.PointwiseMetric(
+            metric="fluency",
+            metric_prompt_template="test_metric_prompt_template",
+        )
+        test_metrics = [fluency_metric]
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        mock_metric_results = _MOCK_FLUENCY_RESULT
+        mock_metric_results = _MOCK_POINTWISE_METRIC_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -325,87 +289,15 @@ class TestEvaluation:
         assert set(test_result.metrics_table.columns.values) == set(
             [
                 "response",
-                "fluency",
+                "fluency/score",
                 "fluency/explanation",
-                "fluency/confidence",
             ]
         )
         assert test_result.metrics_table[["response"]].equals(eval_dataset)
-        assert list(test_result.metrics_table["fluency"].values) == [5, 4]
+        assert list(test_result.metrics_table["fluency/score"].values) == [5, 4]
         assert list(test_result.metrics_table["fluency/explanation"].values) == [
             "explanation",
             "explanation",
-        ]
-        assert list(test_result.metrics_table["fluency/confidence"].values) == [
-            1.0,
-            0.5,
-        ]
-
-    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    def test_compute_pointwise_metrics_with_custom_metric_spec(self, api_transport):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            api_transport=api_transport,
-        )
-        eval_dataset = pd.DataFrame(
-            {
-                "context": ["test", "context"],
-                "instruction": ["test", "instruction"],
-                "reference": ["test", "reference"],
-            }
-        )
-        mock_model = mock.create_autospec(
-            generative_models.GenerativeModel, instance=True
-        )
-        mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
-        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
-        test_metrics = [
-            _summarization_quality.SummarizationQuality(
-                use_reference=True,
-            )
-        ]
-        test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
-        with mock.patch.object(
-            target=gapic_evaluation_services.EvaluationServiceClient,
-            attribute="evaluate_instances",
-            side_effect=mock_metric_results,
-        ):
-            test_result = test_eval_task.evaluate(
-                model=mock_model,
-                prompt_template="{instruction} test prompt template {context}",
-            )
-
-        assert test_result.summary_metrics["row_count"] == 2
-        assert test_result.summary_metrics["summarization_quality/mean"] == 4.5
-        assert test_result.summary_metrics[
-            "summarization_quality/std"
-        ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
-            [
-                "context",
-                "instruction",
-                "reference",
-                "completed_prompt",
-                "response",
-                "summarization_quality",
-                "summarization_quality/explanation",
-                "summarization_quality/confidence",
-            ]
-        )
-        assert list(test_result.metrics_table["summarization_quality"].values) == [5, 4]
-        assert list(
-            test_result.metrics_table["summarization_quality/explanation"].values
-        ) == [
-            "explanation",
-            "explanation",
-        ]
-        assert list(
-            test_result.metrics_table["summarization_quality/confidence"].values
-        ) == [
-            1.0,
-            0.5,
         ]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
@@ -417,7 +309,7 @@ class TestEvaluation:
         )
         eval_dataset = pd.DataFrame(
             {
-                "content": ["test", "content"],
+                "prompt": ["test", "prompt"],
                 "reference": ["test", "reference"],
             }
         )
@@ -448,13 +340,13 @@ class TestEvaluation:
         assert test_result.summary_metrics["rouge/std"] == pytest.approx(0.35, 0.1)
         assert set(test_result.metrics_table.columns.values) == set(
             [
-                "content",
+                "prompt",
                 "reference",
                 "response",
-                "rouge",
+                "rouge/score",
             ]
         )
-        assert list(test_result.metrics_table["rouge"].values) == [1, 0.5]
+        assert list(test_result.metrics_table["rouge/score"].values) == [1, 0.5]
 
         api_requests = [
             call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
@@ -480,22 +372,25 @@ class TestEvaluation:
         mock_baseline_model.generate_content.return_value = (
             _MOCK_MODEL_INFERENCE_RESPONSE
         )
-        mock_baseline_model._model_name = "publishers/google/model/gemini-pro"
+        mock_baseline_model._model_name = "publishers/google/model/gemini-1.0-pro"
         mock_candidate_model = mock.create_autospec(
             generative_models.GenerativeModel, instance=True
         )
         mock_candidate_model.generate_content.return_value = (
             _MOCK_MODEL_INFERENCE_RESPONSE
         )
-        mock_candidate_model._model_name = "publishers/google/model/gemini-pro"
+        mock_candidate_model._model_name = "publishers/google/model/gemini-1.5-pro"
         test_metrics = [
-            _pairwise_summarization_quality.PairwiseSummarizationQuality(
+            pairwise_metric.PairwiseMetric(
+                metric="pairwise_summarization_quality",
                 baseline_model=mock_baseline_model,
-                use_reference=False,
+                metric_prompt_template=metric_prompt_template_examples.MetricPromptTemplateExamples.get_prompt_template(
+                    "pairwise_summarization_quality"
+                ),
             )
         ]
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
+        mock_metric_results = _MOCK_PAIRWISE_METRIC_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -511,12 +406,11 @@ class TestEvaluation:
             [
                 "context",
                 "instruction",
-                "completed_prompt",
+                "prompt",
                 "response",
                 "baseline_model_response",
                 "pairwise_summarization_quality/pairwise_choice",
                 "pairwise_summarization_quality/explanation",
-                "pairwise_summarization_quality/confidence",
             ]
         )
         assert list(
@@ -531,14 +425,6 @@ class TestEvaluation:
         ) == [
             "explanation",
             "explanation",
-        ]
-        assert list(
-            test_result.metrics_table[
-                "pairwise_summarization_quality/confidence"
-            ].values
-        ) == [
-            1.0,
-            0.5,
         ]
         assert set(test_result.summary_metrics.keys()) == set(
             [
@@ -575,13 +461,13 @@ class TestEvaluation:
             }
         )
         test_metrics = [
-            _pairwise_summarization_quality.PairwiseSummarizationQuality(
-                baseline_model=None,
-                use_reference=True,
+            pairwise_metric.PairwiseMetric(
+                metric="pairwise_summarization_quality",
+                metric_prompt_template="test_metric_prompt_template",
             )
         ]
         test_eval_task = evaluation.EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        mock_metric_results = _MOCK_PAIRWISE_SUMMARIZATION_QUALITY_RESULT
+        mock_metric_results = _MOCK_PAIRWISE_METRIC_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -597,7 +483,6 @@ class TestEvaluation:
                 "reference",
                 "pairwise_summarization_quality/pairwise_choice",
                 "pairwise_summarization_quality/explanation",
-                "pairwise_summarization_quality/confidence",
             ]
         )
         assert list(
@@ -612,14 +497,6 @@ class TestEvaluation:
         ) == [
             "explanation",
             "explanation",
-        ]
-        assert list(
-            test_result.metrics_table[
-                "pairwise_summarization_quality/confidence"
-            ].values
-        ) == [
-            1.0,
-            0.5,
         ]
         assert set(test_result.summary_metrics.keys()) == set(
             [
@@ -702,23 +579,12 @@ class TestEvaluationErrors:
             dataset=_TEST_EVAL_DATASET, metrics=[metric_name]
         )
         with pytest.raises(
-            ValueError, match=f"Metric name: {metric_name} not supported."
+            ValueError, match=f"Metric name: {metric_name} is not supported."
         ):
             test_eval_task.evaluate()
 
     def test_evaluate_duplicate_string_metric(self):
         metrics = ["summarization_quality", "summarization_quality"]
-        test_eval_task = evaluation.EvalTask(
-            dataset=_TEST_EVAL_DATASET, metrics=metrics
-        )
-        with pytest.raises(
-            ValueError,
-            match="Duplicate string metric name found: 'summarization_quality'",
-        ):
-            test_eval_task.evaluate()
-
-    def test_evaluate_duplicate_string_metric_with_metric_bundle(self):
-        metrics = ["summarization_quality", "summarization_pointwise_reference_free"]
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET, metrics=metrics
         )
@@ -762,29 +628,45 @@ class TestEvaluationErrors:
         with pytest.raises(ValueError, match="Experiment run already exists"):
             test_eval_task.evaluate(experiment_run_name="experiment_run_2")
 
-    def test_evaluate_invalid_dataset_content_column(self):
+    def test_evaluate_invalid_dataset_prompt_column(self):
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE,
             metrics=_TEST_METRICS,
         )
-        with pytest.raises(KeyError, match="Required column `content` not found"):
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "Missing required input column to start model inference. Please"
+                " provide a `prompt_template` parameter in"
+                " `EvalTask.evaluate()` function if you want to assemble a"
+                " `prompt` with variables from the dataset, or provide a"
+                " `prompt` column in dataset to directly use as input to the"
+                " model."
+            ),
+        ):
             test_eval_task.evaluate(model=mock.MagicMock())
 
-    def test_evaluate_invalid_prompt_template_placeholder(self):
+    def test_evaluate_invalid_prompt_template_variables(self):
         test_eval_task = evaluation.EvalTask(
             dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE,
             metrics=_TEST_METRICS,
         )
-        with pytest.raises(ValueError, match="Failed to complete prompt template"):
+        with pytest.raises(
+            ValueError,
+        ) as excinfo:
             test_eval_task.evaluate(
-                prompt_template="test_prompt_template {invalid_placeholder}",
+                prompt_template="test_prompt_template {invalid_variable}",
             )
+        assert (
+            "Failed to assemble prompt template: The following column(s) are"
+            " missing: invalid_variable. Please verify prompt_template"
+            " variables" in str(excinfo.value)
+        )
 
     def test_evaluate_pairwise_metrics_with_multiple_baseline_models(self):
         eval_dataset = pd.DataFrame(
             {
-                "context": ["test", "context"],
-                "instruction": ["test", "instruction"],
+                "response": ["test", "response"],
             }
         )
         mock_baseline_model_1 = mock.create_autospec(
@@ -795,15 +677,15 @@ class TestEvaluationErrors:
             generative_models.GenerativeModel, instance=True
         )
         mock_baseline_model_2._model_name = "publishers/google/model/gemini-1.5-pro"
-        mock_candidate_model = mock.create_autospec(
-            generative_models.GenerativeModel, instance=True
-        )
-        mock_candidate_model._model_name = "publishers/google/model/gemini-1.0-ultra"
         test_metrics = [
-            _pairwise_summarization_quality.PairwiseSummarizationQuality(
+            pairwise_metric.PairwiseMetric(
+                metric="pairwise_metric_1",
+                metric_prompt_template="test_prompt_template",
                 baseline_model=mock_baseline_model_1,
             ),
-            _pairwise_question_answering_quality.PairwiseQuestionAnsweringQuality(
+            pairwise_metric.PairwiseMetric(
+                metric="pairwise_metric_2",
+                metric_prompt_template="test_prompt_template",
                 baseline_model=mock_baseline_model_2,
             ),
         ]
@@ -812,7 +694,7 @@ class TestEvaluationErrors:
             ValueError,
             match="Not all PairwiseMetric instances have the same baseline_model",
         ):
-            test_eval_task.evaluate(model=mock_candidate_model)
+            test_eval_task.evaluate()
 
     def test_evaluate_invalid_model_and_dataset_input(self):
         test_eval_task = evaluation.EvalTask(
@@ -821,7 +703,17 @@ class TestEvaluationErrors:
         )
         with pytest.raises(
             ValueError,
-            match=("The `model` parameter is specified, but the evaluation `dataset`"),
+            match=re.escape(
+                "The `model` parameter or `baseline_model` in pairwise metric"
+                " is specified, but the evaluation `dataset` contains model"
+                " response column or baseline model response column `response`"
+                " to perform bring-your-own-response(BYOR) evaluation. If you"
+                " would like to perform evaluation using the dataset with the"
+                " existing model response column or or baseline model response"
+                " column `response`, please remove `model` parameter in"
+                " `EvalTask.evaluate` function or keep `baseline_model` as None"
+                " in pairwise metric."
+            ),
         ):
             test_eval_task.evaluate(
                 model=generative_models.GenerativeModel(model_name="invalid_model_name")
@@ -952,35 +844,35 @@ class TestPromptTemplate:
         prompt_template = evaluation.PromptTemplate(template_str)
         assert prompt_template.template == template_str
 
-    def test_get_placeholders(self):
+    def test_get_variables(self):
         template_str = "Hello, {name}! Today is {day}."
         prompt_template = evaluation.PromptTemplate(template_str)
-        assert prompt_template.placeholders == {"name", "day"}
+        assert prompt_template.variables == {"name", "day"}
 
     def test_format(self):
         template_str = "Hello, {name}! Today is {day}."
         prompt_template = evaluation.PromptTemplate(template_str)
-        completed_prompt = prompt_template.assemble(name="John", day="Monday")
-        assert str(completed_prompt) == "Hello, John! Today is Monday."
+        assembled_prompt = prompt_template.assemble(name="John", day="Monday")
+        assert str(assembled_prompt) == "Hello, John! Today is Monday."
 
-    def test_format_missing_placeholder(self):
+    def test_format_missing_variable(self):
         template_str = "Hello, {name}!"
         prompt_template = evaluation.PromptTemplate(template_str)
-        completed_prompt = prompt_template.assemble()
-        assert str(completed_prompt) == "Hello, {name}!"
-        assert prompt_template.placeholders == {"name"}
+        assembled_prompt = prompt_template.assemble()
+        assert str(assembled_prompt) == "Hello, {name}!"
+        assert prompt_template.variables == {"name"}
 
     def test_partial_format(self):
         template_str = "Hello, {name}! Today is {day}."
         prompt_template = evaluation.PromptTemplate(template_str)
-        partially_completed_prompt = prompt_template.assemble(name="John")
+        partially_assembled_prompt = prompt_template.assemble(name="John")
 
-        assert isinstance(partially_completed_prompt, evaluation.PromptTemplate)
-        assert str(partially_completed_prompt) == "Hello, John! Today is {day}."
-        assert partially_completed_prompt.placeholders == {"day"}
+        assert isinstance(partially_assembled_prompt, evaluation.PromptTemplate)
+        assert str(partially_assembled_prompt) == "Hello, John! Today is {day}."
+        assert partially_assembled_prompt.variables == {"day"}
 
-        completed_prompt = partially_completed_prompt.assemble(day="Monday")
-        assert str(completed_prompt) == "Hello, John! Today is Monday."
+        assembled_prompt = partially_assembled_prompt.assemble(day="Monday")
+        assert str(assembled_prompt) == "Hello, John! Today is Monday."
 
     def test_str(self):
         template_str = "Hello, world!"
