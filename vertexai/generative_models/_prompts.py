@@ -91,6 +91,37 @@ class Prompt:
             contents=prompt.assemble_contents(**prompt.variables)
         )
         ```
+        Generate content with multiple sets of variables:
+        ```
+        prompt = Prompt(
+            prompt_data="Hello, {name}! Today is {day}. How are you?",
+            variables=[
+                {"name": "Alice", "day": "Monday"},
+                {"name": "Bob", "day": "Tuesday"},
+            ],
+            generation_config=GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=100,
+                stop_sequences=["\n\n\n"],
+            ),
+            model_name="gemini-1.0-pro-002",
+            safety_settings=[SafetySetting(
+                category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                method=SafetySetting.HarmBlockMethod.SEVERITY,
+            )],
+            system_instruction="Please answer in a short sentence.",
+        )
+
+        # Generate content using the assembled prompt for each variable set.
+        for i in range(len(prompt.variables)):
+            prompt.generate_content(
+                contents=prompt.assemble_contents(**prompt.variables[i])
+            )
+        ```
     """
 
     def __init__(
