@@ -1942,6 +1942,10 @@ class Candidate:
         )
 
     @property
+    def avg_logprobs(self) -> float:
+        return self._raw_candidate.avg_logprobs
+
+    @property
     def finish_reason(self) -> gapic_content_types.Candidate.FinishReason:
         return self._raw_candidate.finish_reason
 
