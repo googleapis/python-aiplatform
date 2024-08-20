@@ -111,7 +111,9 @@ def build_request(
         raise ValueError(f"Metric name: {metric_name} is not supported.") from e
     model_based_metric_instance_input = {}
     metric_column_mapping = evaluation_run_config.metric_column_mapping
-    if isinstance(metric, metrics_base._ModelBasedMetric):
+    if isinstance(
+        metric, metrics_base._ModelBasedMetric
+    ):  # pylint: disable=protected-access
         metric_spec.metric_prompt_template = metric.metric_prompt_template
         for variable in prompt_template_base.PromptTemplate(
             metric.metric_prompt_template

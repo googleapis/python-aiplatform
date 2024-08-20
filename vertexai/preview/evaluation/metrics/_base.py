@@ -17,7 +17,7 @@
 """Base classes for evaluation metrics."""
 
 import abc
-from typing import Any, Callable, Dict, Literal, Optional, Union
+from typing import Any, Callable, Dict, Literal, Union
 
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import (
@@ -67,7 +67,7 @@ class _ModelBasedMetric(_Metric):
           metric_prompt_template: A metric prompt template for performing
             the model-based evaluation. A freeform string is also accepted.
         """
-        self._metric = metric
+        super().__init__(metric=metric)
         self.metric_prompt_template = str(metric_prompt_template)
 
 
@@ -116,34 +116,10 @@ class _AutomaticMetric(_Metric):
     def __init__(
         self,
         metric: Literal[constants.Metric.ROUGE],
-        rouge_type: Optional[str] = None,
-        use_stemmer: bool = False,
-        split_summaries: bool = False,
     ):
         """Initializes the automatic evaluation metric.
 
         Args:
           metric: The automatic evaluation metric name.
-          rouge_type: Supported rouge types are rougen[1-9], rougeL, and rougeLsum.
-          use_stemmer: Whether to use stemmer to compute rouge score.
-          split_summaries: Whether to split summaries while using 'rougeLsum' to
-            compute rouge score.
         """
-        self._metric = metric
-
-        if metric == constants.Metric.ROUGE:
-            self._rouge_type = rouge_type
-            self._use_stemmer = use_stemmer
-            self._split_summaries = split_summaries
-
-    @property
-    def rouge_type(self) -> str:
-        return self._rouge_type
-
-    @property
-    def use_stemmer(self) -> bool:
-        return self._use_stemmer
-
-    @property
-    def split_summaries(self) -> bool:
-        return self._split_summaries
+        super().__init__(metric=metric)

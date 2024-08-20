@@ -25,7 +25,7 @@ from vertexai.preview.evaluation.metrics import (
 )
 
 
-class PairwiseMetric(_base._ModelBasedMetric):
+class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-access
     """A Model-based Pairwise Metric.
 
     A model-based evaluation metric that compares two generative models' responses

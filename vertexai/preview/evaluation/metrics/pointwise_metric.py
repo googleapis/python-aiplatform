@@ -24,7 +24,7 @@ from vertexai.preview.evaluation.metrics import (
 )
 
 
-class PointwiseMetric(_base._ModelBasedMetric):
+class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-access
     """A Model-based Pointwise Metric.
 
     A model-based evaluation metric that evaluate a single generative model's

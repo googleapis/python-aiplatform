@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Evaluation Orchestration Library."""
 
 import collections
 from concurrent import futures
@@ -102,7 +103,9 @@ def _validate_metric_column_map(
 ):
     """Validates the column map for metric prompt template usage."""
     for metric in evaluation_run_config.metrics:
-        if isinstance(metric, metrics_base._ModelBasedMetric):
+        if isinstance(
+            metric, metrics_base._ModelBasedMetric
+        ):  # pylint: disable=protected-access
             for variable in prompt_template_base.PromptTemplate(
                 metric.metric_prompt_template
             ).variables:

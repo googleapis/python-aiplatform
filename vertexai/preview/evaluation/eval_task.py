@@ -122,7 +122,7 @@ class EvalTask:
           ```
 
         2. To perform evaluation with Gemini model inference, specify the `model`
-        parameter with a GenerativeModel instance.  The input column name to the
+        parameter with a `GenerativeModel` instance.  The input column name to the
         model is `prompt` and must be present in the dataset.
 
           ```
@@ -188,8 +188,8 @@ class EvalTask:
           ```
 
         5. To perform pairwise metric evaluation with model inference step, specify
-        the `baseline_model` input to a PairwiseMetric instance and the candidate
-        `model` input to the EvalTask.evaluate() function. The input column name
+        the `baseline_model` input to a `PairwiseMetric` instance and the candidate
+        `model` input to the `EvalTask.evaluate()` function. The input column name
         to both models is `prompt` and must be present in the dataset.
 
           ```
