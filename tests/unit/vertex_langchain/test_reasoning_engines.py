@@ -352,6 +352,64 @@ class TestReasoningEngine:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    def test_prepare_create(
+        self,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+    ):
+        _reasoning_engines._prepare_create(
+            reasoning_engine=self.test_app,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[],
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+        )
+        cloudpickle_dump_mock.assert_called()  # when preparing object.pkl
+        tarfile_open_mock.assert_called()  # when preparing extra_packages
+
+    def test_prepare_update_with_unspecified_extra_packages(
+        self,
+        cloud_storage_create_bucket_mock,
+        cloudpickle_dump_mock,
+    ):
+        with mock.patch.object(
+            _reasoning_engines,
+            "_upload_extra_packages",
+        ) as upload_extra_packages_mock:
+            _reasoning_engines._prepare_update(
+                reasoning_engine=self.test_app,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+                extra_packages=None,
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                staging_bucket=_TEST_STAGING_BUCKET,
+                gcs_dir_name=_TEST_GCS_DIR_NAME,
+            )
+            upload_extra_packages_mock.assert_not_called()
+
+    def test_prepare_update_with_empty_extra_packages(
+        self,
+        cloud_storage_create_bucket_mock,
+        cloudpickle_dump_mock,
+    ):
+        with mock.patch.object(
+            _reasoning_engines,
+            "_upload_extra_packages",
+        ) as upload_extra_packages_mock:
+            _reasoning_engines._prepare_update(
+                reasoning_engine=self.test_app,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+                extra_packages=[],
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                staging_bucket=_TEST_STAGING_BUCKET,
+                gcs_dir_name=_TEST_GCS_DIR_NAME,
+            )
+            upload_extra_packages_mock.assert_called()  # user wants to override
+
     def test_get_reasoning_engine(self, get_reasoning_engine_mock):
         reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
         get_reasoning_engine_mock.assert_called_with(
