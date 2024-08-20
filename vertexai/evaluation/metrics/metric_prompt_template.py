@@ -19,7 +19,7 @@
 from typing import Dict, List, Optional
 
 from google.cloud.aiplatform import base
-from vertexai.preview.evaluation import (
+from vertexai.evaluation import (
     prompt_template,
 )
 

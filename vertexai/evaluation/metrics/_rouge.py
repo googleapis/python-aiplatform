@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 from typing import Literal
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation.metrics import _base
+from vertexai.evaluation import constants
+from vertexai.evaluation.metrics import _base
 
 
 class Rouge(_base._AutomaticMetric):  # pylint: disable=protected-access

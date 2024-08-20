@@ -19,8 +19,8 @@
 from typing import Callable, Optional, Union
 
 from vertexai import generative_models
-from vertexai.preview.evaluation.metrics import _base
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import _base
+from vertexai.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
 

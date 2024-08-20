@@ -18,12 +18,12 @@
 
 from typing import List
 
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import constants
+from vertexai.evaluation.metrics import (
     _default_templates,
 )
-from vertexai.preview.evaluation.metrics import pairwise_metric
-from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.evaluation.metrics import pairwise_metric
+from vertexai.evaluation.metrics import pointwise_metric
 import immutabledict
 
 

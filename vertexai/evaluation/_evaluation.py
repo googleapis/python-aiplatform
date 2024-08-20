@@ -28,23 +28,23 @@ from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
 )
 from vertexai import generative_models
-from vertexai.preview.evaluation import _base as evaluation_base
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation import (
+from vertexai.evaluation import _base as evaluation_base
+from vertexai.evaluation import constants
+from vertexai.evaluation import (
     prompt_template as prompt_template_base,
 )
-from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import utils
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     _instance_evaluation,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     metric_prompt_template_examples,
 )
-from vertexai.preview.evaluation.metrics import pairwise_metric
-from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.evaluation.metrics import pairwise_metric
+from vertexai.evaluation.metrics import pointwise_metric
 
 
 try:

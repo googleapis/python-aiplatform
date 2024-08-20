@@ -19,8 +19,8 @@
 import abc
 from typing import Any, Callable, Dict, Literal, Union
 
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import constants
+from vertexai.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
 

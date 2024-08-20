@@ -20,10 +20,10 @@
 import dataclasses
 from typing import Dict, List, Optional, Union, TYPE_CHECKING
 
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
 

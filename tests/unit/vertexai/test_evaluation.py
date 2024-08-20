@@ -24,23 +24,23 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     evaluation_service as gapic_evaluation_service_types,
 )
+from vertexai import evaluation
 from vertexai import generative_models
-from vertexai.preview import evaluation
-from vertexai.preview.evaluation import _base as eval_base
-from vertexai.preview.evaluation import _evaluation
-from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation.metrics import _rouge
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation import _evaluation
+from vertexai.evaluation import utils
+from vertexai.evaluation.metrics import _rouge
+from vertexai.evaluation.metrics import (
     metric_prompt_template_examples,
 )
-from vertexai.preview.evaluation.metrics import pairwise_metric
-from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.evaluation.metrics import pairwise_metric
+from vertexai.evaluation.metrics import pointwise_metric
 import numpy as np
 import pandas as pd
 import pytest

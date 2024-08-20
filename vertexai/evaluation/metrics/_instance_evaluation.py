@@ -22,24 +22,24 @@ from typing import Any, Dict, Union
 from google import api_core
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     evaluation_service as gapic_eval_service_types,
 )
-from vertexai.preview.evaluation import _base as eval_base
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation import (
+from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation import constants
+from vertexai.evaluation import utils
+from vertexai.evaluation import (
     prompt_template as prompt_template_base,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
-from vertexai.preview.evaluation.metrics import _rouge
-from vertexai.preview.evaluation.metrics import pairwise_metric
-from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.evaluation.metrics import _rouge
+from vertexai.evaluation.metrics import pairwise_metric
+from vertexai.evaluation.metrics import pointwise_metric
 from google.protobuf import json_format
 
 

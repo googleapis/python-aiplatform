@@ -28,10 +28,10 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from vertexai.preview.evaluation import constants
+from vertexai.evaluation import constants
 
 
 if TYPE_CHECKING:
@@ -44,10 +44,10 @@ _LOGGER = base.Logger(__name__)
 
 class _EvaluationServiceClientWithOverride(utils.ClientWithOverride):
     _is_temporary = False
-    _default_version = compat.V1BETA1
+    _default_version = compat.V1
     _version_map = (
         (
-            compat.V1BETA1,
+            compat.V1,
             gapic_evaluation_services.EvaluationServiceClient,
         ),
     )

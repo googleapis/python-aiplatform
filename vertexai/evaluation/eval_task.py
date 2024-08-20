@@ -22,17 +22,17 @@ import vertexai
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.metadata import metadata
 from vertexai import generative_models
-from vertexai.preview.evaluation import _base as eval_base
-from vertexai.preview.evaluation import _evaluation
-from vertexai.preview.evaluation import constants
-from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation import _evaluation
+from vertexai.evaluation import constants
+from vertexai.evaluation import utils
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     pairwise_metric,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     pointwise_metric,
 )
 import numpy as np
