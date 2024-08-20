@@ -1406,6 +1406,7 @@ class GenerationConfig:
         frequency_penalty: Optional[float] = None,
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
+        seed: Optional[int] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1414,6 +1415,7 @@ class GenerationConfig:
             top_p: If specified, nucleus sampling will be used. Range: (0.0, 1.0]
             top_k: If specified, top-k sampling will be used.
             candidate_count: Number of candidates to generate.
+            seed: Random seed for the generation.
             max_output_tokens: The maximum number of output tokens to generate per message.
             stop_sequences: A list of stop sequences.
             presence_penalty: Positive values penalize tokens that have appeared in the generated text,
@@ -1442,6 +1444,7 @@ class GenerationConfig:
                     candidate_count=1,
                     max_output_tokens=100,
                     stop_sequences=["\n\n\n"],
+                    seed=5,
                 )
             )
             ```
@@ -1462,6 +1465,7 @@ class GenerationConfig:
             frequency_penalty=frequency_penalty,
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
+            seed=seed,
         )
 
     @classmethod

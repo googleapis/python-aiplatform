@@ -227,6 +227,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 top_p=0.95,
                 top_k=20,
                 candidate_count=1,
+                seed=5,
                 max_output_tokens=100,
                 stop_sequences=["STOP!"],
                 presence_penalty=0.0,
