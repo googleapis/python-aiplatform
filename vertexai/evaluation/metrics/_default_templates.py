@@ -73,12 +73,7 @@ Then you will give step-by-step explanations for your judgement, compare results
 You will be assessing coherence, which measures the ability to provide a coherent response based on the user prompt.
 
 ## Criteria
-Coherence: A clear and coherent presentation of ideas. The writing should demonstrate
-a logical flow, where ideas progress smoothly with clear transitions, and maintain
-relevance to the main point. Effective organization is essential, with a clear structure,
-signaling, and topic sentences to guide the reader. Additionally, the writing should
-exhibit strong cohesion, using word choices, sentence structures, pronouns, and
-figurative language to reinforce connections between ideas and create a unified piece.
+Coherence: A clear and coherent presentation of ideas. The writing should demonstrate a logical flow, where ideas progress smoothly with clear transitions, and maintain relevance to the main point. Effective organization is essential, with a clear structure, signaling, and topic sentences to guide the reader. Additionally, the writing should exhibit strong cohesion, using word choices, sentence structures, pronouns, and figurative language to reinforce connections between ideas and create a unified piece.
 
 ## Rating Rubric
 `A`: Response A is better than Response B based on all the criteria provided.
@@ -508,7 +503,7 @@ You will be assessing Text Quality, which measures how effectively the text conv
 ## Criteria
 Coherence: The response presents ideas in a logical and organized manner, with clear transitions and a consistent focus, making it easy to follow and understand.
 Fluency: The text flows smoothly and naturally, adhering to grammatical rules and using appropriate vocabulary.
-Instruction following: The response demonstrates a clear understanding of the summarization task instructions, satisfying all of the instruction's requirements.
+Instruction following: The response demonstrates a clear understanding of the task instructions, satisfying all of the instruction's requirements.
 Groundedness: The response contains information included only in the context. The response does not reference any outside information.
 Verbosity: The response is appropriately concise, providing sufficient detail without using complex language to thoroughly address the prompt without being overly wordy or excessively brief.
 
@@ -590,7 +585,7 @@ You will be assessing Multi-turn Chat Quality, which measures how effectively th
 ## Criteria
 Coherence: The response presents ideas in a logical and organized manner, with clear transitions and a consistent focus, making it easy to follow and understand.
 Fluency: The text flows smoothly and naturally, adhering to grammatical rules and using appropriate vocabulary.
-Instruction following: The response demonstrates a clear understanding of the summarization task instructions, satisfying all of the instruction's requirements.
+Instruction following: The response demonstrates a clear understanding of the task instructions, satisfying all of the instruction's requirements.
 Groundedness: The response contains information included only in the context. The response does not reference any outside information.
 Verbosity: The response is appropriately concise, providing sufficient detail without using complex language to thoroughly address the prompt without being overly wordy or excessively brief.
 Collaborativity: The response actively contributes to the conversation by asking relevant follow-up questions, making suggestions, or offering insights when appropriate.
@@ -636,7 +631,7 @@ You will be assessing Multi-turn Chat Quality, which measures how effectively th
 ## Criteria
 Coherence: The response presents ideas in a logical and organized manner, with clear transitions and a consistent focus, making it easy to follow and understand.
 Fluency: The text flows smoothly and naturally, adhering to grammatical rules and using appropriate vocabulary.
-Instruction following: The response demonstrates a clear understanding of the summarization task instructions, satisfying all of the instruction's requirements.
+Instruction following: The response demonstrates a clear understanding of the task instructions, satisfying all of the instruction's requirements.
 Groundedness: The response contains information included only in the context. The response does not reference any outside information.
 Verbosity: The response is appropriately concise, providing sufficient detail without using complex language to thoroughly address the prompt without being overly wordy or excessively brief.
 Collaborativity: The response actively contributes to the conversation by asking relevant follow-up questions, making suggestions, or offering insights when appropriate.
@@ -788,8 +783,6 @@ STEP 2: Score based on the rubric.
 
 # User Inputs and AI-generated Response
 ## User Inputs
-### Context
-{context}
 
 ### Prompt
 {prompt}
@@ -831,8 +824,6 @@ STEP 5: Output your assessment reasoning in the explanation field.
 
 # User Inputs and AI-generated Responses
 ## User Inputs
-### Context
-{context}
 
 ### Prompt
 {prompt}
