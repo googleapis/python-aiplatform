@@ -351,6 +351,8 @@ def docs(session):
     session.install(
         "sphinx==5.0.2",
         "alabaster",
+        "immutabledict",
+        "google-cloud-aiplatform[evaluation]",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
     )
@@ -420,6 +422,8 @@ def gemini_docs(session):
     session.install(
         "sphinx==5.0.2",
         "alabaster",
+        "immutabledict",
+        "google-cloud-aiplatform[evaluation]",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
     )

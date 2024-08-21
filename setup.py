@@ -152,6 +152,7 @@ reasoning_engine_extra_require = [
 evaluation_extra_require = [
     "pandas >= 1.0.0, < 2.2.0",
     "tqdm>=4.23.0",
+    "immutabledict",
 ]
 
 langchain_extra_require = [
