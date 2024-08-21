@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import itertools
+import httpx
 import json
 import pathlib
 import re
@@ -674,6 +675,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self.authorized_session = None
+        self.httpx_async_client = None
         self.raw_predict_request_url = None
         self.stream_raw_predict_request_url = None
 
@@ -782,6 +784,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         enable_request_response_logging=False,
         request_response_logging_sampling_rate: Optional[float] = None,
         request_response_logging_bq_destination_table: Optional[str] = None,
+        dedicated_endpoint_enabled=False,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -849,6 +852,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             request_response_logging_bq_destination_table (str):
                 Optional. The request response logging bigquery destination. If not set, will create a table with name:
                 ``bq://{project_id}.logging_{endpoint_display_name}_{endpoint_id}.request_response_logging``.
+            dedicated_endpoint_enabled (bool):
+                Optional. If enabled, a dedicated dns will be created and your
+                traffic will be fully isolated from other customers' traffic and
+                latency will be significantly reduced.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -893,6 +900,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             create_request_timeout=create_request_timeout,
             endpoint_id=endpoint_id,
             predict_request_response_logging_config=predict_request_response_logging_config,
+            dedicated_endpoint_enabled=dedicated_endpoint_enabled,
         )
 
     @classmethod
@@ -918,6 +926,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         private_service_connect_config: Optional[
             gca_service_networking.PrivateServiceConnectConfig
         ] = None,
+        dedicated_endpoint_enabled=False,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -984,6 +993,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             private_service_connect_config (aiplatform.service_network.PrivateServiceConnectConfig):
                 If enabled, the endpoint can be accessible via [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect).
                 Cannot be enabled when network is specified.
+            dedicated_endpoint_enabled (bool):
+                Optional. If enabled, a dedicated dns will be created and your
+                traffic will be fully isolated from other customers' traffic and
+                latency will be significantly reduced.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1002,6 +1015,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             network=network,
             predict_request_response_logging_config=predict_request_response_logging_config,
             private_service_connect_config=private_service_connect_config,
+            dedicated_endpoint_enabled=dedicated_endpoint_enabled,
         )
 
         operation_future = api_client.create_endpoint(
@@ -1060,6 +1074,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             credentials=credentials,
         )
         endpoint.authorized_session = None
+        endpoint.httpx_async_client = None
         endpoint.raw_predict_request_url = None
         endpoint.stream_raw_predict_request_url = None
 
@@ -2167,6 +2182,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
         use_raw_predict: Optional[bool] = False,
+        use_dedicated_endpoint: Optional[bool] = False,
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
@@ -2194,6 +2210,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_raw_predict (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 against Endpoint.raw_predict().
+            use_dedicated_endpoint (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                using the dedicated endpoint dns.
 
         Returns:
             prediction (aiplatform.Prediction):
@@ -2219,6 +2238,51 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     _RAW_PREDICT_MODEL_VERSION_ID_KEY, None
                 ),
             )
+
+        if use_dedicated_endpoint:
+            self._sync_gca_resource_if_skipped()
+            if (
+                not self._gca_resource.dedicated_endpoint_enabled
+                or self._gca_resource.dedicated_endpoint_dns is None
+            ):
+                raise ValueError(
+                    "Dedicated endpoint is not enabled or DNS is empty."
+                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "and model are ready before making a prediction."
+                )
+
+            if not self.authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self.authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials
+                )
+
+            headers = {
+                "Content-Type": "application/json",
+            }
+
+            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+            response = self.authorized_session.post(
+                url=url,
+                data=json.dumps(
+                    {
+                        "instances": instances,
+                        "parameters": parameters,
+                    }
+                ),
+                headers=headers,
+            )
+
+            prediction_response = json.loads(response.text)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=prediction_response.get("deployedModelId"),
+                model_resource_name=prediction_response.get("model"),
+                model_version_id=prediction_response.get("modelVersionId"),
+            )
+
         else:
             prediction_response = self._prediction_client.predict(
                 endpoint=self._gca_resource.name,
@@ -2248,6 +2312,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         *,
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
+        use_dedicated_endpoint: Optional[bool] = False,
     ) -> Prediction:
         """Make an asynchronous prediction against this Endpoint.
         Example usage:
@@ -2277,12 +2342,65 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
+            use_dedicated_endpoint (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                using the dedicated endpoint dns.
 
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
         """
         self.wait()
+
+        if use_dedicated_endpoint:
+            self._sync_gca_resource_if_skipped()
+            if (
+                not self._gca_resource.dedicated_endpoint_enabled
+                or self._gca_resource.dedicated_endpoint_dns is None
+            ):
+                raise ValueError(
+                    "Dedicated endpoint is not enabled or DNS is empty."
+                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "and model are ready before making a prediction."
+                )
+
+            if not self.httpx_async_client:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self.httpx_async_client = httpx.AsyncClient()
+
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
+
+            token = self.credentials.token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+
+            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+            async with self.httpx_async_client as client:
+                response = (
+                    await client.post(
+                        url=url,
+                        data=json.dumps(
+                            {
+                                "instances": instances,
+                                "parameters": parameters,
+                            }
+                        ),
+                        headers=headers,
+                    )
+                ).json()
+
+            prediction_response = json.loads(response.text)
+
+            return Prediction(
+                predictions=prediction_response.get("predictions"),
+                metadata=prediction_response.get("metadata"),
+                deployed_model_id=prediction_response.get("deployedModelId"),
+                model_resource_name=prediction_response.get("model"),
+                model_version_id=prediction_response.get("modelVersionId"),
+            )
 
         prediction_response = await self._prediction_async_client.predict(
             endpoint=self._gca_resource.name,
@@ -2307,7 +2425,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         )
 
     def raw_predict(
-        self, body: bytes, headers: Dict[str, str]
+        self,
+        body: bytes,
+        headers: Dict[str, str],
+        use_dedicated_endpoint: Optional[bool] = False,
     ) -> requests.models.Response:
         """Makes a prediction request using arbitrary headers.
 
@@ -2325,6 +2446,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
             headers (Dict[str, str]):
                 The header of the request as a dictionary. There are no restrictions on the header.
+            use_dedicated_endpoint (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                using the dedicated endpoint dns.
 
         Returns:
             A requests.models.Response object containing the status code and prediction results.
@@ -2338,12 +2462,28 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if self.raw_predict_request_url is None:
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
-        return self.authorized_session.post(
-            url=self.raw_predict_request_url, data=body, headers=headers
-        )
+        url = self.raw_predict_request_url
+
+        if use_dedicated_endpoint:
+            self._sync_gca_resource_if_skipped()
+            if (
+                not self._gca_resource.dedicated_endpoint_enabled
+                or self._gca_resource.dedicated_endpoint_dns is None
+            ):
+                raise ValueError(
+                    "Dedicated endpoint is not enabled or DNS is empty."
+                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "and model are ready before making a prediction."
+                )
+            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+
+        return self.authorized_session.post(url=url, data=body, headers=headers)
 
     def stream_raw_predict(
-        self, body: bytes, headers: Dict[str, str]
+        self,
+        body: bytes,
+        headers: Dict[str, str],
+        use_dedicated_endpoint: Optional[bool] = False,
     ) -> Iterator[requests.models.Response]:
         """Makes a streaming prediction request using arbitrary headers.
 
@@ -2365,6 +2505,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             headers (Dict[str, str]):
                 The header of the request as a dictionary. There are no
                 restrictions on the header.
+            use_dedicated_endpoint (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                using the dedicated endpoint dns.
 
         Yields:
             predictions (Iterator[requests.models.Response]):
@@ -2379,8 +2522,23 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if self.stream_raw_predict_request_url is None:
             self.stream_raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
 
+        url = self.raw_predict_request_url
+
+        if use_dedicated_endpoint:
+            self._sync_gca_resource_if_skipped()
+            if (
+                not self._gca_resource.dedicated_endpoint_enabled
+                or self._gca_resource.dedicated_endpoint_dns is None
+            ):
+                raise ValueError(
+                    "Dedicated endpoint is not enabled or DNS is empty."
+                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "and model are ready before making a prediction."
+                )
+            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:streamRawPredict"
+
         with self.authorized_session.post(
-            url=self.stream_raw_predict_request_url,
+            url=url,
             data=body,
             headers=headers,
             stream=True,
