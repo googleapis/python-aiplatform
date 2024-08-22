@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import aiohttp
 import copy
 from datetime import datetime, timedelta
 from importlib import reload
@@ -565,6 +566,28 @@ def predict_endpoint_http_mock():
         google_auth_requests.AuthorizedSession, "post"
     ) as predict_mock:
         predict_mock.return_value = resp
+        yield predict_mock
+
+
+@pytest.fixture
+def predict_endpoint_async_http_mock():
+    mock_response = mock.AsyncMock()
+    mock_response.__aenter__.return_value = mock_response
+    mock_response.__aexit__.return_value = None
+    mock_response.status_code = 200
+    mock_response.text = mock.AsyncMock(
+        return_value=json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        )
+    )
+    with mock.patch.object(aiohttp.ClientSession, "post") as predict_mock:
+        predict_mock.return_value = mock_response
         yield predict_mock
 
 
@@ -2380,6 +2403,54 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             timeout=None,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    async def test_predict_async_dedicated_endpoint(
+        self, predict_endpoint_async_http_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        test_prediction = await test_endpoint.predict_async(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            use_dedicated_endpoint=True,
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
+            model_version_id=_TEST_VERSION_ID,
+            model_resource_name=_TEST_MODEL_NAME,
+        )
+
+        assert true_prediction == test_prediction
+        predict_endpoint_async_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:predict",
+            data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer None",
+            },
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_predict_async_use_dedicated_endpoint_for_regular_endpoint(self):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        with pytest.raises(ValueError) as err:
+            await test_endpoint.predict_async(
+                instances=_TEST_INSTANCES,
+                parameters={"param": 3.0},
+                use_dedicated_endpoint=True,
+            )
+        assert err.match(
+            regexp=r"Dedicated endpoint is not enabled or DNS is empty."
+            "Please make sure endpoint has dedicated endpoint enabled"
+            "and model are ready before making a prediction."
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
