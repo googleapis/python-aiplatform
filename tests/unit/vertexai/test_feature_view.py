@@ -148,6 +148,40 @@ def search_nearest_entities_mock():
         yield search_nearest_entities_mock
 
 
+@pytest.fixture
+def transport_mock():
+    with mock.patch(
+        "google.cloud.aiplatform_v1.services.feature_online_store_service.transports.grpc.FeatureOnlineStoreServiceGrpcTransport"
+    ) as transport:
+        transport.return_value = mock.MagicMock(autospec=True)
+        yield transport
+
+
+@pytest.fixture
+def grpc_insecure_channel_mock():
+    import grpc
+
+    with mock.patch.object(grpc, "insecure_channel", autospec=True) as channel:
+        channel.return_value = mock.MagicMock(autospec=True)
+        yield channel
+
+
+@pytest.fixture
+def client_mock():
+    with mock.patch(
+        "google.cloud.aiplatform_v1.services.feature_online_store_service.FeatureOnlineStoreServiceClient"
+    ) as client_mock:
+        yield client_mock
+
+
+@pytest.fixture
+def utils_client_with_override_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.utils.FeatureOnlineStoreClientWithOverride"
+    ) as client_mock:
+        yield client_mock
+
+
 def fv_eq(
     fv_to_check: FeatureView,
     name: str,
@@ -426,6 +460,308 @@ def test_fetch_feature_values_optimized_no_endpoint(
         ),
     ):
         FeatureView(_TEST_OPTIMIZED_FV2_PATH).read(key=["key1"]).to_dict()
+
+
+def test_ffv_optimized_psc_with_no_connection_options_raises_error(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+):
+    with pytest.raises(ValueError) as excinfo:
+        FeatureView(_TEST_OPTIMIZED_FV1_PATH).read(key=["key1"])
+
+    assert str(excinfo.value) == (
+        "Use `connection_options` to specify an IP address. Required for optimized online store with private service connect."
+    )
+
+
+def test_ffv_optimized_psc_with_no_connection_transport_raises_error(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+):
+    with pytest.raises(ValueError) as excinfo:
+        FeatureView(_TEST_OPTIMIZED_FV1_PATH).read(
+            key=["key1"],
+            connection_options=fs_utils.ConnectionOptions(
+                host="1.2.3.4", transport=None
+            ),
+        )
+
+    assert str(excinfo.value) == (
+        "Unsupported connection transport type, got transport: None"
+    )
+
+
+def test_ffv_optimized_psc_with_bad_connection_transport_raises_error(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+):
+    with pytest.raises(ValueError) as excinfo:
+        FeatureView(_TEST_OPTIMIZED_FV1_PATH).read(
+            key=["key1"],
+            connection_options=fs_utils.ConnectionOptions(
+                host="1.2.3.4", transport="hi"
+            ),
+        )
+
+    assert str(excinfo.value) == (
+        "Unsupported connection transport type, got transport: hi"
+    )
+
+
+@pytest.mark.parametrize("output_type", ["dict", "proto"])
+def test_ffv_optimized_psc(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+    transport_mock,
+    grpc_insecure_channel_mock,
+    fetch_feature_values_mock,
+    output_type,
+):
+    rsp = FeatureView(_TEST_OPTIMIZED_FV1_PATH).read(
+        key=["key1"],
+        connection_options=fs_utils.ConnectionOptions(
+            host="1.2.3.4",
+            transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+        ),
+    )
+
+    # Ensure that we create and use insecure channel to the target.
+    grpc_insecure_channel_mock.assert_called_once_with("1.2.3.4:10002")
+    transport_grpc_channel = transport_mock.call_args.kwargs["channel"]
+    assert transport_grpc_channel == grpc_insecure_channel_mock.return_value
+
+    if output_type == "dict":
+        assert rsp.to_dict() == {
+            "features": [{"name": "key1", "value": {"string_value": "value1"}}]
+        }
+    elif output_type == "proto":
+        assert rsp.to_proto() == _TEST_FV_FETCH1
+
+
+def test_same_connection_options_are_equal():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    assert opt1 == opt2
+
+
+def test_different_host_in_connection_options_are_not_equal():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.2",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+
+    assert opt1 != opt2
+
+
+def test_bad_transport_in_compared_connection_options_raises_error():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=None,
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        assert opt1 != opt2
+
+    assert str(excinfo.value) == (
+        "Transport 'ConnectionOptions.InsecureGrpcChannel()' cannot be compared to transport 'None'."
+    )
+
+
+def test_bad_transport_in_connection_options_raises_error():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=None,
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        assert opt1 != opt2
+
+    assert str(excinfo.value) == ("Unsupported transport supplied: None")
+
+
+def test_same_connection_options_have_same_hash():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+
+    d = {}
+    d[opt1] = "hi"
+    assert d[opt2] == "hi"
+
+
+@pytest.mark.parametrize(
+    "hosts",
+    [
+        ("1.1.1.1", "1.1.1.2"),
+        ("1.1.1.2", "1.1.1.1"),
+        ("10.0.0.1", "9.9.9.9"),
+    ],
+)
+def test_different_host_in_connection_options_have_different_hash(hosts):
+    opt1 = fs_utils.ConnectionOptions(
+        host=hosts[0],
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host=hosts[1],
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+
+    d = {}
+    d[opt1] = "hi"
+    assert opt2 not in d
+
+
+@pytest.mark.parametrize(
+    "transports",
+    [
+        (fs_utils.ConnectionOptions.InsecureGrpcChannel(), None),
+        (None, fs_utils.ConnectionOptions.InsecureGrpcChannel()),
+        (None, "hi"),
+        ("hi", None),
+    ],
+)
+def test_bad_transport_in_connection_options_have_different_hash(transports):
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=transports[0],
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=transports[1],
+    )
+
+    d = {}
+    d[opt1] = "hi"
+    assert opt2 not in d
+
+
+def test_diff_host_and_bad_transport_in_connection_options_have_different_hash():
+    opt1 = fs_utils.ConnectionOptions(
+        host="1.1.1.1",
+        transport=None,
+    )
+    opt2 = fs_utils.ConnectionOptions(
+        host="9.9.9.9",
+        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+    )
+
+    d = {}
+    d[opt1] = "hi"
+    assert opt2 not in d
+
+
+def test_ffv_optimized_psc_reuse_client_for_same_connection_options_in_same_ffv(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+    client_mock,
+    transport_mock,
+    grpc_insecure_channel_mock,
+    fetch_feature_values_mock,
+):
+    fv = FeatureView(_TEST_OPTIMIZED_FV1_PATH)
+    fv.read(
+        key=["key1"],
+        connection_options=fs_utils.ConnectionOptions(
+            host="1.1.1.1",
+            transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+        ),
+    )
+    fv.read(
+        key=["key2"],
+        connection_options=fs_utils.ConnectionOptions(
+            host="1.1.1.1",
+            transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+        ),
+    )
+
+    # Insecure channel and transport creation should only be done once.
+    assert grpc_insecure_channel_mock.call_args_list == [mock.call("1.1.1.1:10002")]
+    assert transport_mock.call_args_list == [
+        mock.call(channel=grpc_insecure_channel_mock.return_value),
+    ]
+
+
+def test_ffv_optimized_psc_different_client_for_different_connection_options(
+    get_psc_optimized_fos_mock,
+    get_optimized_fv_mock,
+    client_mock,
+    transport_mock,
+    grpc_insecure_channel_mock,
+    fetch_feature_values_mock,
+):
+    # Return two different grpc channels each time insecure channel is called.
+    import grpc
+
+    grpc_chan1 = mock.MagicMock(spec=grpc.Channel)
+    grpc_chan2 = mock.MagicMock(spec=grpc.Channel)
+    grpc_insecure_channel_mock.side_effect = [grpc_chan1, grpc_chan2]
+
+    fv = FeatureView(_TEST_OPTIMIZED_FV1_PATH)
+    fv.read(
+        key=["key1"],
+        connection_options=fs_utils.ConnectionOptions(
+            host="1.1.1.1",
+            transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+        ),
+    )
+    fv.read(
+        key=["key2"],
+        connection_options=fs_utils.ConnectionOptions(
+            host="1.2.3.4",
+            transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+        ),
+    )
+
+    # Insecure channel and transport creation should be done twice - one for each different connection.
+    assert grpc_insecure_channel_mock.call_args_list == [
+        mock.call("1.1.1.1:10002"),
+        mock.call("1.2.3.4:10002"),
+    ]
+    assert transport_mock.call_args_list == [
+        mock.call(channel=grpc_chan1),
+        mock.call(channel=grpc_chan2),
+    ]
+
+
+def test_ffv_optimized_psc_bad_gapic_client_raises_error(
+    get_psc_optimized_fos_mock, get_optimized_fv_mock, utils_client_with_override_mock
+):
+    with pytest.raises(ValueError) as excinfo:
+        FeatureView(_TEST_OPTIMIZED_FV1_PATH).read(
+            key=["key1"],
+            connection_options=fs_utils.ConnectionOptions(
+                host="1.1.1.1",
+                transport=fs_utils.ConnectionOptions.InsecureGrpcChannel(),
+            ),
+        )
+
+    assert str(excinfo.value) == (
+        f"Unexpected gapic class '{utils_client_with_override_mock.get_gapic_client_class.return_value}' used by internal client."
+    )
 
 
 @pytest.mark.parametrize("output_type", ["dict", "proto"])

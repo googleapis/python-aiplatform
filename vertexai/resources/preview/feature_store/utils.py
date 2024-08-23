@@ -19,7 +19,7 @@ import abc
 from dataclasses import dataclass
 from dataclasses import field
 import enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from google.cloud.aiplatform.compat.types import (
     feature_online_store_service as fos_service,
 )
@@ -49,6 +49,39 @@ class PublicEndpointNotFoundError(RuntimeError):
 class FeatureViewBigQuerySource:
     uri: str
     entity_id_columns: List[str]
+
+
+@dataclass(frozen=True)
+class ConnectionOptions:
+    """Represents connection options used for sending RPCs to the online store."""
+
+    @dataclass(frozen=True)
+    class InsecureGrpcChannel:
+        """Use an insecure gRPC channel to connect to the host."""
+
+        pass
+
+    host: str  # IP address or DNS.
+    transport: Union[
+        InsecureGrpcChannel
+    ]  # Currently only insecure gRPC channel is supported.
+
+    def __eq__(self, other):
+        if self.host != other.host:
+            return False
+
+        if isinstance(self.transport, ConnectionOptions.InsecureGrpcChannel):
+            # Insecure grpc channel has no other parameters to check.
+            if isinstance(other.transport, ConnectionOptions.InsecureGrpcChannel):
+                return True
+
+            # Otherwise, can't compare against a different transport type.
+            raise ValueError(
+                f"Transport '{self.transport}' cannot be compared to transport '{other.transport}'."
+            )
+
+        # Currently only InsecureGrpcChannel is supported.
+        raise ValueError(f"Unsupported transport supplied: {self.transport}")
 
 
 @dataclass

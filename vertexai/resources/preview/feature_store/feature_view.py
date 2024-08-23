@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import List, Optional
+from typing import List, Dict, Optional
 from google.cloud.aiplatform import initializer
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -44,6 +44,10 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "feature_view_path"
     _gca_resource: gca_feature_view.FeatureView
     _online_store_client: utils.FeatureOnlineStoreClientWithOverride
+
+    _online_store_clients_with_connection_options: Dict[
+        fs_utils.ConnectionOptions, utils.FeatureOnlineStoreClientWithOverride
+    ] = None
 
     def __init__(
         self,
@@ -108,8 +112,17 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
 
         self._gca_resource = self._get_gca_resource(resource_name=feature_view)
 
-    @property
-    def _get_online_store_client(self) -> utils.FeatureOnlineStoreClientWithOverride:
+    def _get_online_store_client(
+        self, connection_options: Optional[fs_utils.ConnectionOptions] = None
+    ) -> utils.FeatureOnlineStoreClientWithOverride:
+        """Return the online store client.
+
+        Also sets the `_online_store_client` attr if not set yet. Note that if
+        `connection_options` is passed in, the `_online_store_client` attr will
+        not be set - only the client will be returned. If the same
+        `connection_options` is passed in, this code will return the same
+        (cached) client as previously built.
+        """
         if getattr(self, "_online_store_client", None):
             return self._online_store_client
 
@@ -117,6 +130,64 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         from .feature_online_store import FeatureOnlineStore
 
         fos = FeatureOnlineStore(name=fos_name)
+
+        if connection_options:
+            # Check if we have a previously client created for these
+            # connection_options.
+            if self._online_store_clients_with_connection_options is None:
+                self._online_store_clients_with_connection_options = {}
+            if connection_options in self._online_store_clients_with_connection_options:
+                return self._online_store_clients_with_connection_options[
+                    connection_options
+                ]
+            host = connection_options.host
+
+            if isinstance(
+                connection_options.transport,
+                fs_utils.ConnectionOptions.InsecureGrpcChannel,
+            ):
+                import grpc
+                from google.cloud.aiplatform_v1.services import (
+                    feature_online_store_service as feature_online_store_service_v1,
+                )
+                from google.cloud.aiplatform_v1beta1.services import (
+                    feature_online_store_service as feature_online_store_service_v1beta1,
+                )
+
+                gapic_client_class = (
+                    utils.FeatureOnlineStoreClientWithOverride.get_gapic_client_class()
+                )
+                gapic_client_class_to_transport_class = {
+                    feature_online_store_service_v1.client.FeatureOnlineStoreServiceClient: (
+                        feature_online_store_service_v1.transports.grpc.FeatureOnlineStoreServiceGrpcTransport
+                    ),
+                    feature_online_store_service_v1beta1.client.FeatureOnlineStoreServiceClient: (
+                        feature_online_store_service_v1beta1.transports.grpc.FeatureOnlineStoreServiceGrpcTransport
+                    ),
+                }
+                if gapic_client_class not in gapic_client_class_to_transport_class:
+                    raise ValueError(
+                        f"Unexpected gapic class '{gapic_client_class}' used by internal client."
+                    )
+
+                transport_class = gapic_client_class_to_transport_class[
+                    gapic_client_class
+                ]
+
+                client = gapic_client_class(
+                    transport=transport_class(
+                        channel=grpc.insecure_channel(host + ":10002")
+                    ),
+                )
+
+                self._online_store_clients_with_connection_options[
+                    connection_options
+                ] = client
+                return client
+            else:
+                raise ValueError(
+                    f"Unsupported connection transport type, got transport: {connection_options.transport}"
+                )
 
         if fos._gca_resource.bigtable.auto_scaling:
             # This is Bigtable online store.
@@ -128,7 +199,14 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             )
             return self._online_store_client
 
-        # From here, optimized serving.
+        if (
+            fos._gca_resource.dedicated_serving_endpoint.private_service_connect_config.enable_private_service_connect
+        ):
+            raise ValueError(
+                "Use `connection_options` to specify an IP address. Required for optimized online store with private service connect."
+            )
+
+        # From here, optimized serving with public endpoint.
         if not fos._gca_resource.dedicated_serving_endpoint.public_endpoint_domain_name:
             raise fs_utils.PublicEndpointNotFoundError(
                 "Public endpoint is not created yet for the optimized online store:"
@@ -252,27 +330,53 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
     def read(
         self,
         key: List[str],
+        connection_options: Optional[fs_utils.ConnectionOptions] = None,
         request_timeout: Optional[float] = None,
     ) -> fs_utils.FeatureViewReadResponse:
         """Read the feature values from FeatureView.
 
           Example Usage:
-          ```
-          data = vertexai.preview.FeatureView(
-              name='feature_view_name', feature_online_store_id='fos_name')
-            .read(key=[12345, 6789])
-            .to_dict()
-          ```
+            Read feature view. Use this for Bigtable online stores and for
+            Optimized online stores that use public endpoint.
+            ```
+            data = vertexai.preview.FeatureView(
+                name='feature_view_name', feature_online_store_id='fos_name')
+                .read(key=[12345, 6789])
+                .to_dict()
+            ```
+
+            Read feature view using IP with an insecure gRPC channel. Use this
+            for optimized online stores using private service connect.
+            ```
+            data = vertexai.preview.FeatureView(
+                name='feature_view_name', feature_online_store_id='fos_name')
+                .read(
+                    key=[12345, 6789],
+                    connection_options=fs_utils.ConnectionOptions(
+                        host="<ip>",
+                        transport=fs_utils.ConnectionOptions.InsecureGrpcChannel()))
+                .to_dict()
+            ```
         Args:
             key: The request key to read feature values for.
+            connection_options:
+                If specified, use these options to connect to a host for sending
+                requests instead of the default
+                `<region>-aiplatform.googleapis.com` or the feature online
+                store's public endpoint.
 
         Returns:
             "FeatureViewReadResponse" - FeatureViewReadResponse object. It is
             intermediate class that can be further converted by to_dict() or
-            to_proto()
+            to_proto().
         """
         self.wait()
-        response = self._get_online_store_client.fetch_feature_values(
+
+        online_store_client = self._get_online_store_client(
+            connection_options=connection_options
+        )
+
+        response = online_store_client.fetch_feature_values(
             feature_view=self.resource_name,
             data_key=fos_service.FeatureViewDataKey(
                 composite_key=fos_service.FeatureViewDataKey.CompositeKey(parts=key)
@@ -343,7 +447,7 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
             raise ValueError(
                 "Either entity_id or embedding_value needs to be provided for search."
             )
-        response = self._get_online_store_client.search_nearest_entities(
+        response = self._get_online_store_client().search_nearest_entities(
             request=fos_service.SearchNearestEntitiesRequest(
                 feature_view=self.resource_name,
                 query=fos_service.NearestNeighborQuery(
