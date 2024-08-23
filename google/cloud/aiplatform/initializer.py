@@ -275,6 +275,8 @@ class _Config:
                 experiment=experiment,
                 description=experiment_description,
                 backing_tensorboard=experiment_tensorboard,
+                project=project,
+                location=location
             )
 
     def get_encryption_spec(
