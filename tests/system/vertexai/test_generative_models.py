@@ -37,8 +37,8 @@ GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
 GEMINI_15_PRO_MODEL_NAME = "gemini-1.5-pro-001"
 
-STAGING_API_ENDPOINT = os.getenv("STAGING_ENDPOINT")
-PROD_API_ENDPOINT = None
+STAGING_API_ENDPOINT = "STAGING_ENDPOINT"
+PROD_API_ENDPOINT = "PROD_ENDPOINT"
 
 
 # A dummy function for function calling
@@ -88,18 +88,24 @@ _RESPONSE_SCHEMA_STRUCT = {
 }
 
 
-@pytest.mark.parametrize("api_endpoint", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT])
+@pytest.mark.parametrize(
+    "api_endpoint_env_name", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT]
+)
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
 
     _temp_prefix = "temp_generative_models_test_"
 
     @pytest.fixture(scope="function", autouse=True)
-    def setup_method(self, api_endpoint):
+    def setup_method(self, api_endpoint_env_name):
         super().setup_method()
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
+        if api_endpoint_env_name == STAGING_API_ENDPOINT:
+            api_endpoint = os.getenv(api_endpoint_env_name)
+        else:
+            api_endpoint = None
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -107,7 +113,9 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             api_endpoint=api_endpoint,
         )
 
-    def test_generate_content_with_cached_content_from_text(self, api_endpoint):
+    def test_generate_content_with_cached_content_from_text(
+        self, api_endpoint_env_name
+    ):
         cached_content = caching.CachedContent.create(
             model_name=GEMINI_15_PRO_MODEL_NAME,
             system_instruction="Please answer all the questions like a pirate.",
@@ -145,7 +153,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         finally:
             cached_content.delete()
 
-    def test_generate_content_from_text(self, api_endpoint):
+    def test_generate_content_from_text(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             "Why is sky blue?",
@@ -154,7 +162,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
 
     @pytest.mark.asyncio
-    async def test_generate_content_async(self, api_endpoint):
+    async def test_generate_content_async(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = await model.generate_content_async(
             "Why is sky blue?",
@@ -162,7 +170,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
-    def test_generate_content_streaming(self, api_endpoint):
+    def test_generate_content_streaming(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         stream = model.generate_content(
             "Why is sky blue?",
@@ -177,7 +185,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             )
 
     @pytest.mark.asyncio
-    async def test_generate_content_streaming_async(self, api_endpoint):
+    async def test_generate_content_streaming_async(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         async_stream = await model.generate_content_async(
             "Why is sky blue?",
@@ -191,7 +199,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 is generative_models.FinishReason.STOP
             )
 
-    def test_generate_content_with_parameters(self, api_endpoint):
+    def test_generate_content_with_parameters(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(
             GEMINI_MODEL_NAME,
             system_instruction=[
@@ -218,7 +226,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
-    def test_generate_content_with_gemini_15_parameters(self, api_endpoint):
+    def test_generate_content_with_gemini_15_parameters(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_15_MODEL_NAME)
         response = model.generate_content(
             contents="Why is sky blue? Respond in JSON Format.",
@@ -245,7 +253,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
         assert json.loads(response.text)
 
-    def test_generate_content_from_list_of_content_dict(self, api_endpoint):
+    def test_generate_content_from_list_of_content_dict(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             contents=[{"role": "user", "parts": [{"text": "Why is sky blue?"}]}],
@@ -256,7 +264,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     @pytest.mark.skip(
         reason="Breaking change in the gemini-pro-vision model. See b/315803556#comment3"
     )
-    def test_generate_content_from_remote_image(self, api_endpoint):
+    def test_generate_content_from_remote_image(self, api_endpoint_env_name):
         vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         image_part = generative_models.Part.from_uri(
             uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
@@ -269,7 +277,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
         assert "cat" in response.text
 
-    def test_generate_content_from_text_and_remote_image(self, api_endpoint):
+    def test_generate_content_from_text_and_remote_image(self, api_endpoint_env_name):
         vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         image_part = generative_models.Part.from_uri(
             uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
@@ -282,7 +290,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
         assert "cat" in response.text
 
-    def test_generate_content_from_text_and_remote_video(self, api_endpoint):
+    def test_generate_content_from_text_and_remote_video(self, api_endpoint_env_name):
         vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         video_part = generative_models.Part.from_uri(
             uri="gs://cloud-samples-data/video/animals.mp4",
@@ -295,7 +303,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
         assert "Zootopia" in response.text
 
-    def test_grounding_google_search_retriever(self, api_endpoint):
+    def test_grounding_google_search_retriever(self, api_endpoint_env_name):
         model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
@@ -315,7 +323,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     # Chat
 
-    def test_send_message_from_text(self, api_endpoint):
+    def test_send_message_from_text(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         chat = model.start_chat()
         response1 = chat.send_message(
@@ -332,7 +340,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response2.text
         assert len(chat.history) == 4
 
-    def test_chat_function_calling(self, api_endpoint):
+    def test_chat_function_calling(self, api_endpoint_env_name):
         get_current_weather_func = generative_models.FunctionDeclaration(
             name="get_current_weather",
             description="Get the current weather in a given location",
@@ -366,7 +374,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response2.text
 
-    def test_generate_content_function_calling(self, api_endpoint):
+    def test_generate_content_function_calling(self, api_endpoint_env_name):
         get_current_weather_func = generative_models.FunctionDeclaration(
             name="get_current_weather",
             description="Get the current weather in a given location",
@@ -446,7 +454,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
         assert summary
 
-    def test_chat_automatic_function_calling(self, api_endpoint):
+    def test_chat_automatic_function_calling(self, api_endpoint_env_name):
         get_current_weather_func = generative_models.FunctionDeclaration.from_func(
             get_current_weather
         )
@@ -477,7 +485,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert chat.history[-2].parts[0].function_response
         assert chat.history[-2].parts[0].function_response.name == "get_current_weather"
 
-    def test_additional_request_metadata(self, api_endpoint):
+    def test_additional_request_metadata(self, api_endpoint_env_name):
         aiplatform.init(request_metadata=[("foo", "bar")])
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
@@ -486,7 +494,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response
 
-    def test_compute_tokens_from_text(self, api_endpoint):
+    def test_compute_tokens_from_text(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.compute_tokens(["Why is sky blue?", "Explain it like I'm 5."])
         assert len(response.tokens_info) == 2
