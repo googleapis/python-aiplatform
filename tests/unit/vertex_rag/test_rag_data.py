@@ -166,6 +166,10 @@ def import_files_request_eq(returned_request, expected_request):
         returned_request.import_rag_files_config.jira_source.jira_queries
         == expected_request.import_rag_files_config.jira_source.jira_queries
     )
+    assert (
+        returned_request.import_rag_files_config.rag_file_parsing_config
+        == expected_request.import_rag_files_config.rag_file_parsing_config
+    )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -395,6 +399,17 @@ class TestRagDataManagement:
             chunk_overlap=tc.TEST_CHUNK_OVERLAP,
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_DRIVE_FOLDER)
+
+    @pytest.mark.parametrize("path", [tc.TEST_DRIVE_FOLDER, tc.TEST_DRIVE_FOLDER_2])
+    def test_prepare_import_files_request_drive_folders_with_pdf_parsing(self, path):
+        request = prepare_import_files_request(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[path],
+            chunk_size=tc.TEST_CHUNK_SIZE,
+            chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+            use_advanced_pdf_parsing=True,
+        )
+        import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING)
 
     def test_prepare_import_files_request_drive_files(self):
         paths = [tc.TEST_DRIVE_FILE]

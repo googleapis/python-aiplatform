@@ -935,7 +935,7 @@ def _validate_response(
         candidate = response.candidates[0]
         if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
             message = (
-                "The model response did not completed successfully.\n"
+                "The model response did not complete successfully.\n"
                 f"Finish reason: {candidate.finish_reason}.\n"
                 f"Finish message: {candidate.finish_message}.\n"
                 f"Safety ratings: {candidate.safety_ratings}.\n"
@@ -1406,6 +1406,7 @@ class GenerationConfig:
         frequency_penalty: Optional[float] = None,
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
+        seed: Optional[int] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1414,6 +1415,7 @@ class GenerationConfig:
             top_p: If specified, nucleus sampling will be used. Range: (0.0, 1.0]
             top_k: If specified, top-k sampling will be used.
             candidate_count: Number of candidates to generate.
+            seed: Random seed for the generation.
             max_output_tokens: The maximum number of output tokens to generate per message.
             stop_sequences: A list of stop sequences.
             presence_penalty: Positive values penalize tokens that have appeared in the generated text,
@@ -1442,6 +1444,7 @@ class GenerationConfig:
                     candidate_count=1,
                     max_output_tokens=100,
                     stop_sequences=["\n\n\n"],
+                    seed=5,
                 )
             )
             ```
@@ -1462,6 +1465,7 @@ class GenerationConfig:
             frequency_penalty=frequency_penalty,
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
+            seed=seed,
         )
 
     @classmethod
@@ -1938,6 +1942,10 @@ class Candidate:
         )
 
     @property
+    def avg_logprobs(self) -> float:
+        return self._raw_candidate.avg_logprobs
+
+    @property
     def finish_reason(self) -> gapic_content_types.Candidate.FinishReason:
         return self._raw_candidate.finish_reason
 
@@ -2296,36 +2304,7 @@ class preview_grounding:  # pylint: disable=invalid-name
                 datastore=datastore,
             )
 
-    class GoogleSearchRetrieval:
-        r"""Tool to retrieve public web data for grounding, powered by
-        Google Search.
-
-        Attributes:
-            disable_attribution (bool):
-                Optional. Disable using the result from this
-                tool in detecting grounding attribution. This
-                does not affect how the result is given to the
-                model for generation.
-        """
-
-        def __init__(
-            self,
-            disable_attribution: Optional[
-                bool
-            ] = None,  # pylint: disable=unused-argument
-        ):
-            """Initializes a Google Search Retrieval tool.
-
-            Args:
-                disable_attribution (bool):
-                    Optional. This field is Deprecated. Disable using the result
-                    from this tool in detecting grounding attribution. This
-                    does not affect how the result is given to the
-                    model for generation.
-            """
-            if disable_attribution is not None:
-                warnings.warn("disable_attribution is deprecated.")
-            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+    GoogleSearchRetrieval = grounding.GoogleSearchRetrieval
 
 
 def _to_content(

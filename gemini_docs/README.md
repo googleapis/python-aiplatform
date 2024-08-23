@@ -175,6 +175,137 @@ chat = model.start_chat(responder=afc_responder)
 print(chat.send_message("What is the weather like in Boston?"))
 ```
 
+#### Evaluation
+
+-  To perform bring-your-own-response(BYOR) evaluation, provide the model responses in the `response` column in the dataset. If a pairwise metric is used for BYOR evaluation, provide the baseline model responses in the `baseline_model_response` column.
+
+```
+import pandas as pd
+from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
+
+eval_dataset = pd.DataFrame({
+        "prompt"  : [...],
+        "reference": [...],
+        "response" : [...],
+        "baseline_model_response": [...],
+})
+eval_task = EvalTask(
+    dataset=eval_dataset,
+    metrics=[
+            "bleu",
+            "rouge_l_sum",
+            MetricPromptTemplateExamples.Pointwise.FLUENCY,
+            MetricPromptTemplateExamples.Pairwise.SAFETY
+    ],
+    experiment="my-experiment",
+)
+eval_result = eval_task.evaluate(experiment_run_name="eval-experiment-run")
+```
+-  To perform evaluation with Gemini model inference, specify the `model` parameter with a `GenerativeModel` instance.  The input column name to the model is `prompt` and must be present in the dataset.
+
+```
+from vertexai.evaluation import EvalTask
+from vertexai.generative_models import GenerativeModel
+
+eval_dataset = pd.DataFrame({
+    "reference": [...],
+    "prompt"  : [...],
+})
+result = EvalTask(
+    dataset=eval_dataset,
+    metrics=["exact_match", "bleu", "rouge_1", "rouge_l_sum"],
+    experiment="my-experiment",
+).evaluate(
+    model=GenerativeModel("gemini-1.5-pro"),
+    experiment_run_name="gemini-eval-run"
+)
+```
+
+- If a `prompt_template` is specified, the `prompt` column is not required. Prompts can be assembled from the evaluation dataset, and all prompt template variable names must be present in the dataset columns.
+
+```
+import pandas as pd
+from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
+from vertexai.generative_models import GenerativeModel
+
+eval_dataset = pd.DataFrame({
+    "context"    : [...],
+    "instruction": [...],
+})
+result = EvalTask(
+    dataset=eval_dataset,
+    metrics=[MetricPromptTemplateExamples.Pointwise.SUMMARIZATION_QUALITY],
+).evaluate(
+    model=GenerativeModel("gemini-1.5-pro"),
+    prompt_template="{instruction}. Article: {context}. Summary:",
+)
+```
+
+- To perform evaluation with custom model inference, specify the `model`
+parameter with a custom inference function. The input column name to the
+custom inference function is `prompt` and must be present in the dataset.
+
+```
+from openai import OpenAI
+from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
+
+
+client = OpenAI()
+def custom_model_fn(input: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+        {"role": "user", "content": input}
+        ]
+    )
+    return response.choices[0].message.content
+
+eval_dataset = pd.DataFrame({
+    "prompt"  : [...],
+    "reference": [...],
+})
+result = EvalTask(
+    dataset=eval_dataset,
+    metrics=[MetricPromptTemplateExamples.Pointwise.SAFETY],
+    experiment="my-experiment",
+).evaluate(
+    model=custom_model_fn,
+    experiment_run_name="gpt-eval-run"
+)
+```
+
+- To perform pairwise metric evaluation with model inference step, specify
+the `baseline_model` input to a `PairwiseMetric` instance and the candidate
+`model` input to the `EvalTask.evaluate()` function. The input column name
+to both models is `prompt` and must be present in the dataset.
+
+```
+import pandas as pd
+from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples, PairwiseMetric
+from vertexai.generative_models import GenerativeModel
+
+baseline_model = GenerativeModel("gemini-1.0-pro")
+candidate_model = GenerativeModel("gemini-1.5-pro")
+
+pairwise_groundedness = PairwiseMetric(
+    metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
+        "pairwise_groundedness"
+    ),
+    baseline_model=baseline_model,
+)
+eval_dataset = pd.DataFrame({
+    "prompt"  : [...],
+})
+result = EvalTask(
+    dataset=eval_dataset,
+    metrics=[pairwise_groundedness],
+    experiment="my-pairwise-experiment",
+).evaluate(
+    model=candidate_model,
+    experiment_run_name="gemini-pairwise-eval-run",
+)
+```
+
 ## Documentation
 
 You can find complete documentation for the Vertex AI SDKs and the Gemini model in the Google Cloud [documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)

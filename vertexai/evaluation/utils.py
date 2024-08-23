@@ -24,12 +24,14 @@ from typing import Any, Dict, Optional, TYPE_CHECKING, Union, Callable
 
 from google.cloud import bigquery
 from google.cloud import storage
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
+from vertexai.evaluation import constants
 
 
 if TYPE_CHECKING:
@@ -37,14 +39,15 @@ if TYPE_CHECKING:
 
 _BQ_PREFIX = "bq://"
 _GCS_PREFIX = "gs://"
+_LOGGER = base.Logger(__name__)
 
 
 class _EvaluationServiceClientWithOverride(utils.ClientWithOverride):
     _is_temporary = False
-    _default_version = compat.V1BETA1
+    _default_version = compat.V1
     _version_map = (
         (
-            compat.V1BETA1,
+            compat.V1,
             gapic_evaluation_services.EvaluationServiceClient,
         ),
     )
@@ -139,13 +142,15 @@ def load_dataset(
     """Loads dataset from various sources into a DataFrame.
 
     Args:
-        source: The data source. Can be the following formats: - pd.DataFrame:
-          Used directly for evaluation. - dict: Converted to a pandas DataFrame
-          before evaluation. - str: Interpreted as a file path or URI. Supported
-          formats include: * Local JSONL or CSV files:  Loaded from the local
-          filesystem. * GCS JSONL or CSV files: Loaded from Google Cloud Storage
-          (e.g., 'gs://bucket/data.csv'). * BigQuery table URI: Loaded from Google
-          Cloud BigQuery (e.g., 'bq://project-id.dataset.table_name').
+        source: The dataset source. Supports the following dataset formats:
+        * pandas.DataFrame: Used directly for evaluation.
+        * Dict: Converted to a pandas DataFrame before evaluation.
+        * str: Interpreted as a file path or URI. Supported formats include:
+            * Local JSONL or CSV files:  Loaded from the local filesystem.
+            * GCS JSONL or CSV files: Loaded from Google Cloud Storage
+                (e.g., 'gs://bucket/data.csv').
+            * BigQuery table URI: Loaded from Google Cloud BigQuery
+                (e.g., 'bq://project-id.dataset.table_name').
 
     Returns:
         The dataset in pandas DataFrame format.
@@ -155,9 +160,8 @@ def load_dataset(
     except ImportError:
         raise ImportError(
             'Pandas is not installed. Please install the SDK using "pip install'
-            ' google-cloud-aiplatform[rapid_evaluation]"'
+            ' google-cloud-aiplatform[evaluation]"'
         )
-
     if isinstance(source, pd.DataFrame):
         return source.copy()
     elif isinstance(source, dict):
@@ -174,10 +178,15 @@ def load_dataset(
         elif file_type == "csv":
             return _load_csv(source)
         else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+            raise ValueError(
+                f"Unsupported file type: {file_type} from {source}. Please"
+                " provide valid GCS path with jsonl or csv suffix or valid"
+                " BigQuery table URI."
+            )
     else:
         raise TypeError(
-            "Unsupported dataset type. Must be DataFrame, dictionary, or filepath."
+            "Unsupported dataset type. Must be DataFrame, dictionary, or"
+            " valid GCS path with jsonl or csv suffix or BigQuery table URI."
         )
 
 
@@ -188,11 +197,11 @@ def _load_jsonl(filepath: str) -> "pd.DataFrame":
     except ImportError:
         raise ImportError(
             'Pandas is not installed. Please install the SDK using "pip install'
-            ' google-cloud-aiplatform[rapid_evaluation]"'
+            ' google-cloud-aiplatform[evaluation]"'
         )
     if filepath.startswith(_GCS_PREFIX):
         file_contents = _read_gcs_file_contents(filepath)
-        return pd.read_json(io.StringIO(file_contents), lines=True)
+        return pd.read_json(file_contents, lines=True)
     else:
         with open(filepath, "r") as f:
             return pd.read_json(f, lines=True)
@@ -205,7 +214,7 @@ def _load_csv(filepath: str) -> "pd.DataFrame":
     except ImportError:
         raise ImportError(
             'Pandas is not installed. Please install the SDK using "pip install'
-            ' google-cloud-aiplatform[rapid_evaluation]"'
+            ' google-cloud-aiplatform[evaluation]"'
         )
     if filepath.startswith(_GCS_PREFIX):
         file_contents = _read_gcs_file_contents(filepath)
@@ -217,12 +226,9 @@ def _load_csv(filepath: str) -> "pd.DataFrame":
 def _load_bigquery(table_id: str) -> "pd.DataFrame":
     """Loads data from a BigQuery table into a DataFrame."""
 
-    client = bigquery.Client(
-        project=initializer.global_config.project,
-        credentials=initializer.global_config.credentials,
-    )
-    table = client.get_table(table_id)
-    return client.list_rows(table).to_dataframe()
+    bigquery_client = bigquery.Client(project=initializer.global_config.project)
+    table = bigquery_client.get_table(table_id)
+    return bigquery_client.list_rows(table).to_dataframe()
 
 
 def _read_gcs_file_contents(filepath: str) -> str:
@@ -232,14 +238,71 @@ def _read_gcs_file_contents(filepath: str) -> str:
         filepath: The GCS file path (e.g., 'gs://bucket_name/file.csv')
 
     Returns:
-        The contents of the file.
+        str: The contents of the file.
     """
 
-    client = storage.Client(
+    storage_client = storage.Client(
         project=initializer.global_config.project,
         credentials=initializer.global_config.credentials,
     )
     bucket_name, blob_path = filepath[len(_GCS_PREFIX) :].split("/", 1)
-    bucket = client.get_bucket(bucket_name)
+    bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(blob_path)
     return blob.download_as_string().decode("utf-8")
+
+
+def upload_evaluation_results(
+    dataset: "pd.DataFrame", destination_uri_prefix: str, file_name: str
+):
+    """Uploads eval results to GCS csv destination."""
+    if not destination_uri_prefix:
+        return
+    if destination_uri_prefix.startswith(_GCS_PREFIX):
+        _, extension = os.path.splitext(file_name)
+        file_type = extension.lower()[1:]
+        if file_type in ["csv"]:
+            output_path = destination_uri_prefix + "/" + file_name
+            utils.gcs_utils._upload_pandas_df_to_gcs(dataset, output_path)
+        else:
+            raise ValueError(
+                "Unsupported file type of GCS destination uri:"
+                f" {file_name}, please provide valid GCS"
+                " path with csv suffix."
+            )
+    else:
+        raise ValueError(
+            f"Unsupported destination uri: {destination_uri_prefix}."
+            " Please provide valid GCS bucket path."
+        )
+
+
+def initialize_metric_column_mapping(
+    metric_column_mapping: Optional[Dict[str, str]], dataset: "pd.DataFrame"
+):
+    """Initializes metric column mapping with dataset columns."""
+    initialized_metric_column_mapping = {}
+    for column in dataset.columns:
+        initialized_metric_column_mapping[column] = column
+    if metric_column_mapping:
+        for key, value in metric_column_mapping.items():
+            if (
+                key == constants.Dataset.PROMPT_COLUMN
+                and value != constants.Dataset.PROMPT_COLUMN
+            ):
+                _LOGGER.warning(
+                    f"`{key}:{value}` will be overwritten to"
+                    f" `prompt:prompt`. Please do not set `prompt` as"
+                    " key in metric_column_mapping."
+                )
+                continue
+            if key in initialized_metric_column_mapping:
+                _LOGGER.warning(
+                    f"`{key}:{key}` is already in metric_column_mapping. Cannot"
+                    f" override it with `{key}:{value}` because `{key}` is an"
+                    " evaluation dataset column. Metric_column_mapping cannot override"
+                    " keys that are already in evaluation dataset"
+                    " column.metric_column_mapping: {metric_column_mapping}."
+                )
+            else:
+                initialized_metric_column_mapping[key] = value
+    return initialized_metric_column_mapping

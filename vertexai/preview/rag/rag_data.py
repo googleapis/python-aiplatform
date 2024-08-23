@@ -281,6 +281,7 @@ def import_files(
     chunk_overlap: int = 200,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
+    use_advanced_pdf_parsing: Optional[bool] = False,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -364,6 +365,8 @@ def import_files(
             here. If unspecified, a default value of 1,000
             QPM would be used.
         timeout: Default is 600 seconds.
+        use_advanced_pdf_parsing: Whether to use advanced PDF
+            parsing on uploaded files.
     Returns:
         ImportRagFilesResponse.
     """
@@ -379,6 +382,7 @@ def import_files(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -396,6 +400,7 @@ async def import_files_async(
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
     max_embedding_requests_per_min: int = 1000,
+    use_advanced_pdf_parsing: Optional[bool] = False,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -479,6 +484,8 @@ async def import_files_async(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        use_advanced_pdf_parsing: Whether to use advanced PDF
+            parsing on uploaded files.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -494,6 +501,7 @@ async def import_files_async(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:

@@ -22,11 +22,18 @@ import vertexai
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.metadata import metadata
 from vertexai import generative_models
-from vertexai.preview.evaluation import _base as eval_base
-from vertexai.preview.evaluation import _evaluation
-from vertexai.preview.evaluation import utils
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation import _evaluation
+from vertexai.evaluation import constants
+from vertexai.evaluation import utils
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
+)
+from vertexai.evaluation.metrics import (
+    pairwise_metric,
+)
+from vertexai.evaluation.metrics import (
+    pointwise_metric,
 )
 import numpy as np
 
@@ -58,95 +65,105 @@ class EvalTask:
     Dataset Details:
 
         Default dataset column names:
-            * content_column_name: "content"
+            * prompt_column_name: "prompt"
             * reference_column_name: "reference"
             * response_column_name: "response"
+            * baseline_model_response_column_name: "baseline_model_response"
+
         Requirement for different use cases:
-          * Bring your own prediction: A `response` column is required. Response
+          * Bring-your-own-response: A `response` column is required. Response
               column name can be customized by providing `response_column_name`
-              parameter.
-          * Without prompt template: A column representing the input prompt to the
-              model is required. If `content_column_name` is not specified, the
-              eval dataset requires `content` column by default. The response
-              column is not used if present and new responses from the model are
-              generated with the content column and used for evaluation.
-          * With prompt template: Dataset must contain column names corresponding to
-              the placeholder names in the prompt template. For example, if prompt
-              template is "Instruction: {instruction}, context: {context}", the
-              dataset must contain `instruction` and `context` column.
+              parameter. If a pairwise metric is used and a baseline model is
+              not provided, a `baseline_model_response` column is required.
+              Baseline model response column name can be customized by providing
+              `baseline_model_response_column_name` parameter. If the `response`
+              column or `baseline_model_response` column is present while the
+              corresponding model is specified, an error will be raised.
+          * Perform model inference without a prompt template: A `prompt` column
+              in the evaluation dataset representing the input prompt to the
+              model is required and is used directly as input to the model.
+          * Perform model inference with a prompt template: Evaluation dataset
+              must contain column names corresponding to the variable names in
+              the prompt template. For example, if prompt template is
+              "Instruction: {instruction}, context: {context}", the dataset must
+              contain `instruction` and `context` columns.
 
     Metrics Details:
 
-        The supported metrics, metric bundle descriptions, grading rubrics, and
-        the required input fields can be found on the Vertex AI public
-        documentation page [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
+        The supported metrics descriptions, rating rubrics, and the required
+        input variables can be found on the Vertex AI public documentation page.
+        [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
-    Usage:
+    Usage Examples:
 
-        1. To perform bring-your-own-prediction(BYOP) evaluation, provide the model
-        responses in the response column in the dataset. The response column name
-        is "response" by default, or specify `response_column_name` parameter to
-        customize.
+        1. To perform bring-your-own-response(BYOR) evaluation, provide the model
+        responses in the `response` column in the dataset. If a pairwise metric is
+        used for BYOR evaluation, provide the baseline model responses in the
+        `baseline_model_response` column.
 
           ```
           eval_dataset = pd.DataFrame({
+                  "prompt"  : [...],
                   "reference": [...],
                   "response" : [...],
+                  "baseline_model_response": [...],
           })
           eval_task = EvalTask(
             dataset=eval_dataset,
-            metrics=["bleu", "rouge_l_sum", "coherence", "fluency"],
+            metrics=[
+                    "bleu",
+                    "rouge_l_sum",
+                    MetricPromptTemplateExamples.Pointwise.FLUENCY,
+                    MetricPromptTemplateExamples.Pairwise.SAFETY
+            ],
             experiment="my-experiment",
           )
-          eval_result = eval_task.evaluate(
-                experiment_run_name="eval-experiment-run"
-          )
+          eval_result = eval_task.evaluate(experiment_run_name="eval-experiment-run")
           ```
 
-        2. To perform evaluation with built-in Gemini model inference, specify the
-        `model` parameter with a GenerativeModel instance.  The default query
-        column name to the model is `content`.
+        2. To perform evaluation with Gemini model inference, specify the `model`
+        parameter with a `GenerativeModel` instance.  The input column name to the
+        model is `prompt` and must be present in the dataset.
 
           ```
           eval_dataset = pd.DataFrame({
                 "reference": [...],
-                "content"  : [...],
+                "prompt"  : [...],
           })
           result = EvalTask(
               dataset=eval_dataset,
-              metrics=["exact_match", "bleu", "rouge_1", "rouge_2",
-              "rouge_l_sum"],
+              metrics=["exact_match", "bleu", "rouge_1", "rouge_l_sum"],
               experiment="my-experiment",
           ).evaluate(
-              model=GenerativeModel("gemini-pro"),
-              experiment_run_name="gemini-pro-eval-run"
+              model=GenerativeModel("gemini-1.5-pro"),
+              experiment_run_name="gemini-eval-run"
           )
           ```
 
-        3. If a `prompt_template` is specified, the `content` column is not required.
-        Prompts can be assembled from the evaluation dataset, and all placeholder
-        names must be present in the dataset columns.
+        3. If a `prompt_template` is specified, the `prompt` column is not required.
+        Prompts can be assembled from the evaluation dataset, and all prompt
+        template variable names must be present in the dataset columns.
           ```
           eval_dataset = pd.DataFrame({
               "context"    : [...],
               "instruction": [...],
-              "reference"  : [...],
           })
           result = EvalTask(
               dataset=eval_dataset,
-              metrics=["summarization_quality"],
+              metrics=[MetricPromptTemplateExamples.Pointwise.SUMMARIZATION_QUALITY],
           ).evaluate(
-              model=model,
+              model=GenerativeModel("gemini-1.5-pro"),
               prompt_template="{instruction}. Article: {context}. Summary:",
           )
           ```
 
         4. To perform evaluation with custom model inference, specify the `model`
-        parameter with a custom prediction function. The `content` column in the
-        dataset is used to generate predictions with the custom model function for
-        evaluation.
+        parameter with a custom inference function. The input column name to the
+        custom inference function is `prompt` and must be present in the dataset.
 
           ```
+          from openai import OpenAI
+          client = OpenAI()
           def custom_model_fn(input: str) -> str:
             response = client.chat.completions.create(
               model="gpt-3.5-turbo",
@@ -157,21 +174,49 @@ class EvalTask:
             return response.choices[0].message.content
 
           eval_dataset = pd.DataFrame({
-                "content"  : [...],
+                "prompt"  : [...],
                 "reference": [...],
           })
           result = EvalTask(
               dataset=eval_dataset,
-              metrics=["text_generation_similarity","text_generation_quality"],
+              metrics=[MetricPromptTemplateExamples.Pointwise.SAFETY],
               experiment="my-experiment",
           ).evaluate(
               model=custom_model_fn,
               experiment_run_name="gpt-eval-run"
           )
           ```
+
+        5. To perform pairwise metric evaluation with model inference step, specify
+        the `baseline_model` input to a `PairwiseMetric` instance and the candidate
+        `model` input to the `EvalTask.evaluate()` function. The input column name
+        to both models is `prompt` and must be present in the dataset.
+
+          ```
+          baseline_model = GenerativeModel("gemini-1.0-pro")
+          candidate_model = GenerativeModel("gemini-1.5-pro")
+
+          pairwise_groundedness = PairwiseMetric(
+              metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
+                  "pairwise_groundedness"
+              ),
+              baseline_model=baseline_model,
+          )
+          eval_dataset = pd.DataFrame({
+                "prompt"  : [...],
+          })
+          result = EvalTask(
+              dataset=eval_dataset,
+              metrics=[pairwise_groundedness],
+              experiment="my-pairwise-experiment",
+          ).evaluate(
+              model=candidate_model,
+              experiment_run_name="gemini-pairwise-eval-run",
+          )
+          ```
     """
 
-    _resource_noun = "evalTasks"
+    _resource_noun = "evaluationTasks"
 
     def __init__(
         self,
@@ -186,38 +231,20 @@ class EvalTask:
                     "rouge_2",
                     "rouge_l",
                     "rouge_l_sum",
-                    "coherence",
-                    "fluency",
-                    "safety",
-                    "groundedness",
-                    "fulfillment",
-                    "summarization_quality",
-                    "summarization_helpfulness",
-                    "summarization_verbosity",
-                    "question_answering_quality",
-                    "question_answering_relevance",
-                    "question_answering_helpfulness",
-                    "question_answering_correctness",
-                    "text_generation_similarity",
-                    "text_generation_quality",
-                    "text_generation_instruction_following",
-                    "text_generation_safety",
-                    "text_generation_factuality",
-                    "summarization_pointwise_reference_free",
-                    "qa_pointwise_reference_free",
-                    "qa_pointwise_reference_based",
-                    "tool_call_quality",
+                    "tool_call_valid",
+                    "tool_name_match",
+                    "tool_parameter_key_match",
+                    "tool_parameter_kv_match",
                 ],
                 metrics_base.CustomMetric,
-                metrics_base.PairwiseMetric,
-                metrics_base._ModelBasedMetric,
                 metrics_base._AutomaticMetric,
+                pointwise_metric.PointwiseMetric,
+                pairwise_metric.PairwiseMetric,
             ]
         ],
         experiment: Optional[str] = None,
-        content_column_name: str = "content",
-        reference_column_name: str = "reference",
-        response_column_name: str = "response",
+        metric_column_mapping: Optional[Dict[str, str]] = None,
+        output_uri_prefix: Optional[str] = "",
     ):
         """Initializes an EvalTask.
 
@@ -232,29 +259,53 @@ class EvalTask:
                         (e.g., 'gs://bucket/data.csv').
                     * BigQuery table URI: Loaded from Google Cloud BigQuery
                         (e.g., 'bq://project-id.dataset.table_name').
-            metrics: The list of metric names, or metric bundle names, or
-              Metric instances to evaluate. Prompt template is required for PairwiseMetric.
+            metrics: The list of metric names, or Metric instances to evaluate.
+              Prompt template is required for PairwiseMetric.
             experiment: The name of the experiment to log the evaluations to.
-            content_column_name: The column name of content in the dataset to send to
-                the model. If not set, default to `content`.
-            reference_column_name: The column name of ground truth in the dataset. If
-                not set, default to `reference`.
-            response_column_name: The column name of model response in the dataset. If
-                not set, default to `response`.
+            metric_column_mapping: An optional dictionary column mapping that
+              overrides the metric prompt template input variable names with
+              mapped the evaluation dataset column names, used during evaluation.
+              For example, if the input_variables of the metric prompt template
+              are ["context", "reference"], the metric_column_mapping can be
+                {
+                    "context": "news_context",
+                    "reference": "ground_truth",
+                    "response": "model_1_response"
+                }
+              if the dataset has columns "news_context", "ground_truth" and
+              "model_1_response".
+            output_uri_prefix: GCS location to store the metrics_table from
+              evaluation results.
         """
-        self.dataset = utils.load_dataset(dataset)
-        self.metrics = metrics
-        self.experiment = experiment
-        self.content_column_name = content_column_name
-        self.reference_column_name = reference_column_name
-        self.response_column_name = response_column_name
+        self._dataset = utils.load_dataset(dataset)
+        self._metrics = metrics
+        self._experiment = experiment
+        self._metric_column_mapping = utils.initialize_metric_column_mapping(
+            metric_column_mapping, self._dataset
+        )
+        self.output_uri_prefix = output_uri_prefix
+
+    @property
+    def dataset(self) -> "pd.DataFrame":
+        """Returns evaluation dataset."""
+        return self._dataset
+
+    @property
+    def metrics(self) -> List[Union[str, metrics_base.CustomMetric]]:
+        """Returns metrics."""
+        return self._metrics
+
+    @property
+    def experiment(self) -> Optional[str]:
+        """Returns experiment name."""
+        return self._experiment
 
     def _evaluate_with_experiment(
         self,
+        *,
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
-        response_column_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 600.0,
     ) -> EvalResult:
@@ -270,8 +321,6 @@ class EvalTask:
           experiment_run_name: The name of the experiment run to log the evaluation
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
-          response_column_name: The column name of model response in the dataset. If
-            provided, this will override the `response_column_name` of the `EvalTask`.
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
@@ -283,13 +332,11 @@ class EvalTask:
         with vertexai.preview.start_run(experiment_run_name):
             self._log_eval_experiment_param(model, prompt_template)
             eval_result = _evaluation.evaluate(
-                dataset=self.dataset,
-                metrics=self.metrics,
+                dataset=self._dataset,
+                metrics=self._metrics,
                 model=model,
                 prompt_template=prompt_template,
-                content_column_name=self.content_column_name,
-                reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name,
+                metric_column_mapping=self._metric_column_mapping,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
             )
@@ -299,7 +346,7 @@ class EvalTask:
                 for k, v in eval_result.summary_metrics.items()
             }
             eval_result.metadata = {
-                "experiment": self.experiment,
+                "experiment": self._experiment,
                 "experiment_run": experiment_run_name,
             }
             try:
@@ -315,8 +362,10 @@ class EvalTask:
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         response_column_name: Optional[str] = None,
+        baseline_model_response_column_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 600.0,
+        output_file_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask.
 
@@ -332,60 +381,69 @@ class EvalTask:
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
             provided, this will override the `response_column_name` of the `EvalTask`.
+          baseline_model_response_column_name: The column name of baseline model
+            response in the dataset for pairwise metrics.
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
+            whole evaluation dataset, in seconds.
+          output_file_name: The file name with csv suffix to store the output
+            metrics_table.
 
         Returns:
           The evaluation result.
         """
         global_experiment_name = metadata._experiment_tracker.experiment_name
-        if experiment_run_name and not self.experiment and not global_experiment_name:
+        if experiment_run_name and not self._experiment and not global_experiment_name:
             raise ValueError(
                 "Experiment is not set. Please initialize EvalTask with an"
                 " experiment, or initialize a global experiment with "
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."
             )
-        response_column_name = response_column_name or self.response_column_name
-        experiment_run_name = experiment_run_name or f"{uuid.uuid4()}"
+        self._verify_response_column_name(
+            response_column_name=response_column_name,
+            metric_column_mapping_key=constants.Dataset.MODEL_RESPONSE_COLUMN,
+        )
+        self._verify_response_column_name(
+            response_column_name=baseline_model_response_column_name,
+            metric_column_mapping_key=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+        )
 
-        if self.experiment and global_experiment_name:
+        experiment_run_name = experiment_run_name or f"{uuid.uuid4()}"
+        if self._experiment and global_experiment_name:
             metadata._experiment_tracker.set_experiment(
-                experiment=self.experiment, backing_tensorboard=False
+                experiment=self._experiment, backing_tensorboard=False
             )
             eval_result = self._evaluate_with_experiment(
-                model,
-                prompt_template,
-                experiment_run_name,
-                response_column_name,
-                evaluation_service_qps,
-                retry_timeout,
+                model=model,
+                prompt_template=prompt_template,
+                experiment_run_name=experiment_run_name,
+                evaluation_service_qps=evaluation_service_qps,
+                retry_timeout=retry_timeout,
             )
             metadata._experiment_tracker.set_experiment(
                 experiment=global_experiment_name, backing_tensorboard=False
             )
-        elif self.experiment and not global_experiment_name:
+        elif self._experiment and not global_experiment_name:
             metadata._experiment_tracker.set_experiment(
-                experiment=self.experiment, backing_tensorboard=False
+                experiment=self._experiment, backing_tensorboard=False
             )
             eval_result = self._evaluate_with_experiment(
-                model,
-                prompt_template,
-                experiment_run_name,
-                response_column_name,
-                evaluation_service_qps,
-                retry_timeout,
+                model=model,
+                prompt_template=prompt_template,
+                experiment_run_name=experiment_run_name,
+                evaluation_service_qps=evaluation_service_qps,
+                retry_timeout=retry_timeout,
             )
             metadata._experiment_tracker.reset()
-        elif not self.experiment and global_experiment_name:
+        elif not self._experiment and global_experiment_name:
             eval_result = self._evaluate_with_experiment(
-                model,
-                prompt_template,
-                experiment_run_name,
-                response_column_name,
-                evaluation_service_qps,
-                retry_timeout,
+                model=model,
+                prompt_template=prompt_template,
+                experiment_run_name=experiment_run_name,
+                evaluation_service_qps=evaluation_service_qps,
+                retry_timeout=retry_timeout,
             )
         else:
             eval_result = _evaluation.evaluate(
@@ -393,12 +451,13 @@ class EvalTask:
                 metrics=self.metrics,
                 model=model,
                 prompt_template=prompt_template,
-                content_column_name=self.content_column_name,
-                reference_column_name=self.reference_column_name,
-                response_column_name=response_column_name,
+                metric_column_mapping=self._metric_column_mapping,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
             )
+        utils.upload_evaluation_results(
+            eval_result.metrics_table, self.output_uri_prefix, output_file_name
+        )
         return eval_result
 
     def _validate_experiment_run(self) -> None:
@@ -428,11 +487,9 @@ class EvalTask:
             )
 
             if model._generation_config and isinstance(model._generation_config, dict):
-                # TODO(b/311221071): support logging GenerationConfig type.
                 model_metadata.update(**model._generation_config)
 
             if model._safety_settings and isinstance(model._safety_settings, dict):
-                # TODO(b/311221071): support logging List[SafetySetting] type.
                 safety_settings = model._safety_settings
                 safety_settings_as_str = {
                     category.name: threshold.name
@@ -441,15 +498,32 @@ class EvalTask:
                 model_metadata.update(safety_settings_as_str)
 
         if model_metadata:
-            _LOGGER.info(f"Logging Rapid Eval experiment metadata: {model_metadata}")
+            _LOGGER.info(f"Logging Eval Experiment metadata: {model_metadata}")
             try:
                 vertexai.preview.log_params(model_metadata)
             except (ValueError, TypeError) as e:
                 _LOGGER.warning(f"Experiment metadata logging failed: {str(e)}")
 
+    def _verify_response_column_name(
+        self, response_column_name: str, metric_column_mapping_key: str
+    ) -> None:
+        """Verifies if model response column name or baseline model response column name is valid."""
+        if response_column_name:
+            if response_column_name in self._dataset.columns:
+                self._metric_column_mapping[
+                    metric_column_mapping_key
+                ] = response_column_name
+            else:
+                raise ValueError(
+                    f"(Baseline) Model response column {response_column_name} is not"
+                    " found in the dataset."
+                )
+
     def display_runs(self):
         """Displays experiment runs associated with this EvalTask."""
-        if not self.experiment:
+        if not self._experiment:
             raise ValueError("Experiment is not set.")
         elif IPython_display:
-            IPython_display.display(vertexai.preview.get_experiment_df(self.experiment))
+            IPython_display.display(
+                vertexai.preview.get_experiment_df(self._experiment)
+            )

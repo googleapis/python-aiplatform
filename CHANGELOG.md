@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.63.0](https://github.com/googleapis/python-aiplatform/compare/v1.62.0...v1.63.0) (2024-08-20)
+
+
+### Features
+
+* A new field `satisfies_pzs` is added to message `.google.cloud.aiplatform.v1.BatchPredictionJob` ([#4192](https://github.com/googleapis/python-aiplatform/issues/4192)) ([6919037](https://github.com/googleapis/python-aiplatform/commit/6919037e9513e922e9ffe197e68a99fb343c4fff))
+* Add advanced PDF parsing option for RAG file import ([6e1dc06](https://github.com/googleapis/python-aiplatform/commit/6e1dc0658ffd875f4a3bbcab62976e15e997102e))
+* Add multithreading for custom metric computation. ([2c93fc1](https://github.com/googleapis/python-aiplatform/commit/2c93fc17b4a76623209b7699a73d4e6c9c27cc81))
+* Add progress bar for generating inference. ([b78714f](https://github.com/googleapis/python-aiplatform/commit/b78714f3cf8fc22f7caa193a7398efe3626c2c5f))
+* Add progress bar to custom metrics. ([3974aec](https://github.com/googleapis/python-aiplatform/commit/3974aec92595870b6f33ecd016763f59d6630898))
+* Add Prompt class support for configs and Prompt.generate_content wrapper ([7f1e031](https://github.com/googleapis/python-aiplatform/commit/7f1e0313842546b7e911ee3ef06d7193deb64a91))
+* GenAI - Added seed parameter to the GenerationConfig class ([9f1e073](https://github.com/googleapis/python-aiplatform/commit/9f1e0739d837b3110b40b8806514ca3e49e2b1da))
+* GenAI - Added the `Candidate.avg_logprobs` property ([de80695](https://github.com/googleapis/python-aiplatform/commit/de80695ad2359361a698cffbde2336417297ef35))
+* GenAI - Released the `Prompt` feature to Public Preview ([64eeab8](https://github.com/googleapis/python-aiplatform/commit/64eeab8b3404e87c0cc19fb6862ff51ec8b95954))
+* GenAI Evaluation: Add generic model-based `PointwiseMetric` and `PairwiseMetric` classes that allow customizing metric prompt templates. Add `PointwiseMetricPromptTemplate`, `PairwiseMetricPromptTemplate` classes to help formulate and customize metric prompt templates. Add `metric_column_mapping` parameter to `EvalTask` for metric prompt template input variable name mapping. ([fd38b49](https://github.com/googleapis/python-aiplatform/commit/fd38b49231bd1b35af57056b9e69a5427ddb114c))
+* GenAI Evaluation: Open source model-based metric prompt template examples for Gemini 1.5 Pro autorater. Add `MetricPromptTemplateExamples` class to help retrieve model-based metric prompt templates. ([fd38b49](https://github.com/googleapis/python-aiplatform/commit/fd38b49231bd1b35af57056b9e69a5427ddb114c))
+* GenAI Evaluation: Release GenAI Evaluation SDK GA features to `vertexai.preview` module. ([fd38b49](https://github.com/googleapis/python-aiplatform/commit/fd38b49231bd1b35af57056b9e69a5427ddb114c))
+* Publish GenAI Evaluation SDK GA features to `vertexai.evaluation` module. Switch GenAI Evaluation Service client to v1 version. ([45e4251](https://github.com/googleapis/python-aiplatform/commit/45e42516fbc47db1c44a7669f2730a1590a992c2))
+
+
+### Bug Fixes
+
+* Add support of display_name to create_cached_content in python SDK ([ecc2d54](https://github.com/googleapis/python-aiplatform/commit/ecc2d54a84c03f7d06e987fba5f5c67fba109ce0))
+* Always upload the pickled object and dependencies tarball when creating ReasoningEngine ([34ef5a3](https://github.com/googleapis/python-aiplatform/commit/34ef5a35bd91aea53c89650c20962dae29b3a535))
+* Remove grouding attribution ([f6ece65](https://github.com/googleapis/python-aiplatform/commit/f6ece65d8f2933ddcb4ec1a08784f8d2c365f2de))
+
+
+### Documentation
+
+* Update Prompt docstring for batch prompting ([e96b6e6](https://github.com/googleapis/python-aiplatform/commit/e96b6e6f0574b96fc4b61f99c671ef6646fc4956))
+
 ## [1.62.0](https://github.com/googleapis/python-aiplatform/compare/v1.61.0...v1.62.0) (2024-08-13)
 
 

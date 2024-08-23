@@ -18,12 +18,258 @@
 # pylint: disable=protected-access,bad-continuation
 
 from vertexai.generative_models._prompts import Prompt
-from vertexai.generative_models import Content, Part, Image
+from vertexai.generative_models import (
+    Content,
+    Part,
+    Image,
+    GenerationConfig,
+    SafetySetting,
+)
+
 
 import io
 import pytest
 
-from typing import Any, List
+from unittest import mock
+from typing import Any, List, MutableSequence, Optional
+
+# TODO(b/360932655): Use mock_generate_content from test_generative_models
+from vertexai.preview import rag
+from vertexai.generative_models._generative_models import (
+    prediction_service,
+    gapic_prediction_service_types,
+    gapic_content_types,
+    gapic_tool_types,
+)
+
+
+_RESPONSE_TEXT_PART_STRUCT = {
+    "text": "The sky appears blue due to a phenomenon called Rayleigh scattering."
+}
+
+_RESPONSE_FUNCTION_CALL_PART_STRUCT = {
+    "function_call": {
+        "name": "get_current_weather",
+        "args": {
+            "location": "Boston",
+        },
+    }
+}
+
+_RESPONSE_SAFETY_RATINGS_STRUCT = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "probability": "NEGLIGIBLE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "probability": "NEGLIGIBLE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "probability": "NEGLIGIBLE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "NEGLIGIBLE"},
+]
+
+_RESPONSE_CITATION_STRUCT = {
+    "start_index": 528,
+    "end_index": 656,
+    "uri": "https://www.quora.com/What-makes-the-sky-blue-during-the-day",
+}
+
+
+_REQUEST_TOOL_STRUCT = {
+    "function_declarations": [
+        {
+            "name": "get_current_weather",
+            "description": "Get the current weather in a given location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA",
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": [
+                            "celsius",
+                            "fahrenheit",
+                        ],
+                    },
+                },
+                "required": ["location"],
+            },
+        }
+    ]
+}
+
+_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA",
+        },
+        "unit": {
+            "type": "string",
+            "enum": [
+                "celsius",
+                "fahrenheit",
+            ],
+        },
+    },
+    "required": ["location"],
+}
+
+
+def mock_generate_content(
+    self,
+    request: gapic_prediction_service_types.GenerateContentRequest,
+    *,
+    model: Optional[str] = None,
+    contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
+) -> gapic_prediction_service_types.GenerateContentResponse:
+    last_message_part = request.contents[-1].parts[0]
+    should_fail = last_message_part.text and "Please fail" in last_message_part.text
+    if should_fail:
+        response = gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[
+                gapic_content_types.Candidate(
+                    finish_reason=gapic_content_types.Candidate.FinishReason.SAFETY,
+                    finish_message="Failed due to: " + last_message_part.text,
+                    safety_ratings=[
+                        gapic_content_types.SafetyRating(rating)
+                        for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
+                    ],
+                ),
+            ],
+        )
+        return response
+
+    should_block = (
+        last_message_part.text
+        and "Please block with block_reason=OTHER" in last_message_part.text
+    )
+    if should_block:
+        response = gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[],
+            prompt_feedback=gapic_prediction_service_types.GenerateContentResponse.PromptFeedback(
+                block_reason=gapic_prediction_service_types.GenerateContentResponse.PromptFeedback.BlockedReason.OTHER,
+                block_reason_message="Blocked for testing",
+            ),
+        )
+        return response
+
+    is_continued_chat = len(request.contents) > 1
+    has_retrieval = any(
+        tool.retrieval or tool.google_search_retrieval for tool in request.tools
+    )
+    has_rag_retrieval = any(
+        isinstance(tool.retrieval, rag.Retrieval) for tool in request.tools
+    )
+    has_function_declarations = any(
+        tool.function_declarations for tool in request.tools
+    )
+    had_any_function_calls = any(
+        content.parts[0].function_call for content in request.contents
+    )
+    had_any_function_responses = any(
+        content.parts[0].function_response for content in request.contents
+    )
+    latest_user_message_function_responses = [
+        part.function_response
+        for part in request.contents[-1].parts
+        if part.function_response
+    ]
+
+    if had_any_function_calls:
+        assert had_any_function_responses
+
+    if had_any_function_responses:
+        assert had_any_function_calls
+        assert has_function_declarations
+
+    if has_function_declarations and not had_any_function_calls:
+        # response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
+        # Workaround for the proto library bug
+        response_part_struct = dict(
+            function_call=gapic_tool_types.FunctionCall(
+                name="get_current_weather",
+                args={"location": "Boston"},
+            )
+        )
+    elif has_function_declarations and latest_user_message_function_responses:
+        function_response = latest_user_message_function_responses[0]
+        function_response_dict = type(function_response).to_dict(function_response)
+        function_response_response_dict = function_response_dict["response"]
+        response_part_struct = {
+            "text": f"The weather in Boston is {function_response_response_dict}"
+        }
+    elif is_continued_chat:
+        response_part_struct = {"text": "Other planets may have different sky color."}
+    else:
+        response_part_struct = _RESPONSE_TEXT_PART_STRUCT
+
+    if has_retrieval and (not has_rag_retrieval) and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            web_search_queries=[request.contents[0].parts[0].text],
+        )
+    elif has_rag_retrieval and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            retrieval_queries=[request.contents[0].parts[0].text],
+        )
+    else:
+        grounding_metadata = None
+
+    response_part = gapic_content_types.Part(response_part_struct)
+    finish_reason = gapic_content_types.Candidate.FinishReason.STOP
+
+    # Handling the max_output_tokens limit
+    if response_part.text:
+        if request.generation_config.max_output_tokens:
+            tokens = response_part.text.split()
+            if len(tokens) >= request.generation_config.max_output_tokens:
+                tokens = tokens[: request.generation_config.max_output_tokens]
+                response_part.text = " ".join(tokens)
+                finish_reason = gapic_content_types.Candidate.FinishReason.MAX_TOKENS
+
+    response = gapic_prediction_service_types.GenerateContentResponse(
+        candidates=[
+            gapic_content_types.Candidate(
+                index=0,
+                content=gapic_content_types.Content(
+                    role="model",
+                    parts=[response_part],
+                ),
+                finish_reason=finish_reason,
+                safety_ratings=[
+                    gapic_content_types.SafetyRating(rating)
+                    for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
+                ],
+                citation_metadata=gapic_content_types.CitationMetadata(
+                    citations=[
+                        gapic_content_types.Citation(_RESPONSE_CITATION_STRUCT),
+                    ]
+                ),
+                grounding_metadata=grounding_metadata,
+            ),
+        ],
+    )
+
+    if "Please block response with finish_reason=OTHER" in (
+        last_message_part.text or ""
+    ):
+        finish_reason = gapic_content_types.Candidate.FinishReason.OTHER
+        response.candidates[0].finish_reason = finish_reason
+
+    request_token_count = sum(
+        len(gapic_content_types.Content.to_json(content).split())
+        for content in request.contents
+    )
+    response_token_count = sum(
+        len(gapic_content_types.Content.to_json(candidate.content).split())
+        for candidate in response.candidates
+    )
+    response.usage_metadata.prompt_token_count = request_token_count
+    response.usage_metadata.candidates_token_count = response_token_count
+    response.usage_metadata.total_token_count = (
+        request_token_count + response_token_count
+    )
+
+    return response
 
 
 def is_list_of_type(obj: Any, T: Any) -> bool:
@@ -211,3 +457,79 @@ class TestPrompt:
         prompt = Prompt(prompt_data="Rate the movie {movie1}")
         with pytest.raises(ValueError):
             prompt.assemble_contents(day="Tuesday")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_prompt_generate_content(self):
+        prompt = Prompt(
+            prompt_data="Which movie is better, {movie1} or {movie2}?",
+            variables=[
+                {
+                    "movie1": "The Avengers",
+                    "movie2": "Frozen",
+                }
+            ],
+            generation_config=GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=100,
+                stop_sequences=["\n\n\n"],
+            ),
+            model_name="gemini-1.0-pro-002",
+            safety_settings=[
+                SafetySetting(
+                    category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=SafetySetting.HarmBlockMethod.SEVERITY,
+                )
+            ],
+            system_instruction="Please answer in a short sentence.",
+        )
+
+        # Generate content using the assembled prompt.
+        prompt.generate_content(
+            contents=prompt.assemble_contents(**prompt.variables[0]),
+        )
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_batch_prompt_generate_content(self):
+        prompt = Prompt(
+            prompt_data="Which movie is better, {movie1} or {movie2}?",
+            variables=[
+                {"movie1": "The Avengers", "movie2": "Frozen"},
+                {"movie1": "Dune 2", "movie2": "Cars"},
+                {"movie1": "Inception", "movie2": "The Matrix"},
+            ],
+            generation_config=GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=100,
+                stop_sequences=["\n\n\n"],
+            ),
+            model_name="gemini-1.0-pro-002",
+            safety_settings=[
+                SafetySetting(
+                    category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=SafetySetting.HarmBlockMethod.SEVERITY,
+                )
+            ],
+            system_instruction="Please answer in a short sentence.",
+        )
+
+        # Generate content using the assembled prompt.
+        for i in range(len(prompt.variables)):
+            prompt.generate_content(
+                contents=prompt.assemble_contents(**prompt.variables[i]),
+            )

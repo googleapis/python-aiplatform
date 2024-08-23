@@ -22,6 +22,7 @@ from vertexai.preview import rag
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     ImportRagFilesResponse,
@@ -93,6 +94,7 @@ TEST_CHUNK_OVERLAP = 100
 # GCS
 TEST_IMPORT_FILES_CONFIG_GCS = ImportRagFilesConfig()
 TEST_IMPORT_FILES_CONFIG_GCS.gcs_source.uris = [TEST_GCS_PATH]
+TEST_IMPORT_FILES_CONFIG_GCS.rag_file_parsing_config.use_advanced_pdf_parsing = False
 TEST_IMPORT_REQUEST_GCS = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_GCS,
@@ -112,9 +114,26 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.google_drive_source.resource_ids = [
         resource_type=GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FOLDER,
     )
 ]
+TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.rag_file_parsing_config.use_advanced_pdf_parsing = (
+    False
+)
+TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING = ImportRagFilesConfig()
+TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.google_drive_source.resource_ids = [
+    GoogleDriveSource.ResourceId(
+        resource_id=TEST_DRIVE_FOLDER_ID,
+        resource_type=GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FOLDER,
+    )
+]
+TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.rag_file_parsing_config.use_advanced_pdf_parsing = (
+    True
+)
 TEST_IMPORT_REQUEST_DRIVE_FOLDER = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER,
+)
+TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING,
 )
 # Google Drive files
 TEST_DRIVE_FILE_ID = "456"
@@ -123,7 +142,8 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FILE = ImportRagFilesConfig(
     rag_file_chunking_config=RagFileChunkingConfig(
         chunk_size=TEST_CHUNK_SIZE,
         chunk_overlap=TEST_CHUNK_OVERLAP,
-    )
+    ),
+    rag_file_parsing_config=RagFileParsingConfig(use_advanced_pdf_parsing=False),
 )
 TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.max_embedding_requests_per_min = 800
 

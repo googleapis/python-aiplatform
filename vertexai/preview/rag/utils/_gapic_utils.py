@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1 import (
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
     SlackSource as GapicSlackSource,
@@ -217,12 +218,16 @@ def prepare_import_files_request(
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
     max_embedding_requests_per_min: int = 1000,
+    use_advanced_pdf_parsing: bool = False,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
             "corpus_name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"
         )
 
+    rag_file_parsing_config = RagFileParsingConfig(
+        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+    )
     rag_file_chunking_config = RagFileChunkingConfig(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -230,6 +235,7 @@ def prepare_import_files_request(
     import_rag_files_config = ImportRagFilesConfig(
         rag_file_chunking_config=rag_file_chunking_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        rag_file_parsing_config=rag_file_parsing_config,
     )
 
     if source is not None:

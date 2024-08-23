@@ -20,10 +20,10 @@
 import dataclasses
 from typing import Dict, List, Optional, Union, TYPE_CHECKING
 
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from vertexai.preview.evaluation.metrics import (
+from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
 
@@ -37,8 +37,19 @@ class EvaluationRunConfig:
 
     Attributes:
       dataset: The dataset to evaluate.
-      metrics: The list of metrics, or Metric instances to evaluate.
-      column_map: The dictionary of column name overrides in the dataset.
+      metrics: The list of metric names, or Metric instances to evaluate.
+      metric_column_mapping: An optional dictionary column mapping that
+        overrides the metric prompt template input variable names with
+        mapped the evaluation dataset column names, used during evaluation.
+        For example, if the input_variables of the metric prompt template
+        are ["context", "reference"], the metric_column_mapping can be
+          {
+              "context": "news_context",
+              "reference": "ground_truth",
+              "response": "model_1_response"
+          }
+        if the dataset has columns "news_context", "ground_truth" and
+        "model_1_response".
       client: The evaluation service client.
       evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests, in seconds.
@@ -46,7 +57,7 @@ class EvaluationRunConfig:
 
     dataset: "pd.DataFrame"
     metrics: List[Union[str, metrics_base._Metric]]
-    column_map: Dict[str, str]
+    metric_column_mapping: Dict[str, str]
     client: gapic_evaluation_services.EvaluationServiceClient
     evaluation_service_qps: float
     retry_timeout: float
@@ -60,11 +71,14 @@ class EvaluationRunConfig:
         Raises:
           KeyError: If any of the column names are not in the dataset.
         """
-        if self.column_map.get(column_name, column_name) not in self.dataset.columns:
+        if (
+            self.metric_column_mapping.get(column_name, column_name)
+            not in self.dataset.columns
+        ):
             raise KeyError(
-                f"Required column `{self.column_map.get(column_name, column_name)}`"
+                f"Required column `{self.metric_column_mapping.get(column_name, column_name)}`"
                 " not found in the eval dataset. The columns in the provided dataset"
-                f" are {self.dataset.columns}."
+                f" are {list(self.dataset.columns)}."
             )
 
 
@@ -73,8 +87,9 @@ class EvalResult:
     """Evaluation result.
 
     Attributes:
-      summary_metrics: The summary evaluation metrics for the evaluation run.
-      metrics_table: A table containing evaluation dataset, and metric results.
+      summary_metrics: The summary evaluation metrics for an evaluation run.
+      metrics_table: A table containing eval inputs, ground truth, and metric
+        results per row.
       metadata: The metadata for the evaluation run.
     """
 
