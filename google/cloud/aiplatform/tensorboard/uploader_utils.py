@@ -305,14 +305,16 @@ class OnePlatformResourceManager(object):
             ValueError:
                 More than one time series with the resource name was found.
         """
+        time_series = None
         run_name = run_resource_name.split("/")[-1]
         run = self._get_or_create_run_resource(run_name)
         time_series_id = run.get_tensorboard_time_series_id(tag_name)
-        time_series = self._api.get_tensorboard_time_series(
-            request=tensorboard_service.GetTensorboardTimeSeriesRequest(
-                name=run_resource_name + "/timeSeries/" + time_series_id
+        if time_series_id:
+            time_series = self._api.get_tensorboard_time_series(
+                request=tensorboard_service.GetTensorboardTimeSeriesRequest(
+                    name=run_resource_name + "/timeSeries/" + time_series_id
+                )
             )
-        )
         if not time_series:
             time_series = time_series_resource_creator()
             time_series.display_name = tag_name
@@ -416,13 +418,15 @@ class TimeSeriesResourceManager(object):
         if tag_name in self._tag_to_time_series_proto:
             return self._tag_to_time_series_proto[tag_name]
 
+        time_series = None
         tb_run = self._get_run_resource()
         time_series_id = tb_run.get_tensorboard_time_series_id(tag_name)
-        time_series = self._api.get_tensorboard_time_series(
-            request=tensorboard_service.GetTensorboardTimeSeriesRequest(
-                name=self._run_resource_id + "/timeSeries/" + time_series_id
+        if time_series_id:
+            time_series = self._api.get_tensorboard_time_series(
+                request=tensorboard_service.GetTensorboardTimeSeriesRequest(
+                    name=self._run_resource_id + "/timeSeries/" + time_series_id
+                )
             )
-        )
         if not time_series:
             time_series = time_series_resource_creator()
             time_series.display_name = tag_name

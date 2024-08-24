@@ -621,6 +621,10 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         with self.assertRaisesRegex(RuntimeError, "call create_experiment()"):
             uploader.start_uploading()
 
+    @parameterized.parameters(
+        {"time_series_name": None},
+        {"time_series_name": _TEST_TIME_SERIES_NAME},
+    )
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
         "get_run_resource_name",
@@ -629,10 +633,16 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
     def test_start_uploading_scalars(
-        self, experiment_resources_mock, experiment_tracker_mock, run_resource_mock
+        self,
+        experiment_resources_mock,
+        experiment_tracker_mock,
+        run_resource_mock,
+        time_series_name,
     ):
         experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
-        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock()
+        self.mock_run_resource_mock.return_value = _create_tensorboard_run_mock(
+            time_series_name=time_series_name
+        )
         experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
         experiment_tracker_mock.set_tensorboard.return_value = (
             _TEST_TENSORBOARD_RESOURCE_NAME
