@@ -128,7 +128,10 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         cls,
         *,
         base_model: str,
-        tuning_spec: Union[gca_tuning_job_types.SupervisedTuningSpec],
+        tuning_spec: Union[
+            gca_tuning_job_types.SupervisedTuningSpec,
+            gca_tuning_job_types.DistillationSpec,
+        ],
         tuned_model_display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -145,7 +148,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
 
                 This field is a member of `oneof`_ ``source_model``.
             tuning_spec: Tuning Spec for Fine Tuning.
-                Supported types: SupervisedTuningSpec.
+                Supported types: SupervisedTuningSpec, DistillationSpec.
             tuned_model_display_name: The display name of the
                 [TunedModel][google.cloud.aiplatform.v1.Model]. The name can
                 be up to 128 characters long and can consist of any UTF-8
@@ -192,6 +195,8 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
 
         if isinstance(tuning_spec, gca_tuning_job_types.SupervisedTuningSpec):
             gca_tuning_job.supervised_tuning_spec = tuning_spec
+        elif isinstance(tuning_spec, gca_tuning_job_types.DistillationSpec):
+            gca_tuning_job.distillation_spec = tuning_spec
         else:
             raise RuntimeError(f"Unsupported tuning_spec kind: {tuning_spec}")
 

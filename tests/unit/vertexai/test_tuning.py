@@ -38,6 +38,8 @@ from vertexai.preview.tuning import (
     sft as preview_supervised_tuning,
 )
 from vertexai.tuning import sft as supervised_tuning
+from vertexai.tuning import _distillation
+from google.cloud import storage
 
 import pytest
 
@@ -79,11 +81,12 @@ class MockGenAiTuningServiceClient(gen_ai_tuning_service.GenAiTuningServiceClien
     def _progress_tuning_job(self, name: str):
         tuning_job: gca_tuning_job.TuningJob = self._tuning_jobs[name]
         current_time = datetime.datetime.now(datetime.timezone.utc)
+        training_dataset_uri = (
+            tuning_job.supervised_tuning_spec.training_dataset_uri
+            or tuning_job.distillation_spec.training_dataset_uri
+        )
         if tuning_job.state == job_state.JobState.JOB_STATE_PENDING:
-            if (
-                "invalid_dataset"
-                in tuning_job.supervised_tuning_spec.training_dataset_uri
-            ):
+            if "invalid_dataset" in training_dataset_uri:
                 tuning_job.state = job_state.JobState.JOB_STATE_FAILED
                 tuning_job.error = status_pb2.Status(
                     code=400, message="Invalid dataset."
@@ -162,6 +165,7 @@ class TestgenerativeModelTuning:
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            staging_bucket="gs://test-bucket",
         )
 
     def teardown_method(self):
@@ -233,3 +237,48 @@ class TestgenerativeModelTuning:
             train_dataset="gs://some-bucket/some_dataset.jsonl",
         )
         assert sft_tuning_job.encryption_spec.kms_key_name == "test-key"
+
+    @mock.patch.object(
+        target=tuning.TuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
+    @mock.patch.object(
+        target=storage.Bucket,
+        attribute="exists",
+        new=lambda _: True,
+    )
+    def test_genai_tuning_service_distillation_distill_model(self):
+        distillation_train = _distillation.distill_model
+
+        tuning_job = distillation_train(
+            student_model="gemma",
+            teacher_model="gemini-1.0-pro-001",
+            training_dataset="gs://some-bucket/some_dataset.jsonl",
+            # Optional:
+            validation_dataset="gs://some-bucket/some_dataset.jsonl",
+            epoch_count=300,
+            learning_rate_multiplier=1.0,
+        )
+        assert tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_RUNNING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
+        assert tuning_job.has_ended
+        assert tuning_job.has_succeeded
+        assert tuning_job.tuned_model_name
