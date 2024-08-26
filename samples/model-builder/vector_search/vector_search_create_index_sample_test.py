@@ -44,6 +44,37 @@ def test_vector_search_create_index_sample(
         approximate_neighbors_count=ANY,
         leaf_node_embedding_count=ANY,
         leaf_nodes_to_search_percent=ANY,
-        index_update_method=ANY,
+        index_update_method="batch_update",
+        distance_measure_type=ANY,
+    )
+
+
+def test_vector_search_create_streaming_index_sample(
+    mock_sdk_init,
+    mock_index_create_tree_ah_index,
+):
+    vector_search_create_index_sample.vector_search_create_streaming_index(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        display_name=constants.VECTOR_SEARCH_INDEX_DISPLAY_NAME,
+        gcs_uri=constants.VECTOR_SEARCH_GCS_URI,
+    )
+
+    # Check client initialization
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        staging_bucket=constants.VECTOR_SEARCH_GCS_URI,
+    )
+
+    # Check index creation
+    mock_index_create_tree_ah_index.assert_called_with(
+        display_name=constants.VECTOR_SEARCH_INDEX_DISPLAY_NAME,
+        description=ANY,
+        dimensions=ANY,
+        approximate_neighbors_count=ANY,
+        leaf_node_embedding_count=ANY,
+        leaf_nodes_to_search_percent=ANY,
+        index_update_method="stream_update",
         distance_measure_type=ANY,
     )
