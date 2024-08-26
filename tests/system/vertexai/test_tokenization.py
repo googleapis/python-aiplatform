@@ -13,8 +13,10 @@
 # limitations under the License.
 #
 
+import os
 import pytest
 import nltk
+
 from nltk.corpus import udhr
 from google.cloud import aiplatform
 from vertexai.preview.tokenization import (
@@ -38,27 +40,46 @@ _MODEL_CORPUS_PARAMS = [
     for (corpus_name, corpus_lib) in zip(_CORPUS, _CORPUS_LIB)
 ]
 
+STAGING_API_ENDPOINT = "STAGING_ENDPOINT"
+PROD_API_ENDPOINT = "PROD_ENDPOINT"
 
+
+@pytest.mark.parametrize(
+    "api_endpoint_env_name", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT]
+)
 class TestTokenization(e2e_base.TestEndToEnd):
+    """System tests for tokenization."""
 
     _temp_prefix = "temp_tokenization_test_"
 
-    def setup_method(self):
+    @pytest.fixture(scope="function", autouse=True)
+    def setup_method(self, api_endpoint_env_name):
         super().setup_method()
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
+        if api_endpoint_env_name == STAGING_API_ENDPOINT:
+            api_endpoint = os.getenv(api_endpoint_env_name)
+        else:
+            api_endpoint = None
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             credentials=credentials,
+            api_endpoint=api_endpoint,
         )
 
     @pytest.mark.parametrize(
         "model_name, corpus_name, corpus_lib",
         _MODEL_CORPUS_PARAMS,
     )
-    def test_count_tokens_local(self, model_name, corpus_name, corpus_lib):
+    def test_count_tokens_local(
+        self, model_name, corpus_name, corpus_lib, api_endpoint_env_name
+    ):
+        # The Gemini 1.5 flash model requires the model version
+        # number suffix (001) in staging only
+        if api_endpoint_env_name == STAGING_API_ENDPOINT:
+            model_name = model_name + "-001"
         tokenizer = get_tokenizer_for_model(model_name)
         model = GenerativeModel(model_name)
         nltk.download(corpus_name, quiet=True)
@@ -72,7 +93,13 @@ class TestTokenization(e2e_base.TestEndToEnd):
         "model_name, corpus_name, corpus_lib",
         _MODEL_CORPUS_PARAMS,
     )
-    def test_compute_tokens(self, model_name, corpus_name, corpus_lib):
+    def test_compute_tokens(
+        self, model_name, corpus_name, corpus_lib, api_endpoint_env_name
+    ):
+        # The Gemini 1.5 flash model requires the model version
+        # number suffix (001) in staging only
+        if api_endpoint_env_name == STAGING_API_ENDPOINT:
+            model_name = model_name + "-001"
         tokenizer = get_tokenizer_for_model(model_name)
         model = GenerativeModel(model_name)
         nltk.download(corpus_name, quiet=True)
