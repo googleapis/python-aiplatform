@@ -27,6 +27,7 @@ EvalTask = eval_task.EvalTask
 PairwiseMetric = metrics.PairwiseMetric
 PointwiseMetric = metrics.PointwiseMetric
 CustomMetric = metrics.CustomMetric
+Rouge = metrics.Rouge
 PromptTemplate = prompt_template.PromptTemplate
 PairwiseMetricPromptTemplate = metrics.PairwiseMetricPromptTemplate
 PointwiseMetricPromptTemplate = metrics.PointwiseMetricPromptTemplate
@@ -38,6 +39,7 @@ __all__ = [
     "PairwiseMetric",
     "PointwiseMetric",
     "CustomMetric",
+    "Rouge",
     "PromptTemplate",
     "PairwiseMetricPromptTemplate",
     "PointwiseMetricPromptTemplate",
