@@ -86,7 +86,7 @@ prediction_extra_require = [
     "fastapi >= 0.71.0, <=0.111.0",
     "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
     "starlette >= 0.37.1",
-    "uvicorn[standard] >= 0.16.0",
+    "uvicorn[standard] >=0.30.6",
 ]
 
 endpoint_extra_require = ["requests >= 2.28.1"]
