@@ -20,6 +20,7 @@ import sys
 
 from google.cloud.aiplatform.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.vertex_ray.util.resources import (
+    AutoscalingSpec,
     PscIConfig,
     Resources,
 )
@@ -274,7 +275,7 @@ class ClusterConstants:
     TEST_WORKER_NODE_TYPES_2_POOLS = [
         Resources(
             machine_type="n1-standard-16",
-            node_count=4,
+            autoscaling_spec=AutoscalingSpec(min_replica_count=1, max_replica_count=4),
             accelerator_type="NVIDIA_TESLA_P100",
             accelerator_count=1,
         )
@@ -283,7 +284,7 @@ class ClusterConstants:
     TEST_WORKER_NODE_TYPES_2_POOLS_CUSTOM_IMAGE = [
         Resources(
             machine_type="n1-standard-16",
-            node_count=4,
+            autoscaling_spec=AutoscalingSpec(min_replica_count=1, max_replica_count=4),
             accelerator_type="NVIDIA_TESLA_P100",
             accelerator_count=1,
             custom_image=TEST_CUSTOM_IMAGE,
@@ -311,7 +312,10 @@ class ClusterConstants:
             boot_disk_type="pd-ssd",
             boot_disk_size_gb=100,
         ),
-        replica_count=4,
+        autoscaling_spec=ResourcePool.AutoscalingSpec(
+            min_replica_count=1,
+            max_replica_count=4,
+        ),
     )
     TEST_REQUEST_RUNNING_2_POOLS = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_1, TEST_RESOURCE_POOL_2],
@@ -344,6 +348,8 @@ class ClusterConstants:
         psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
+    # Responses
+    TEST_RESOURCE_POOL_2.replica_count = 1
     TEST_RESPONSE_RUNNING_2_POOLS = PersistentResource(
         name=TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[TEST_RESOURCE_POOL_1, TEST_RESOURCE_POOL_2],
@@ -425,6 +431,7 @@ class ClusterConstants:
         dashboard_address=TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
         ray_metric_enabled=True,
         ray_logs_enabled=True,
+        labels={},
     )
     TEST_CLUSTER_BYOSA = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
