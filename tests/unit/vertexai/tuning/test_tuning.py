@@ -24,6 +24,8 @@ from typing import Dict, Iterable
 from unittest import mock
 import uuid
 
+from google import auth
+from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import compat
@@ -50,6 +52,16 @@ from google.rpc import status_pb2
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+
+
+@pytest.fixture(scope="module")
+def google_auth_mock():
+    with mock.patch.object(auth, "default") as auth_mock:
+        auth_mock.return_value = (
+            auth_credentials.AnonymousCredentials(),
+            "test-project",
+        )
+        yield auth_mock
 
 
 _global_tuning_jobs: Dict[str, gca_tuning_job.TuningJob] = {}
