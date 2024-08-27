@@ -1023,7 +1023,7 @@ class TestGenerativeModels:
     )
     def test_generate_content_grounding_vertex_ai_search_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
-        google_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
+        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
             retrieval=preview_generative_models.grounding.Retrieval(
                 source=preview_generative_models.grounding.VertexAISearch(
                     datastore=f"projects/{_TEST_PROJECT}/locations/global/collections/default_collection/dataStores/test-datastore",
@@ -1031,7 +1031,30 @@ class TestGenerativeModels:
             )
         )
         response = model.generate_content(
-            "Why is sky blue?", tools=[google_search_retriever_tool]
+            "Why is sky blue?", tools=[vertex_ai_search_retriever_tool]
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_generate_content_grounding_vertex_ai_search_retriever_with_project_and_location(
+        self,
+    ):
+        model = preview_generative_models.GenerativeModel("gemini-pro")
+        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
+            retrieval=preview_generative_models.grounding.Retrieval(
+                source=preview_generative_models.grounding.VertexAISearch(
+                    datastore="test-datastore",
+                    project=_TEST_PROJECT,
+                    location="global",
+                )
+            )
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[vertex_ai_search_retriever_tool]
         )
         assert response.text
 

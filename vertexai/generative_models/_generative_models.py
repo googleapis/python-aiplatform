@@ -20,6 +20,7 @@ import copy
 import io
 import json
 import pathlib
+import re
 from typing import (
     Any,
     AsyncIterable,
@@ -2273,7 +2274,7 @@ class preview_grounding:  # pylint: disable=invalid-name
                 source (VertexAISearch):
                     Set to use data source powered by Vertex AI Search.
                 disable_attribution (bool):
-                    Optional. Disable using the result from this
+                    Deprecated. Disable using the result from this
                     tool in detecting grounding attribution. This
                     does not affect how the result is given to the
                     model for generation.
@@ -2284,22 +2285,38 @@ class preview_grounding:  # pylint: disable=invalid-name
             )
 
     class VertexAISearch:
-        r"""Retrieve from Vertex AI Search datastore for grounding.
-        See https://cloud.google.com/vertex-ai-search-and-conversation
+        r"""Retrieve from Vertex AI Search data store for grounding.
+        See https://cloud.google.com/products/agent-builder
         """
 
         def __init__(
             self,
             datastore: str,
+            *,
+            project: Optional[str] = None,
+            location: Optional[str] = None,
         ):
             """Initializes a Vertex AI Search tool.
 
             Args:
                 datastore (str):
-                    Required. Fully-qualified Vertex AI Search's
-                    datastore resource ID.
-                    projects/<>/locations/<>/collections/<>/dataStores/<>
+                    Required. Vertex AI Search data store resource name. Format:
+                    ``projects/{project}/locations/{location}/collections/default_collection/dataStores/{data_store}``
+                    or ``{data_store}``.
+                project (str):
+                    Optional. Project ID of the data store. Must provide either the full data store resource name or data store id, project ID, and location.
+                location (str):
+                    Optional. Location of the data store. Must provide either the full data store resource name or data store id, project ID, and location.
             """
+            if not re.fullmatch(
+                r"^projects/[a-z0-9-]*/locations/[a-z0-9][a-z0-9-]*/collections/[a-z0-9][a-z0-9-_]*/dataStores/[a-z0-9][a-z0-9-_]*$",
+                datastore,
+            ):
+                if not project or not location:
+                    raise ValueError(
+                        "Must provide either the full data store resource name or data store id, project ID, and location."
+                    )
+                datastore = f"projects/{project}/locations/{location}/collections/default_collection/dataStores/{datastore}"
             self._raw_vertex_ai_search = gapic_tool_types.VertexAISearch(
                 datastore=datastore,
             )
