@@ -21,7 +21,6 @@ from concurrent import futures
 import copy
 import time
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
-import warnings
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1beta1.types import (
@@ -729,16 +728,10 @@ def _get_baseline_model(evaluation_run_config: evaluation_base.EvaluationRunConf
 
 
 def _convert_metric_prompt_template_example(metrics):
-    """Converts turn-key metric names to generic model based metric."""
+    """Converts string metric names to generic model-based metric instances."""
     updated_metrics = []
     for metric in metrics:
         if metric in constants.Metric.POINTWISE_METRIC_PROMPT_TEMPLATE_EXAMPLE_LIST:
-            warnings.warn(
-                f"After google-cloud-aiplatform>1.61.0, using "
-                f"metric name `{metric}` will result in an error. Please"
-                f" use metric constant as Pointwise. `{metric.upper()}` or"
-                " define a PointwiseMetric instead."
-            )
             template = metric_prompt_template_examples.MetricPromptTemplateExamples.get_prompt_template(
                 metric
             )
@@ -746,12 +739,6 @@ def _convert_metric_prompt_template_example(metrics):
                 metric=metric, metric_prompt_template=template
             )
         elif metric in constants.Metric.PAIRWISE_METRIC_PROMPT_TEMPLATE_EXAMPLE_LIST:
-            warnings.warn(
-                f"After google-cloud-aiplatform>1.61.0, using "
-                f"metric name `{metric}` will result in an error. Please"
-                f" use metric constant as Pairwise. `{metric.upper()}` or"
-                " define a PairwiseMetric instead."
-            )
             template = metric_prompt_template_examples.MetricPromptTemplateExamples.get_prompt_template(
                 metric
             )
