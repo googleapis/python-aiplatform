@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.64.0](https://github.com/googleapis/python-aiplatform/compare/v1.63.0...v1.64.0) (2024-08-27)
+
+
+### Features
+
+* Add support for Prediction dedicated endpoint. predict/rawPredict/streamRawPredict can use dedicated DNS to access the dedicated endpoint. ([3d68777](https://github.com/googleapis/python-aiplatform/commit/3d687777d39b00280c22d2a14ddde3ba644febf7))
+* Add unit tests for Gen AI evaluation module ([94289b5](https://github.com/googleapis/python-aiplatform/commit/94289b536ce6e7b4fc684773717ffb21def98277))
+* GenAI - Added the model Distillation feature (private preview) ([a0d4ff2](https://github.com/googleapis/python-aiplatform/commit/a0d4ff20ceb1c48806d1711fdb2691dc34f9f1db))
+* Grounding - Allow initialization of `grounding.VertexAISearch` with full resource name or data store ID, project ID, and location. ([f334321](https://github.com/googleapis/python-aiplatform/commit/f334321694bb3be1a421ee19a33fc973e5455da9))
+* Make Rouge class available in base level init ([aed82a1](https://github.com/googleapis/python-aiplatform/commit/aed82a1bd5d8942ded4dd325a4eb1a5f73bc50c7))
+* Read for online store w/private service connect ([7af80c6](https://github.com/googleapis/python-aiplatform/commit/7af80c624e026cfe8dda2d1644467a517f49b78f))
+* Support autoscaling in Ray on Vertex ([961da42](https://github.com/googleapis/python-aiplatform/commit/961da429683db113a822300342484aaf1128cfc0))
+
+
+### Bug Fixes
+
+* Fix error in tensorboard uploader thrown when time_series_id is None ([d59a052](https://github.com/googleapis/python-aiplatform/commit/d59a0522ddc2131ab39b052e742a6472f84e0a5a))
+* Fix typo in prompt templates: ([c8fa7a8](https://github.com/googleapis/python-aiplatform/commit/c8fa7a8cf53165354fa89e38fffc0ef4a821e211))
+* Update generative models tests to be parameterized on environment variable name ([be4cbea](https://github.com/googleapis/python-aiplatform/commit/be4cbeadf06d837a929afe3259e0d8c58c1ebb40))
+
+
+### Documentation
+
+* **samples:** Adding code sample for vector search create streaming index ([71464e7](https://github.com/googleapis/python-aiplatform/commit/71464e7d2a57fa6770d2fcb7c5c0e669055c4cdb))
+
 ## [1.63.0](https://github.com/googleapis/python-aiplatform/compare/v1.62.0...v1.63.0) (2024-08-20)
 
 
