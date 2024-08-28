@@ -176,6 +176,11 @@ def create_ray_cluster(
                 "[Ray on Vertex AI]: For head_node_type, "
                 + "Resources.node_count must be 1."
             )
+        if head_node_type.autoscaling_spec is not None:
+            raise ValueError(
+                "[Ray on Vertex AI]: For head_node_type, "
+                + "Resources.autoscaling_spec must be None."
+            )
         if (
             head_node_type.accelerator_type is None
             and head_node_type.accelerator_count > 0
@@ -225,18 +230,38 @@ def create_ray_cluster(
                     "[Ray on Vertex]: accelerator_type must be specified when"
                     + " accelerator_count is set to a value other than 0."
                 )
-            # Worker and head share the same MachineSpec, merge them into the
-            # same ResourcePool
             additional_replica_count = resources._check_machine_spec_identical(
                 head_node_type, worker_node_type
             )
-            resource_pool_0.replica_count = (
-                resource_pool_0.replica_count + additional_replica_count
-            )
+            if worker_node_type.autoscaling_spec is None:
+                # Worker and head share the same MachineSpec, merge them into the
+                # same ResourcePool
+                resource_pool_0.replica_count = (
+                    resource_pool_0.replica_count + additional_replica_count
+                )
+            else:
+                if additional_replica_count > 0:
+                    # Autoscaling for single ResourcePool (homogeneous cluster).
+                    resource_pool_0.replica_count = None
+                    resource_pool_0.autoscaling_spec.min_replica_count = (
+                        worker_node_type.autoscaling_spec.min_replica_count
+                    )
+                    resource_pool_0.autoscaling_spec.max_replica_count = (
+                        worker_node_type.autoscaling_spec.max_replica_count
+                    )
             if additional_replica_count == 0:
                 resource_pool = ResourcePool()
                 resource_pool.id = f"worker-pool{i+1}"
-                resource_pool.replica_count = worker_node_type.node_count
+                if worker_node_type.autoscaling_spec is None:
+                    resource_pool.replica_count = worker_node_type.node_count
+                else:
+                    # Autoscaling for worker ResourcePool.
+                    resource_pool.autoscaling_spec.min_replica_count = (
+                        worker_node_type.autoscaling_spec.min_replica_count
+                    )
+                    resource_pool.autoscaling_spec.max_replica_count = (
+                        worker_node_type.autoscaling_spec.max_replica_count
+                    )
                 resource_pool.machine_spec.machine_type = worker_node_type.machine_type
                 resource_pool.machine_spec.accelerator_count = (
                     worker_node_type.accelerator_count

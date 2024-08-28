@@ -36,6 +36,7 @@ from google.cloud.aiplatform.vertex_ray.cluster_init import (
 from google.cloud.aiplatform.vertex_ray import data
 
 from google.cloud.aiplatform.vertex_ray.util.resources import (
+    AutoscalingSpec,
     Resources,
     NodeImages,
     PscIConfig,
@@ -60,6 +61,7 @@ __all__ = (
     "get_ray_cluster",
     "list_ray_clusters",
     "update_ray_cluster",
+    "AutoscalingSpec",
     "Resources",
     "NodeImages",
     "PscIConfig",

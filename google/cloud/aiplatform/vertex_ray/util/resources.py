@@ -20,6 +20,19 @@ from google.cloud.aiplatform_v1beta1.types import PersistentResource
 
 
 @dataclasses.dataclass
+class AutoscalingSpec:
+    """Autoscaling spec for a ray cluster node.
+
+    Attributes:
+        min_replica_count: The minimum number of replicas in the cluster.
+        max_replica_count: The maximum number of replicas in the cluster.
+    """
+
+    min_replica_count: int = 1
+    max_replica_count: int = 2
+
+
+@dataclasses.dataclass
 class Resources:
     """Resources for a ray cluster node.
 
@@ -39,6 +52,7 @@ class Resources:
             be either unspecified or within the range of [100, 64000].
         custom_image: Custom image for this resource (e.g.
             us-docker.pkg.dev/my-project/ray-gpu.2-9.py310-tf:latest).
+        autoscaling_spec: Autoscaling spec for this resource.
     """
 
     machine_type: Optional[str] = "n1-standard-16"
@@ -48,6 +62,7 @@ class Resources:
     boot_disk_type: Optional[str] = "pd-ssd"
     boot_disk_size_gb: Optional[int] = 100
     custom_image: Optional[str] = None
+    autoscaling_spec: Optional[AutoscalingSpec] = None
 
 
 @dataclasses.dataclass
