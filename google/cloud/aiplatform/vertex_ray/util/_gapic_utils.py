@@ -238,6 +238,11 @@ def persistent_resource_to_cluster(
                 custom_image=head_image_uri,
             )
         )
+        if head_resource_pool.autoscaling_spec:
+            worker_node_types[0].autoscaling_spec = AutoscalingSpec(
+                min_replica_count=head_resource_pool.autoscaling_spec.min_replica_count,
+                max_replica_count=head_resource_pool.autoscaling_spec.max_replica_count,
+            )
     for i in range(len(resource_pools) - 1):
         # Convert the second and more resource pools to vertex_ray.Resources,
         # and append then to worker_node_types.
