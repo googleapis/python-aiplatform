@@ -29,9 +29,11 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Sequence,
     Union,
+    overload,
     TYPE_CHECKING,
 )
 
@@ -514,6 +516,32 @@ class _GenerativeModel:
     ) -> "GenerationResponse":
         return GenerationResponse._from_gapic(response)
 
+    @overload
+    def generate_content(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    def generate_content(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[True],
+    ) -> Iterable["GenerationResponse"]:
+        ...
+
     def generate_content(
         self,
         contents: ContentsType,
@@ -523,7 +551,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
-    ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
+    ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
         """Generates content.
 
         Args:
@@ -562,6 +590,32 @@ class _GenerativeModel:
                 tool_config=tool_config,
             )
 
+    @overload
+    async def generate_content_async(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    async def generate_content_async(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[True] = True,
+    ) -> AsyncIterable["GenerationResponse"]:
+        ...
+
     async def generate_content_async(
         self,
         contents: ContentsType,
@@ -571,7 +625,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
-    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
+    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"]]:
         """Generates content asynchronously.
 
         Args:
@@ -981,6 +1035,30 @@ class ChatSession:
     def history(self) -> List["Content"]:
         return self._history
 
+    @overload
+    def send_message(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    def send_message(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[True] = True,
+    ) -> Iterable["GenerationResponse"]:
+        ...
+
     def send_message(
         self,
         content: PartsType,
@@ -1024,6 +1102,30 @@ class ChatSession:
                 safety_settings=safety_settings,
                 tools=tools,
             )
+
+    @overload
+    def send_message_async(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[False] = False,
+    ) -> Awaitable["GenerationResponse"]:
+        ...
+
+    @overload
+    def send_message_async(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[True] = True,
+    ) -> Awaitable[AsyncIterable["GenerationResponse"]]:
+        ...
 
     def send_message_async(
         self,
