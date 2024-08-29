@@ -824,7 +824,7 @@ class _GenerativeModel:
         return async_generator()
 
     def count_tokens(
-        self, contents: ContentsType
+        self, contents: ContentsType, *, tools: Optional[List["Tool"]] = None
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens.
 
@@ -836,22 +836,32 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            tools: A list of tools (functions) that the model can try calling.
 
         Returns:
             A CountTokensResponse object that has the following attributes:
                 total_tokens: The total number of tokens counted across all instances from the request.
                 total_billable_characters: The total number of billable characters counted across all instances from the request.
         """
+        request = self._prepare_request(
+            contents=contents,
+            tools=tools,
+        )
         return self._prediction_client.count_tokens(
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=request.contents,
+                system_instruction=request.system_instruction,
+                tools=request.tools,
             )
         )
 
     async def count_tokens_async(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        *,
+        tools: Optional[List["Tool"]] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens asynchronously.
 
@@ -863,17 +873,24 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            tools: A list of tools (functions) that the model can try calling.
 
         Returns:
             And awaitable for a CountTokensResponse object that has the following attributes:
                 total_tokens: The total number of tokens counted across all instances from the request.
                 total_billable_characters: The total number of billable characters counted across all instances from the request.
         """
+        request = self._prepare_request(
+            contents=contents,
+            tools=tools,
+        )
         return await self._prediction_async_client.count_tokens(
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=request.contents,
+                system_instruction=request.system_instruction,
+                tools=request.tools,
             )
         )
 
