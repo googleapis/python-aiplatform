@@ -505,3 +505,36 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             assert token_info.role
             # Lightly validate that the tokens are not Base64 encoded
             assert b"=" not in token_info.tokens
+
+    def test_count_tokens_from_text(self):
+        plain_model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+        model = generative_models.GenerativeModel(
+            GEMINI_MODEL_NAME, system_instruction=["You are a chatbot."]
+        )
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            get_current_weather
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+        content = ["Why is sky blue?", "Explain it like I'm 5."]
+
+        response_without_si = plain_model.count_tokens(content)
+        response_with_si = model.count_tokens(content)
+        response_with_si_and_tool = model.count_tokens(
+            content,
+            tools=[weather_tool],
+        )
+
+        # system instruction + user prompt
+        assert response_with_si.total_tokens > response_without_si.total_tokens
+        assert (
+            response_with_si.total_billable_characters
+            > response_without_si.total_billable_characters
+        )
+        # system instruction + user prompt + tool
+        assert response_with_si_and_tool.total_tokens > response_with_si.total_tokens
+        assert (
+            response_with_si_and_tool.total_billable_characters
+            > response_with_si.total_billable_characters
+        )
