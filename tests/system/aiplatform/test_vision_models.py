@@ -375,3 +375,63 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             image_with_watermark
         )
         assert image_verification_response["decision"] == "ACCEPT"
+
+    def test_image_upscaling_model_upscale_image(self):
+        """Tests the image upscaling model upscaling an image."""
+        arbitrary_width = 1111
+        arbitrary_height = 2000
+        target_max_size = 4096
+        image_generation_model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagen-3.0-generate-001"
+        )
+        blank_image = _create_blank_image(
+            width=arbitrary_width, height=arbitrary_height
+        )
+        assert blank_image.size == (arbitrary_width, arbitrary_height)
+        upscaled_image = image_generation_model.upscale_image(
+            blank_image, new_size=target_max_size
+        )
+        new_size = (
+            int(arbitrary_width / arbitrary_height * target_max_size),
+            target_max_size,
+        )
+        assert upscaled_image._size == new_size
+
+    def test_image_upscaling_model_upscaling_factor(self):
+        """Tests the image upscaling model upscaling an image."""
+        arbitrary_width = 1111
+        arbitrary_height = 2222
+        target_upscaling_factor = "x2"
+        image_generation_model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagen-3.0-generate-001"
+        )
+        blank_image = _create_blank_image(
+            width=arbitrary_width, height=arbitrary_height
+        )
+        assert blank_image.size == (arbitrary_width, arbitrary_height)
+        upscaled_image = image_generation_model.upscale_image(
+            blank_image, upscale_factor=target_upscaling_factor
+        )
+        new_size = (arbitrary_width * 2, arbitrary_height * 2)
+        assert upscaled_image._size == new_size
+
+    def test_image_upscaling_model_save_as_jpeg(self):
+        """Tests the image upscaling model upscaling an image."""
+        arbitrary_width = 1111
+        arbitrary_height = 2222
+        target_upscaling_factor = "x2"
+        image_generation_model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagen-3.0-generate-001"
+        )
+        blank_image = _create_blank_image(
+            width=arbitrary_width, height=arbitrary_height
+        )
+        assert blank_image.size == (arbitrary_width, arbitrary_height)
+        upscaled_image = image_generation_model.upscale_image(
+            blank_image,
+            upscale_factor=target_upscaling_factor,
+            output_mime_type="image/jpeg",
+            output_compression_quality=90,
+        )
+        assert upscaled_image._mime_type == "image/jpeg"
+        assert upscaled_image._size == (arbitrary_width * 2, arbitrary_height * 2)

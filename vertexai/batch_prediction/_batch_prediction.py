@@ -33,6 +33,7 @@ from google.rpc import status_pb2
 _LOGGER = aiplatform_base.Logger(__name__)
 
 _GEMINI_MODEL_PATTERN = r"publishers/google/models/gemini"
+_LLAMA_MODEL_PATTERN = r"publishers/meta/models/llama"
 _GEMINI_TUNED_MODEL_PATTERN = r"^projects/[0-9]+?/locations/[0-9a-z-]+?/models/[0-9]+?$"
 
 
@@ -272,13 +273,20 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
         if "/" not in model_name:
             # model name (e.g., gemini-1.0-pro)
-            model_name = "publishers/google/models/" + model_name
+            if model_name.startswith("gemini"):
+                model_name = "publishers/google/models/" + model_name
+            else:
+                raise ValueError(
+                    "Abbreviated model names are only supported for Gemini models. "
+                    "Please provide the full publisher model name."
+                )
         elif model_name.startswith("models/"):
             # publisher model name (e.g., models/gemini-1.0-pro)
             model_name = "publishers/google/" + model_name
         elif (
             # publisher model full name
             not model_name.startswith("publishers/google/models/")
+            and not model_name.startswith("publishers/meta/models/")
             # tuned model full resource name
             and not re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
@@ -301,6 +309,10 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             ):
                 # Model is a tuned Gemini model.
                 return True
+
+        if re.search(_LLAMA_MODEL_PATTERN, model_name):
+            # Model is a Llama3 model.
+            return True
 
         return False
 

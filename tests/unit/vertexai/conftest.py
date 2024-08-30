@@ -65,7 +65,6 @@ from feature_store_constants import (
     _TEST_OPTIMIZED_FV2,
     _TEST_PSC_OPTIMIZED_FOS,
 )
-from google.cloud.logging import Logger
 from pyfakefs import fake_filesystem_unittest
 import pytest
 import tensorflow.saved_model as tf_saved_model
@@ -296,13 +295,6 @@ def mock_uuid():
 def mock_tf_saved_model_load():
     with mock.patch.object(tf_saved_model, "load") as load_mock:
         yield load_mock
-
-
-@pytest.fixture
-def mock_cloud_logging_list_entries():
-    with mock.patch.object(Logger, "list_entries") as list_entries_mock:
-        list_entries_mock.return_value = []
-        yield list_entries_mock
 
 
 @pytest.fixture

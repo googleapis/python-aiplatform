@@ -20,11 +20,19 @@ import shutil
 import tempfile
 from typing import List
 from unittest import mock
-from vertexai.generative_models import Content, Image, Part
+from vertexai.generative_models import (
+    Content,
+    Image,
+    Part,
+    FunctionDeclaration,
+    Tool,
+)
+
 from vertexai.tokenization import _tokenizer_loading
 from vertexai.tokenization._tokenizers import (
     CountTokensResult,
     TokensInfo,
+    _TextsAccumulator,
     get_tokenizer_for_model,
 )
 import pytest
@@ -32,7 +40,11 @@ import sentencepiece as spm
 from sentencepiece import sentencepiece_model_pb2, sentencepiece_pb2
 from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
+    tool as gapic_tool_types,
+    openapi,
 )
+from google.protobuf import struct_pb2
+
 
 _TOKENIZER_NAME = "google/gemma"
 _MODEL_NAME = "gemini-1.5-pro"
@@ -170,14 +182,8 @@ _VALID_CONTENTS_TYPE = [
 
 
 _LIST_OF_UNSUPPORTED_CONTENTS = [
-    gapic_content_types.Part(
-        video_metadata=gapic_content_types.VideoMetadata(start_offset="10s")
-    ),
     Part.from_uri("gs://bucket/object", mime_type="mime_type"),
     Part.from_data(b"inline_data_bytes", mime_type="mime_type"),
-    Part.from_dict({"function_call": {"name": "test_function_call"}}),
-    Part.from_dict({"function_response": {"name": "test_function_response"}}),
-    Part.from_dict({"video_metadata": {"start_offset": "10s"}}),
     Content(
         role="user",
         parts=[Part.from_uri("gs://bucket/object", mime_type="mime_type")],
@@ -186,20 +192,57 @@ _LIST_OF_UNSUPPORTED_CONTENTS = [
         role="user",
         parts=[Part.from_data(b"inline_data_bytes", mime_type="mime_type")],
     ),
-    Content(
-        role="user",
-        parts=[Part.from_dict({"function_call": {"name": "test_function_call"}})],
-    ),
-    Content(
-        role="user",
-        parts=[
-            Part.from_dict({"function_response": {"name": "test_function_response"}})
-        ],
-    ),
-    Content(
-        role="user",
-        parts=[Part.from_dict({"video_metadata": {"start_offset": "10s"}})],
-    ),
+]
+
+_NESTED_STRUCT_1 = struct_pb2.Struct(
+    fields={"string_key": struct_pb2.Value(string_value="value1")}
+)
+_NESTED_STRUCT_2 = struct_pb2.Struct(
+    fields={
+        "list_key": struct_pb2.Value(
+            list_value=struct_pb2.ListValue(
+                values=[struct_pb2.Value(string_value="value2")]
+            )
+        )
+    }
+)
+_NESTED_STRUCT_3 = struct_pb2.Struct(
+    fields={
+        "struct_key": struct_pb2.Value(
+            struct_value=struct_pb2.Struct(
+                fields={"string_key": struct_pb2.Value(string_value="value3")}
+            )
+        )
+    }
+)
+_STRUCT = struct_pb2.Struct(
+    fields={
+        "string_key": struct_pb2.Value(string_value="value4"),
+        "list_key": struct_pb2.Value(
+            list_value=struct_pb2.ListValue(
+                values=[struct_pb2.Value(string_value="value5")]
+            )
+        ),
+        "struct_key1": struct_pb2.Value(struct_value=_NESTED_STRUCT_1),
+        "struct_key2": struct_pb2.Value(struct_value=_NESTED_STRUCT_2),
+        "struct_key3": struct_pb2.Value(struct_value=_NESTED_STRUCT_3),
+    }
+)
+_STRUCT_TEXTS = [
+    "struct_key3",
+    "struct_key1",
+    "list_key",
+    "string_key",
+    "struct_key2",
+    "struct_key",
+    "string_key",
+    "value3",
+    "string_key",
+    "value1",
+    "value5",
+    "value4",
+    "list_key",
+    "value2",
 ]
 
 
@@ -218,7 +261,15 @@ def mock_sp_processor():
 
 
 def _encode_as_ids(contents: List[str]):
-    return [_TOKENS_MAP[content]["ids"] for content in contents]
+    return [
+        (
+            _TOKENS_MAP[content]["ids"]
+            if content in _TOKENS_MAP
+            # Returns stable ids arrary when content is not predefined.
+            else [0] * len(content.split(" "))
+        )
+        for content in contents
+    ]
 
 
 def _build_sentencepiece_text(content: str):
@@ -254,6 +305,21 @@ def mock_hashlib_sha256():
         yield sha256_mock
 
 
+def get_current_weather(location: str, unit: str = "centigrade"):
+    """Gets weather in the specified location.
+    Args:
+        location: The location for which to get the weather.
+        unit: Optional. Temperature unit. Can be Centigrade or Fahrenheit. Defaults to Centigrade.
+    Returns:
+        The weather information as a dict.
+    """
+    return dict(
+        location=location,
+        unit=unit,
+        weather="Super nice, but maybe a bit hot.",
+    )
+
+
 @pytest.mark.usefixtures("mock_requests_get", "mock_hashlib_sha256")
 class TestTokenizers:
     """Unit tests for the tokenizers."""
@@ -269,7 +335,7 @@ class TestTokenizers:
         _tokenizer_loading.get_sentencepiece.cache_clear()
         assert get_tokenizer_for_model(_MODEL_NAME).compute_tokens(
             [_SENTENCE_4]
-        ).token_info_list == (
+        ).tokens_info == (
             [TokensInfo(token_ids=[0, 1], tokens=[b"A", b"B"], role="user")]
         )
         assert get_tokenizer_for_model(_MODEL_NAME).count_tokens(
@@ -304,10 +370,9 @@ class TestTokenizers:
         self, mock_sp_processor, contents, encode_input, encode_output, roles
     ):
         _tokenizer_loading.get_sentencepiece.cache_clear()
-
         assert (
             get_tokenizer_for_model(_MODEL_NAME).compute_tokens(contents)
-        ).token_info_list == (
+        ).tokens_info == (
             [
                 TokensInfo(token_ids=output["ids"], tokens=output["tokens"], role=role)
                 for role, output in zip(roles, encode_output)
@@ -333,6 +398,54 @@ class TestTokenizers:
         with pytest.raises(ValueError) as e:
             get_tokenizer_for_model(_MODEL_NAME).count_tokens(contents)
         e.match("Tokenizers do not support non-text content types.")
+
+    def test_system_instruction_count_tokens(self, mock_sp_processor):
+        _tokenizer_loading.get_sentencepiece.cache_clear()
+        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+        result = tokenizer.count_tokens(
+            ["hello world"], system_instruction=["You are a chatbot."]
+        )
+        assert result.total_tokens == 6
+
+    def test_function_call_count_tokens(self, mock_sp_processor):
+        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+        part = Part._from_gapic(
+            gapic_content_types.Part(
+                function_call=gapic_tool_types.FunctionCall(
+                    name="test_function_call",
+                    args=_STRUCT,
+                ),
+            )
+        )
+
+        result = tokenizer.count_tokens(part)
+
+        assert result.total_tokens
+
+    def test_function_response_count_tokens(self, mock_sp_processor):
+        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+        part = Part._from_gapic(
+            gapic_content_types.Part(
+                function_response=gapic_tool_types.FunctionResponse(
+                    name="test_function_response", response=_STRUCT
+                ),
+            )
+        )
+
+        result = tokenizer.count_tokens(part)
+
+        assert result.total_tokens
+
+    def test_tools_count_tokens(self, mock_sp_processor):
+        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+        get_current_weather_func = FunctionDeclaration.from_func(get_current_weather)
+        weather_tool = Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        result = tokenizer.count_tokens(contents=[], tools=[weather_tool])
+
+        assert result.total_tokens
 
     def test_image_mime_types(self, mock_sp_processor):
         # Importing external library lazily to reduce the scope of import errors.
@@ -417,3 +530,107 @@ class TestModelLoad:
         mock_requests_get.assert_called_once()
         with open(cache_path, "rb") as f:
             assert f.read() == _TOKENIZER_MODEL.SerializeToString()
+
+
+class TestTextsAccumulator:
+    def setup_method(self):
+        self.texts_accumulator = _TextsAccumulator()
+
+    def test_function_declaration_unsupported_field(self):
+        function_declaration = gapic_tool_types.FunctionDeclaration(
+            parameters=openapi.Schema(nullable=True)
+        )
+        with pytest.raises(ValueError):
+            self.texts_accumulator.add_tool(
+                gapic_tool_types.Tool(function_declarations=[function_declaration])
+            )
+
+    def test_function_call_unsupported_field(self):
+        function_call = gapic_tool_types.FunctionCall(
+            name="test_function_call",
+            args=struct_pb2.Struct(
+                fields={
+                    "bool_key": struct_pb2.Value(bool_value=True),
+                }
+            ),
+        )
+        with pytest.raises(ValueError):
+            self.texts_accumulator.add_function_call(function_call)
+
+    def test_function_response_unsupported_field(self):
+        function_call = gapic_tool_types.FunctionResponse(
+            name="test_function_response",
+            response=struct_pb2.Struct(
+                fields={
+                    "bool_key": struct_pb2.Value(bool_value=True),
+                }
+            ),
+        )
+        with pytest.raises(ValueError):
+            self.texts_accumulator.add_function_response(function_call)
+
+    def test_function_declaration(self):
+        schema1 = openapi.Schema(
+            format="schema1_format", description="schema1_description"
+        )
+        schema2 = openapi.Schema(
+            format="schema2_format", description="schema2_description"
+        )
+        example = struct_pb2.Value(string_value="value1")
+        function_declaration = gapic_tool_types.FunctionDeclaration(
+            name="function_declaration_name",
+            description="function_declaration_description",
+            parameters=openapi.Schema(
+                format="schema_format",
+                description="schema_description",
+                enum=["schema_enum1", "schema_enum2"],
+                required=["schema_required1", "schema_required2"],
+                items=schema1,
+                properties={"property_key": schema2},
+                example=example,
+            ),
+        )
+
+        self.texts_accumulator.add_tool(
+            gapic_tool_types.Tool(function_declarations=[function_declaration])
+        )
+        assert self.texts_accumulator.get_texts() == [
+            "function_declaration_name",
+            "function_declaration_description",
+            "schema_format",
+            "schema_description",
+            "schema_enum1",
+            "schema_enum2",
+            "schema_required1",
+            "schema_required2",
+            "schema1_format",
+            "schema1_description",
+            "property_key",
+            "schema2_format",
+            "schema2_description",
+            "value1",
+        ]
+
+    def test_function_call(self):
+        function_call = gapic_tool_types.FunctionCall(
+            name="test_function_call",
+            args=_STRUCT,
+        )
+
+        self.texts_accumulator.add_function_call(function_call)
+
+        assert (
+            self.texts_accumulator.get_texts() == ["test_function_call"] + _STRUCT_TEXTS
+        )
+
+    def test_function_response(self):
+        function_response = gapic_tool_types.FunctionResponse(
+            name="test_function_response", response=_STRUCT
+        )
+
+        self.texts_accumulator.add_function_response(function_response)
+
+        assert (
+            self.texts_accumulator.get_texts()
+            == ["test_function_response"] + _STRUCT_TEXTS
+        )

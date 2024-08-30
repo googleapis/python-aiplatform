@@ -29,9 +29,11 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Sequence,
     Union,
+    overload,
     TYPE_CHECKING,
 )
 
@@ -514,6 +516,32 @@ class _GenerativeModel:
     ) -> "GenerationResponse":
         return GenerationResponse._from_gapic(response)
 
+    @overload
+    def generate_content(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    def generate_content(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[True],
+    ) -> Iterable["GenerationResponse"]:
+        ...
+
     def generate_content(
         self,
         contents: ContentsType,
@@ -523,7 +551,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
-    ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
+    ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
         """Generates content.
 
         Args:
@@ -562,6 +590,32 @@ class _GenerativeModel:
                 tool_config=tool_config,
             )
 
+    @overload
+    async def generate_content_async(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    async def generate_content_async(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        stream: Literal[True] = True,
+    ) -> AsyncIterable["GenerationResponse"]:
+        ...
+
     async def generate_content_async(
         self,
         contents: ContentsType,
@@ -571,7 +625,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
-    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
+    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"]]:
         """Generates content asynchronously.
 
         Args:
@@ -770,7 +824,7 @@ class _GenerativeModel:
         return async_generator()
 
     def count_tokens(
-        self, contents: ContentsType
+        self, contents: ContentsType, *, tools: Optional[List["Tool"]] = None
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens.
 
@@ -782,22 +836,32 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            tools: A list of tools (functions) that the model can try calling.
 
         Returns:
             A CountTokensResponse object that has the following attributes:
                 total_tokens: The total number of tokens counted across all instances from the request.
                 total_billable_characters: The total number of billable characters counted across all instances from the request.
         """
+        request = self._prepare_request(
+            contents=contents,
+            tools=tools,
+        )
         return self._prediction_client.count_tokens(
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=request.contents,
+                system_instruction=request.system_instruction,
+                tools=request.tools,
             )
         )
 
     async def count_tokens_async(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        *,
+        tools: Optional[List["Tool"]] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens asynchronously.
 
@@ -809,17 +873,24 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            tools: A list of tools (functions) that the model can try calling.
 
         Returns:
             And awaitable for a CountTokensResponse object that has the following attributes:
                 total_tokens: The total number of tokens counted across all instances from the request.
                 total_billable_characters: The total number of billable characters counted across all instances from the request.
         """
+        request = self._prepare_request(
+            contents=contents,
+            tools=tools,
+        )
         return await self._prediction_async_client.count_tokens(
             request=gapic_prediction_service_types.CountTokensRequest(
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
+                contents=request.contents,
+                system_instruction=request.system_instruction,
+                tools=request.tools,
             )
         )
 
@@ -981,6 +1052,30 @@ class ChatSession:
     def history(self) -> List["Content"]:
         return self._history
 
+    @overload
+    def send_message(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[False] = False,
+    ) -> "GenerationResponse":
+        ...
+
+    @overload
+    def send_message(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[True] = True,
+    ) -> Iterable["GenerationResponse"]:
+        ...
+
     def send_message(
         self,
         content: PartsType,
@@ -1024,6 +1119,30 @@ class ChatSession:
                 safety_settings=safety_settings,
                 tools=tools,
             )
+
+    @overload
+    def send_message_async(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[False] = False,
+    ) -> Awaitable["GenerationResponse"]:
+        ...
+
+    @overload
+    def send_message_async(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: Literal[True] = True,
+    ) -> Awaitable[AsyncIterable["GenerationResponse"]]:
+        ...
 
     def send_message_async(
         self,

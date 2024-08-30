@@ -22,7 +22,7 @@ import importlib
 import io
 import os
 import tempfile
-from typing import Any, Dict
+from typing import Any, Dict, Literal, Optional, Tuple
 import unittest
 from unittest import mock
 
@@ -39,12 +39,10 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
 )
-
 from vertexai import vision_models as ga_vision_models
 from vertexai.preview import (
     vision_models as preview_vision_models,
 )
-
 from PIL import Image as PIL_Image
 import pytest
 
@@ -131,20 +129,39 @@ def make_image_generation_response_gcs(count: int = 1) -> Dict[str, Any]:
     for _ in range(count):
         predictions.append(
             {
-                "gcsUri": (
-                    "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png"
-                ),
+                "gcsUri": "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
                 "mimeType": "image/png",
             }
         )
     return {"predictions": predictions}
 
 
-def make_image_upscale_response(upscale_size: int) -> Dict[str, Any]:
-    predictions = {
-        "bytesBase64Encoded": make_image_base64(upscale_size, upscale_size),
-        "mimeType": "image/png",
-    }
+def make_image_upscale_response(
+    upscale_size: Optional[int] = None,
+    upscale_factor: Optional[Literal["x2", "x4"]] = None,
+    input_size: Optional[Tuple[int, int]] = None,
+) -> Dict[str, Any]:
+    predictions = {}
+    if upscale_size:
+        predictions = {
+            "bytesBase64Encoded": make_image_base64(upscale_size, upscale_size),
+            "mimeType": "image/png",
+        }
+    else:
+        if upscale_factor == "x2":
+            predictions = {
+                "bytesBase64Encoded": make_image_base64(
+                    input_size[0] * 2, input_size[1] * 2
+                ),
+                "mimeType": "image/png",
+            }
+        else:
+            predictions = {
+                "bytesBase64Encoded": make_image_base64(
+                    input_size[0] * 4, input_size[1] * 4
+                ),
+                "mimeType": "image/png",
+            }
     return {"predictions": [predictions]}
 
 
@@ -723,7 +740,7 @@ class TestImageGenerationModels:
         model = self._get_image_generation_model()
 
         image_generation_response = make_image_generation_response(
-            count=1, height=1024, width=1024
+            count=1, height=1111, width=2000
         )
         gca_generation_response = gca_prediction_service.PredictResponse()
         gca_generation_response.predictions.extend(
@@ -739,7 +756,7 @@ class TestImageGenerationModels:
             attribute="predict",
             return_value=gca_upscale_response,
         ) as mock_upscale:
-            test_image = generate_image_from_file(height=1024, width=1024)
+            test_image = generate_image_from_file(height=1111, width=2000)
 
             upscaled_image = model.upscale_image(image=test_image, new_size=4096)
 
@@ -748,24 +765,107 @@ class TestImageGenerationModels:
             assert actual_instance["image"]["bytesBase64Encoded"]
 
             image_upscale_parameters = predict_kwargs["parameters"]
-            assert (
-                image_upscale_parameters["sampleImageSize"]
-                == str(upscaled_image._size[0])
-                == str(upscaled_image.generation_parameters["upscaled_image_size"])
+            assert image_upscale_parameters["sampleImageSize"] == str(
+                upscaled_image.generation_parameters["upscaled_image_size"]
             )
             assert image_upscale_parameters["mode"] == "upscale"
 
             assert upscaled_image._image_bytes
             assert isinstance(upscaled_image, preview_vision_models.GeneratedImage)
 
-    def test_upscale_image_raises_if_not_1024x1024(self):
+    def test_upscale_image_on_wrong_image_size(self):
         """Tests image upscaling on generated images."""
         model = self._get_image_generation_model()
+        image_generation_response = make_image_generation_response(
+            count=1, height=1111, width=2222
+        )
+        gca_generation_response = gca_prediction_service.PredictResponse()
+        gca_generation_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
 
-        test_image = generate_image_from_file(height=100, width=100)
+        image_upscale_response = make_image_upscale_response(upscale_size=4096)
+        gca_upscale_response = gca_prediction_service.PredictResponse()
+        gca_upscale_response.predictions.extend(image_upscale_response["predictions"])
 
-        with pytest.raises(ValueError):
-            model.upscale_image(image=test_image)
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_upscale_response,
+        ):
+            test_image = generate_image_from_file(height=1111, width=2222)
+            with pytest.raises(ValueError):
+                model.upscale_image(image=test_image, new_size=4096)
+
+    def test_upscale_image_with_upscale_factor(self):
+        """Tests image upscaling on generated images."""
+        model = self._get_image_generation_model()
+        image_generation_response = make_image_generation_response(
+            count=1, height=1111, width=2222
+        )
+        gca_generation_response = gca_prediction_service.PredictResponse()
+        gca_generation_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        image_upscale_response = make_image_upscale_response(
+            upscale_factor="x2", input_size=(1111, 2222)
+        )
+        gca_upscale_response = gca_prediction_service.PredictResponse()
+        gca_upscale_response.predictions.extend(image_upscale_response["predictions"])
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_upscale_response,
+        ) as mock_upscale:
+            test_image = generate_image_from_file(height=1111, width=2222)
+
+            upscaled_image = model.upscale_image(image=test_image, upscale_factor="x2")
+
+            predict_kwargs = mock_upscale.call_args[1]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["image"]["bytesBase64Encoded"]
+
+            image_upscale_parameters = predict_kwargs["parameters"]
+            assert image_upscale_parameters["mode"] == "upscale"
+            assert "sampleImageSize" not in image_upscale_parameters
+
+            assert upscaled_image._image_bytes
+            assert isinstance(upscaled_image, preview_vision_models.GeneratedImage)
+
+    def test_upscale_image_with_jpeg_output(self):
+        """Tests image upscaling on generated images."""
+        model = self._get_image_generation_model()
+        image_generation_response = make_image_generation_response(
+            count=1, height=1111, width=2222
+        )
+        gca_generation_response = gca_prediction_service.PredictResponse()
+        gca_generation_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_generation_response,
+        ) as mock_upscale:
+            test_image = generate_image_from_file(height=1111, width=2222)
+            upscaled_image = model.upscale_image(
+                image=test_image,
+                upscale_factor="x2",
+                output_mime_type="image/jpeg",
+                output_compression_quality=90,
+            )
+
+            predict_kwargs = mock_upscale.call_args[1]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["image"]["bytesBase64Encoded"]
+
+            image_upscale_parameters = predict_kwargs["parameters"]
+            assert image_upscale_parameters["mode"] == "upscale"
+            assert image_upscale_parameters["outputOptions"]["mimeType"] == "image/jpeg"
+            assert image_upscale_parameters["outputOptions"]["compressionQuality"] == 90
+            assert upscaled_image._image_bytes
+            assert isinstance(upscaled_image, preview_vision_models.GeneratedImage)
 
 
 @pytest.mark.usefixtures("google_auth_mock")

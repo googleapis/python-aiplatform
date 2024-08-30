@@ -98,10 +98,7 @@ private_endpoints_extra_require = [
 
 autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 
-preview_extra_require = [
-    "cloudpickle < 3.0",
-    "google-cloud-logging < 4.0",
-]
+preview_extra_require = []
 
 ray_extra_require = [
     # Cluster only supports 2.9.3. Keep 2.4.0 for our testing environment.
@@ -152,7 +149,6 @@ reasoning_engine_extra_require = [
 evaluation_extra_require = [
     "pandas >= 1.0.0, < 2.2.0",
     "tqdm>=4.23.0",
-    "immutabledict",
 ]
 
 langchain_extra_require = [
