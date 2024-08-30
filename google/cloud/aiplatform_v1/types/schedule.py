@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -36,6 +37,10 @@ class Schedule(proto.Message):
     API calls based on user specified time specification and API
     request type.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -55,6 +60,11 @@ class Schedule(proto.Message):
             [PipelineService.CreatePipelineJob][google.cloud.aiplatform.v1.PipelineService.CreatePipelineJob].
             CreatePipelineJobRequest.parent field is required (format:
             projects/{project}/locations/{location}).
+
+            This field is a member of `oneof`_ ``request``.
+        create_notebook_execution_job_request (google.cloud.aiplatform_v1.types.CreateNotebookExecutionJobRequest):
+            Request for
+            [NotebookService.CreateNotebookExecutionJob][google.cloud.aiplatform.v1.NotebookService.CreateNotebookExecutionJob].
 
             This field is a member of `oneof`_ ``request``.
         name (str):
@@ -185,6 +195,12 @@ class Schedule(proto.Message):
             oneof="request",
             message=pipeline_service.CreatePipelineJobRequest,
         )
+    )
+    create_notebook_execution_job_request: notebook_service.CreateNotebookExecutionJobRequest = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        oneof="request",
+        message=notebook_service.CreateNotebookExecutionJobRequest,
     )
     name: str = proto.Field(
         proto.STRING,

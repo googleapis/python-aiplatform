@@ -46,6 +46,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.schedule_service import pagers
+from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import schedule
@@ -88,6 +89,18 @@ class ScheduleServiceAsyncClient:
     parse_execution_path = staticmethod(ScheduleServiceClient.parse_execution_path)
     network_path = staticmethod(ScheduleServiceClient.network_path)
     parse_network_path = staticmethod(ScheduleServiceClient.parse_network_path)
+    notebook_execution_job_path = staticmethod(
+        ScheduleServiceClient.notebook_execution_job_path
+    )
+    parse_notebook_execution_job_path = staticmethod(
+        ScheduleServiceClient.parse_notebook_execution_job_path
+    )
+    notebook_runtime_template_path = staticmethod(
+        ScheduleServiceClient.notebook_runtime_template_path
+    )
+    parse_notebook_runtime_template_path = staticmethod(
+        ScheduleServiceClient.parse_notebook_runtime_template_path
+    )
     pipeline_job_path = staticmethod(ScheduleServiceClient.pipeline_job_path)
     parse_pipeline_job_path = staticmethod(
         ScheduleServiceClient.parse_pipeline_job_path
