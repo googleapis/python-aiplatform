@@ -55,15 +55,29 @@ class TokensInfo:
 
 @dataclasses.dataclass(frozen=True)
 class ComputeTokensResult:
+    tokens_info: Sequence[TokensInfo]
+
+
+class PreviewComputeTokensResult(ComputeTokensResult):
+    def token_info_list(self) -> Sequence[TokensInfo]:
+        import warnings
+
+        message = "PreviewComputeTokensResult.token_info_list is deprecated. Use ComputeTokensResult.tokens_info instead."
+        warnings.warn(message, DeprecationWarning, stacklevel=2)
+        return self.tokens_info
+
+
+@dataclasses.dataclass(frozen=True)
+class ComputeTokensResult:
     """Represents token string pieces and ids output in compute_tokens function.
 
     Attributes:
         tokens_info: Lists of tokens_info from the input.
-        The input `contents: ContentsType` could have
-        multiple string instances and each tokens_info
-        item represents each string instance. Each token
-        info consists tokens list, token_ids list and
-        a role.
+            The input `contents: ContentsType` could have
+            multiple string instances and each tokens_info
+            item represents each string instance. Each token
+            info consists tokens list, token_ids list and
+            a role.
         token_info_list: the value in this field equal to tokens_info.
     """
 
@@ -521,6 +535,32 @@ class Tokenizer:
             contents=text_accumulator.get_texts(),
             roles=_to_canonical_roles(contents),
         )
+
+
+class PreviewTokenizer(Tokenizer):
+    def compute_tokens(self, contents: ContentsType) -> PreviewComputeTokensResult:
+        return PreviewComputeTokensResult(tokens_info=super().compute_tokens(contents))
+
+
+def _get_tokenizer_for_model_preview(model_name: str) -> PreviewTokenizer:
+    """Returns a tokenizer for the given tokenizer name.
+
+    Usage:
+        ```
+        tokenizer = get_tokenizer_for_model("gemini-1.5-pro-001")
+        print(tokenizer.count_tokens("Hello world!"))
+        ```
+
+    Supported models can be found at
+    https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models.
+
+    Args:
+        model_name: Specify the tokenizer is from which model.
+    """
+    if not model_name:
+        raise ValueError("model_name must not be empty.")
+
+    return PreviewTokenizer(get_tokenizer_name(model_name))
 
 
 def get_tokenizer_for_model(model_name: str) -> Tokenizer:
