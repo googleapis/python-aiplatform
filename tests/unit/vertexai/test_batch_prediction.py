@@ -50,6 +50,8 @@ _TEST_GEMINI_MODEL_RESOURCE_NAME = f"publishers/google/models/{_TEST_GEMINI_MODE
 _TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME = "projects/123/locations/us-central1/models/456"
 _TEST_PALM_MODEL_NAME = "text-bison"
 _TEST_PALM_MODEL_RESOURCE_NAME = f"publishers/google/models/{_TEST_PALM_MODEL_NAME}"
+_TEST_LLAMA_MODEL_NAME = "llama3-405b-instruct-maas"
+_TEST_LLAMA_MODEL_RESOURCE_NAME = f"publishers/meta/models/{_TEST_LLAMA_MODEL_NAME}"
 
 _TEST_GCS_INPUT_URI = "gs://test-bucket/test-input.jsonl"
 _TEST_GCS_INPUT_URI_2 = "gs://test-bucket/test-input-2.jsonl"
@@ -119,6 +121,23 @@ def get_batch_prediction_job_with_gcs_output_mock():
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_GEMINI_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_llama_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_LLAMA_MODEL_RESOURCE_NAME,
             state=_TEST_JOB_STATE_SUCCESS,
             output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
                 gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
@@ -249,6 +268,16 @@ class TestBatchPredictionJob:
         batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
 
         get_batch_prediction_job_with_gcs_output_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+
+    def test_init_batch_prediction_job_with_llama_model(
+        self,
+        get_batch_prediction_job_with_llama_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_llama_model_mock.assert_called_once_with(
             name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
         )
 
@@ -447,6 +476,39 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    def test_submit_batch_prediction_job_with_llama_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_LLAMA_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_LLAMA_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("create_batch_prediction_job_mock")
     def test_submit_batch_prediction_job_with_tuned_model(
         self,
@@ -467,11 +529,25 @@ class TestBatchPredictionJob:
         with pytest.raises(
             ValueError,
             match=(
-                f"Model '{_TEST_PALM_MODEL_RESOURCE_NAME}' is not a Generative AI model."
+                "Abbreviated model names are only supported for Gemini models. "
+                "Please provide the full publisher model name."
             ),
         ):
             batch_prediction.BatchPredictionJob.submit(
                 source_model=_TEST_PALM_MODEL_NAME,
+                input_dataset=_TEST_GCS_INPUT_URI,
+            )
+
+    def test_submit_batch_prediction_job_with_invalid_abbreviated_model_name(self):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Abbreviated model names are only supported for Gemini models. "
+                "Please provide the full publisher model name."
+            ),
+        ):
+            batch_prediction.BatchPredictionJob.submit(
+                source_model=_TEST_LLAMA_MODEL_NAME,
                 input_dataset=_TEST_GCS_INPUT_URI,
             )
 
