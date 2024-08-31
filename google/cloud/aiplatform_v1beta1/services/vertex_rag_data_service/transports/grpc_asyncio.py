@@ -292,6 +292,35 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
         return self._stubs["create_rag_corpus"]
 
     @property
+    def update_rag_corpus(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagCorpusRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update rag corpus method over gRPC.
+
+        Updates a RagCorpus.
+
+        Returns:
+            Callable[[~.UpdateRagCorpusRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_rag_corpus" not in self._stubs:
+            self._stubs["update_rag_corpus"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/UpdateRagCorpus",
+                request_serializer=vertex_rag_data_service.UpdateRagCorpusRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_rag_corpus"]
+
+    @property
     def get_rag_corpus(
         self,
     ) -> Callable[
@@ -528,6 +557,11 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
         self._wrapped_methods = {
             self.create_rag_corpus: gapic_v1.method_async.wrap_method(
                 self.create_rag_corpus,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_corpus: gapic_v1.method_async.wrap_method(
+                self.update_rag_corpus,
                 default_timeout=None,
                 client_info=client_info,
             ),

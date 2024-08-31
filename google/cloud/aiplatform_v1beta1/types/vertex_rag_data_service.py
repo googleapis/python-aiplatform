@@ -41,6 +41,8 @@ __protobuf__ = proto.module(
         "ListRagFilesResponse",
         "DeleteRagFileRequest",
         "CreateRagCorpusOperationMetadata",
+        "UpdateRagCorpusRequest",
+        "UpdateRagCorpusOperationMetadata",
         "ImportRagFilesOperationMetadata",
     },
 )
@@ -399,6 +401,39 @@ class DeleteRagFileRequest(proto.Message):
 class CreateRagCorpusOperationMetadata(proto.Message):
     r"""Runtime operation information for
     [VertexRagDataService.CreateRagCorpus][google.cloud.aiplatform.v1beta1.VertexRagDataService.CreateRagCorpus].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class UpdateRagCorpusRequest(proto.Message):
+    r"""Request message for
+    [VertexRagDataService.UpdateRagCorpus][google.cloud.aiplatform.v1beta1.VertexRagDataService.UpdateRagCorpus].
+
+    Attributes:
+        rag_corpus (google.cloud.aiplatform_v1beta1.types.RagCorpus):
+            Required. The RagCorpus which replaces the
+            resource on the server.
+    """
+
+    rag_corpus: vertex_rag_data.RagCorpus = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=vertex_rag_data.RagCorpus,
+    )
+
+
+class UpdateRagCorpusOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [VertexRagDataService.UpdateRagCorpus][google.cloud.aiplatform.v1beta1.VertexRagDataService.UpdateRagCorpus].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):

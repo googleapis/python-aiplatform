@@ -51,6 +51,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.schedule_service import pagers
+from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import schedule
@@ -308,6 +309,50 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notebook_execution_job_path(
+        project: str,
+        location: str,
+        notebook_execution_job: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_execution_job string."""
+        return "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
+            project=project,
+            location=location,
+            notebook_execution_job=notebook_execution_job,
+        )
+
+    @staticmethod
+    def parse_notebook_execution_job_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_execution_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookExecutionJobs/(?P<notebook_execution_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notebook_runtime_template_path(
+        project: str,
+        location: str,
+        notebook_runtime_template: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_runtime_template string."""
+        return "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
+            project=project,
+            location=location,
+            notebook_runtime_template=notebook_runtime_template,
+        )
+
+    @staticmethod
+    def parse_notebook_runtime_template_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_runtime_template path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookRuntimeTemplates/(?P<notebook_runtime_template>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 

@@ -140,6 +140,11 @@ class VertexRagDataServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_rag_corpus: gapic_v1.method.wrap_method(
+                self.update_rag_corpus,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_rag_corpus: gapic_v1.method.wrap_method(
                 self.get_rag_corpus,
                 default_timeout=None,
@@ -201,6 +206,15 @@ class VertexRagDataServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [vertex_rag_data_service.CreateRagCorpusRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_rag_corpus(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagCorpusRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

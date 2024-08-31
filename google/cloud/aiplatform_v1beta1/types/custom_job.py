@@ -558,6 +558,12 @@ class Scheduling(proto.Message):
             Optional. Indicates if the job should retry for internal
             errors after the job starts running. If true, overrides
             ``Scheduling.restart_job_on_worker_restart`` to false.
+        max_wait_duration (google.protobuf.duration_pb2.Duration):
+            Optional. This is the maximum duration that a job will wait
+            for the requested resources to be provisioned if the
+            scheduling strategy is set to [Strategy.DWS_FLEX_START]. If
+            set to 0, the job will wait indefinitely. The default is 24
+            hours.
     """
 
     class Strategy(proto.Enum):
@@ -605,6 +611,11 @@ class Scheduling(proto.Message):
     disable_retries: bool = proto.Field(
         proto.BOOL,
         number=5,
+    )
+    max_wait_duration: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=duration_pb2.Duration,
     )
 
 
