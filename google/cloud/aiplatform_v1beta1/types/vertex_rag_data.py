@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -27,6 +28,9 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "RagEmbeddingModelConfig",
+        "RagVectorDbConfig",
+        "FileStatus",
+        "CorpusStatus",
         "RagCorpus",
         "RagFile",
         "RagFileChunkingConfig",
@@ -40,6 +44,11 @@ __protobuf__ = proto.module(
 class RagEmbeddingModelConfig(proto.Message):
     r"""Config for the embedding model to use for RAG.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
@@ -49,6 +58,11 @@ class RagEmbeddingModelConfig(proto.Message):
             is hosting a 1P fine-tuned text embedding model.
             Endpoints hosting non-1P fine-tuned text
             embedding models are currently not supported.
+            This is used for dense vector search.
+
+            This field is a member of `oneof`_ ``model_config``.
+        hybrid_search_config (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig.HybridSearchConfig):
+            Configuration for hybrid search.
 
             This field is a member of `oneof`_ ``model_config``.
     """
@@ -87,11 +101,277 @@ class RagEmbeddingModelConfig(proto.Message):
             number=3,
         )
 
+    class SparseEmbeddingConfig(proto.Message):
+        r"""Configuration for sparse emebdding generation.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            bm25 (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig.SparseEmbeddingConfig.Bm25):
+                Use BM25 scoring algorithm.
+
+                This field is a member of `oneof`_ ``model``.
+        """
+
+        class Bm25(proto.Message):
+            r"""Message for BM25 parameters.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                multilingual (bool):
+                    Optional. Use multilingual tokenizer if set
+                    to true.
+                k1 (float):
+                    Optional. The parameter to control term frequency
+                    saturation. It determines the scaling between the matching
+                    term frequency and final score. k1 is in the range of [1.2,
+                    3]. The default value is 1.2.
+
+                    This field is a member of `oneof`_ ``_k1``.
+                b (float):
+                    Optional. The parameter to control document length
+                    normalization. It determines how much the document length
+                    affects the final score. b is in the range of [0, 1]. The
+                    default value is 0.75.
+
+                    This field is a member of `oneof`_ ``_b``.
+            """
+
+            multilingual: bool = proto.Field(
+                proto.BOOL,
+                number=1,
+            )
+            k1: float = proto.Field(
+                proto.FLOAT,
+                number=2,
+                optional=True,
+            )
+            b: float = proto.Field(
+                proto.FLOAT,
+                number=3,
+                optional=True,
+            )
+
+        bm25: "RagEmbeddingModelConfig.SparseEmbeddingConfig.Bm25" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="model",
+            message="RagEmbeddingModelConfig.SparseEmbeddingConfig.Bm25",
+        )
+
+    class HybridSearchConfig(proto.Message):
+        r"""Config for hybrid search.
+
+        Attributes:
+            sparse_embedding_config (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig.SparseEmbeddingConfig):
+                Optional. The configuration for sparse
+                embedding generation. This field is optional the
+                default behavior depends on the vector database
+                choice on the RagCorpus.
+            dense_embedding_model_prediction_endpoint (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig.VertexPredictionEndpoint):
+                Required. The Vertex AI Prediction Endpoint
+                that hosts the embedding model for dense
+                embedding generations.
+        """
+
+        sparse_embedding_config: "RagEmbeddingModelConfig.SparseEmbeddingConfig" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=1,
+                message="RagEmbeddingModelConfig.SparseEmbeddingConfig",
+            )
+        )
+        dense_embedding_model_prediction_endpoint: "RagEmbeddingModelConfig.VertexPredictionEndpoint" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="RagEmbeddingModelConfig.VertexPredictionEndpoint",
+        )
+
     vertex_prediction_endpoint: VertexPredictionEndpoint = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="model_config",
         message=VertexPredictionEndpoint,
+    )
+    hybrid_search_config: HybridSearchConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="model_config",
+        message=HybridSearchConfig,
+    )
+
+
+class RagVectorDbConfig(proto.Message):
+    r"""Config for the Vector DB to use for RAG.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        rag_managed_db (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedDb):
+            The config for the RAG-managed Vector DB.
+
+            This field is a member of `oneof`_ ``vector_db``.
+        weaviate (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.Weaviate):
+            The config for the Weaviate.
+
+            This field is a member of `oneof`_ ``vector_db``.
+        vertex_feature_store (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.VertexFeatureStore):
+            The config for the Vertex Feature Store.
+
+            This field is a member of `oneof`_ ``vector_db``.
+        api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
+            Authentication config for the chosen Vector
+            DB.
+    """
+
+    class RagManagedDb(proto.Message):
+        r"""The config for the default RAG-managed Vector DB."""
+
+    class Weaviate(proto.Message):
+        r"""The config for the Weaviate.
+
+        Attributes:
+            http_endpoint (str):
+                Weaviate DB instance HTTP endpoint. e.g.
+                34.56.78.90:8080 Vertex RAG only supports HTTP
+                connection to Weaviate. This value cannot be
+                changed after it's set.
+            collection_name (str):
+                The corresponding collection this corpus maps
+                to. This value cannot be changed after it's set.
+        """
+
+        http_endpoint: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        collection_name: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    class VertexFeatureStore(proto.Message):
+        r"""The config for the Vertex Feature Store.
+
+        Attributes:
+            feature_view_resource_name (str):
+                The resource name of the FeatureView. Format:
+                ``projects/{project}/locations/{location}/featureOnlineStores/{feature_online_store}/featureViews/{feature_view}``
+        """
+
+        feature_view_resource_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    rag_managed_db: RagManagedDb = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="vector_db",
+        message=RagManagedDb,
+    )
+    weaviate: Weaviate = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="vector_db",
+        message=Weaviate,
+    )
+    vertex_feature_store: VertexFeatureStore = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="vector_db",
+        message=VertexFeatureStore,
+    )
+    api_auth: gca_api_auth.ApiAuth = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=gca_api_auth.ApiAuth,
+    )
+
+
+class FileStatus(proto.Message):
+    r"""RagFile status.
+
+    Attributes:
+        state (google.cloud.aiplatform_v1beta1.types.FileStatus.State):
+            Output only. RagFile state.
+        error_status (str):
+            Output only. Only when the ``state`` field is ERROR.
+    """
+
+    class State(proto.Enum):
+        r"""RagFile state.
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                RagFile state is unspecified.
+            ACTIVE (1):
+                RagFile resource has been created and indexed
+                successfully.
+            ERROR (2):
+                RagFile resource is in a problematic state. See
+                ``error_message`` field for details.
+        """
+        STATE_UNSPECIFIED = 0
+        ACTIVE = 1
+        ERROR = 2
+
+    state: State = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=State,
+    )
+    error_status: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class CorpusStatus(proto.Message):
+    r"""RagCorpus status.
+
+    Attributes:
+        state (google.cloud.aiplatform_v1beta1.types.CorpusStatus.State):
+            Output only. RagCorpus life state.
+        error_status (str):
+            Output only. Only when the ``state`` field is ERROR.
+    """
+
+    class State(proto.Enum):
+        r"""RagCorpus life state.
+
+        Values:
+            UNKNOWN (0):
+                This state is not supposed to happen.
+            INITIALIZED (1):
+                RagCorpus resource entry is initialized, but
+                hasn't done validation.
+            ACTIVE (2):
+                RagCorpus is provisioned successfully and is
+                ready to serve.
+            ERROR (3):
+                RagCorpus is in a problematic situation. See
+                ``error_message`` field for details.
+        """
+        UNKNOWN = 0
+        INITIALIZED = 1
+        ACTIVE = 2
+        ERROR = 3
+
+    state: State = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=State,
+    )
+    error_status: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -112,12 +392,17 @@ class RagCorpus(proto.Message):
         rag_embedding_model_config (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig):
             Optional. Immutable. The embedding model
             config of the RagCorpus.
+        rag_vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
+            Optional. Immutable. The Vector DB config of
+            the RagCorpus.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this RagCorpus
             was created.
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this RagCorpus
             was last updated.
+        corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
+            Output only. RagCorpus state.
     """
 
     name: str = proto.Field(
@@ -137,6 +422,11 @@ class RagCorpus(proto.Message):
         number=6,
         message="RagEmbeddingModelConfig",
     )
+    rag_vector_db_config: "RagVectorDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message="RagVectorDbConfig",
+    )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -146,6 +436,11 @@ class RagCorpus(proto.Message):
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
+    )
+    corpus_status: "CorpusStatus" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="CorpusStatus",
     )
 
 
@@ -206,6 +501,8 @@ class RagFile(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this RagFile was
             last updated.
+        file_status (google.cloud.aiplatform_v1beta1.types.FileStatus):
+            Output only. State of the RagFile.
     """
 
     class RagFileType(proto.Enum):
@@ -283,6 +580,11 @@ class RagFile(proto.Message):
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
+    )
+    file_status: "FileStatus" = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message="FileStatus",
     )
 
 

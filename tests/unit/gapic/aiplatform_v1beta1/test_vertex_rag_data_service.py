@@ -1609,6 +1609,390 @@ async def test_create_rag_corpus_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        vertex_rag_data_service.UpdateRagCorpusRequest,
+        dict,
+    ],
+)
+def test_update_rag_corpus(request_type, transport: str = "grpc"):
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_data_service.UpdateRagCorpusRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_update_rag_corpus_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.update_rag_corpus()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vertex_rag_data_service.UpdateRagCorpusRequest()
+
+
+def test_update_rag_corpus_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vertex_rag_data_service.UpdateRagCorpusRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.update_rag_corpus(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vertex_rag_data_service.UpdateRagCorpusRequest()
+
+
+def test_update_rag_corpus_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagDataServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.update_rag_corpus in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_rag_corpus
+        ] = mock_rpc
+        request = {}
+        client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.update_rag_corpus(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VertexRagDataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_rag_corpus()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vertex_rag_data_service.UpdateRagCorpusRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = VertexRagDataServiceAsyncClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.update_rag_corpus
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.update_rag_corpus
+        ] = mock_rpc
+
+        request = {}
+        await client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.update_rag_corpus(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_async(
+    transport: str = "grpc_asyncio",
+    request_type=vertex_rag_data_service.UpdateRagCorpusRequest,
+):
+    client = VertexRagDataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_data_service.UpdateRagCorpusRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_async_from_dict():
+    await test_update_rag_corpus_async(request_type=dict)
+
+
+def test_update_rag_corpus_field_headers():
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_data_service.UpdateRagCorpusRequest()
+
+    request.rag_corpus.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "rag_corpus.name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_field_headers_async():
+    client = VertexRagDataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_data_service.UpdateRagCorpusRequest()
+
+    request.rag_corpus.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "rag_corpus.name=name_value",
+    ) in kw["metadata"]
+
+
+def test_update_rag_corpus_flattened():
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.update_rag_corpus(
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].rag_corpus
+        mock_val = vertex_rag_data.RagCorpus(name="name_value")
+        assert arg == mock_val
+
+
+def test_update_rag_corpus_flattened_error():
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_rag_corpus(
+            vertex_rag_data_service.UpdateRagCorpusRequest(),
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_flattened_async():
+    client = VertexRagDataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_rag_corpus), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.update_rag_corpus(
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].rag_corpus
+        mock_val = vertex_rag_data.RagCorpus(name="name_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_flattened_error_async():
+    client = VertexRagDataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.update_rag_corpus(
+            vertex_rag_data_service.UpdateRagCorpusRequest(),
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         vertex_rag_data_service.GetRagCorpusRequest,
         dict,
     ],
@@ -5080,10 +5464,32 @@ def test_create_rag_corpus_rest(request_type):
                 "endpoint": "endpoint_value",
                 "model": "model_value",
                 "model_version_id": "model_version_id_value",
-            }
+            },
+            "hybrid_search_config": {
+                "sparse_embedding_config": {
+                    "bm25": {"multilingual": True, "k1": 0.156, "b": 0.98}
+                },
+                "dense_embedding_model_prediction_endpoint": {},
+            },
+        },
+        "rag_vector_db_config": {
+            "rag_managed_db": {},
+            "weaviate": {
+                "http_endpoint": "http_endpoint_value",
+                "collection_name": "collection_name_value",
+            },
+            "vertex_feature_store": {
+                "feature_view_resource_name": "feature_view_resource_name_value"
+            },
+            "api_auth": {
+                "api_key_config": {
+                    "api_key_secret_version": "api_key_secret_version_value"
+                }
+            },
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
+        "corpus_status": {"state": 1, "error_status": "error_status_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5446,6 +5852,416 @@ def test_create_rag_corpus_rest_flattened_error(transport: str = "rest"):
 
 
 def test_create_rag_corpus_rest_error():
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_data_service.UpdateRagCorpusRequest,
+        dict,
+    ],
+)
+def test_update_rag_corpus_rest(request_type):
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "rag_corpus": {"name": "projects/sample1/locations/sample2/ragCorpora/sample3"}
+    }
+    request_init["rag_corpus"] = {
+        "name": "projects/sample1/locations/sample2/ragCorpora/sample3",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "rag_embedding_model_config": {
+            "vertex_prediction_endpoint": {
+                "endpoint": "endpoint_value",
+                "model": "model_value",
+                "model_version_id": "model_version_id_value",
+            },
+            "hybrid_search_config": {
+                "sparse_embedding_config": {
+                    "bm25": {"multilingual": True, "k1": 0.156, "b": 0.98}
+                },
+                "dense_embedding_model_prediction_endpoint": {},
+            },
+        },
+        "rag_vector_db_config": {
+            "rag_managed_db": {},
+            "weaviate": {
+                "http_endpoint": "http_endpoint_value",
+                "collection_name": "collection_name_value",
+            },
+            "vertex_feature_store": {
+                "feature_view_resource_name": "feature_view_resource_name_value"
+            },
+            "api_auth": {
+                "api_key_config": {
+                    "api_key_secret_version": "api_key_secret_version_value"
+                }
+            },
+        },
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "corpus_status": {"state": 1, "error_status": "error_status_value"},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = vertex_rag_data_service.UpdateRagCorpusRequest.meta.fields[
+        "rag_corpus"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["rag_corpus"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["rag_corpus"][field])):
+                    del request_init["rag_corpus"][field][i][subfield]
+            else:
+                del request_init["rag_corpus"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_rag_corpus(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_update_rag_corpus_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagDataServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.update_rag_corpus in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_rag_corpus
+        ] = mock_rpc
+
+        request = {}
+        client.update_rag_corpus(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.update_rag_corpus(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_update_rag_corpus_rest_required_fields(
+    request_type=vertex_rag_data_service.UpdateRagCorpusRequest,
+):
+    transport_class = transports.VertexRagDataServiceRestTransport
+
+    request_init = {}
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_rag_corpus._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_rag_corpus._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "patch",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.update_rag_corpus(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_update_rag_corpus_rest_unset_required_fields():
+    transport = transports.VertexRagDataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.update_rag_corpus._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("ragCorpus",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_rag_corpus_rest_interceptors(null_interceptor):
+    transport = transports.VertexRagDataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
+    )
+    client = VertexRagDataServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor, "post_update_rag_corpus"
+    ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor, "pre_update_rag_corpus"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = vertex_rag_data_service.UpdateRagCorpusRequest.pb(
+            vertex_rag_data_service.UpdateRagCorpusRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = vertex_rag_data_service.UpdateRagCorpusRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.update_rag_corpus(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_rag_corpus_rest_bad_request(
+    transport: str = "rest", request_type=vertex_rag_data_service.UpdateRagCorpusRequest
+):
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "rag_corpus": {"name": "projects/sample1/locations/sample2/ragCorpora/sample3"}
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.update_rag_corpus(request)
+
+
+def test_update_rag_corpus_rest_flattened():
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "rag_corpus": {
+                "name": "projects/sample1/locations/sample2/ragCorpora/sample3"
+            }
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.update_rag_corpus(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{rag_corpus.name=projects/*/locations/*/ragCorpora/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_update_rag_corpus_rest_flattened_error(transport: str = "rest"):
+    client = VertexRagDataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_rag_corpus(
+            vertex_rag_data_service.UpdateRagCorpusRequest(),
+            rag_corpus=vertex_rag_data.RagCorpus(name="name_value"),
+        )
+
+
+def test_update_rag_corpus_rest_error():
     client = VertexRagDataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -8241,6 +9057,7 @@ def test_vertex_rag_data_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "create_rag_corpus",
+        "update_rag_corpus",
         "get_rag_corpus",
         "list_rag_corpora",
         "delete_rag_corpus",
@@ -8545,6 +9362,9 @@ def test_vertex_rag_data_service_client_transport_session_collision(transport_na
     )
     session1 = client1.transport.create_rag_corpus._session
     session2 = client2.transport.create_rag_corpus._session
+    assert session1 != session2
+    session1 = client1.transport.update_rag_corpus._session
+    session2 = client2.transport.update_rag_corpus._session
     assert session1 != session2
     session1 = client1.transport.get_rag_corpus._session
     session2 = client2.transport.get_rag_corpus._session
