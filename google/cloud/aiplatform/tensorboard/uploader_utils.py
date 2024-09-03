@@ -47,6 +47,11 @@ logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
 
 
+def reformat_run_name(run_name: str) -> str:
+    """Reformats the run name to be compatible with One Platform."""
+    return run_name.replace("/", "-").replace("_", "-")
+
+
 class RateLimiter:
     """Helper class for rate-limiting using a fixed minimum interval."""
 

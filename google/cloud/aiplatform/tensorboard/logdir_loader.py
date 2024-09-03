@@ -70,7 +70,6 @@ class LogdirLoader:
         runs_seen = set()
         for subdir in io_wrapper.GetLogdirSubdirectories(self._logdir):
             run = os.path.relpath(subdir, self._logdir)
-            run = run.replace("/", "-").replace("_", "-")
             runs_seen.add(run)
             if run not in self._directory_loaders:
                 logger.info("- Adding run for relative directory %s", run)
