@@ -201,7 +201,6 @@ testing_extra_require = (
         "grpcio-testing",
         "ipython",
         "kfp >= 2.6.0, < 3.0.0",
-        "pyfakefs",
         "pytest-asyncio",
         "pytest-xdist",
         "scikit-learn",
