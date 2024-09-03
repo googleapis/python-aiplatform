@@ -37,6 +37,7 @@ def retrieval_query(
     rag_corpora: Optional[List[str]] = None,
     similarity_top_k: Optional[int] = 10,
     vector_distance_threshold: Optional[float] = 0.3,
+    vector_search_alpha: Optional[float] = 0.5,
 ) -> RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks.
 
@@ -54,6 +55,7 @@ def retrieval_query(
         )],
         similarity_top_k=2,
         vector_distance_threshold=0.5,
+        vector_search_alpha=0.5,
     )
     ```
 
@@ -67,6 +69,10 @@ def retrieval_query(
         similarity_top_k: The number of contexts to retrieve.
         vector_distance_threshold: Optional. Only return contexts with vector
             distance smaller than the threshold.
+        vector_search_alpha: Optional. Controls the weight between dense and
+            sparse vector search results. The range is [0, 1], where 0 means
+            sparse vector search only and 1 means dense vector search only.
+            The default value is 0.5.
 
     Returns:
         RetrieveContextsResonse.
@@ -111,7 +117,13 @@ def retrieval_query(
         )
 
     vertex_rag_store.vector_distance_threshold = vector_distance_threshold
-    query = RagQuery(text=text, similarity_top_k=similarity_top_k)
+    query = RagQuery(
+        text=text,
+        similarity_top_k=similarity_top_k,
+        ranking=RagQuery.Ranking(
+            alpha=vector_search_alpha,
+        ),
+    )
     request = RetrieveContextsRequest(
         vertex_rag_store=vertex_rag_store,
         parent=parent,
