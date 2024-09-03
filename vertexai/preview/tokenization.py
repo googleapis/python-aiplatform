@@ -16,7 +16,7 @@
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.tokenization._tokenizers import (
-    get_tokenizer_for_model,
+    _get_tokenizer_for_model_preview as get_tokenizer_for_model,
 )
 
 

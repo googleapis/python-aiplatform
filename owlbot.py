@@ -112,6 +112,7 @@ if has_generator_updates:
             ".kokoro/continuous/prerelease-deps.cfg",
             ".kokoro/presubmit/prerelease-deps.cfg",
             ".kokoro/docs/docs-presubmit.cfg",
+            ".kokoro/build.sh",
             ".kokoro/release.sh",
             ".kokoro/release/common.cfg",
             ".kokoro/requirements*",

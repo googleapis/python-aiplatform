@@ -44,7 +44,32 @@ class RagQuery(proto.Message):
             This field is a member of `oneof`_ ``query``.
         similarity_top_k (int):
             Optional. The number of contexts to retrieve.
+        ranking (google.cloud.aiplatform_v1beta1.types.RagQuery.Ranking):
+            Optional. Configurations for hybrid search
+            results ranking.
     """
+
+    class Ranking(proto.Message):
+        r"""Configurations for hybrid search results ranking.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            alpha (float):
+                Optional. Alpha value controls the weight between dense and
+                sparse vector search results. The range is [0, 1], while 0
+                means sparse vector search only and 1 means dense vector
+                search only. The default value is 0.5 which balances sparse
+                and dense vector search equally.
+
+                This field is a member of `oneof`_ ``_alpha``.
+        """
+
+        alpha: float = proto.Field(
+            proto.FLOAT,
+            number=1,
+            optional=True,
+        )
 
     text: str = proto.Field(
         proto.STRING,
@@ -54,6 +79,11 @@ class RagQuery(proto.Message):
     similarity_top_k: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+    ranking: Ranking = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=Ranking,
     )
 
 
@@ -175,8 +205,11 @@ class RagContexts(proto.Message):
             text (str):
                 The text chunk.
             distance (float):
-                The distance between the query vector and the
-                context text vector.
+                The distance between the query dense
+                embedding vector and the context text vector.
+            sparse_distance (float):
+                The distance between the query sparse
+                embedding vector and the context text vector.
         """
 
         source_uri: str = proto.Field(
@@ -190,6 +223,10 @@ class RagContexts(proto.Message):
         distance: float = proto.Field(
             proto.DOUBLE,
             number=3,
+        )
+        sparse_distance: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
         )
 
     contexts: MutableSequence[Context] = proto.RepeatedField(

@@ -1002,12 +1002,15 @@ from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
+from .types.vertex_rag_data import CorpusStatus
+from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
 from .types.vertex_rag_data import RagFileParsingConfig
+from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
@@ -1022,6 +1025,8 @@ from .types.vertex_rag_data_service import ListRagCorporaRequest
 from .types.vertex_rag_data_service import ListRagCorporaResponse
 from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
+from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
+from .types.vertex_rag_data_service import UpdateRagCorpusRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
 from .types.vertex_rag_service import RagContexts
@@ -1175,6 +1180,7 @@ __all__ = (
     "CopyModelOperationMetadata",
     "CopyModelRequest",
     "CopyModelResponse",
+    "CorpusStatus",
     "CountTokensRequest",
     "CountTokensResponse",
     "CreateArtifactRequest",
@@ -1403,6 +1409,7 @@ __all__ = (
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "FileData",
+    "FileStatus",
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
@@ -1799,6 +1806,7 @@ __all__ = (
     "RagFileChunkingConfig",
     "RagFileParsingConfig",
     "RagQuery",
+    "RagVectorDbConfig",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",
@@ -2013,6 +2021,8 @@ __all__ = (
     "UpdateNotebookRuntimeTemplateRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
+    "UpdateRagCorpusOperationMetadata",
+    "UpdateRagCorpusRequest",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",

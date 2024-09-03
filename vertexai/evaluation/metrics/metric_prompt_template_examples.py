@@ -24,74 +24,71 @@ from vertexai.evaluation.metrics import (
 )
 from vertexai.evaluation.metrics import pairwise_metric
 from vertexai.evaluation.metrics import pointwise_metric
-import immutabledict
 
 
 class MetricPromptTemplateExamples:
     """Examples of metric prompt templates for model-based evaluation."""
 
-    _PROMPT_TEMPLATE_MAP = immutabledict.immutabledict(
-        {
-            constants.Metric.COHERENCE: _default_templates.COHERENCE_PROMPT_TEMPLATE,
-            constants.Metric.FLUENCY: _default_templates.FLUENCY_PROMPT_TEMPLATE,
-            constants.Metric.SAFETY: _default_templates.SAFETY_PROMPT_TEMPLATE,
-            constants.Metric.GROUNDEDNESS: (
-                _default_templates.GROUNDEDNESS_PROMPT_TEMPLATE
-            ),
-            constants.Metric.INSTRUCTION_FOLLOWING: (
-                _default_templates.INSTRUCTION_FOLLOWING_PROMPT_TEMPLATE
-            ),
-            constants.Metric.VERBOSITY: _default_templates.VERBOSITY_PROMPT_TEMPLATE,
-            constants.Metric.TEXT_QUALITY: (
-                _default_templates.TEXT_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.SUMMARIZATION_QUALITY: (
-                _default_templates.SUMMARIZATION_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.QUESTION_ANSWERING_QUALITY: (
-                _default_templates.QUESTION_ANSWERING_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.MULTI_TURN_CHAT_QUALITY: (
-                _default_templates.MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.MULTI_TURN_SAFETY: (
-                _default_templates.MULTI_TURN_SAFETY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_COHERENCE: (
-                _default_templates.PAIRWISE_COHERENCE_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_FLUENCY: (
-                _default_templates.PAIRWISE_FLUENCY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_SAFETY: (
-                _default_templates.PAIRWISE_SAFETY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_GROUNDEDNESS: (
-                _default_templates.PAIRWISE_GROUNDEDNESS_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_INSTRUCTION_FOLLOWING: (
-                _default_templates.PAIRWISE_INSTRUCTION_FOLLOWING_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_VERBOSITY: (
-                _default_templates.PAIRWISE_VERBOSITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_TEXT_QUALITY: (
-                _default_templates.PAIRWISE_TEXT_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_SUMMARIZATION_QUALITY: (
-                _default_templates.PAIRWISE_SUMMARIZATION_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_QUESTION_ANSWERING_QUALITY: (
-                _default_templates.PAIRWISE_QUESTION_ANSWERING_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_MULTI_TURN_CHAT_QUALITY: (
-                _default_templates.PAIRWISE_MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE
-            ),
-            constants.Metric.PAIRWISE_MULTI_TURN_SAFETY: (
-                _default_templates.PAIRWISE_MULTI_TURN_SAFETY_PROMPT_TEMPLATE
-            ),
-        }
-    )
+    _PROMPT_TEMPLATE_MAP = {
+        constants.Metric.COHERENCE: _default_templates.COHERENCE_PROMPT_TEMPLATE,
+        constants.Metric.FLUENCY: _default_templates.FLUENCY_PROMPT_TEMPLATE,
+        constants.Metric.SAFETY: _default_templates.SAFETY_PROMPT_TEMPLATE,
+        constants.Metric.GROUNDEDNESS: (
+            _default_templates.GROUNDEDNESS_PROMPT_TEMPLATE
+        ),
+        constants.Metric.INSTRUCTION_FOLLOWING: (
+            _default_templates.INSTRUCTION_FOLLOWING_PROMPT_TEMPLATE
+        ),
+        constants.Metric.VERBOSITY: _default_templates.VERBOSITY_PROMPT_TEMPLATE,
+        constants.Metric.TEXT_QUALITY: (
+            _default_templates.TEXT_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.SUMMARIZATION_QUALITY: (
+            _default_templates.SUMMARIZATION_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.QUESTION_ANSWERING_QUALITY: (
+            _default_templates.QUESTION_ANSWERING_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.MULTI_TURN_CHAT_QUALITY: (
+            _default_templates.MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.MULTI_TURN_SAFETY: (
+            _default_templates.MULTI_TURN_SAFETY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_COHERENCE: (
+            _default_templates.PAIRWISE_COHERENCE_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_FLUENCY: (
+            _default_templates.PAIRWISE_FLUENCY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_SAFETY: (
+            _default_templates.PAIRWISE_SAFETY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_GROUNDEDNESS: (
+            _default_templates.PAIRWISE_GROUNDEDNESS_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_INSTRUCTION_FOLLOWING: (
+            _default_templates.PAIRWISE_INSTRUCTION_FOLLOWING_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_VERBOSITY: (
+            _default_templates.PAIRWISE_VERBOSITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_TEXT_QUALITY: (
+            _default_templates.PAIRWISE_TEXT_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_SUMMARIZATION_QUALITY: (
+            _default_templates.PAIRWISE_SUMMARIZATION_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_QUESTION_ANSWERING_QUALITY: (
+            _default_templates.PAIRWISE_QUESTION_ANSWERING_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_MULTI_TURN_CHAT_QUALITY: (
+            _default_templates.PAIRWISE_MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE
+        ),
+        constants.Metric.PAIRWISE_MULTI_TURN_SAFETY: (
+            _default_templates.PAIRWISE_MULTI_TURN_SAFETY_PROMPT_TEMPLATE
+        ),
+    }
 
     @classmethod
     def get_prompt_template(cls, metric_name: str) -> str:

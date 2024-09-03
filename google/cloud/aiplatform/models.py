@@ -3666,6 +3666,95 @@ class PrivateEndpoint(Endpoint):
                 headers=headers_with_token,
             )
 
+    def stream_raw_predict(
+        self,
+        body: bytes,
+        headers: Dict[str, str],
+        endpoint_override: Optional[str] = None,
+    ) -> Iterator[bytes]:
+        """Make a streaming prediction request using arbitrary headers.
+
+        Example usage:
+            my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+
+            # Prepare the request body
+            request_body = json.dumps({...}).encode('utf-8')
+
+            # Define the headers
+            headers = {
+                'Content-Type': 'application/json',
+            }
+
+            # Use stream_raw_predict to send the request and process the response
+            for stream_response in psc_endpoint.stream_raw_predict(
+                body=request_body,
+                headers=headers,
+                endpoint_override="10.128.0.26"  # Replace with your actual endpoint
+            ):
+                stream_response_text = stream_response.decode('utf-8')
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not
+                exceed 10 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no
+                restrictions on the header.
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
+
+        Yields:
+            predictions (Iterator[bytes]):
+                The streaming prediction results as lines of bytes.
+
+        Raises:
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
+        """
+        self.wait()
+        if self.network or not self.private_service_connect_config:
+            raise ValueError(
+                "PSA based private endpoint does not support streaming prediction."
+            )
+
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make a predict request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
+            if not self.credentials.valid:
+                self.credentials.refresh(google_auth_requests.Request())
+
+            token = self.credentials.token
+            headers_with_token = dict(headers)
+            headers_with_token["Authorization"] = f"Bearer {token}"
+
+            if not self.authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self.authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials
+                )
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
+            with self.authorized_session.post(
+                url=url,
+                data=body,
+                headers=headers_with_token,
+                stream=True,
+                verify=False,
+            ) as resp:
+                for line in resp.iter_lines():
+                    yield line
+
     def explain(self):
         raise NotImplementedError(
             f"{self.__class__.__name__} class does not support 'explain' as of now."

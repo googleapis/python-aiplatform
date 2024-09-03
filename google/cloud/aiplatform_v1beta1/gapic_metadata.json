@@ -5368,6 +5368,11 @@
                 "list_rag_files"
               ]
             },
+            "UpdateRagCorpus": {
+              "methods": [
+                "update_rag_corpus"
+              ]
+            },
             "UploadRagFile": {
               "methods": [
                 "upload_rag_file"
@@ -5418,6 +5423,11 @@
                 "list_rag_files"
               ]
             },
+            "UpdateRagCorpus": {
+              "methods": [
+                "update_rag_corpus"
+              ]
+            },
             "UploadRagFile": {
               "methods": [
                 "upload_rag_file"
@@ -5466,6 +5476,11 @@
             "ListRagFiles": {
               "methods": [
                 "list_rag_files"
+              ]
+            },
+            "UpdateRagCorpus": {
+              "methods": [
+                "update_rag_corpus"
               ]
             },
             "UploadRagFile": {

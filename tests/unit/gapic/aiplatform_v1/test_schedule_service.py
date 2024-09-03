@@ -60,6 +60,9 @@ from google.cloud.aiplatform_v1.types import artifact
 from google.cloud.aiplatform_v1.types import context
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import execution
+from google.cloud.aiplatform_v1.types import job_state
+from google.cloud.aiplatform_v1.types import notebook_execution_job
+from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_job
@@ -76,6 +79,7 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -4158,6 +4162,35 @@ def test_create_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_notebook_execution_job_request": {
+            "parent": "parent_value",
+            "notebook_execution_job": {
+                "dataform_repository_source": {
+                    "dataform_repository_resource_name": "dataform_repository_resource_name_value",
+                    "commit_sha": "commit_sha_value",
+                },
+                "gcs_notebook_source": {
+                    "uri": "uri_value",
+                    "generation": "generation_value",
+                },
+                "direct_notebook_source": {"content": b"content_blob"},
+                "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "gcs_output_uri": "gcs_output_uri_value",
+                "execution_user": "execution_user_value",
+                "service_account": "service_account_value",
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "schedule_resource_name": "schedule_resource_name_value",
+                "job_state": 1,
+                "status": {},
+                "create_time": {},
+                "update_time": {},
+                "labels": {},
+                "encryption_spec": {},
+            },
+            "notebook_execution_job_id": "notebook_execution_job_id_value",
+        },
         "name": "name_value",
         "display_name": "display_name_value",
         "start_time": {},
@@ -6263,6 +6296,35 @@ def test_update_schedule_rest(request_type):
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
+        "create_notebook_execution_job_request": {
+            "parent": "parent_value",
+            "notebook_execution_job": {
+                "dataform_repository_source": {
+                    "dataform_repository_resource_name": "dataform_repository_resource_name_value",
+                    "commit_sha": "commit_sha_value",
+                },
+                "gcs_notebook_source": {
+                    "uri": "uri_value",
+                    "generation": "generation_value",
+                },
+                "direct_notebook_source": {"content": b"content_blob"},
+                "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "gcs_output_uri": "gcs_output_uri_value",
+                "execution_user": "execution_user_value",
+                "service_account": "service_account_value",
+                "name": "name_value",
+                "display_name": "display_name_value",
+                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "schedule_resource_name": "schedule_resource_name_value",
+                "job_state": 1,
+                "status": {},
+                "create_time": {},
+                "update_time": {},
+                "labels": {},
+                "encryption_spec": {},
+            },
+            "notebook_execution_job_id": "notebook_execution_job_id_value",
+        },
         "name": "projects/sample1/locations/sample2/schedules/sample3",
         "display_name": "display_name_value",
         "start_time": {},
@@ -7423,6 +7485,62 @@ def test_parse_network_path():
 
     # Check that the path construction is reversible.
     actual = ScheduleServiceClient.parse_network_path(path)
+    assert expected == actual
+
+
+def test_notebook_execution_job_path():
+    project = "scallop"
+    location = "abalone"
+    notebook_execution_job = "squid"
+    expected = "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
+        project=project,
+        location=location,
+        notebook_execution_job=notebook_execution_job,
+    )
+    actual = ScheduleServiceClient.notebook_execution_job_path(
+        project, location, notebook_execution_job
+    )
+    assert expected == actual
+
+
+def test_parse_notebook_execution_job_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
+        "notebook_execution_job": "octopus",
+    }
+    path = ScheduleServiceClient.notebook_execution_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_notebook_execution_job_path(path)
+    assert expected == actual
+
+
+def test_notebook_runtime_template_path():
+    project = "oyster"
+    location = "nudibranch"
+    notebook_runtime_template = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
+        project=project,
+        location=location,
+        notebook_runtime_template=notebook_runtime_template,
+    )
+    actual = ScheduleServiceClient.notebook_runtime_template_path(
+        project, location, notebook_runtime_template
+    )
+    assert expected == actual
+
+
+def test_parse_notebook_runtime_template_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "notebook_runtime_template": "nautilus",
+    }
+    path = ScheduleServiceClient.notebook_runtime_template_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_notebook_runtime_template_path(path)
     assert expected == actual
 
 

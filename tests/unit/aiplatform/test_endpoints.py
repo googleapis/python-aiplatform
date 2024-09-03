@@ -18,8 +18,8 @@
 import copy
 from datetime import datetime, timedelta
 from importlib import reload
-import requests
 import json
+import requests
 from unittest import mock
 
 from google.api_core import operation as ga_operation
@@ -918,6 +918,49 @@ def predict_private_endpoint_mock():
             ),
         )
         yield predict_mock
+
+
+@pytest.fixture
+def stream_raw_predict_private_endpoint_mock():
+    with mock.patch.object(
+        google_auth_requests.AuthorizedSession, "post"
+    ) as stream_raw_predict_mock:
+        # Create a mock response object
+        mock_response = mock.Mock(spec=requests.Response)
+
+        # Configure the mock to be used as a context manager
+        stream_raw_predict_mock.return_value.__enter__.return_value = mock_response
+
+        # Set the status code to 200 (OK)
+        mock_response.status_code = 200
+
+        # Simulate streaming data with iter_lines
+        mock_response.iter_lines = mock.Mock(
+            return_value=iter(
+                [
+                    json.dumps(
+                        {
+                            "predictions": [1.0, 2.0, 3.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": "model-id-123",
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                    json.dumps(
+                        {
+                            "predictions": [4.0, 5.0, 6.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": "model-id-123",
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                ]
+            )
+        )
+
+        yield stream_raw_predict_mock
 
 
 @pytest.fixture
@@ -3194,6 +3237,57 @@ class TestPrivateEndpoint:
                 "Authorization": "Bearer None",
             },
         )
+
+    @pytest.mark.usefixtures("get_psc_private_endpoint_mock")
+    def test_psc_stream_raw_predict(self, stream_raw_predict_private_endpoint_mock):
+        test_endpoint = models.PrivateEndpoint(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
+        )
+
+        test_prediction_iterator = test_endpoint.stream_raw_predict(
+            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer None",
+            },
+            endpoint_override=_TEST_ENDPOINT_OVERRIDE,
+        )
+
+        test_prediction = list(test_prediction_iterator)
+
+        stream_raw_predict_private_endpoint_mock.assert_called_once_with(
+            url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:streamRawPredict",
+            data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer None",
+            },
+            stream=True,
+            verify=False,
+        )
+
+        # Validate the content of the returned predictions
+        expected_predictions = [
+            json.dumps(
+                {
+                    "predictions": [1.0, 2.0, 3.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": "model-id-123",
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+            json.dumps(
+                {
+                    "predictions": [4.0, 5.0, 6.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": "model-id-123",
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+        ]
+        assert test_prediction == expected_predictions
 
     @pytest.mark.usefixtures("get_psc_private_endpoint_mock")
     def test_psc_predict_without_endpoint_override(self):

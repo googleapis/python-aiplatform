@@ -31,7 +31,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
-from vertexai.evaluation import constants
 
 
 if TYPE_CHECKING:
@@ -180,13 +179,13 @@ def load_dataset(
         else:
             raise ValueError(
                 f"Unsupported file type: {file_type} from {source}. Please"
-                " provide valid GCS path with jsonl or csv suffix or valid"
+                " provide a valid GCS path with `jsonl` or `csv` suffix or a valid"
                 " BigQuery table URI."
             )
     else:
         raise TypeError(
-            "Unsupported dataset type. Must be DataFrame, dictionary, or"
-            " valid GCS path with jsonl or csv suffix or BigQuery table URI."
+            "Unsupported dataset type. Must be a `pd.DataFrame`, Python dictionary,"
+            " valid GCS path with  `jsonl` or `csv` suffix or a valid BigQuery table URI."
         )
 
 
@@ -254,25 +253,27 @@ def _read_gcs_file_contents(filepath: str) -> str:
 def upload_evaluation_results(
     dataset: "pd.DataFrame", destination_uri_prefix: str, file_name: str
 ):
-    """Uploads eval results to GCS csv destination."""
+    """Uploads eval results to GCS CSV destination."""
+    supported_file_types = ["csv"]
     if not destination_uri_prefix:
         return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
         _, extension = os.path.splitext(file_name)
         file_type = extension.lower()[1:]
-        if file_type in ["csv"]:
+        if file_type in supported_file_types:
             output_path = destination_uri_prefix + "/" + file_name
             utils.gcs_utils._upload_pandas_df_to_gcs(dataset, output_path)
         else:
             raise ValueError(
-                "Unsupported file type of GCS destination uri:"
-                f" {file_name}, please provide valid GCS"
-                " path with csv suffix."
+                "Unsupported file type in the GCS destination URI:"
+                f" {file_name}, please provide a valid GCS"
+                f" file name with a file type in {supported_file_types}."
             )
     else:
         raise ValueError(
-            f"Unsupported destination uri: {destination_uri_prefix}."
-            " Please provide valid GCS bucket path."
+            f"Unsupported destination URI: {destination_uri_prefix}."
+            f" Please provide a valid GCS bucket URI prefix starting with"
+            f" {_GCS_PREFIX}."
         )
 
 
@@ -285,23 +286,12 @@ def initialize_metric_column_mapping(
         initialized_metric_column_mapping[column] = column
     if metric_column_mapping:
         for key, value in metric_column_mapping.items():
-            if (
-                key == constants.Dataset.PROMPT_COLUMN
-                and value != constants.Dataset.PROMPT_COLUMN
-            ):
-                _LOGGER.warning(
-                    f"`{key}:{value}` will be overwritten to"
-                    f" `prompt:prompt`. Please do not set `prompt` as"
-                    " key in metric_column_mapping."
-                )
-                continue
             if key in initialized_metric_column_mapping:
                 _LOGGER.warning(
-                    f"`{key}:{key}` is already in metric_column_mapping. Cannot"
-                    f" override it with `{key}:{value}` because `{key}` is an"
-                    " evaluation dataset column. Metric_column_mapping cannot override"
-                    " keys that are already in evaluation dataset"
-                    " column.metric_column_mapping: {metric_column_mapping}."
+                    f"Cannot override `{key}` column with `{key}:{value}` mapping"
+                    f" because `{key}` column is present in the evaluation"
+                    " dataset. `metric_column_mapping` cannot override keys"
+                    " that are already in evaluation dataset columns."
                 )
             else:
                 initialized_metric_column_mapping[key] = value

@@ -792,12 +792,15 @@ class ImageGenerationModel(
         self,
         image: Union["Image", "GeneratedImage"],
         new_size: Optional[int] = 2048,
+        upscale_factor: Optional[Literal["x2", "x4"]] = None,
+        output_mime_type: Optional[Literal["image/png", "image/jpeg"]] = "image/png",
+        output_compression_quality: Optional[int] = None,
         output_gcs_uri: Optional[str] = None,
     ) -> "Image":
         """Upscales an image.
 
-        This supports upscaling images generated through the `generate_images()` method,
-        or upscaling a new image that is 1024x1024.
+        This supports upscaling images generated through the `generate_images()`
+        method, or upscaling a new image.
 
         Examples::
 
@@ -812,27 +815,63 @@ class ImageGenerationModel(
             my_image = Image.load_from_file("my-image.png")
             model.upscale_image(image=my_image)
 
+            # Upscale a new arbitrary sized image using a x2 or x4 upscaling factor
+            my_image = Image.load_from_file("my-image.png")
+            model.upscale_image(image=my_image, upscale_factor="x2")
+
+            # Upscale an image and get the result in JPEG format
+            my_image = Image.load_from_file("my-image.png")
+            model.upscale_image(image=my_image, output_mime_type="image/jpeg",
+            output_compression_quality=90)
+
         Args:
-            image (Union[GeneratedImage, Image]):
-                Required. The generated image to upscale.
-            new_size (int):
-                The size of the biggest dimension of the upscaled image. Only 2048 and 4096 are currently
-                supported. Results in a 2048x2048 or 4096x4096 image. Defaults to 2048 if not provided.
-            output_gcs_uri: Google Cloud Storage uri to store the upscaled images.
+            image (Union[GeneratedImage, Image]): Required. The generated image
+                to upscale.
+            new_size (int): The size of the biggest dimension of the upscaled
+                image.
+                Only 2048 and 4096 are currently supported. Results in a
+                2048x2048 or 4096x4096 image. Defaults to 2048 if not provided.
+            upscale_factor: The upscaling factor. Supported values are "x2" and
+                "x4". Defaults to None.
+            output_mime_type: The mime type of the output image. Supported values
+                are "image/png" and "image/jpeg". Defaults to "image/png".
+            output_compression_quality: The compression quality of the output
+                image
+                as an int (0-100). Only applicable if the output mime type is
+                "image/jpeg". Defaults to None.
+            output_gcs_uri: Google Cloud Storage uri to store the upscaled
+                images.
 
         Returns:
             An `Image` object.
         """
+        target_image_size = new_size if new_size else None
+        longest_dim = max(image._size[0], image._size[1])
 
-        # Currently this method only supports 1024x1024 images
-        if image._size[0] != 1024 and image._size[1] != 1024:
-            raise ValueError(
-                "Upscaling is currently only supported on images that are 1024x1024."
-            )
+        if not new_size and not upscale_factor:
+            raise ValueError("Either new_size or upscale_factor must be provided.")
 
+        if not upscale_factor:
+            x2_factor = 2.0
+            x4_factor = 4.0
+            epsilon = 0.1
+            is_upscaling_x2_request = abs(new_size / longest_dim - x2_factor) < epsilon
+            is_upscaling_x4_request = abs(new_size / longest_dim - x4_factor) < epsilon
+
+            if not is_upscaling_x2_request and not is_upscaling_x4_request:
+                raise ValueError(
+                    "Only x2 and x4 upscaling are currently supported. Requested"
+                    f" upscaling factor: {new_size / longest_dim}"
+                )
+        else:
+            if upscale_factor == "x2":
+                target_image_size = longest_dim * 2
+            else:
+                target_image_size = longest_dim * 4
         if new_size not in _SUPPORTED_UPSCALING_SIZES:
             raise ValueError(
-                f"Only the folowing square upscaling sizes are currently supported: {_SUPPORTED_UPSCALING_SIZES}."
+                "Only the folowing square upscaling sizes are currently supported:"
+                f" {_SUPPORTED_UPSCALING_SIZES}."
             )
 
         instance = {"prompt": ""}
@@ -847,13 +886,24 @@ class ImageGenerationModel(
             }
 
         parameters = {
-            "sampleImageSize": str(new_size),
             "sampleCount": 1,
             "mode": "upscale",
         }
 
+        if upscale_factor:
+            parameters["upscaleConfig"] = {"upscaleFactor": upscale_factor}
+
+        else:
+            parameters["sampleImageSize"] = str(new_size)
+
         if output_gcs_uri is not None:
             parameters["storageUri"] = output_gcs_uri
+
+        parameters["outputOptions"] = {"mimeType": output_mime_type}
+        if output_mime_type == "image/jpeg" and output_compression_quality is not None:
+            parameters["outputOptions"][
+                "compressionQuality"
+            ] = output_compression_quality
 
         response = self._endpoint.predict(
             instances=[instance],
@@ -868,7 +918,7 @@ class ImageGenerationModel(
         else:
             generation_parameters = {}
 
-        generation_parameters["upscaled_image_size"] = new_size
+        generation_parameters["upscaled_image_size"] = target_image_size
 
         encoded_bytes = upscaled_image.get("bytesBase64Encoded")
         return GeneratedImage(

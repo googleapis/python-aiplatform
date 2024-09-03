@@ -76,9 +76,10 @@ class EvaluationRunConfig:
             not in self.dataset.columns
         ):
             raise KeyError(
-                f"Required column `{self.metric_column_mapping.get(column_name, column_name)}`"
-                " not found in the eval dataset. The columns in the provided dataset"
-                f" are {list(self.dataset.columns)}."
+                "Required column"
+                f" `{self.metric_column_mapping.get(column_name, column_name)}`"
+                " not found in the evaluation dataset. The columns in the"
+                f" evaluation dataset are {list(self.dataset.columns)}."
             )
 
 
