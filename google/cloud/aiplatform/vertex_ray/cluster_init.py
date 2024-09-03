@@ -61,6 +61,7 @@ def create_ray_cluster(
     enable_metrics_collection: Optional[bool] = True,
     enable_logging: Optional[bool] = True,
     psc_interface_config: Optional[resources.PscIConfig] = None,
+    reserved_ip_ranges: Optional[List[str]] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -126,6 +127,11 @@ def create_ray_cluster(
         enable_metrics_collection: Enable Ray metrics collection for visualization.
         enable_logging: Enable exporting Ray logs to Cloud Logging.
         psc_interface_config: PSC-I config.
+        reserved_ip_ranges: A list of names for the reserved IP ranges under
+            the VPC network that can be used for this cluster. If set, we will
+            deploy the cluster within the provided IP ranges. Otherwise, the
+            cluster is deployed to any IP ranges under the provided VPC network.
+            Example: ["vertex-ai-ip-range"].
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -325,6 +331,7 @@ def create_ray_cluster(
         labels=labels,
         resource_runtime_spec=resource_runtime_spec,
         psc_interface_config=gapic_psc_interface_config,
+        reserved_ip_ranges=reserved_ip_ranges,
     )
 
     location = initializer.global_config.location

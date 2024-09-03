@@ -43,7 +43,10 @@ try:
         import xgboost
 
 except ModuleNotFoundError as mnfe:
-    raise ModuleNotFoundError("XGBoost isn't installed.") from mnfe
+    if ray.__version__ == "2.9.3":
+        raise ModuleNotFoundError("XGBoost isn't installed.") from mnfe
+    else:
+        xgboost = None
 
 
 def register_xgboost(
