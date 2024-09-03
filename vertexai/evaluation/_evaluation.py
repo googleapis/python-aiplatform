@@ -113,12 +113,13 @@ def _validate_metric_column_map(
                     not in evaluation_run_config.dataset.columns
                 ):
                     raise ValueError(
-                        "Cannot find appropriate column name mapping to help"
-                        " fill metric prompt template with evaluation dataset. "
-                        "Please provide key-value pair in `metric_column_mapping`"
-                        " parameter from 'EvalTask.evaluate' function. Key is"
-                        f" '{variable}', value should be found in evaluation"
-                        f" dataset columns"
+                        f"Cannot find the `{variable}` column in the evaluation"
+                        " dataset to fill the metric prompt template for"
+                        f" `{str(metric)}` metric. Please check if the column is"
+                        " present in the evaluation dataset, or provide a"
+                        " key-value pair in `metric_column_mapping` parameter"
+                        " of `EvalTask` to map it to a different column name."
+                        " The evaluation dataset columns are"
                         f" {list(evaluation_run_config.dataset.columns)}."
                     )
 
@@ -158,10 +159,11 @@ def _compute_custom_metrics(
                 ] = metric_output[custom_metric.name]
             except KeyError:
                 raise KeyError(
-                    f"Custom metric score `{custom_metric.name}` not found in the metric"
-                    f" output {metric_output}. Please make sure the custom metric"
-                    " function is valid, and the output dictionary uses"
-                    f" `{custom_metric.name}` as the key for metric value."
+                    f"Custom metric score `{custom_metric.name}` not found in"
+                    f" the metric output {metric_output}. Please make sure the"
+                    " custom metric function is valid, and the output"
+                    f" dictionary uses `{custom_metric.name}` as the key for"
+                    " metric score."
                 )
             # Include additional metric results like explanation.
             for key, value in metric_output.items():
@@ -224,8 +226,7 @@ def _aggregate_summary_metrics(
                 ].std()
         except (ValueError, KeyError) as e:
             _LOGGER.warning(
-                f"Failed to compute metric statistics for {metric}. This metric"
-                " output contains error from the Autorater.\n"
+                f"Failed to compute metric statistics for `{metric}` metric."
                 f"{type(e).__name__}: {e}"
             )
             continue
@@ -414,12 +415,13 @@ def _run_model_inference(
                 ] = response_column_name
             else:
                 raise ValueError(
-                    "Missing required input column to start model inference."
+                    "Missing required input `prompt` column to start model inference."
                     " Please provide a `prompt_template` parameter in"
                     " `EvalTask.evaluate()` function if you want to assemble a"
-                    " `prompt` with variables from the dataset, or provide a"
+                    " `prompt` column with variables from the dataset, or provide a"
                     " `prompt` column in dataset to directly use as input to"
-                    " the model."
+                    " the model. Mappings in `metric_column_mapping` do not"
+                    " apply for model inference and are used for evaluation only."
                 )
     else:
         if model:
@@ -432,8 +434,8 @@ def _run_model_inference(
                 " like to perform evaluation using the dataset with the"
                 " existing model response column or or baseline model response column"
                 f" `{evaluation_run_config.metric_column_mapping[response_column_name]}`,"
-                " please remove `model` parameter in `EvalTask.evaluate`"
-                " function or keep `baseline_model` as None in pairwise metric."
+                " please remove `model` parameter in `EvalTask.evaluate()`"
+                " function or `baseline_model` in `PairwiseMetric`."
             )
 
 
@@ -486,8 +488,8 @@ def _assemble_prompt_for_dataset(
         raise ValueError("Prompt template cannot be an empty string.")
 
     _LOGGER.info(
-        "Assembling prompts from the prompt_template. The `prompt` column in"
-        " the EvalResult.metrics_table has the assembled prompts used for model"
+        "Assembling prompts from the `prompt_template`. The `prompt` column in"
+        " the `EvalResult.metrics_table` has the assembled prompts used for model"
         " response generation."
     )
     if isinstance(prompt_template, str):
@@ -507,13 +509,28 @@ def _assemble_prompt_for_dataset(
             ),
             axis=1,
         )
+        if (
+            constants.Dataset.PROMPT_COLUMN
+            in evaluation_run_config.metric_column_mapping
+            and evaluation_run_config.metric_column_mapping[
+                constants.Dataset.PROMPT_COLUMN
+            ]
+            != constants.Dataset.PROMPT_COLUMN
+        ):
+            _LOGGER.warning(
+                "The `prompt` column mapping provided in"
+                " `metric_column_mapping` parameter is overwritten by the"
+                " assembled `prompt` column because the `prompt_template`"
+                " parameter is provided. Please verify that you want to use"
+                " the assembled `prompt` column for evaluation."
+            )
         evaluation_run_config.metric_column_mapping[
             constants.Dataset.PROMPT_COLUMN
         ] = constants.Dataset.PROMPT_COLUMN
     except Exception as e:
         raise ValueError(
             f"Failed to assemble prompt template: {e}. Please make sure all"
-            " variables in prompt_template are present in the evaluation"
+            " variables in `prompt_template` are present in the evaluation"
             f" dataset columns: `{list(evaluation_run_config.dataset.columns)}`."
         ) from e
 
@@ -634,8 +651,8 @@ def _compute_metrics(
     total_request_count = api_request_count + custom_metric_request_count
 
     _LOGGER.info(
-        f"Computing metrics with a total of {total_request_count} Vertex online"
-        " evaluation service requests."
+        f"Computing metrics with a total of {total_request_count} Vertex Gen AI"
+        " Evaluation Service API requests."
     )
 
     instance_list = []
@@ -718,10 +735,10 @@ def _get_baseline_model(evaluation_run_config: evaluation_base.EvaluationRunConf
     }
     if len(set(baseline_models.values())) > 1:
         raise ValueError(
-            "Not all PairwiseMetric instances have the same baseline_model "
+            "Not all `PairwiseMetric` instances have the same `baseline_model`. "
             f"Here are the detected baseline models: `{baseline_models}`. "
             "Please separate pairwise metrics with different baseline models "
-            "in different EvalTask or use the same baseline model for "
+            "in different `EvalTask` or use the same baseline model for "
             "all pairwise metrics."
         )
     return pairwise_metric_instances[0].baseline_model
@@ -747,10 +764,11 @@ def _convert_metric_prompt_template_example(metrics):
             )
             _LOGGER.info(
                 f"Pairwise metric `{metric.metric_name}` loaded from"
-                " MetricPromptTemplateExamples does not have baseline_model."
-                " If you would like to run inference on the baseline model,"
-                " please instantiate a PairwiseMetric and provide the"
-                " `baseline_model` input."
+                " `MetricPromptTemplateExamples` does not have `baseline_model`"
+                " specified and only supports Bring-Your-Own-Response(BYOR)"
+                " evaluation. If you would like to run inference on the baseline model,"
+                " please instantiate a `PairwiseMetric` and provide the"
+                " `baseline_model` parameter."
             )
         updated_metrics.append(metric)
     return updated_metrics
@@ -836,7 +854,6 @@ def evaluate(
             constants.Dataset.REFERENCE_COLUMN
         )
 
-    # Model inference
     if prompt_template:
         _assemble_prompt_for_dataset(evaluation_run_config, prompt_template)
 
@@ -852,22 +869,12 @@ def evaluate(
         )
     )
 
-    # Baseline model inference
     pairwise_metric_exists = any(
         isinstance(metric, pairwise_metric.PairwiseMetric)
         for metric in evaluation_run_config.metrics
     )
     if pairwise_metric_exists:
         baseline_model = _get_baseline_model(evaluation_run_config)
-        if baseline_model is None:
-            _LOGGER.warning(
-                "Note: pointwise metric with metric prompt template example and "
-                "pairwise metric with metric prompt template example do not "
-                "have baseline models. If evaluation run fails by "
-                "`baseline_model_response` column validation, Please sepecify"
-                " `baseline_model_response_column_name` in `EvalTask.evaluate` to"
-                " perform bring-your-own-response(BYOR) evaluation."
-            )
         _run_model_inference(
             model=baseline_model,
             evaluation_run_config=evaluation_run_config,

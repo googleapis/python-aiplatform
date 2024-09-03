@@ -51,13 +51,7 @@ class _MetricPromptTemplate(prompt_template.PromptTemplate):
     ):
         """Initializes a metric prompt template."""
 
-        if not input_variables:
-            _LOGGER.info(
-                "input_variables is empty. The evaluation dataset will not be used"
-                " for computing this model-based metric. Only the responses are used."
-            )
         self._input_variables = input_variables
-
         self._instruction = instruction
         self._metric_definition = metric_definition
         self._criteria = criteria
@@ -117,6 +111,10 @@ class PointwiseMetricPromptTemplate(_MetricPromptTemplate):
         """
         if not input_variables:
             input_variables = []
+            _LOGGER.info(
+                "The `input_variables` parameter is empty. Only the `response`"
+                " column is used for computing this model-based metric."
+            )
         input_variables = list(set(input_variables + ["response"]))
 
         instruction = instruction or self.get_default_pointwise_instruction()
@@ -273,6 +271,11 @@ class PairwiseMetricPromptTemplate(_MetricPromptTemplate):
         """
         if not input_variables:
             input_variables = []
+            _LOGGER.info(
+                "The `input_variables` parameter is empty. Only the `response`"
+                " and `baseline_model_response` columns are used for computing"
+                " this model-based metric."
+            )
         input_variables = list(
             set(input_variables + ["response", "baseline_model_response"])
         )

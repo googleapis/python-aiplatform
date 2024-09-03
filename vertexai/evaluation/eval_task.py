@@ -396,7 +396,7 @@ class EvalTask:
         global_experiment_name = metadata._experiment_tracker.experiment_name
         if experiment_run_name and not self._experiment and not global_experiment_name:
             raise ValueError(
-                "Experiment is not set. Please initialize EvalTask with an"
+                "Experiment is not set. Please initialize `EvalTask` with an"
                 " experiment, or initialize a global experiment with "
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."

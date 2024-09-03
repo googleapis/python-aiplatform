@@ -1176,15 +1176,14 @@ class TestEvaluationErrors:
             ValueError,
             match=re.escape(
                 (
-                    "The `model` parameter or `baseline_model` in pairwise"
-                    " metric is specified, but the evaluation `dataset` contains"
-                    " model response column or baseline model response column"
-                    " `response` to perform bring-your-own-response(BYOR)"
-                    " evaluation. If you would like to perform evaluation using the"
-                    " dataset with the existing model response column or or"
-                    " baseline model response column `response`, please remove"
-                    " `model` parameter in `EvalTask.evaluate` function or keep"
-                    " `baseline_model` as None in pairwise metric."
+                    "The `model` parameter or `baseline_model` in pairwise metric is"
+                    " specified, but the evaluation `dataset` contains model response"
+                    " column or baseline model response column `response`"
+                    " to perform bring-your-own-response(BYOR) evaluation. If you would"
+                    " like to perform evaluation using the dataset with the"
+                    " existing model response column or or baseline model response column"
+                    " `response`, please remove `model` parameter in `EvalTask.evaluate()`"
+                    " function or `baseline_model` in `PairwiseMetric`."
                 )
             ),
         ):
@@ -1202,16 +1201,15 @@ class TestEvaluationErrors:
             ValueError,
             match=re.escape(
                 (
-                    "The `model` parameter or `baseline_model` in pairwise"
-                    " metric is specified, but the evaluation `dataset` contains"
-                    " model response column or baseline model response column"
-                    " `baseline_model_response` to perform"
-                    " bring-your-own-response(BYOR) evaluation. If you would"
+                    "The `model` parameter or `baseline_model` in pairwise metric is"
+                    " specified, but the evaluation `dataset` contains model response"
+                    " column or baseline model response column `baseline_model_response`"
+                    " to perform bring-your-own-response(BYOR) evaluation. If you would"
                     " like to perform evaluation using the dataset with the"
-                    " existing model response column or or baseline model"
-                    " response column `baseline_model_response`, please remove"
-                    " `model` parameter in `EvalTask.evaluate` function or keep"
-                    " `baseline_model` as None in pairwise metric."
+                    " existing model response column or or baseline model response column"
+                    " `baseline_model_response`, please remove `model` parameter in"
+                    " `EvalTask.evaluate()` function or `baseline_model` in"
+                    " `PairwiseMetric`."
                 )
             ),
         ):
@@ -1227,8 +1225,8 @@ class TestEvaluationErrors:
             KeyError,
             match=re.escape(
                 (
-                    "Required column `response` not found in the eval dataset."
-                    " The columns in the provided dataset are ['prompt']."
+                    "Required column `response` not found in the evaluation dataset."
+                    " The columns in the evaluation dataset are ['prompt']."
                 )
             ),
         ):
@@ -1248,7 +1246,7 @@ class TestEvaluationErrors:
             match=re.escape(
                 (
                     "Required column `baseline_model_response` not found in the"
-                    " eval dataset. The columns in the provided dataset are"
+                    " evaluation dataset. The columns in the evaluation dataset are"
                     " ['prompt', 'response']."
                 )
             ),
@@ -1301,7 +1299,7 @@ class TestEvaluationErrors:
         )
         with pytest.raises(
             ValueError,
-            match="Not all PairwiseMetric instances have the same baseline_model",
+            match="Not all `PairwiseMetric` instances have the same `baseline_model`",
         ):
             test_eval_task.evaluate()
 
@@ -1314,15 +1312,14 @@ class TestEvaluationErrors:
             ValueError,
             match=re.escape(
                 (
-                    "The `model` parameter or `baseline_model` in pairwise metric"
-                    " is specified, but the evaluation `dataset` contains model"
-                    " response column or baseline model response column `response`"
-                    " to perform bring-your-own-response(BYOR) evaluation. If you"
-                    " would like to perform evaluation using the dataset with the"
-                    " existing model response column or or baseline model response"
-                    " column `response`, please remove `model` parameter in"
-                    " `EvalTask.evaluate` function or keep `baseline_model` as None"
-                    " in pairwise metric."
+                    "The `model` parameter or `baseline_model` in pairwise metric is"
+                    " specified, but the evaluation `dataset` contains model response"
+                    " column or baseline model response column `response`"
+                    " to perform bring-your-own-response(BYOR) evaluation. If you would"
+                    " like to perform evaluation using the dataset with the"
+                    " existing model response column or or baseline model response column"
+                    " `response`, please remove `model` parameter in `EvalTask.evaluate()`"
+                    " function or `baseline_model` in `PairwiseMetric`."
                 )
             ),
         ):
@@ -1339,15 +1336,14 @@ class TestEvaluationErrors:
             ValueError,
             match=re.escape(
                 (
-                    "The `model` parameter or `baseline_model` in pairwise metric"
-                    " is specified, but the evaluation `dataset` contains model"
-                    " response column or baseline model response column `response`"
-                    " to perform bring-your-own-response(BYOR) evaluation. If you"
-                    " would like to perform evaluation using the dataset with the"
-                    " existing model response column or or baseline model response"
-                    " column `response`, please remove `model` parameter in"
-                    " `EvalTask.evaluate` function or keep `baseline_model` as None"
-                    " in pairwise metric."
+                    "The `model` parameter or `baseline_model` in pairwise metric is"
+                    " specified, but the evaluation `dataset` contains model response"
+                    " column or baseline model response column `response`"
+                    " to perform bring-your-own-response(BYOR) evaluation. If you would"
+                    " like to perform evaluation using the dataset with the"
+                    " existing model response column or or baseline model response column"
+                    " `response`, please remove `model` parameter in `EvalTask.evaluate()`"
+                    " function or `baseline_model` in `PairwiseMetric`."
                 )
             ),
         ):
