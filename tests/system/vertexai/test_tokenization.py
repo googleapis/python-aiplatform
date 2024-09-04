@@ -20,7 +20,10 @@ import nltk
 from nltk.corpus import udhr
 from google.cloud import aiplatform
 from vertexai.preview.tokenization import (
-    get_tokenizer_for_model,
+    get_tokenizer_for_model as tokenizer_preview,
+)
+from vertexai.tokenization._tokenizers import (
+    get_tokenizer_for_model as tokenizer_ga,
 )
 from vertexai.generative_models import (
     GenerativeModel,
@@ -44,8 +47,10 @@ _CORPUS = [
 _CORPUS_LIB = [
     udhr,
 ]
+_VERSIONED_TOKENIZER = [tokenizer_preview, tokenizer_ga]
 _MODEL_CORPUS_PARAMS = [
-    (model_name, corpus_name, corpus_lib)
+    (get_tokenizer_for_model, model_name, corpus_name, corpus_lib)
+    for get_tokenizer_for_model in _VERSIONED_TOKENIZER
     for model_name in _MODELS
     for (corpus_name, corpus_lib) in zip(_CORPUS, _CORPUS_LIB)
 ]
@@ -125,11 +130,16 @@ class TestTokenization(e2e_base.TestEndToEnd):
         )
 
     @pytest.mark.parametrize(
-        "model_name, corpus_name, corpus_lib",
+        "get_tokenizer_for_model, model_name, corpus_name, corpus_lib",
         _MODEL_CORPUS_PARAMS,
     )
     def test_count_tokens_local(
-        self, model_name, corpus_name, corpus_lib, api_endpoint_env_name
+        self,
+        get_tokenizer_for_model,
+        model_name,
+        corpus_name,
+        corpus_lib,
+        api_endpoint_env_name,
     ):
         # The Gemini 1.5 flash model requires the model version
         # number suffix (001) in staging only
@@ -145,11 +155,16 @@ class TestTokenization(e2e_base.TestEndToEnd):
             assert service_result.total_tokens == local_result.total_tokens
 
     @pytest.mark.parametrize(
-        "model_name, corpus_name, corpus_lib",
+        "get_tokenizer_for_model, model_name, corpus_name, corpus_lib",
         _MODEL_CORPUS_PARAMS,
     )
     def test_compute_tokens(
-        self, model_name, corpus_name, corpus_lib, api_endpoint_env_name
+        self,
+        get_tokenizer_for_model,
+        model_name,
+        corpus_name,
+        corpus_lib,
+        api_endpoint_env_name,
     ):
         # The Gemini 1.5 flash model requires the model version
         # number suffix (001) in staging only
@@ -171,7 +186,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
         _MODELS,
     )
     def test_count_tokens_system_instruction(self, model_name):
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name, system_instruction=["You are a chatbot."])
 
         assert (
@@ -188,7 +203,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
     def test_count_tokens_system_instruction_is_function_call(self, model_name):
         part = Part._from_gapic(gapic_content_types.Part(function_call=_FUNCTION_CALL))
 
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name, system_instruction=[part])
 
         assert (
@@ -204,7 +219,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
         part = Part._from_gapic(
             gapic_content_types.Part(function_response=_FUNCTION_RESPONSE)
         )
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name, system_instruction=[part])
 
         assert tokenizer.count_tokens(part, system_instruction=[part]).total_tokens
@@ -218,7 +233,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
         _MODELS,
     )
     def test_count_tokens_tool_is_function_declaration(self, model_name):
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name)
         tool1 = Tool._from_gapic(
             gapic_tool_types.Tool(function_declarations=[_FUNCTION_DECLARATION_1])
@@ -241,7 +256,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
     )
     def test_count_tokens_content_is_function_call(self, model_name):
         part = Part._from_gapic(gapic_content_types.Part(function_call=_FUNCTION_CALL))
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name)
 
         assert tokenizer.count_tokens(part).total_tokens
@@ -258,7 +273,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
         part = Part._from_gapic(
             gapic_content_types.Part(function_response=_FUNCTION_RESPONSE)
         )
-        tokenizer = get_tokenizer_for_model(model_name)
+        tokenizer = tokenizer_preview(model_name)
         model = GenerativeModel(model_name)
 
         assert tokenizer.count_tokens(part).total_tokens
