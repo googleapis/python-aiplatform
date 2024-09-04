@@ -70,6 +70,22 @@ class EmbeddingModelConfig:
 
 
 @dataclasses.dataclass
+class Weaviate:
+    """Weaviate.
+
+    Attributes:
+        weaviate_http_endpoint: The Weaviate DB instance HTTP endpoint
+        collection_name: The corresponding Weaviate collection this corpus maps to
+        api_key: The SecretManager resource name for the Weaviate DB API token. Format:
+            ``projects/{project}/secrets/{secret}/versions/{version}``
+    """
+
+    weaviate_http_endpoint: str
+    collection_name: str
+    api_key: str
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -78,12 +94,15 @@ class RagCorpus:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
+        embedding_model_config: The embedding model config of the RagCorpus.
+        vector_db: The Vector DB of the RagCorpus.
     """
 
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
     embedding_model_config: Optional[EmbeddingModelConfig] = None
+    vector_db: Optional[Weaviate] = None
 
 
 @dataclasses.dataclass

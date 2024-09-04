@@ -48,6 +48,21 @@ def create_rag_corpus_mock():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_weaviate():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_weaviate:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_WEAVIATE
+        )
+        create_rag_corpus_mock_weaviate.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_weaviate
+
+
+@pytest.fixture
 def list_rag_corpora_pager_mock():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -141,6 +156,7 @@ def list_rag_files_pager_mock():
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
+    assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -190,6 +206,15 @@ class TestRagDataManagement:
         )
 
         rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS)
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_weaviate")
+    def test_create_corpus_weaviate_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_WEAVIATE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_WEAVIATE)
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_create_corpus_failure(self):
