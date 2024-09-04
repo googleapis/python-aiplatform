@@ -577,15 +577,19 @@ class Scheduling(proto.Message):
             STRATEGY_UNSPECIFIED (0):
                 Strategy will default to STANDARD.
             ON_DEMAND (1):
-                Regular on-demand provisioning strategy.
+                Deprecated. Regular on-demand provisioning
+                strategy.
             LOW_COST (2):
-                Low cost by making potential use of spot
-                resources.
+                Deprecated. Low cost by making potential use
+                of spot resources.
             STANDARD (3):
                 Standard provisioning strategy uses regular
                 on-demand resources.
             SPOT (4):
                 Spot provisioning strategy uses spot
+                resources.
+            FLEX_START (6):
+                Flex Start strategy uses DWS to queue for
                 resources.
         """
         STRATEGY_UNSPECIFIED = 0
@@ -593,6 +597,7 @@ class Scheduling(proto.Message):
         LOW_COST = 2
         STANDARD = 3
         SPOT = 4
+        FLEX_START = 6
 
     timeout: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
