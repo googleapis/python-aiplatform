@@ -83,10 +83,10 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <=0.109.1",
+    "fastapi >= 0.71.0, <=0.111.0",
     "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
-    "starlette >= 0.17.1",
-    "uvicorn[standard] >= 0.16.0",
+    "starlette >= 0.37.1",
+    "uvicorn[standard] >= 0.30.6",
 ]
 
 endpoint_extra_require = ["requests >= 2.28.1"]
@@ -205,7 +205,7 @@ testing_extra_require = (
         "pytest-xdist",
         "scikit-learn",
         # Lazy import requires > 2.12.0
-        "tensorflow == 2.13.0; python_version<='3.11'",
+        "tensorflow == 2.16.1; python_version<='3.11'",
         "tensorflow == 2.16.1; python_version>'3.11'",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
