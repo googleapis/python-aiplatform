@@ -86,7 +86,48 @@ class CachedContent(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. When the cache entry was last
             updated in UTC time.
+        usage_metadata (google.cloud.aiplatform_v1beta1.types.CachedContent.UsageMetadata):
+            Output only. Metadata on the usage of the
+            cached content.
     """
+
+    class UsageMetadata(proto.Message):
+        r"""Metadata on the usage of the cached content.
+
+        Attributes:
+            total_token_count (int):
+                Total number of tokens that the cached
+                content consumes.
+            text_count (int):
+                Number of text characters.
+            image_count (int):
+                Number of images.
+            video_duration_seconds (int):
+                Duration of video in seconds.
+            audio_duration_seconds (int):
+                Duration of audio in seconds.
+        """
+
+        total_token_count: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        text_count: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+        image_count: int = proto.Field(
+            proto.INT32,
+            number=3,
+        )
+        video_duration_seconds: int = proto.Field(
+            proto.INT32,
+            number=4,
+        )
+        audio_duration_seconds: int = proto.Field(
+            proto.INT32,
+            number=5,
+        )
 
     expire_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
@@ -141,6 +182,11 @@ class CachedContent(proto.Message):
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
+    )
+    usage_metadata: UsageMetadata = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=UsageMetadata,
     )
 
 

@@ -989,6 +989,9 @@ class GenerateContentResponse(proto.Message):
                 Number of tokens in the response(s).
             total_token_count (int):
 
+            cached_content_token_count (int):
+                Output only. Number of tokens in the cached
+                part in the input (the cached content).
         """
 
         prompt_token_count: int = proto.Field(
@@ -1002,6 +1005,10 @@ class GenerateContentResponse(proto.Message):
         total_token_count: int = proto.Field(
             proto.INT32,
             number=3,
+        )
+        cached_content_token_count: int = proto.Field(
+            proto.INT32,
+            number=5,
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(
