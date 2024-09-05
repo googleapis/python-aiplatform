@@ -39,6 +39,8 @@ UNIT_TEST_STANDARD_DEPENDENCIES = [
     "pytest",
     "pytest-cov",
     "pytest-asyncio",
+    # Preventing: py.test: error: unrecognized arguments: -n=auto --dist=loadscope
+    "pytest-xdist",
 ]
 UNIT_TEST_EXTERNAL_DEPENDENCIES = []
 UNIT_TEST_LOCAL_DEPENDENCIES = []
@@ -201,7 +203,30 @@ def default(session):
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
     """Run the unit test suite."""
+    # First run the minimal GenAI tests
+    unit_genai_minimal_dependencies(session)
+
+    # Then run the default full test suite
     default(session)
+
+
+def unit_genai_minimal_dependencies(session):
+    # Install minimal test dependencies, then install this package in-place.
+
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps)
+    session.install("-e", ".")
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_{session.python}_sponge_log.xml",
+        # These tests require the PIL module
+        # "--ignore=TestGenerativeModels::test_image_mime_types",
+        os.path.join("tests", "unit", "vertexai", "test_generative_models.py"),
+        *session.posargs,
+    )
 
 
 @nox.session(python="3.10")

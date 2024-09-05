@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1beta1 import (
     RagFile as GapicRagFile,
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
+    RagVectorDbConfig,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
@@ -41,6 +42,7 @@ from vertexai.preview.rag.utils.resources import (
     RagFile,
     SlackChannelsSource,
     JiraSource,
+    Weaviate,
 )
 
 
@@ -93,8 +95,22 @@ def convert_gapic_to_embedding_model_config(
     return embedding_model_config
 
 
+def convert_gapic_to_vector_db(
+    gapic_vector_db: RagVectorDbConfig,
+) -> Weaviate:
+    """Convert Gapic RagVectorDbConfig to Weaviate."""
+    if gapic_vector_db.__contains__("weaviate"):
+        return Weaviate(
+            weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
+            collection_name=gapic_vector_db.weaviate.collection_name,
+            api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
+        )
+    else:
+        return None
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
-    """ "Convert GapicRagCorpus to RagCorpus."""
+    """Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
@@ -102,12 +118,13 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
         embedding_model_config=convert_gapic_to_embedding_model_config(
             gapic_rag_corpus.rag_embedding_model_config
         ),
+        vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
     )
     return rag_corpus
 
 
 def convert_gapic_to_rag_file(gapic_rag_file: GapicRagFile) -> RagFile:
-    """ "Convert GapicRagFile to RagFile."""
+    """Convert GapicRagFile to RagFile."""
     rag_file = RagFile(
         name=gapic_rag_file.name,
         display_name=gapic_rag_file.display_name,
@@ -315,7 +332,7 @@ def get_file_name(
 def set_embedding_model_config(
     embedding_model_config: EmbeddingModelConfig,
     rag_corpus: GapicRagCorpus,
-) -> GapicRagCorpus:
+) -> None:
     if embedding_model_config.publisher_model and embedding_model_config.endpoint:
         raise ValueError("publisher_model and endpoint cannot be set at the same time.")
     if (
@@ -371,4 +388,27 @@ def set_embedding_model_config(
                 "endpoint must be of the format `projects/{project}/locations/{location}/endpoints/{endpoint}` or `endpoints/{endpoint}`"
             )
 
-    return rag_corpus
+
+def set_vector_db(
+    vector_db: Weaviate,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Sets the vector db configuration for the rag corpus."""
+    if isinstance(vector_db, Weaviate):
+        http_endpoint = vector_db.weaviate_http_endpoint
+        collection_name = vector_db.collection_name
+        api_key = vector_db.api_key
+
+        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
+            weaviate=RagVectorDbConfig.Weaviate(
+                http_endpoint=http_endpoint,
+                collection_name=collection_name,
+            ),
+            api_auth=api_auth.ApiAuth(
+                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version=api_key
+                ),
+            ),
+        )
+    else:
+        raise TypeError("vector_db must be a Weaviate.")

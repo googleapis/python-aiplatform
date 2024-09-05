@@ -55,6 +55,17 @@ class TokensInfo:
 
 @dataclasses.dataclass(frozen=True)
 class ComputeTokensResult:
+    """Represents token string pieces and ids output in compute_tokens function.
+
+    Attributes:
+        tokens_info: Lists of tokens_info from the input.
+            The input `contents: ContentsType` could have
+            multiple string instances and each tokens_info
+            item represents each string instance. Each token
+            info consists tokens list, token_ids list and
+            a role.
+    """
+
     tokens_info: Sequence[TokensInfo]
 
 
@@ -65,24 +76,6 @@ class PreviewComputeTokensResult(ComputeTokensResult):
         message = "PreviewComputeTokensResult.token_info_list is deprecated. Use ComputeTokensResult.tokens_info instead."
         warnings.warn(message, DeprecationWarning, stacklevel=2)
         return self.tokens_info
-
-
-@dataclasses.dataclass(frozen=True)
-class ComputeTokensResult:
-    """Represents token string pieces and ids output in compute_tokens function.
-
-    Attributes:
-        tokens_info: Lists of tokens_info from the input.
-            The input `contents: ContentsType` could have
-            multiple string instances and each tokens_info
-            item represents each string instance. Each token
-            info consists tokens list, token_ids list and
-            a role.
-        token_info_list: the value in this field equal to tokens_info.
-    """
-
-    tokens_info: Sequence[TokensInfo]
-    token_info_list: Sequence[TokensInfo]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -169,7 +162,7 @@ class _SentencePieceAdaptor:
                     role=role,
                 )
             )
-        return ComputeTokensResult(token_info_list=token_infos, tokens_info=token_infos)
+        return ComputeTokensResult(tokens_info=token_infos)
 
 
 def _to_gapic_contents(
@@ -539,7 +532,9 @@ class Tokenizer:
 
 class PreviewTokenizer(Tokenizer):
     def compute_tokens(self, contents: ContentsType) -> PreviewComputeTokensResult:
-        return PreviewComputeTokensResult(tokens_info=super().compute_tokens(contents))
+        return PreviewComputeTokensResult(
+            tokens_info=super().compute_tokens(contents).tokens_info
+        )
 
 
 def _get_tokenizer_for_model_preview(model_name: str) -> PreviewTokenizer:

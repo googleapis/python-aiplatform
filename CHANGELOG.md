@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.65.0](https://github.com/googleapis/python-aiplatform/compare/v1.64.0...v1.65.0) (2024-09-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Tokenization - Deprecated `ComputeTokenResult.token_info_list` in favor of `ComputeTokenResult.tokens_info`
+
+### Features
+
+* Add support for system instruction and tools in tokenization. ([72fcc06](https://github.com/googleapis/python-aiplatform/commit/72fcc063ed4a086da0ad37ec2ac58860d4e79051))
+* Add vector search alpha to rag retrieval for hybrid search ranking ([6624ebe](https://github.com/googleapis/python-aiplatform/commit/6624ebe22726942dd70781122352f47268ee2dee))
+* Adding Weaviate Vector DB option for RAG corpuses to SDK ([9b28202](https://github.com/googleapis/python-aiplatform/commit/9b28202a1bb17f54e042301d6cdac3b6aa826797))
+* GenAI - Added `system_instruction` and `tools` support to `GenerativeModel.count_tokens` ([50fca69](https://github.com/googleapis/python-aiplatform/commit/50fca693b2f3b1a0b61867dc136be5a468fb2b2f))
+* GenAI - Added Llama3 support in GenAI batch prediction ([6166152](https://github.com/googleapis/python-aiplatform/commit/6166152844dc0078f7a5a02355ef3555cc428cfa))
+* PrivateEndpoint.stream_raw_predict ([197f333](https://github.com/googleapis/python-aiplatform/commit/197f333be5a075d41f98b762cd933cd2e89cecae))
+* Support reserved_ip_ranges for VPC network in Ray on Vertex cluster ([36a56b9](https://github.com/googleapis/python-aiplatform/commit/36a56b99f9e53d19d80c2bff3bf55c208988c518))
+* Tokenization - Deprecated `ComputeTokenResult.token_info_list` in favor of `ComputeTokenResult.tokens_info` ([efbcb54](https://github.com/googleapis/python-aiplatform/commit/efbcb54e0d5df4d65a79e60afdbc5c328538aef6))
+
+
+### Bug Fixes
+
+* Tensorboard - Fixed bug in tensorboard uploader where profile logs are not uploaded from nested run directories. ([37627de](https://github.com/googleapis/python-aiplatform/commit/37627de4ec12b8c51abf41524b9e7e3adf2dab54))
+* Tokenizers - Fixed `Tokenizer.compute_tokens` ([c29fa5d](https://github.com/googleapis/python-aiplatform/commit/c29fa5d98fc1c1550c039e84ff2f5725818c2231))
+
 ## [1.64.0](https://github.com/googleapis/python-aiplatform/compare/v1.63.0...v1.64.0) (2024-08-27)
 
 

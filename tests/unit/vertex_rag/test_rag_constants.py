@@ -18,7 +18,17 @@
 
 from google.cloud import aiplatform
 
-from vertexai.preview import rag
+from vertexai.preview.rag import (
+    EmbeddingModelConfig,
+    RagCorpus,
+    RagFile,
+    RagResource,
+    SlackChannelsSource,
+    SlackChannel,
+    JiraSource,
+    JiraQuery,
+    Weaviate,
+)
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
     RagFileChunkingConfig,
@@ -32,6 +42,7 @@ from google.cloud.aiplatform_v1beta1 import (
     SlackSource as GapicSlackSource,
     RagContexts,
     RetrieveContextsResponse,
+    RagVectorDbConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.protobuf import timestamp_pb2
@@ -47,6 +58,16 @@ TEST_API_ENDPOINT = "us-central1-" + aiplatform.constants.base.API_BASE_PATH
 TEST_RAG_CORPUS_RESOURCE_NAME = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragCorpora/{TEST_RAG_CORPUS_ID}"
 
 # RagCorpus
+TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
+TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
+TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
+    "projects/test-project/secrets/test-secret/versions/1"
+)
+TEST_WEAVIATE_CONFIG = Weaviate(
+    weaviate_http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
+    collection_name=TEST_WEAVIATE_COLLECTION_NAME,
+    api_key=TEST_WEAVIATE_API_KEY_SECRET_VERSION,
+)
 TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
@@ -57,14 +78,36 @@ TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endp
         TEST_PROJECT, TEST_REGION
     )
 )
-TEST_EMBEDDING_MODEL_CONFIG = rag.EmbeddingModelConfig(
+TEST_GAPIC_RAG_CORPUS_WEAVIATE = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    rag_vector_db_config=RagVectorDbConfig(
+        weaviate=RagVectorDbConfig.Weaviate(
+            http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
+            collection_name=TEST_WEAVIATE_COLLECTION_NAME,
+        ),
+        api_auth=api_auth.ApiAuth(
+            api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                api_key_secret_version=TEST_WEAVIATE_API_KEY_SECRET_VERSION
+            ),
+        ),
+    ),
+)
+TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
     publisher_model="publishers/google/models/textembedding-gecko",
 )
-TEST_RAG_CORPUS = rag.RagCorpus(
+TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
     embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
+)
+TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db=TEST_WEAVIATE_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 
@@ -165,7 +208,7 @@ TEST_GAPIC_RAG_FILE = GapicRagFile(
     display_name=TEST_FILE_DISPLAY_NAME,
     description=TEST_FILE_DESCRIPTION,
 )
-TEST_RAG_FILE = rag.RagFile(
+TEST_RAG_FILE = RagFile(
     name=TEST_RAG_FILE_RESOURCE_NAME,
     display_name=TEST_FILE_DISPLAY_NAME,
     description=TEST_FILE_DESCRIPTION,
@@ -183,15 +226,15 @@ TEST_SLACK_API_KEY_SECRET_VERSION = (
 TEST_SLACK_API_KEY_SECRET_VERSION_2 = (
     "projects/test-project/secrets/test-secret/versions/2"
 )
-TEST_SLACK_SOURCE = rag.SlackChannelsSource(
+TEST_SLACK_SOURCE = SlackChannelsSource(
     channels=[
-        rag.SlackChannel(
+        SlackChannel(
             channel_id=TEST_SLACK_CHANNEL_ID,
             api_key=TEST_SLACK_API_KEY_SECRET_VERSION,
             start_time=TEST_SLACK_START_TIME,
             end_time=TEST_SLACK_END_TIME,
         ),
-        rag.SlackChannel(
+        SlackChannel(
             channel_id=TEST_SLACK_CHANNEL_ID_2,
             api_key=TEST_SLACK_API_KEY_SECRET_VERSION_2,
         ),
@@ -241,9 +284,9 @@ TEST_JIRA_SERVER_URI = "test.atlassian.net"
 TEST_JIRA_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
 )
-TEST_JIRA_SOURCE = rag.JiraSource(
+TEST_JIRA_SOURCE = JiraSource(
     queries=[
-        rag.JiraQuery(
+        JiraQuery(
             email=TEST_JIRA_EMAIL,
             jira_projects=[TEST_JIRA_PROJECT],
             custom_queries=[TEST_JIRA_CUSTOM_QUERY],
@@ -286,11 +329,11 @@ TEST_CONTEXTS = RagContexts(
     ]
 )
 TEST_RETRIEVAL_RESPONSE = RetrieveContextsResponse(contexts=TEST_CONTEXTS)
-TEST_RAG_RESOURCE = rag.RagResource(
+TEST_RAG_RESOURCE = RagResource(
     rag_corpus=TEST_RAG_CORPUS_RESOURCE_NAME,
     rag_file_ids=[TEST_RAG_FILE_ID],
 )
-TEST_RAG_RESOURCE_INVALID_NAME = rag.RagResource(
+TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
 )
