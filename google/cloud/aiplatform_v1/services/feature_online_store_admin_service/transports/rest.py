@@ -3686,7 +3686,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
 
             Returns:
                 ~.feature_online_store_admin_service.SyncFeatureViewResponse:
-                    Respose message for
+                    Response message for
                 [FeatureOnlineStoreAdminService.SyncFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.SyncFeatureView].
 
             """
@@ -4283,6 +4283,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -4394,6 +4402,16 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
                     "body": "*",
                 },
                 {
@@ -4511,6 +4529,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
                 },
                 {
                     "method": "post",

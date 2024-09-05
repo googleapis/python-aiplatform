@@ -71,6 +71,10 @@ class FeatureViewSync(proto.Message):
             total_slot (int):
                 Output only. BigQuery slot milliseconds
                 consumed for the sync job.
+            system_watermark_time (google.protobuf.timestamp_pb2.Timestamp):
+                Lower bound of the system time watermark for
+                the sync job. This is only set for continuously
+                syncing feature views.
         """
 
         row_synced: int = proto.Field(
@@ -80,6 +84,11 @@ class FeatureViewSync(proto.Message):
         total_slot: int = proto.Field(
             proto.INT64,
             number=2,
+        )
+        system_watermark_time: timestamp_pb2.Timestamp = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message=timestamp_pb2.Timestamp,
         )
 
     name: str = proto.Field(

@@ -54,6 +54,11 @@ class FeatureView(proto.Message):
             onto the FeatureOnlineStore.
 
             This field is a member of `oneof`_ ``source``.
+        vertex_rag_source (google.cloud.aiplatform_v1.types.FeatureView.VertexRagSource):
+            Optional. The Vertex RAG Source that the
+            FeatureView is linked to.
+
+            This field is a member of `oneof`_ ``source``.
         name (str):
             Identifier. Name of the FeatureView. Format:
             ``projects/{project}/locations/{location}/featureOnlineStores/{feature_online_store}/featureViews/{feature_view}``
@@ -334,6 +339,37 @@ class FeatureView(proto.Message):
             optional=True,
         )
 
+    class VertexRagSource(proto.Message):
+        r"""A Vertex Rag source for features that need to be synced to
+        Online Store.
+
+        Attributes:
+            uri (str):
+                Required. The BigQuery view/table URI that will be
+                materialized on each manual sync trigger. The table/view is
+                expected to have the following columns and types at least:
+
+                -  ``corpus_id`` (STRING, NULLABLE/REQUIRED)
+                -  ``file_id`` (STRING, NULLABLE/REQUIRED)
+                -  ``chunk_id`` (STRING, NULLABLE/REQUIRED)
+                -  ``chunk_data_type`` (STRING, NULLABLE/REQUIRED)
+                -  ``chunk_data`` (STRING, NULLABLE/REQUIRED)
+                -  ``embeddings`` (FLOAT, REPEATED)
+                -  ``file_original_uri`` (STRING, NULLABLE/REQUIRED)
+            rag_corpus_id (int):
+                Optional. The RAG corpus id corresponding to
+                this FeatureView.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        rag_corpus_id: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
     big_query_source: BigQuerySource = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -345,6 +381,12 @@ class FeatureView(proto.Message):
         number=9,
         oneof="source",
         message=FeatureRegistrySource,
+    )
+    vertex_rag_source: VertexRagSource = proto.Field(
+        proto.MESSAGE,
+        number=18,
+        oneof="source",
+        message=VertexRagSource,
     )
     name: str = proto.Field(
         proto.STRING,
