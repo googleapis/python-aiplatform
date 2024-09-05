@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0](https://github.com/googleapis/python-aiplatform/compare/v1.64.0...v2.0.0) (2024-09-04)
+## [1.65.0](https://github.com/googleapis/python-aiplatform/compare/v1.64.0...v1.65.0) (2024-09-04)
 
 
 ### ⚠ BREAKING CHANGES
