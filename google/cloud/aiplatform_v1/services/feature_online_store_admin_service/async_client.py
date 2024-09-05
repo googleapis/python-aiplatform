@@ -1797,7 +1797,7 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.SyncFeatureViewResponse:
-                Respose message for
+                Response message for
                    [FeatureOnlineStoreAdminService.SyncFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.SyncFeatureView].
 
         """
