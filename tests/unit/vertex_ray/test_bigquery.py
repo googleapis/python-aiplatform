@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#         http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,17 +52,15 @@ def bq_client_full_mock(monkeypatch):
     def bq_get_dataset_mock(dataset_id):
         if dataset_id != _TEST_BQ_DATASET_ID:
             raise exceptions.NotFound(
-                "[Ray on Vertex AI]: Dataset {} is not found. Please ensure that it exists.".format(
-                    _TEST_BQ_DATASET
-                )
+                "[Ray on Vertex AI]: Dataset {} is not found. Please ensure that it"
+                " exists.".format(_TEST_BQ_DATASET)
             )
 
     def bq_get_table_mock(table_id):
         if table_id != _TEST_BQ_DATASET:
             raise exceptions.NotFound(
-                "[Ray on Vertex AI]: Table {} is not found. Please ensure that it exists.".format(
-                    _TEST_BQ_DATASET
-                )
+                "[Ray on Vertex AI]: Table {} is not found. Please ensure that it"
+                " exists.".format(_TEST_BQ_DATASET)
             )
 
     def bq_create_dataset_mock(dataset_id, **kwargs):
@@ -158,13 +156,11 @@ class TestReadBigQuery:
         [1, 2, 3, 4, 10, 100],
     )
     def test_create_reader(self, parallelism):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset=_TEST_BQ_DATASET,
-            parallelism=parallelism,
         )
-        read_tasks_list = reader.get_read_tasks(parallelism)
+        read_tasks_list = bq_ds.get_read_tasks(parallelism)
         assert len(read_tasks_list) == parallelism
 
     @pytest.mark.parametrize(
@@ -177,12 +173,10 @@ class TestReadBigQuery:
             project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             dataset=_TEST_BQ_DATASET,
-            parallelism=parallelism,
         )
-        read_tasks_list = reader.get_read_tasks(parallelism)
+        read_tasks_list = bq_ds.get_read_tasks(parallelism)
         assert len(read_tasks_list) == parallelism
 
     @pytest.mark.parametrize(
@@ -190,13 +184,11 @@ class TestReadBigQuery:
         [1, 2, 3, 4, 10, 100],
     )
     def test_create_reader_query(self, parallelism, bq_query_result_mock):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
-            parallelism=parallelism,
             query="SELECT * FROM mockdataset.mocktable",
         )
-        read_tasks_list = reader.get_read_tasks(parallelism)
+        read_tasks_list = bq_ds.get_read_tasks(parallelism)
         bq_query_result_mock.assert_called_once()
         assert len(read_tasks_list) == parallelism
 
@@ -209,53 +201,53 @@ class TestReadBigQuery:
         parallelism,
         bq_query_result_mock_fail,
     ):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
-            parallelism=parallelism,
             query="SELECT * FROM mockdataset.mocktable",
         )
         with pytest.raises(exceptions.BadRequest):
-            reader.get_read_tasks(parallelism)
+            bq_ds.get_read_tasks(parallelism)
         bq_query_result_mock_fail.assert_called()
 
     def test_dataset_query_kwargs_provided(self):
-        parallelism = 4
-        bq_ds = bigquery_datasource.BigQueryDatasource()
         with pytest.raises(ValueError) as exception:
-            bq_ds.create_reader(
+            bigquery_datasource._BigQueryDatasource(
                 project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
                 dataset=_TEST_BQ_DATASET,
                 query="SELECT * FROM mockdataset.mocktable",
-                parallelism=parallelism,
             )
-        expected_message = "[Ray on Vertex AI]: Query and dataset kwargs cannot both be provided (must be mutually exclusive)."
+        expected_message = (
+            "[Ray on Vertex AI]: Query and dataset kwargs cannot both be provided"
+            " (must be mutually exclusive)."
+        )
         assert str(exception.value) == expected_message
 
     def test_create_reader_dataset_not_found(self):
         parallelism = 4
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset="nonexistentdataset.mocktable",
-            parallelism=parallelism,
         )
         with pytest.raises(ValueError) as exception:
-            reader.get_read_tasks(parallelism)
-        expected_message = "[Ray on Vertex AI]: Dataset nonexistentdataset is not found. Please ensure that it exists."
+            bq_ds.get_read_tasks(parallelism)
+        expected_message = (
+            "[Ray on Vertex AI]: Dataset nonexistentdataset is not found. Please"
+            " ensure that it exists."
+        )
         assert str(exception.value) == expected_message
 
     def test_create_reader_table_not_found(self):
         parallelism = 4
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        reader = bq_ds.create_reader(
+        bq_ds = bigquery_datasource._BigQueryDatasource(
             project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset="mockdataset.nonexistenttable",
-            parallelism=parallelism,
         )
         with pytest.raises(ValueError) as exception:
-            reader.get_read_tasks(parallelism)
-        expected_message = "[Ray on Vertex AI]: Table mockdataset.nonexistenttable is not found. Please ensure that it exists."
+            bq_ds.get_read_tasks(parallelism)
+        expected_message = (
+            "[Ray on Vertex AI]: Table mockdataset.nonexistenttable is not found."
+            " Please ensure that it exists."
+        )
         assert str(exception.value) == expected_message
 
 
@@ -270,47 +262,6 @@ class TestWriteBigQuery:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
-    # Ray 2.4.0 only
-    def test_do_write(self, ray_remote_function_mock):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
-            dataset=_TEST_BQ_DATASET,
-        )
-        assert len(write_tasks_list) == 4
-
-    # Ray 2.4.0 only
-    def test_do_write_initialized(self, ray_remote_function_mock):
-        """If initialized, do_write doesn't need to specify project_id."""
-        aiplatform.init(
-            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
-        )
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            dataset=_TEST_BQ_DATASET,
-        )
-        assert len(write_tasks_list) == 4
-
-    # Ray 2.4.0 only
-    def test_do_write_dataset_exists(self, ray_remote_function_mock):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
-            dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
-        )
-        assert len(write_tasks_list) == 4
-
-    # Ray 2.9.3 only
     def test_write(self, ray_get_mock, ray_remote_function_mock):
         if _BigQueryDatasink is None:
             return
@@ -326,7 +277,6 @@ class TestWriteBigQuery:
         )
         assert status == "ok"
 
-    # Ray 2.9.3 only
     def test_write_dataset_exists(self, ray_get_mock, ray_remote_function_mock):
         if _BigQueryDatasink is None:
             return

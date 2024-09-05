@@ -25,11 +25,11 @@ from immutabledict import immutabledict
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
-SUPPORTED_RAY_VERSIONS = immutabledict({"2.4": "2.4.0", "2.9": "2.9.3"})
+SUPPORTED_RAY_VERSIONS = immutabledict({"2.9": "2.9.3", "2.33": "2.33.0"})
 SUPPORTED_PY_VERSION = ["3.10"]
 _V2_4_WARNING_MESSAGE = (
     "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result in an error. "
-    "Please use Ray version = 2.9.3 (default) instead."
+    "Please use Ray version = 2.33.0 (default) or 2.9.3 instead."
 )
 
 # Artifact Repository available regions.

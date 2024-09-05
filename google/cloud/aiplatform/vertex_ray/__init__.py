@@ -19,7 +19,7 @@
 import sys
 
 from google.cloud.aiplatform.vertex_ray.bigquery_datasource import (
-    BigQueryDatasource,
+    _BigQueryDatasource,
 )
 from google.cloud.aiplatform.vertex_ray.client_builder import (
     VertexRayClientBuilder as ClientBuilder,
@@ -52,7 +52,7 @@ if sys.version_info[1] != 10:
     )
 
 __all__ = (
-    "BigQueryDatasource",
+    "_BigQueryDatasource",
     "data",
     "ClientBuilder",
     "get_job_submission_client_cluster_info",
