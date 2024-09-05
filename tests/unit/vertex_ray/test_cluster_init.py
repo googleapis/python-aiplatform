@@ -384,6 +384,7 @@ class TestClusterManagement:
             head_node_type=tc.ClusterConstants.TEST_HEAD_NODE_TYPE_2_POOLS_CUSTOM_IMAGE,
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_2_POOLS_CUSTOM_IMAGE,
             network=tc.ProjectConstants.TEST_VPC_NETWORK,
+            reserved_ip_ranges=["vertex-dedicated-range"],
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
         )
 

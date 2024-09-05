@@ -76,6 +76,7 @@ class TestRagRetrieval:
             text=tc.TEST_QUERY_TEXT,
             similarity_top_k=2,
             vector_distance_threshold=0.5,
+            vector_search_alpha=0.5,
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 

@@ -117,6 +117,11 @@ class Cluster:
             managed in the Vertex API service. For Ray Job API, VPC network is
             not required because cluster connection can be accessed through
             dashboard address.
+        reserved_ip_ranges: A list of names for the reserved IP ranges under
+            the VPC network that can be used for this cluster. If set, we will
+            deploy the cluster within the provided IP ranges. Otherwise, the
+            cluster is deployed to any IP ranges under the provided VPC network.
+            Example: ["vertex-ai-ip-range"].
         service_account: Service account to be used for running Ray programs on
             the cluster.
         state: Describes the cluster state (defined in PersistentResource.State).
@@ -140,6 +145,7 @@ class Cluster:
 
     cluster_resource_name: str = None
     network: str = None
+    reserved_ip_ranges: List[str] = None
     service_account: str = None
     state: PersistentResource.State = None
     python_version: str = None

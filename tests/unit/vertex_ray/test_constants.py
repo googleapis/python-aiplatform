@@ -51,11 +51,16 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 from google.cloud.aiplatform_v1beta1.types.service_networking import (
     PscInterfaceConfig,
 )
+import ray
 import pytest
 
 
 rovminversion = pytest.mark.skipif(
     sys.version_info > (3, 10), reason="Requires python3.10 or lower"
+)
+# TODO(b/363340317)
+xgbversion = pytest.mark.skipif(
+    ray.__version__ != "2.9.3", reason="Requires xgboost 1.7 or higher"
 )
 
 
@@ -347,6 +352,7 @@ class ClusterConstants:
         ),
         psc_interface_config=None,
         network=ProjectConstants.TEST_VPC_NETWORK,
+        reserved_ip_ranges=["vertex-dedicated-range"],
     )
     # Responses
     TEST_RESOURCE_POOL_2.replica_count = 1
@@ -366,6 +372,7 @@ class ClusterConstants:
             network_attachment=TEST_PSC_NETWORK_ATTACHMENT
         ),
         network=None,
+        reserved_ip_ranges=None,
         resource_runtime=ResourceRuntime(
             access_uris={
                 "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
@@ -386,6 +393,7 @@ class ClusterConstants:
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
+        reserved_ip_ranges=["vertex-dedicated-range"],
         resource_runtime=ResourceRuntime(
             access_uris={
                 "RAY_DASHBOARD_URI": TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
@@ -399,6 +407,7 @@ class ClusterConstants:
         python_version="3.10",
         ray_version="2.9",
         network=ProjectConstants.TEST_VPC_NETWORK,
+        reserved_ip_ranges=None,
         service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,
@@ -412,6 +421,7 @@ class ClusterConstants:
         python_version="3.10",
         ray_version="2.9",
         network="",
+        reserved_ip_ranges="",
         service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS,
@@ -424,6 +434,7 @@ class ClusterConstants:
     TEST_CLUSTER_CUSTOM_IMAGE = Cluster(
         cluster_resource_name=TEST_VERTEX_RAY_PR_ADDRESS,
         network=ProjectConstants.TEST_VPC_NETWORK,
+        reserved_ip_ranges=["vertex-dedicated-range"],
         service_account=None,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_2_POOLS_CUSTOM_IMAGE,
@@ -438,6 +449,7 @@ class ClusterConstants:
         python_version="3.10",
         ray_version="2.9",
         network="",
+        reserved_ip_ranges="",
         service_account=ProjectConstants.TEST_SERVICE_ACCOUNT,
         state="RUNNING",
         head_node_type=TEST_HEAD_NODE_TYPE_1_POOL,

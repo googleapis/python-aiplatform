@@ -150,6 +150,7 @@ def persistent_resource_to_cluster(
     cluster = Cluster(
         cluster_resource_name=persistent_resource.name,
         network=persistent_resource.network,
+        reserved_ip_ranges=persistent_resource.reserved_ip_ranges,
         state=persistent_resource.state.name,
         labels=persistent_resource.labels,
         dashboard_address=dashboard_address,

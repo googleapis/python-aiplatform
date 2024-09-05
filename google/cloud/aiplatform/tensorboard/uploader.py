@@ -417,7 +417,8 @@ class TensorBoardUploader(object):
                         plugin_data=metadata.plugin_data.content,
                     )
 
-        self._one_platform_resource_manager.batch_create_runs(run_names)
+        experiment_runs = [uploader_utils.reformat_run_name(run) for run in run_names]
+        self._one_platform_resource_manager.batch_create_runs(experiment_runs)
         self._one_platform_resource_manager.batch_create_time_series(
             run_tag_name_to_time_series_proto
         )
@@ -451,7 +452,9 @@ class TensorBoardUploader(object):
             )
             run_to_events[profile_run_name] = None
 
-        self._experiment_runs = run_to_events.keys()
+        self._experiment_runs = [
+            uploader_utils.reformat_run_name(run) for run in run_to_events.keys()
+        ]
 
         with self._tracker.send_tracker():
             self._dispatcher.dispatch_requests(run_to_events)
@@ -807,6 +810,7 @@ class _BaseBatchedRequestSender(object):
         metadata: tf.compat.v1.SummaryMetadata,
     ):
         self._num_values += 1
+        run_name = uploader_utils.reformat_run_name(run_name)
         time_series_data_proto = self._run_to_tag_to_time_series_data[run_name].get(
             value.tag
         )
