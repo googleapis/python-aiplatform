@@ -266,6 +266,7 @@ class CustomJob(jobs.CustomJob):
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -322,6 +323,10 @@ class CustomJob(jobs.CustomJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Raises:
             ValueError:
@@ -342,12 +347,23 @@ class CustomJob(jobs.CustomJob):
         if network:
             self._gca_resource.job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart or disable_retries:
+        if (
+            timeout
+            or restart_job_on_worker_restart
+            or disable_retries
+            or max_wait_duration
+        ):
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
+            max_wait_duration = (
+                duration_pb2.Duration(seconds=max_wait_duration)
+                if max_wait_duration
+                else None
+            )
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
                 disable_retries=disable_retries,
+                max_wait_duration=max_wait_duration,
             )
 
         if enable_web_access:
@@ -741,6 +757,7 @@ class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -787,6 +804,10 @@ class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
         """
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
@@ -794,13 +815,24 @@ class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
         if network:
             self._gca_resource.trial_job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart or disable_retries:
-            duration = duration_pb2.Duration(seconds=timeout) if timeout else None
+        if (
+            timeout
+            or restart_job_on_worker_restart
+            or disable_retries
+            or max_wait_duration
+        ):
+            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
+            max_wait_duration = (
+                duration_pb2.Duration(seconds=max_wait_duration)
+                if max_wait_duration
+                else None
+            )
             self._gca_resource.trial_job_spec.scheduling = (
                 gca_custom_job_compat.Scheduling(
-                    timeout=duration,
+                    timeout=timeout,
                     restart_job_on_worker_restart=restart_job_on_worker_restart,
                     disable_retries=disable_retries,
+                    max_wait_duration=max_wait_duration,
                 )
             )
 

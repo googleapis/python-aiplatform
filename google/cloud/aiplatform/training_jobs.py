@@ -1552,6 +1552,7 @@ class _CustomTrainingJob(_TrainingJob):
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1612,6 +1613,10 @@ class _CustomTrainingJob(_TrainingJob):
             scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
                 Optional. Indicates the job scheduling strategy.
 
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1646,13 +1651,16 @@ class _CustomTrainingJob(_TrainingJob):
             or restart_job_on_worker_restart
             or disable_retries
             or scheduling_strategy
+            or max_wait_duration
         ):
             timeout = f"{timeout}s" if timeout else None
+            max_wait_duration = f"{max_wait_duration}s" if max_wait_duration else None
             scheduling = {
                 "timeout": timeout,
                 "restart_job_on_worker_restart": restart_job_on_worker_restart,
                 "disable_retries": disable_retries,
                 "strategy": scheduling_strategy,
+                "max_wait_duration": max_wait_duration,
             }
             training_task_inputs["scheduling"] = scheduling
 
@@ -3046,6 +3054,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         ] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3420,6 +3429,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Optional. Corresponds to the label values of a reservation resource.
                 This must be the full resource name of the reservation.
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             The trained Vertex AI model resource or None if the training
@@ -3490,6 +3503,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
     def submit(
@@ -3549,6 +3563,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         ] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3868,6 +3883,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Optional. Corresponds to the label values of a reservation resource.
                 This must be the full resource name of the reservation.
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3938,6 +3957,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -3986,6 +4006,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -4184,6 +4205,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 PersistentResource, otherwise, the job will be rejected.
             scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
                 Optional. Indicates the job scheduling strategy.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4239,6 +4264,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
@@ -4569,6 +4595,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4881,6 +4908,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Optional. Corresponds to the label values of a reservation resource.
                 This must be the full resource name of the reservation.
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4950,6 +4981,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
     def submit(
@@ -5009,6 +5041,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -5321,6 +5354,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Optional. Corresponds to the label values of a reservation resource.
                 This must be the full resource name of the reservation.
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5390,6 +5427,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5437,6 +5475,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -5631,6 +5670,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 PersistentResource, otherwise, the job will be rejected.
             scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
                 Optional. Indicates the job scheduling strategy.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5680,6 +5723,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
@@ -7710,6 +7754,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         ] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -8023,6 +8068,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Optional. Corresponds to the label values of a reservation resource.
                 This must be the full resource name of the reservation.
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -8087,6 +8136,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -8133,6 +8183,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         disable_retries: bool = False,
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -8312,6 +8363,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 PersistentResource, otherwise, the job will be rejected.
             scheduling_strategy (gca_custom_job_compat.Scheduling.Strategy):
                 Optional. Indicates the job scheduling strategy.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -8361,6 +8416,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             disable_retries=disable_retries,
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
