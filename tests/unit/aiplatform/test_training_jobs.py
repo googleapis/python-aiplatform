@@ -235,12 +235,13 @@ _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
-_TEST_TIMEOUT = 1000
+_TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
 _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 
 _TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
+_TEST_MAX_WAIT_DURATION = test_constants.TrainingJobConstants._TEST_MAX_WAIT_DURATION
 _TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
 _TEST_ENABLE_DASHBOARD_ACCESS = True
 _TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
@@ -302,6 +303,9 @@ def _get_custom_job_proto_with_scheduling(state=None, name=None, version="v1"):
         _TEST_RESTART_JOB_ON_WORKER_RESTART
     )
     custom_job_proto.job_spec.scheduling.disable_retries = _TEST_DISABLE_RETRIES
+    custom_job_proto.job_spec.scheduling.max_wait_duration = duration_pb2.Duration(
+        seconds=_TEST_MAX_WAIT_DURATION
+    )
 
     return custom_job_proto
 
@@ -815,6 +819,7 @@ def make_training_pipeline_with_scheduling(state):
             "timeout": f"{_TEST_TIMEOUT}s",
             "restart_job_on_worker_restart": _TEST_RESTART_JOB_ON_WORKER_RESTART,
             "disable_retries": _TEST_DISABLE_RETRIES,
+            "max_wait_duration": f"{_TEST_MAX_WAIT_DURATION}s",
         },
     )
     if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
@@ -2436,6 +2441,7 @@ class TestCustomTrainingJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         if not sync:
@@ -2457,6 +2463,10 @@ class TestCustomTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["disable_retries"]
             == _TEST_DISABLE_RETRIES
+        )
+        assert (
+            job._gca_resource.training_task_inputs["max_wait_duration"]
+            == f"{_TEST_MAX_WAIT_DURATION}s"
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -4814,6 +4824,7 @@ class TestCustomContainerTrainingJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         if not sync:
@@ -4835,6 +4846,10 @@ class TestCustomContainerTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["disable_retries"]
             == _TEST_DISABLE_RETRIES
+        )
+        assert (
+            job._gca_resource.training_task_inputs["max_wait_duration"]
+            == f"{_TEST_MAX_WAIT_DURATION}s"
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -7449,6 +7464,7 @@ class TestCustomPythonPackageTrainingJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         if not sync:
@@ -7470,6 +7486,10 @@ class TestCustomPythonPackageTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["disable_retries"]
             == _TEST_DISABLE_RETRIES
+        )
+        assert (
+            job._gca_resource.training_task_inputs["max_wait_duration"]
+            == f"{_TEST_MAX_WAIT_DURATION}s"
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)

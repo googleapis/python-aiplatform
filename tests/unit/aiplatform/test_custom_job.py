@@ -133,6 +133,7 @@ _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 _TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
+_TEST_MAX_WAIT_DURATION = test_constants.TrainingJobConstants._TEST_MAX_WAIT_DURATION
 
 _TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
@@ -578,6 +579,7 @@ class TestCustomJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -623,6 +625,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -675,6 +678,7 @@ class TestCustomJob:
             experiment=_TEST_EXPERIMENT,
             experiment_run=_TEST_RUN,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -720,6 +724,7 @@ class TestCustomJob:
             sync=sync,
             create_request_timeout=180.0,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -762,6 +767,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -847,6 +853,7 @@ class TestCustomJob:
                 sync=sync,
                 create_request_timeout=None,
                 disable_retries=_TEST_DISABLE_RETRIES,
+                max_wait_duration=_TEST_MAX_WAIT_DURATION,
             )
 
             job.wait()
@@ -888,6 +895,7 @@ class TestCustomJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=False,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -1211,6 +1219,7 @@ class TestCustomJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -1285,6 +1294,7 @@ class TestCustomJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait()
@@ -1352,6 +1362,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
@@ -1503,6 +1514,7 @@ class TestCustomJob:
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
             scheduling_strategy=_TEST_SPOT_STRATEGY,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait_for_resource_creation()
