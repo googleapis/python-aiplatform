@@ -181,6 +181,34 @@ class LogdirLoaderTest(tf.test.TestCase):
         # A second load should indicate no new data for the run.
         self.assertEqual(self._extract_run_to_tags(loader.get_run_events()), {".": []})
 
+    def test_profile_logdir(self):
+        logdir = self.get_temp_dir()
+        profile_dir = os.path.join(logdir, "foo/plugins/profile")
+        os.makedirs(profile_dir, exist_ok=True)
+        tempfile.NamedTemporaryFile(
+            prefix="bar", suffix=".xplane.pb", dir=profile_dir, delete=False
+        )
+        self.assertNotEmpty(os.listdir(profile_dir))
+        loader = self._create_logdir_loader(logdir)
+        loader.synchronize_runs()
+        self.assertEqual(
+            self._extract_run_to_tags(loader.get_run_events()), {"foo": []}
+        )
+
+    def test_profile_subdirectories(self):
+        logdir = self.get_temp_dir()
+        profile_dir = os.path.join(logdir, "foo/bar/subdir/plugins/profile")
+        os.makedirs(profile_dir, exist_ok=True)
+        tempfile.NamedTemporaryFile(
+            prefix="bar", suffix=".xplane.pb", dir=profile_dir, delete=False
+        )
+        self.assertNotEmpty(os.listdir(profile_dir))
+        loader = self._create_logdir_loader(logdir)
+        loader.synchronize_runs()
+        self.assertEqual(
+            self._extract_run_to_tags(loader.get_run_events()), {"foo/bar/subdir": []}
+        )
+
     def test_multiple_writes_to_logdir(self):
         logdir = self.get_temp_dir()
         with FileWriter(os.path.join(logdir, "a")) as writer:

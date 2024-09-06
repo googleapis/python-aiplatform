@@ -1375,6 +1375,45 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
             self.assertIn(run_name, profile_sender._run_to_file_request_sender)
             experiment_tracker_mock.set_experiment.assert_called_once()
 
+    @patch.object(
+        uploader_utils.OnePlatformResourceManager,
+        "get_run_resource_name",
+        autospec=True,
+    )
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
+    @patch.object(experiment_resources, "Experiment", autospec=True)
+    def test_nested_profile_files_are_uploaded(
+        self, experiment_resources_mock, experiment_tracker_mock, run_resource_mock
+    ):
+        experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_tensorboard.return_value = (
+            _TEST_TENSORBOARD_RESOURCE_NAME
+        )
+        run_name = "profile_test_run"
+        run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, run_name, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            uploader = _create_uploader(
+                self.mock_client,
+                logdir,
+                one_shot=True,
+            )
+
+            uploader.create_experiment()
+            uploader._upload_once()
+            senders = uploader._dispatcher._additional_senders
+            self.assertIn("profile", senders.keys())
+
+            profile_sender = senders["profile"]
+            self.assertIn(run_name, profile_sender._run_to_profile_loaders)
+            self.assertIn(run_name, profile_sender._run_to_file_request_sender)
+            experiment_tracker_mock.set_experiment.assert_called_once()
+
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
     def test_active_experiment_set_experiment_not_called(
