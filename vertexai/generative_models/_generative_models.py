@@ -465,9 +465,9 @@ class _GenerativeModel:
             elif isinstance(generation_config, GenerationConfig):
                 gapic_generation_config = generation_config._raw_generation_config
             elif isinstance(generation_config, Dict):
-                gapic_generation_config = gapic_content_types.GenerationConfig(
+                gapic_generation_config = GenerationConfig(
                     **generation_config
-                )
+                )._raw_generation_config
 
         gapic_safety_settings = None
         if safety_settings:
@@ -1603,10 +1603,7 @@ class GenerationConfig:
 
     @classmethod
     def from_dict(cls, generation_config_dict: Dict[str, Any]) -> "GenerationConfig":
-        raw_generation_config = gapic_content_types.GenerationConfig(
-            generation_config_dict
-        )
-        return cls._from_gapic(raw_generation_config=raw_generation_config)
+        return cls(**generation_config_dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return _proto_to_dict(self._raw_generation_config)

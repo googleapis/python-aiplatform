@@ -625,6 +625,42 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generate_content_with_dict_configs(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        response = model.generate_content(
+            "Why is sky blue?",
+            generation_config={
+                "temperature": 0.2,
+                "top_p": 0.9,
+                "top_k": 20,
+                "response_mime_type": "application/json",
+                "response_schema": {
+                    "type_": "OBJECT",
+                    "properties": {
+                        "description": {"type": "STRING"},
+                        "steps": {"type": "BOOLEAN"},
+                    },
+                    "required": ["description"],
+                },
+            },
+            safety_settings={
+                generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generate_content_response_accessor_errors(
         self, generative_models: generative_models
     ):
