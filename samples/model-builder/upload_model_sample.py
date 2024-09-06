@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#  [START aiplatform_sdk_upload_model_sample]
 from typing import Dict, Optional, Sequence
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import explain
 
 
-#  [START aiplatform_sdk_upload_model_sample]
 def upload_model_sample(
     project: str,
     location: str,
