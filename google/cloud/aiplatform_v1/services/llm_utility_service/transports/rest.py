@@ -889,6 +889,14 @@ class LlmUtilityServiceRestTransport(LlmUtilityServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -1000,6 +1008,16 @@ class LlmUtilityServiceRestTransport(LlmUtilityServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
                     "body": "*",
                 },
                 {
@@ -1117,6 +1135,14 @@ class LlmUtilityServiceRestTransport(LlmUtilityServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
                 },
                 {
                     "method": "post",

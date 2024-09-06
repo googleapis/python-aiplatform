@@ -1184,6 +1184,7 @@ class TestGenerativeModels:
     def test_image_mime_types(
         self, generative_models: generative_models, image_format: str, mime_type: str
     ):
+        pytest.importorskip("PIL")
         # Importing external library lazily to reduce the scope of import errors.
         from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
 

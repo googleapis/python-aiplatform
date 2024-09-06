@@ -3902,7 +3902,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
 
             Returns:
                 ~.feature_online_store_admin_service.SyncFeatureViewResponse:
-                    Respose message for
+                    Response message for
                 [FeatureOnlineStoreAdminService.SyncFeatureView][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.SyncFeatureView].
 
             """

@@ -161,6 +161,46 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
+    def test_generate_content_latency(self, api_endpoint_env_name):
+        import time
+        from unittest import mock
+        from vertexai.generative_models._generative_models import (
+            prediction_service,
+        )
+
+        gapic_response_time = None
+        gapic_generate_content = (
+            prediction_service.PredictionServiceClient.generate_content
+        )
+
+        def generate_content_patch(self, *args, **kwargs):
+            nonlocal gapic_response_time
+            gapic_start_time = time.time()
+            response = gapic_generate_content(self, *args, **kwargs)
+            gapic_response_time = time.time() - gapic_start_time
+            return response
+
+        with mock.patch.object(
+            prediction_service.PredictionServiceClient,
+            "generate_content",
+            generate_content_patch,
+        ):
+            sdk_start_time = time.time()
+            model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+            model.generate_content(
+                "Why is sky blue?",
+                generation_config=generative_models.GenerationConfig(temperature=0),
+            )
+            sdk_response_time = time.time() - sdk_start_time
+
+        sdk_latency = sdk_response_time - gapic_response_time
+
+        percent_latency = (sdk_response_time - gapic_response_time) / sdk_response_time
+
+        # Assert SDK adds <= 0.01 seconds of latency and <=.01% of the overall latency
+        assert sdk_latency <= 0.01
+        assert percent_latency <= 0.01
+
     @pytest.mark.asyncio
     async def test_generate_content_async(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)

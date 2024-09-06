@@ -589,7 +589,7 @@ class SyncFeatureViewRequest(proto.Message):
 
 
 class SyncFeatureViewResponse(proto.Message):
-    r"""Respose message for
+    r"""Response message for
     [FeatureOnlineStoreAdminService.SyncFeatureView][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.SyncFeatureView].
 
     Attributes:

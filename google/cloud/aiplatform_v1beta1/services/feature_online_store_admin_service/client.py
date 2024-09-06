@@ -2236,7 +2236,7 @@ class FeatureOnlineStoreAdminServiceClient(
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.SyncFeatureViewResponse:
-                Respose message for
+                Response message for
                    [FeatureOnlineStoreAdminService.SyncFeatureView][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.SyncFeatureView].
 
         """

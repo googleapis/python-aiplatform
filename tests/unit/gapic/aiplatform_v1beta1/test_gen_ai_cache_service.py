@@ -3488,6 +3488,13 @@ def test_create_cached_content_rest(request_type):
         },
         "create_time": {},
         "update_time": {},
+        "usage_metadata": {
+            "total_token_count": 1836,
+            "text_count": 1101,
+            "image_count": 1163,
+            "video_duration_seconds": 2346,
+            "audio_duration_seconds": 2341,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4299,6 +4306,13 @@ def test_update_cached_content_rest(request_type):
         },
         "create_time": {},
         "update_time": {},
+        "usage_metadata": {
+            "total_token_count": 1836,
+            "text_count": 1101,
+            "image_count": 1163,
+            "video_duration_seconds": 2346,
+            "audio_duration_seconds": 2341,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

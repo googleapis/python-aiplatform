@@ -14,6 +14,7 @@
 #
 import copy
 import importlib
+import re
 
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
@@ -50,6 +51,11 @@ _TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER = copy.deepcopy(
     tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL
 )
 _TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER.resource_pools[0].replica_count = 1
+
+_TEST_V2_4_WARNING_MESSAGE = (
+    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
+    " in an error. Please use Ray version = 2.33.0 (default) or 2.9.3 instead."
+)
 
 
 @pytest.fixture
@@ -492,7 +498,7 @@ class TestClusterManagement:
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
                 ray_version="2.4",
             )
-        e.match(regexp=r"Please use Ray version = 2.9.3")
+        e.match(regexp=re.escape(_TEST_V2_4_WARNING_MESSAGE))
 
     def test_create_ray_cluster_head_multinode_error(self):
         with pytest.raises(ValueError) as e:
