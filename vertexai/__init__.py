@@ -36,7 +36,7 @@ def __getattr__(name):
         # This won't work since it causes `RecursionError`:
         # `from vertexai import preview`
         # This won't work due to Copybara lacking a transform:
-        # `import google.cloud.aiplatform.vertexai.preview as vertexai_preview`
+        # `import vertexai.preview as vertexai_preview`
         return importlib.import_module(".preview", __name__)
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
