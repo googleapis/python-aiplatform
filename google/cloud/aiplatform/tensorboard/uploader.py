@@ -347,7 +347,8 @@ class TensorBoardUploader(object):
                 logger.warning(
                     "Please consider uploading to a new experiment instead of "
                     "an existing one, as the former allows for better upload "
-                    "performance."
+                    "performance. This is especially true for runs with number "
+                    "of time series exceeding 1000."
                 )
 
         while self._continue_uploading:
@@ -561,6 +562,19 @@ class _BatchedRequestSender(object):
             one_platform_resource_manager=self._one_platform_resource_manager,
         )
 
+    def synchronize_time_series(self, run_name: str):
+        """Synchronizes the time_series for the run for each request sender."""
+        self._one_platform_resource_manager.synchronize_time_series(run_name)
+        self._scalar_request_sender._one_platform_resource_manager.synchronize_time_series(
+            run_name
+        )
+        self._tensor_request_sender._one_platform_resource_manager.synchronize_time_series(
+            run_name
+        )
+        self._blob_request_sender._one_platform_resource_manager.synchronize_time_series(
+            run_name
+        )
+
     def send_request(
         self,
         run_name: str,
@@ -711,6 +725,7 @@ class _Dispatcher(object):
             values, as returned by `LogdirLoader.get_run_events`.
         """
         for (run_name, events) in run_to_events.items():
+            self._request_sender.synchronize_time_series(run_name)
             self._dispatch_additional_senders(run_name)
             if events is not None:
                 for event in events:
