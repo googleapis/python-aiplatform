@@ -674,6 +674,27 @@ class ImportRagFilesConfig(proto.Message):
             authentication.
 
             This field is a member of `oneof`_ ``import_source``.
+        share_point_sources (google.cloud.aiplatform_v1beta1.types.SharePointSources):
+            SharePoint sources.
+
+            This field is a member of `oneof`_ ``import_source``.
+        partial_failure_gcs_sink (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            The Cloud Storage path to write partial
+            failures to.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
+        partial_failure_bigquery_sink (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
+            The BigQuery destination to write partial
+            failures to. It should be a bigquery table
+            resource name (e.g.
+            "bq://projectId.bqDatasetId.bqTableId"). If the
+            dataset id does not exist, it will be created.
+            If the table does not exist, it will be created
+            with the expected schema. If the table exists,
+            the schema will be validated and data will be
+            added to this existing table.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
@@ -713,6 +734,24 @@ class ImportRagFilesConfig(proto.Message):
         number=7,
         oneof="import_source",
         message=io.JiraSource,
+    )
+    share_point_sources: io.SharePointSources = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        oneof="import_source",
+        message=io.SharePointSources,
+    )
+    partial_failure_gcs_sink: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        oneof="partial_failure_sink",
+        message=io.GcsDestination,
+    )
+    partial_failure_bigquery_sink: io.BigQueryDestination = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        oneof="partial_failure_sink",
+        message=io.BigQueryDestination,
     )
     rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(
         proto.MESSAGE,
