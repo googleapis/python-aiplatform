@@ -531,6 +531,7 @@ from .types.io import GcsDestination
 from .types.io import GcsSource
 from .types.io import GoogleDriveSource
 from .types.io import JiraSource
+from .types.io import SharePointSources
 from .types.io import SlackSource
 from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
@@ -1884,6 +1885,7 @@ __all__ = (
     "SearchNearestEntitiesResponse",
     "Segment",
     "ServiceAccountSpec",
+    "SharePointSources",
     "ShieldedVmConfig",
     "SlackSource",
     "SmoothGradConfig",

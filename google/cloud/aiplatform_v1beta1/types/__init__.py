@@ -542,6 +542,7 @@ from .io import (
     GcsSource,
     GoogleDriveSource,
     JiraSource,
+    SharePointSources,
     SlackSource,
     TFRecordDestination,
 )
@@ -1621,6 +1622,7 @@ __all__ = (
     "GcsSource",
     "GoogleDriveSource",
     "JiraSource",
+    "SharePointSources",
     "SlackSource",
     "TFRecordDestination",
     "CancelBatchPredictionJobRequest",

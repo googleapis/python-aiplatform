@@ -277,7 +277,24 @@ class ImportRagFilesResponse(proto.Message):
     r"""Response message for
     [VertexRagDataService.ImportRagFiles][google.cloud.aiplatform.v1beta1.VertexRagDataService.ImportRagFiles].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        partial_failures_gcs_path (str):
+            The Google Cloud Storage path into which the
+            partial failures were written.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
+        partial_failures_bigquery_table (str):
+            The BigQuery table into which the partial
+            failures were written.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
         imported_rag_files_count (int):
             The number of RagFiles that had been imported
             into the RagCorpus.
@@ -289,6 +306,16 @@ class ImportRagFilesResponse(proto.Message):
             importing into the RagCorpus.
     """
 
+    partial_failures_gcs_path: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="partial_failure_sink",
+    )
+    partial_failures_bigquery_table: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="partial_failure_sink",
+    )
     imported_rag_files_count: int = proto.Field(
         proto.INT64,
         number=1,
