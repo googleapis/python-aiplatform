@@ -61,6 +61,7 @@ from google.cloud.aiplatform.compat.services import (
 # Module-scoped fixtures
 @pytest.fixture(scope="module")
 def google_auth_mock():
+    
     with mock.patch.object(auth, "default") as google_auth_mock:
         google_auth_mock.return_value = (
             auth_credentials.AnonymousCredentials(),
