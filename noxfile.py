@@ -32,6 +32,25 @@ LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
 DEFAULT_PYTHON_VERSION = "3.8"
 
+DOCS_DEPENDENCIES = (
+    "sphinx==5.0.2",
+    "alabaster",
+    "google-cloud-aiplatform[evaluation]",
+    "recommonmark",
+)
+
+DOCFX_DEPENDENCIES = (
+    "gcp-sphinx-docfx-yaml",
+    "sphinxcontrib-applehelp==1.0.4",
+    "sphinxcontrib-devhelp==1.0.2",
+    "sphinxcontrib-htmlhelp==2.0.1",
+    "sphinxcontrib-qthelp==1.0.3",
+    "sphinxcontrib-serializinghtml==1.1.5",
+    "alabaster",
+    "google-cloud-aiplatform[evaluation]",
+    "recommonmark",
+)
+
 UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
@@ -374,12 +393,8 @@ def docs(session):
 
     session.install("-e", ".")
     session.install(
-        "sphinx==5.0.2",
-        "alabaster",
-        "immutabledict",
-        "google-cloud-aiplatform[evaluation]",
+        *DOCS_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
-        "recommonmark",
     )
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
@@ -402,15 +417,8 @@ def docfx(session):
 
     session.install("-e", ".")
     session.install(
-        "gcp-sphinx-docfx-yaml",
-        "sphinxcontrib-applehelp==1.0.4",
-        "sphinxcontrib-devhelp==1.0.2",
-        "sphinxcontrib-htmlhelp==2.0.1",
-        "sphinxcontrib-qthelp==1.0.3",
-        "sphinxcontrib-serializinghtml==1.1.5",
-        "alabaster",
+        *DOCFX_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
-        "recommonmark",
     )
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
@@ -444,14 +452,7 @@ def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
     session.install("-e", ".")
-    session.install(
-        "sphinx==5.0.2",
-        "alabaster",
-        "immutabledict",
-        "google-cloud-aiplatform[evaluation]",
-        "google-cloud-aiplatform[prediction]",
-        "recommonmark",
-    )
+    session.install(*DOCS_DEPENDENCIES)
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -472,17 +473,7 @@ def gemini_docfx(session):
     """Build the docfx yaml files for library related to Gemini."""
 
     session.install("-e", ".")
-    session.install(
-        "gcp-sphinx-docfx-yaml",
-        "sphinxcontrib-applehelp==1.0.4",
-        "sphinxcontrib-devhelp==1.0.2",
-        "sphinxcontrib-htmlhelp==2.0.1",
-        "sphinxcontrib-qthelp==1.0.3",
-        "sphinxcontrib-serializinghtml==1.1.5",
-        "alabaster",
-        "google-cloud-aiplatform",
-        "recommonmark",
-    )
+    session.install(*DOCFX_DEPENDENCIES)
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(

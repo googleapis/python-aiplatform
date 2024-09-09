@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 #
 import grpc
 import logging
+import ray
+
 from typing import Dict
 from typing import Optional
 from google.cloud import aiplatform
@@ -45,16 +47,30 @@ class _VertexRayClientContext(client_builder.ClientContext):
                 persistent_resource_id,
                 " failed to start Head node properly.",
             )
-
-        super().__init__(
-            dashboard_url=dashboard_uri,
-            python_version=ray_client_context.python_version,
-            ray_version=ray_client_context.ray_version,
-            ray_commit=ray_client_context.ray_commit,
-            protocol_version=ray_client_context.protocol_version,
-            _num_clients=ray_client_context._num_clients,
-            _context_to_restore=ray_client_context._context_to_restore,
-        )
+        if ray.__version__ == "2.33.0":
+            super().__init__(
+                dashboard_url=dashboard_uri,
+                python_version=ray_client_context.python_version,
+                ray_version=ray_client_context.ray_version,
+                ray_commit=ray_client_context.ray_commit,
+                _num_clients=ray_client_context._num_clients,
+                _context_to_restore=ray_client_context._context_to_restore,
+            )
+        elif ray.__version__ == "2.9.3":
+            super().__init__(
+                dashboard_url=dashboard_uri,
+                python_version=ray_client_context.python_version,
+                ray_version=ray_client_context.ray_version,
+                ray_commit=ray_client_context.ray_commit,
+                protocol_version=ray_client_context.protocol_version,
+                _num_clients=ray_client_context._num_clients,
+                _context_to_restore=ray_client_context._context_to_restore,
+            )
+        else:
+            raise ImportError(
+                f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
+                + "Only 2.33.0 and 2.9.3 are supported."
+            )
         self.persistent_resource_id = persistent_resource_id
         self.vertex_sdk_version = str(VERTEX_SDK_VERSION)
         self.shell_uri = ray_head_uris.get("RAY_HEAD_NODE_INTERACTIVE_SHELL_URI")
