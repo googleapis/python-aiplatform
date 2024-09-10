@@ -23,9 +23,12 @@ from google.cloud.aiplatform.vertex_ray.bigquery_datasource import (
     _BigQueryDatasource,
 )
 
-from google.cloud.aiplatform.vertex_ray.bigquery_datasink import (
-    _BigQueryDatasink,
-)
+try:
+    from google.cloud.aiplatform.vertex_ray.bigquery_datasink import (
+        _BigQueryDatasink,
+    )
+except ImportError:
+    _BigQueryDatasink = None
 
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
