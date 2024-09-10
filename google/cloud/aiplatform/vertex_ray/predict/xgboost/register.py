@@ -94,7 +94,15 @@ def register_xgboost(
 
     Raises:
         ValueError: Invalid Argument.
+        RuntimeError: Only Ray version 2.9.3 is supported.
     """
+    ray_version = ray.__version__
+    if ray_version != "2.9.3":
+        raise RuntimeError(
+            f"Ray version {ray_version} is not supported to upload XGBoost"
+            " model to Vertex Model Registry yet. Please use Ray 2.9.3."
+        )
+
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket
     predict_utils.validate_artifact_uri(artifact_uri)
     display_model_name = (
@@ -136,10 +144,16 @@ def _get_xgboost_model_from(
         ModuleNotFoundError: XGBoost isn't installed.
         RuntimeError: Model not found.
         RuntimeError: Ray version 2.4 is not supported.
+        RuntimeError: Only Ray version 2.9.3 is supported.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
+    if ray_version != "2.9.3":
+        raise RuntimeError(
+            f"Ray version {ray_version} is not supported to convert a XGBoost"
+            " checkpoint to XGBoost model on Vertex yet. Please use Ray 2.9.3."
+        )
 
     try:
         # This works for Ray v2.5
