@@ -5,4 +5,4 @@ API Reference
 .. toctree::
     :maxdepth: 2
 
-    vertexai/services
+    vertexai/vertexai
