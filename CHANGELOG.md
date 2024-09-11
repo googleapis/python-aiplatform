@@ -8,8 +8,6 @@
 * Add max_wait_duration option to custom jobs. ([ee65917](https://github.com/googleapis/python-aiplatform/commit/ee65917fbc1edc58a7e57c3601f9329ffa1304b0))
 * Add Ray 2.33 support to SDK Client Builder, remove deprecated protocol_version from ray client context. ([708a67b](https://github.com/googleapis/python-aiplatform/commit/708a67b9b781d41564058904d60af7db9beafbe0))
 * Add support for version 2.33 for RoV Bigquery read/write, remove dead code from version 2.4 ([a4b6c60](https://github.com/googleapis/python-aiplatform/commit/a4b6c60051efe61ad590ede8682bd36b79cafc94))
-* GenAI - Add model routing config to sdk ([70342e7](https://github.com/googleapis/python-aiplatform/commit/70342e731ccb26878cc193f18f47770c199c8ade))
-* GenAI - Add model routing config to sdk ([5a32eb7](https://github.com/googleapis/python-aiplatform/commit/5a32eb79fbdb54b014e94a6ec45d2bf060e3cd05))
 * Update Ray system tests to be compatible with new RoV 2.33 changes ([8c7bf27](https://github.com/googleapis/python-aiplatform/commit/8c7bf2724037f1ad1081d29e9534f8d26b18d95f))
 * Update setup.py for including Ray v2.33, restrict RoV prediction to 2.9.3 for now ([71c6f3c](https://github.com/googleapis/python-aiplatform/commit/71c6f3c6b48a001bfdbe5f5b47d787d4797ae9bf))
 
