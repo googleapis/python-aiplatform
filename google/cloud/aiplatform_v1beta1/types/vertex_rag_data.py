@@ -221,8 +221,16 @@ class RagVectorDbConfig(proto.Message):
             The config for the Weaviate.
 
             This field is a member of `oneof`_ ``vector_db``.
+        pinecone (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.Pinecone):
+            The config for the Pinecone.
+
+            This field is a member of `oneof`_ ``vector_db``.
         vertex_feature_store (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.VertexFeatureStore):
             The config for the Vertex Feature Store.
+
+            This field is a member of `oneof`_ ``vector_db``.
+        vertex_vector_search (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.VertexVectorSearch):
+            The config for the Vertex Vector Search.
 
             This field is a member of `oneof`_ ``vector_db``.
         api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
@@ -256,6 +264,20 @@ class RagVectorDbConfig(proto.Message):
             number=2,
         )
 
+    class Pinecone(proto.Message):
+        r"""The config for the Pinecone.
+
+        Attributes:
+            index_name (str):
+                Pinecone index name.
+                This value cannot be changed after it's set.
+        """
+
+        index_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     class VertexFeatureStore(proto.Message):
         r"""The config for the Vertex Feature Store.
 
@@ -270,6 +292,27 @@ class RagVectorDbConfig(proto.Message):
             number=1,
         )
 
+    class VertexVectorSearch(proto.Message):
+        r"""The config for the Vertex Vector Search.
+
+        Attributes:
+            index_endpoint (str):
+                The resource name of the Index Endpoint. Format:
+                ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
+            index (str):
+                The resource name of the Index. Format:
+                ``projects/{project}/locations/{location}/indexes/{index}``
+        """
+
+        index_endpoint: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        index: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     rag_managed_db: RagManagedDb = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -282,11 +325,23 @@ class RagVectorDbConfig(proto.Message):
         oneof="vector_db",
         message=Weaviate,
     )
+    pinecone: Pinecone = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="vector_db",
+        message=Pinecone,
+    )
     vertex_feature_store: VertexFeatureStore = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="vector_db",
         message=VertexFeatureStore,
+    )
+    vertex_vector_search: VertexVectorSearch = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="vector_db",
+        message=VertexVectorSearch,
     )
     api_auth: gca_api_auth.ApiAuth = proto.Field(
         proto.MESSAGE,
