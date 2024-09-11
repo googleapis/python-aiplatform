@@ -66,7 +66,6 @@ except ImportError:
 # GAPIC types used in request
 HarmCategory = gapic_content_types.HarmCategory
 HarmBlockThreshold = gapic_content_types.SafetySetting.HarmBlockThreshold
-RoutingConfig = gapic_content_types.GenerationConfig.RoutingConfig
 # GAPIC types used in response
 # We expose FinishReason to make it easier to check the response finish reason.
 FinishReason = gapic_content_types.Candidate.FinishReason
@@ -1528,7 +1527,6 @@ class GenerationConfig:
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
         seed: Optional[int] = None,
-        routing_config: Optional[RoutingConfig] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1554,7 +1552,6 @@ class GenerationConfig:
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text. Only valid when
                 response_mime_type is application/json.
-            routing_config: Model routing preference set in the request.
 
         Usage:
             ```
@@ -1589,7 +1586,6 @@ class GenerationConfig:
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
             seed=seed,
-            routing_config=routing_config,
         )
 
     @classmethod
