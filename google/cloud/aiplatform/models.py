@@ -6883,6 +6883,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         network: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
         experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+        enable_caching: Optional[bool] = None,
     ) -> "model_evaluation._ModelEvaluationJob":
         """Creates a model evaluation job running on Vertex Pipelines and returns the resulting
         ModelEvaluationJob resource.
@@ -6968,6 +6969,16 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 this model evaluation job. Metrics produced by the PipelineJob as system.Metric Artifacts
                 will be associated as metrics to the provided experiment, and parameters from this PipelineJob
                 will be associated as parameters to the provided experiment.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
         Returns:
             model_evaluation.ModelEvaluationJob: Instantiated representation of the
             _ModelEvaluationJob.
@@ -7088,6 +7099,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             encryption_spec_key_name=encryption_spec_key_name,
             credentials=self.credentials,
             experiment=experiment,
+            enable_caching=enable_caching,
         )
 
 

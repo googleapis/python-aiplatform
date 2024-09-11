@@ -198,6 +198,39 @@ _TEST_MODEL_EVAL_PIPELINE_SPEC_JSON = json.dumps(
     }
 )
 
+_TEST_MODEL_EVAL_PIPELINE_SPEC_WITH_CACHING_OPTIONS_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "evaluation-default-pipeline"},
+        "root": {
+            "dag": {
+                "tasks": {
+                    "model-evaluation-text-generation": {
+                        "taskInfo": {"name": "model-evaluation-text-generation"},
+                        "cachingOptions": {"enableCache": False},
+                    }
+                }
+            },
+            "inputDefinitions": {
+                "parameters": {
+                    "batch_predict_gcs_source_uris": {"type": "STRING"},
+                    "dataflow_service_account": {"type": "STRING"},
+                    "batch_predict_instances_format": {"type": "STRING"},
+                    "batch_predict_machine_type": {"type": "STRING"},
+                    "evaluation_class_labels": {"type": "STRING"},
+                    "location": {"type": "STRING"},
+                    "model_name": {"type": "STRING"},
+                    "project": {"type": "STRING"},
+                    "batch_predict_gcs_destination_output_uri": {"type": "STRING"},
+                    "target_field_name": {"type": "STRING"},
+                }
+            },
+        },
+        "schemaVersion": "2.0.0",
+        "sdkVersion": "kfp-1.8.12",
+        "components": {},
+    }
+)
+
 _TEST_INVALID_MODEL_EVAL_PIPELINE_SPEC = json.dumps(
     {
         "pipelineInfo": {"name": "my-pipeline"},
@@ -1026,6 +1059,100 @@ class TestModelEvaluationJob:
             job_id=_TEST_PIPELINE_JOB_ID,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+        )
+
+        test_model_eval_job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameters": {
+                "batch_predict_gcs_source_uris": {
+                    "stringValue": '["gs://my-bucket/my-prediction-data.csv"]'
+                },
+                "dataflow_service_account": {"stringValue": _TEST_SERVICE_ACCOUNT},
+                "batch_predict_instances_format": {"stringValue": "csv"},
+                "model_name": {"stringValue": _TEST_MODEL_RESOURCE_NAME},
+                "project": {"stringValue": _TEST_PROJECT},
+                "location": {"stringValue": _TEST_LOCATION},
+                "batch_predict_gcs_destination_output_uri": {
+                    "stringValue": _TEST_GCS_BUCKET_NAME
+                },
+                "target_field_name": {"stringValue": "predict_class"},
+            },
+        }
+
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=_TEST_MODEL_EVAL_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.0.0",
+                "sdkVersion": "kfp-1.8.12",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            template_uri=_TEST_KFP_TEMPLATE_URI,
+        )
+
+        mock_model_eval_job_create.assert_called_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+        assert mock_model_eval_job_get.called_once
+
+        assert mock_pipeline_service_get.called_once
+
+        assert mock_model_eval_job_get.called_once
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_MODEL_EVAL_PIPELINE_SPEC_WITH_CACHING_OPTIONS_JSON],
+    )
+    @pytest.mark.usefixtures("mock_pipeline_service_create")
+    def test_model_evaluation_job_submit_with_caching_disabled(
+        self,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_model,
+        get_model_mock,
+        mock_model_eval_get,
+        mock_model_eval_job_get,
+        mock_pipeline_service_get,
+        mock_model_eval_job_create,
+        mock_pipeline_bucket_exists,
+        mock_request_urlopen,
+    ):
+        test_model_eval_job = model_evaluation_job._ModelEvaluationJob.submit(
+            model_name=_TEST_MODEL_RESOURCE_NAME,
+            prediction_type=_TEST_MODEL_EVAL_PREDICTION_TYPE,
+            instances_format=_TEST_MODEL_EVAL_PIPELINE_PARAMETER_VALUES[
+                "batch_predict_instances_format"
+            ],
+            model_type="automl_tabular",
+            pipeline_root=_TEST_GCS_BUCKET_NAME,
+            target_field_name=_TEST_MODEL_EVAL_PIPELINE_PARAMETER_VALUES[
+                "target_field_name"
+            ],
+            evaluation_pipeline_display_name=_TEST_MODEL_EVAL_PIPELINE_JOB_DISPLAY_NAME,
+            gcs_source_uris=_TEST_MODEL_EVAL_PIPELINE_PARAMETER_VALUES[
+                "batch_predict_gcs_source_uris"
+            ],
+            job_id=_TEST_PIPELINE_JOB_ID,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            enable_caching=False,
         )
 
         test_model_eval_job.wait()
