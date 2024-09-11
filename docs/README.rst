@@ -15,7 +15,7 @@ Vertex AI SDK for Python
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
-.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
+.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest/summary_overview
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 
