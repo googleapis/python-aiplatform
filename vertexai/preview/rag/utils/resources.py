@@ -16,7 +16,7 @@
 #
 
 import dataclasses
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Union
 
 from google.protobuf import timestamp_pb2
 
@@ -86,6 +86,19 @@ class Weaviate:
 
 
 @dataclasses.dataclass
+class VertexFeatureStore:
+    """VertexFeatureStore.
+
+    Attributes:
+        resource_name: The resource name of the FeatureView. Format:
+            ``projects/{project}/locations/{location}/featureOnlineStores/
+              {feature_online_store}/featureViews/{feature_view}``
+    """
+
+    resource_name: str
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -102,7 +115,7 @@ class RagCorpus:
     display_name: Optional[str] = None
     description: Optional[str] = None
     embedding_model_config: Optional[EmbeddingModelConfig] = None
-    vector_db: Optional[Weaviate] = None
+    vector_db: Optional[Union[Weaviate, VertexFeatureStore]] = None
 
 
 @dataclasses.dataclass

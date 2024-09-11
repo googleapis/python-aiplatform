@@ -42,6 +42,7 @@ from vertexai.preview.rag.utils.resources import (
     RagFile,
     SlackChannelsSource,
     JiraSource,
+    VertexFeatureStore,
     Weaviate,
 )
 
@@ -97,13 +98,17 @@ def convert_gapic_to_embedding_model_config(
 
 def convert_gapic_to_vector_db(
     gapic_vector_db: RagVectorDbConfig,
-) -> Weaviate:
-    """Convert Gapic RagVectorDbConfig to Weaviate."""
+) -> Union[Weaviate, VertexFeatureStore]:
+    """Convert Gapic RagVectorDbConfig to Weaviate or VertexFeatureStore."""
     if gapic_vector_db.__contains__("weaviate"):
         return Weaviate(
             weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
             collection_name=gapic_vector_db.weaviate.collection_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
+        )
+    elif gapic_vector_db.__contains__("vertex_feature_store"):
+        return VertexFeatureStore(
+            resource_name=gapic_vector_db.vertex_feature_store.feature_view_resource_name,
         )
     else:
         return None
@@ -390,7 +395,7 @@ def set_embedding_model_config(
 
 
 def set_vector_db(
-    vector_db: Weaviate,
+    vector_db: Union[Weaviate, VertexFeatureStore],
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
@@ -410,5 +415,13 @@ def set_vector_db(
                 ),
             ),
         )
+    elif isinstance(vector_db, VertexFeatureStore):
+        resource_name = vector_db.resource_name
+
+        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
+            vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
+                feature_view_resource_name=resource_name,
+            ),
+        )
     else:
-        raise TypeError("vector_db must be a Weaviate.")
+        raise TypeError("vector_db must be a Weaviate or VertexFeatureStore.")

@@ -48,6 +48,7 @@ from vertexai.preview.rag.utils.resources import (
     RagCorpus,
     RagFile,
     SlackChannelsSource,
+    VertexFeatureStore,
     Weaviate,
 )
 
@@ -56,7 +57,7 @@ def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
-    vector_db: Optional[Weaviate] = None,
+    vector_db: Optional[Union[Weaviate, VertexFeatureStore]] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
