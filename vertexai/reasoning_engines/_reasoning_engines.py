@@ -209,7 +209,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         # This involves packaging and uploading the artifacts for
         # reasoning_engine, requirements and extra_packages to
         # `staging_bucket/gcs_dir_name`.
-        _prepare_create(
+        _prepare(
             reasoning_engine=reasoning_engine,
             requirements=requirements,
             project=sdk_resource.project,
@@ -226,12 +226,13 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 gcs_dir_name,
                 _BLOB_FILENAME,
             ),
-            dependency_files_gcs_uri="{}/{}/{}".format(
+        )
+        if extra_packages:
+            package_spec.dependency_files_gcs_uri = "{}/{}/{}".format(
                 staging_bucket,
                 gcs_dir_name,
                 _EXTRA_PACKAGES_FILE,
-            ),
-        )
+            )
         if requirements:
             package_spec.requirements_gcs_uri = "{}/{}/{}".format(
                 staging_bucket,
@@ -377,7 +378,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         # This involves packaging and uploading the artifacts for
         # reasoning_engine, requirements and extra_packages to
         # `staging_bucket/gcs_dir_name`.
-        _prepare_update(
+        _prepare(
             reasoning_engine=reasoning_engine,
             requirements=requirements,
             project=self.project,
@@ -564,40 +565,7 @@ def _upload_extra_packages(
     _LOGGER.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
 
 
-def _prepare_create(
-    reasoning_engine: Queryable,
-    requirements: Sequence[str],
-    extra_packages: Sequence[str],
-    project: str,
-    location: str,
-    staging_bucket: str,
-    gcs_dir_name: str,
-) -> None:
-    """Prepares the reasoning engine for creation in Vertex AI.
-
-    This involves packaging and uploading artifacts to Cloud Storage. Note that
-    1. This does not actually create the Reasoning Engine in Vertex AI.
-    2. This will always generate and upload a pickled object.
-    3. This will always generate and upload the dependencies.tar.gz file.
-
-    Args:
-        reasoning_engine: The reasoning engine to be prepared.
-        requirements (Sequence[str]): The set of PyPI dependencies needed.
-        extra_packages (Sequence[str]): The set of extra user-provided packages.
-        project (str): The project for the staging bucket.
-        location (str): The location for the staging bucket.
-        staging_bucket (str): The staging bucket name in the form "gs://...".
-        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
-            use for staging the artifacts needed.
-    """
-    gcs_bucket = _get_gcs_bucket(project, location, staging_bucket)
-    _upload_reasoning_engine(reasoning_engine, gcs_bucket, gcs_dir_name)
-    if requirements:
-        _upload_requirements(requirements, gcs_bucket, gcs_dir_name)
-    _upload_extra_packages(extra_packages, gcs_bucket, gcs_dir_name)
-
-
-def _prepare_update(
+def _prepare(
     reasoning_engine: Optional[Queryable],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
@@ -606,7 +574,7 @@ def _prepare_update(
     staging_bucket: str,
     gcs_dir_name: str,
 ) -> None:
-    """Prepares the reasoning engine for updates in Vertex AI.
+    """Prepares the reasoning engine for creation or updates in Vertex AI.
 
     This involves packaging and uploading artifacts to Cloud Storage. Note that
     1. This does not actually update the Reasoning Engine in Vertex AI.
