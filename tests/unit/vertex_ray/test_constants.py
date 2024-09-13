@@ -63,6 +63,10 @@ xgbversion = pytest.mark.skipif(
     ray.__version__ != "2.9.3", reason="Requires xgboost 1.7 or higher"
 )
 
+predictionrayversion = pytest.mark.skipif(
+    ray.__version__ != "2.9.3", reason="Not currently supported on Ray 2.33"
+)
+
 
 @dataclasses.dataclass(frozen=True)
 class ProjectConstants:
@@ -101,8 +105,14 @@ class ClusterConstants:
     TEST_VERTEX_RAY_PR_ADDRESS = (
         f"{ProjectConstants.TEST_PARENT}/persistentResources/" + TEST_VERTEX_RAY_PR_ID
     )
-    TEST_CPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest"
-    TEST_GPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest"
+    TEST_CPU_IMAGE_2_9 = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest"
+    TEST_GPU_IMAGE_2_9 = "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest"
+    TEST_CPU_IMAGE_2_33 = (
+        "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest"
+    )
+    TEST_GPU_IMAGE_2_33 = (
+        "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-33.py310:latest"
+    )
     TEST_CUSTOM_IMAGE = "us-docker.pkg.dev/my-project/ray-custom-image.2.9:latest"
     TEST_PSC_NETWORK_ATTACHMENT = "my-network-attachment"
     # RUNNING Persistent Cluster w/o Ray
@@ -139,7 +149,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=False),
                 ray_logs_spec=RayLogsSpec(disabled=False),
             ),
@@ -151,7 +161,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=True),
                 ray_logs_spec=RayLogsSpec(disabled=True),
             ),
@@ -176,7 +186,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=False),
                 ray_logs_spec=RayLogsSpec(disabled=False),
             ),
@@ -194,7 +204,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=False),
                 ray_logs_spec=RayLogsSpec(disabled=False),
             ),
@@ -234,7 +244,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
             service_account_spec=ServiceAccountSpec(
@@ -257,7 +267,7 @@ class ClusterConstants:
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
-                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                resource_pool_images={"head-node": TEST_GPU_IMAGE_2_9},
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),
             service_account_spec=ServiceAccountSpec(
@@ -327,8 +337,8 @@ class ClusterConstants:
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
                 resource_pool_images={
-                    "head-node": TEST_CPU_IMAGE,
-                    "worker-pool1": TEST_GPU_IMAGE,
+                    "head-node": TEST_CPU_IMAGE_2_9,
+                    "worker-pool1": TEST_GPU_IMAGE_2_9,
                 },
                 ray_metric_spec=RayMetricSpec(disabled=False),
                 ray_logs_spec=RayLogsSpec(disabled=False),
@@ -362,8 +372,8 @@ class ClusterConstants:
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(
                 resource_pool_images={
-                    "head-node": TEST_CPU_IMAGE,
-                    "worker-pool1": TEST_GPU_IMAGE,
+                    "head-node": TEST_CPU_IMAGE_2_9,
+                    "worker-pool1": TEST_GPU_IMAGE_2_9,
                 },
                 ray_metric_spec=RayMetricSpec(disabled=False),
             ),

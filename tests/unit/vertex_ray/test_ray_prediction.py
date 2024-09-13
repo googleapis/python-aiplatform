@@ -353,6 +353,7 @@ class TestPredictionFunctionality:
         pickle_dump.assert_called_once()
         gcs_utils_upload_to_gcs.assert_called_once()
 
+    @tc.predictionrayversion
     def test_register_sklearnartifact_uri_is_none_raise_error(
         self, ray_sklearn_checkpoint
     ) -> None:
@@ -365,6 +366,7 @@ class TestPredictionFunctionality:
             )
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
+    @tc.predictionrayversion
     def test_register_sklearnartifact_uri_not_gcs_uri_raise_error(
         self, ray_sklearn_checkpoint
     ) -> None:
@@ -499,6 +501,7 @@ class TestPredictionFunctionality:
         with pytest.raises(ValueError):
             prediction_torch.register.get_pytorch_model_from(ray_checkpoint_from_dict)
 
+    @tc.predictionrayversion
     def test_convert_checkpoint_to_pytorch_model_succeed(
         self, ray_torch_checkpoint
     ) -> None:

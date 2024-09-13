@@ -67,11 +67,14 @@ class Resources:
 
 @dataclasses.dataclass
 class NodeImages:
-    """
-    Custom images for a ray cluster. We currently support Ray v2.9 and python v3.10.
+    """Custom images for a ray cluster.
+
+    We currently support Ray v2.9 and v2.33 and python v3.10.
     The custom images must be extended from the following base images:
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest" or
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest". In
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest",
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest",
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest", or
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-33.py310:latest". In
     order to use custom images, need to specify both head and worker images.
 
     Attributes:

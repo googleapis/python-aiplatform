@@ -52,7 +52,7 @@ from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
 def create_ray_cluster(
     head_node_type: Optional[resources.Resources] = resources.Resources(),
     python_version: Optional[str] = "3.10",
-    ray_version: Optional[str] = "2.9",
+    ray_version: Optional[str] = "2.33",
     network: Optional[str] = None,
     service_account: Optional[str] = None,
     cluster_name: Optional[str] = None,
@@ -106,7 +106,7 @@ def create_ray_cluster(
         head_node_type: The head node resource. Resources.node_count must be 1.
             If not set, default value of Resources() class will be used.
         python_version: Python version for the ray cluster.
-        ray_version: Ray version for the ray cluster.
+        ray_version: Ray version for the ray cluster. Default is 2.33.0.
         network: Virtual private cloud (VPC) network. For Ray Client, VPC
             peering is required to connect to the Ray Cluster managed in the
             Vertex API service. For Ray Job API, VPC network is not required
@@ -157,7 +157,7 @@ def create_ray_cluster(
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
         if custom_images is None and head_node_type.custom_image is None:
-            install_ray_version = "2.9.3"
+            install_ray_version = "2.33.0"
             logging.info(
                 "[Ray on Vertex]: Local runtime has Ray version %s"
                 ", but the requested cluster runtime has %s. Please "
