@@ -453,6 +453,9 @@ class SharePointSources(proto.Message):
             sharepoint_site_name (str):
                 The name of the SharePoint site to download
                 from. This can be the site name or the site id.
+            file_id (str):
+                Output only. The SharePoint file id. Output
+                only.
         """
 
         sharepoint_folder_path: str = proto.Field(
@@ -491,6 +494,10 @@ class SharePointSources(proto.Message):
         sharepoint_site_name: str = proto.Field(
             proto.STRING,
             number=4,
+        )
+        file_id: str = proto.Field(
+            proto.STRING,
+            number=9,
         )
 
     share_point_sources: MutableSequence[SharePointSource] = proto.RepeatedField(

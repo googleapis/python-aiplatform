@@ -536,6 +536,11 @@ class RagFile(proto.Message):
             The RagFile is imported from a Jira query.
 
             This field is a member of `oneof`_ ``rag_file_source``.
+        share_point_sources (google.cloud.aiplatform_v1beta1.types.SharePointSources):
+            The RagFile is imported from a SharePoint
+            source.
+
+            This field is a member of `oneof`_ ``rag_file_source``.
         name (str):
             Output only. The resource name of the
             RagFile.
@@ -604,6 +609,12 @@ class RagFile(proto.Message):
         number=12,
         oneof="rag_file_source",
         message=io.JiraSource,
+    )
+    share_point_sources: io.SharePointSources = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="rag_file_source",
+        message=io.SharePointSources,
     )
     name: str = proto.Field(
         proto.STRING,
