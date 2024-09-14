@@ -39,6 +39,7 @@ from typing import (
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform_v1.types import tool as gapic_tool_types
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.services import llm_utility_service
@@ -49,7 +50,6 @@ from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as gapic_prediction_service_types,
     llm_utility_service as gapic_llm_utility_service_types,
 )
-from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
 import warnings
 
