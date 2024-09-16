@@ -765,6 +765,11 @@ class CountTokensRequest(proto.Message):
             A ``Tool`` is a piece of code that enables the system to
             interact with external systems to perform an action, or set
             of actions, outside of knowledge and scope of the model.
+        generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
+            Optional. Generation config that the model
+            will use to generate the response.
+
+            This field is a member of `oneof`_ ``_generation_config``.
     """
 
     endpoint: str = proto.Field(
@@ -795,6 +800,12 @@ class CountTokensRequest(proto.Message):
         proto.MESSAGE,
         number=6,
         message=tool.Tool,
+    )
+    generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        optional=True,
+        message=content.GenerationConfig,
     )
 
 
@@ -828,9 +839,14 @@ class GenerateContentRequest(proto.Message):
 
     Attributes:
         model (str):
-            Required. The name of the publisher model requested to serve
-            the prediction. Format:
+            Required. The fully qualified name of the publisher model or
+            tuned model endpoint to use.
+
+            Publisher model format:
             ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+            Tuned model endpoint format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
         contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
             Required. The content of the current
             conversation with the model.
@@ -861,6 +877,17 @@ class GenerateContentRequest(proto.Message):
         tool_config (google.cloud.aiplatform_v1beta1.types.ToolConfig):
             Optional. Tool config. This config is shared
             for all tools provided in the request.
+        labels (MutableMapping[str, str]):
+            Optional. The labels with user-defined
+            metadata for the request. It is used for billing
+            and reporting only.
+
+            Label keys and values can be no longer than 63
+            characters (Unicode codepoints) and can only
+            contain lowercase letters, numeric characters,
+            underscores, and dashes. International
+            characters are allowed. Label values are
+            optional. Label keys must start with a letter.
         safety_settings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetySetting]):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
@@ -897,6 +924,11 @@ class GenerateContentRequest(proto.Message):
         proto.MESSAGE,
         number=7,
         message=tool.ToolConfig,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
     )
     safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
         proto.MESSAGE,
@@ -988,7 +1020,8 @@ class GenerateContentResponse(proto.Message):
             candidates_token_count (int):
                 Number of tokens in the response(s).
             total_token_count (int):
-
+                Total token count for prompt and response
+                candidates.
             cached_content_token_count (int):
                 Output only. Number of tokens in the cached
                 part in the input (the cached content).
@@ -1033,9 +1066,9 @@ class ChatCompletionsRequest(proto.Message):
 
     Attributes:
         endpoint (str):
-            Required. The name of the Endpoint requested to serve the
+            Required. The name of the endpoint requested to serve the
             prediction. Format:
-            ``projects/{project}/locations/{location}/endpoints/openapi``
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
         http_body (google.api.httpbody_pb2.HttpBody):
             Optional. The prediction input. Supports HTTP
             headers and arbitrary data payload.
