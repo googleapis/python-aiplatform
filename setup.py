@@ -96,7 +96,7 @@ private_endpoints_extra_require = [
     "requests >= 2.28.1",
 ]
 
-autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
+autologging_extra_require = ["mlflow>=1.27.0,<=2.16.0"]
 
 preview_extra_require = []
 
