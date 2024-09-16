@@ -39,6 +39,7 @@ __protobuf__ = proto.module(
         "DirectUploadSource",
         "SlackSource",
         "JiraSource",
+        "SharePointSources",
     },
 )
 
@@ -397,6 +398,112 @@ class JiraSource(proto.Message):
         proto.MESSAGE,
         number=1,
         message=JiraQueries,
+    )
+
+
+class SharePointSources(proto.Message):
+    r"""The SharePointSources to pass to ImportRagFiles.
+
+    Attributes:
+        share_point_sources (MutableSequence[google.cloud.aiplatform_v1beta1.types.SharePointSources.SharePointSource]):
+            The SharePoint sources.
+    """
+
+    class SharePointSource(proto.Message):
+        r"""An individual SharePointSource.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            sharepoint_folder_path (str):
+                The path of the SharePoint folder to download
+                from.
+
+                This field is a member of `oneof`_ ``folder_source``.
+            sharepoint_folder_id (str):
+                The ID of the SharePoint folder to download
+                from.
+
+                This field is a member of `oneof`_ ``folder_source``.
+            drive_name (str):
+                The name of the drive to download from.
+
+                This field is a member of `oneof`_ ``drive_source``.
+            drive_id (str):
+                The ID of the drive to download from.
+
+                This field is a member of `oneof`_ ``drive_source``.
+            client_id (str):
+                The Application ID for the app registered in
+                Microsoft Azure Portal. The application must
+                also be configured with MS Graph permissions
+                "Files.ReadAll", "Sites.ReadAll" and
+                BrowserSiteLists.Read.All.
+            client_secret (google.cloud.aiplatform_v1beta1.types.ApiAuth.ApiKeyConfig):
+                The application secret for the app registered
+                in Azure.
+            tenant_id (str):
+                Unique identifier of the Azure Active
+                Directory Instance.
+            sharepoint_site_name (str):
+                The name of the SharePoint site to download
+                from. This can be the site name or the site id.
+            file_id (str):
+                Output only. The SharePoint file id. Output
+                only.
+        """
+
+        sharepoint_folder_path: str = proto.Field(
+            proto.STRING,
+            number=5,
+            oneof="folder_source",
+        )
+        sharepoint_folder_id: str = proto.Field(
+            proto.STRING,
+            number=6,
+            oneof="folder_source",
+        )
+        drive_name: str = proto.Field(
+            proto.STRING,
+            number=7,
+            oneof="drive_source",
+        )
+        drive_id: str = proto.Field(
+            proto.STRING,
+            number=8,
+            oneof="drive_source",
+        )
+        client_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        client_secret: api_auth.ApiAuth.ApiKeyConfig = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=api_auth.ApiAuth.ApiKeyConfig,
+        )
+        tenant_id: str = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+        sharepoint_site_name: str = proto.Field(
+            proto.STRING,
+            number=4,
+        )
+        file_id: str = proto.Field(
+            proto.STRING,
+            number=9,
+        )
+
+    share_point_sources: MutableSequence[SharePointSource] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=SharePointSource,
     )
 
 

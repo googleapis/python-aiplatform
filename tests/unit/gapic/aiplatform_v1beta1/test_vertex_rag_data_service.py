@@ -5478,8 +5478,13 @@ def test_create_rag_corpus_rest(request_type):
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
             },
+            "pinecone": {"index_name": "index_name_value"},
             "vertex_feature_store": {
                 "feature_view_resource_name": "feature_view_resource_name_value"
+            },
+            "vertex_vector_search": {
+                "index_endpoint": "index_endpoint_value",
+                "index": "index_value",
             },
             "api_auth": {
                 "api_key_config": {
@@ -5897,8 +5902,13 @@ def test_update_rag_corpus_rest(request_type):
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
             },
+            "pinecone": {"index_name": "index_name_value"},
             "vertex_feature_store": {
                 "feature_view_resource_name": "feature_view_resource_name_value"
+            },
+            "vertex_vector_search": {
+                "index_endpoint": "index_endpoint_value",
+                "index": "index_value",
             },
             "api_auth": {
                 "api_key_config": {

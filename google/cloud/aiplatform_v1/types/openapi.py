@@ -63,8 +63,8 @@ class Type(proto.Enum):
 class Schema(proto.Message):
     r"""Schema is used to define the format of input/output data. Represents
     a select subset of an `OpenAPI 3.0 schema
-    object <https://spec.openapis.org/oas/v3.0.3#schema>`__. More fields
-    may be added in the future as needed.
+    object <https://spec.openapis.org/oas/v3.0.3#schema-object>`__. More
+    fields may be added in the future as needed.
 
     Attributes:
         type_ (google.cloud.aiplatform_v1.types.Type):
@@ -101,6 +101,10 @@ class Schema(proto.Message):
         properties (MutableMapping[str, google.cloud.aiplatform_v1.types.Schema]):
             Optional. SCHEMA FIELDS FOR TYPE OBJECT
             Properties of Type.OBJECT.
+        property_ordering (MutableSequence[str]):
+            Optional. The order of the properties.
+            Not a standard field in open api spec. Only used
+            to support the order of the properties.
         required (MutableSequence[str]):
             Optional. Required properties of Type.OBJECT.
         min_properties (int):
@@ -177,6 +181,10 @@ class Schema(proto.Message):
         proto.MESSAGE,
         number=3,
         message="Schema",
+    )
+    property_ordering: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=25,
     )
     required: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,

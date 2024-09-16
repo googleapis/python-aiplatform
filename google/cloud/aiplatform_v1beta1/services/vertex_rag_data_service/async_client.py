@@ -1074,6 +1074,7 @@ class VertexRagDataServiceAsyncClient:
                 # Initialize request argument(s)
                 import_rag_files_config = aiplatform_v1beta1.ImportRagFilesConfig()
                 import_rag_files_config.gcs_source.uris = ['uris_value1', 'uris_value2']
+                import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = "output_uri_prefix_value"
 
                 request = aiplatform_v1beta1.ImportRagFilesRequest(
                     parent="parent_value",

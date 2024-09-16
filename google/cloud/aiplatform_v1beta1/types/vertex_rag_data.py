@@ -221,8 +221,16 @@ class RagVectorDbConfig(proto.Message):
             The config for the Weaviate.
 
             This field is a member of `oneof`_ ``vector_db``.
+        pinecone (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.Pinecone):
+            The config for the Pinecone.
+
+            This field is a member of `oneof`_ ``vector_db``.
         vertex_feature_store (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.VertexFeatureStore):
             The config for the Vertex Feature Store.
+
+            This field is a member of `oneof`_ ``vector_db``.
+        vertex_vector_search (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.VertexVectorSearch):
+            The config for the Vertex Vector Search.
 
             This field is a member of `oneof`_ ``vector_db``.
         api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
@@ -256,6 +264,20 @@ class RagVectorDbConfig(proto.Message):
             number=2,
         )
 
+    class Pinecone(proto.Message):
+        r"""The config for the Pinecone.
+
+        Attributes:
+            index_name (str):
+                Pinecone index name.
+                This value cannot be changed after it's set.
+        """
+
+        index_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     class VertexFeatureStore(proto.Message):
         r"""The config for the Vertex Feature Store.
 
@@ -270,6 +292,27 @@ class RagVectorDbConfig(proto.Message):
             number=1,
         )
 
+    class VertexVectorSearch(proto.Message):
+        r"""The config for the Vertex Vector Search.
+
+        Attributes:
+            index_endpoint (str):
+                The resource name of the Index Endpoint. Format:
+                ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
+            index (str):
+                The resource name of the Index. Format:
+                ``projects/{project}/locations/{location}/indexes/{index}``
+        """
+
+        index_endpoint: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        index: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     rag_managed_db: RagManagedDb = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -282,11 +325,23 @@ class RagVectorDbConfig(proto.Message):
         oneof="vector_db",
         message=Weaviate,
     )
+    pinecone: Pinecone = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="vector_db",
+        message=Pinecone,
+    )
     vertex_feature_store: VertexFeatureStore = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="vector_db",
         message=VertexFeatureStore,
+    )
+    vertex_vector_search: VertexVectorSearch = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="vector_db",
+        message=VertexVectorSearch,
     )
     api_auth: gca_api_auth.ApiAuth = proto.Field(
         proto.MESSAGE,
@@ -481,6 +536,11 @@ class RagFile(proto.Message):
             The RagFile is imported from a Jira query.
 
             This field is a member of `oneof`_ ``rag_file_source``.
+        share_point_sources (google.cloud.aiplatform_v1beta1.types.SharePointSources):
+            The RagFile is imported from a SharePoint
+            source.
+
+            This field is a member of `oneof`_ ``rag_file_source``.
         name (str):
             Output only. The resource name of the
             RagFile.
@@ -549,6 +609,12 @@ class RagFile(proto.Message):
         number=12,
         oneof="rag_file_source",
         message=io.JiraSource,
+    )
+    share_point_sources: io.SharePointSources = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="rag_file_source",
+        message=io.SharePointSources,
     )
     name: str = proto.Field(
         proto.STRING,
@@ -674,6 +740,27 @@ class ImportRagFilesConfig(proto.Message):
             authentication.
 
             This field is a member of `oneof`_ ``import_source``.
+        share_point_sources (google.cloud.aiplatform_v1beta1.types.SharePointSources):
+            SharePoint sources.
+
+            This field is a member of `oneof`_ ``import_source``.
+        partial_failure_gcs_sink (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            The Cloud Storage path to write partial
+            failures to.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
+        partial_failure_bigquery_sink (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
+            The BigQuery destination to write partial
+            failures to. It should be a bigquery table
+            resource name (e.g.
+            "bq://projectId.bqDatasetId.bqTableId"). If the
+            dataset id does not exist, it will be created.
+            If the table does not exist, it will be created
+            with the expected schema. If the table exists,
+            the schema will be validated and data will be
+            added to this existing table.
+
+            This field is a member of `oneof`_ ``partial_failure_sink``.
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
@@ -713,6 +800,24 @@ class ImportRagFilesConfig(proto.Message):
         number=7,
         oneof="import_source",
         message=io.JiraSource,
+    )
+    share_point_sources: io.SharePointSources = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        oneof="import_source",
+        message=io.SharePointSources,
+    )
+    partial_failure_gcs_sink: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        oneof="partial_failure_sink",
+        message=io.GcsDestination,
+    )
+    partial_failure_bigquery_sink: io.BigQueryDestination = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        oneof="partial_failure_sink",
+        message=io.BigQueryDestination,
     )
     rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(
         proto.MESSAGE,

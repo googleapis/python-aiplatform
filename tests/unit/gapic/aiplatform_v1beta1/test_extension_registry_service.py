@@ -3381,6 +3381,10 @@ def test_import_extension_rest(request_type):
                         "max_items": 967,
                         "enum": ["enum_value1", "enum_value2"],
                         "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
                         "required": ["required_value1", "required_value2"],
                         "min_properties": 1520,
                         "max_properties": 1522,
@@ -4568,6 +4572,10 @@ def test_update_extension_rest(request_type):
                         "max_items": 967,
                         "enum": ["enum_value1", "enum_value2"],
                         "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
                         "required": ["required_value1", "required_value2"],
                         "min_properties": 1520,
                         "max_properties": 1522,
