@@ -352,25 +352,7 @@ class TestReasoningEngine:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_prepare_create(
-        self,
-        cloud_storage_create_bucket_mock,
-        tarfile_open_mock,
-        cloudpickle_dump_mock,
-    ):
-        _reasoning_engines._prepare_create(
-            reasoning_engine=self.test_app,
-            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
-            extra_packages=[],
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            staging_bucket=_TEST_STAGING_BUCKET,
-            gcs_dir_name=_TEST_GCS_DIR_NAME,
-        )
-        cloudpickle_dump_mock.assert_called()  # when preparing object.pkl
-        tarfile_open_mock.assert_called()  # when preparing extra_packages
-
-    def test_prepare_update_with_unspecified_extra_packages(
+    def test_prepare_with_unspecified_extra_packages(
         self,
         cloud_storage_create_bucket_mock,
         cloudpickle_dump_mock,
@@ -379,7 +361,7 @@ class TestReasoningEngine:
             _reasoning_engines,
             "_upload_extra_packages",
         ) as upload_extra_packages_mock:
-            _reasoning_engines._prepare_update(
+            _reasoning_engines._prepare(
                 reasoning_engine=self.test_app,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
                 extra_packages=None,
@@ -390,7 +372,7 @@ class TestReasoningEngine:
             )
             upload_extra_packages_mock.assert_not_called()
 
-    def test_prepare_update_with_empty_extra_packages(
+    def test_prepare_with_empty_extra_packages(
         self,
         cloud_storage_create_bucket_mock,
         cloudpickle_dump_mock,
@@ -399,7 +381,7 @@ class TestReasoningEngine:
             _reasoning_engines,
             "_upload_extra_packages",
         ) as upload_extra_packages_mock:
-            _reasoning_engines._prepare_update(
+            _reasoning_engines._prepare(
                 reasoning_engine=self.test_app,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
                 extra_packages=[],
@@ -429,6 +411,7 @@ class TestReasoningEngine:
             self.test_app,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
         )
         # Manually set _gca_resource here to prevent the mocks from propagating.
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
@@ -494,6 +477,7 @@ class TestReasoningEngine:
                 self.test_app,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements="requirements.txt",
+                extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
             )
         mock_file.assert_called_with("requirements.txt")
         # Manually set _gca_resource here to prevent the mocks from propagating.
@@ -668,6 +652,7 @@ class TestReasoningEngine:
             self.test_app,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
         )
         # Manually set _gca_resource here to prevent the mocks from propagating.
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ

@@ -66,6 +66,7 @@ for library in s.get_staging_dirs(default_version):
             "setup.py",
             "README.rst",
             "docs/index.rst",
+            "docs/summary_overview.md",
             f"docs/definition_{library.name}/services.rst",
             f"docs/instance_{library.name}/services.rst",
             f"docs/params_{library.name}/services.rst",

@@ -28,6 +28,7 @@ from vertexai.preview.rag import (
     JiraSource,
     JiraQuery,
     Weaviate,
+    VertexFeatureStore,
 )
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
@@ -68,6 +69,7 @@ TEST_WEAVIATE_CONFIG = Weaviate(
     collection_name=TEST_WEAVIATE_COLLECTION_NAME,
     api_key=TEST_WEAVIATE_API_KEY_SECRET_VERSION,
 )
+TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME = "test-feature-view-resource-name"
 TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
@@ -94,8 +96,21 @@ TEST_GAPIC_RAG_CORPUS_WEAVIATE = GapicRagCorpus(
         ),
     ),
 )
+TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    rag_vector_db_config=RagVectorDbConfig(
+        vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
+            feature_view_resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME
+        ),
+    ),
+)
 TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
     publisher_model="publishers/google/models/textembedding-gecko",
+)
+TEST_VERTEX_FEATURE_STORE_CONFIG = VertexFeatureStore(
+    resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME,
 )
 TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -108,6 +123,12 @@ TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
     vector_db=TEST_WEAVIATE_CONFIG,
+)
+TEST_RAG_CORPUS_VERTEX_FEATURE_STORE = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db=TEST_VERTEX_FEATURE_STORE_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 

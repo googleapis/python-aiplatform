@@ -249,7 +249,7 @@ def unit_genai_minimal_dependencies(session):
 
 
 @nox.session(python="3.10")
-@nox.parametrize("ray", ["2.9.3"])
+@nox.parametrize("ray", ["2.9.3", "2.33.0"])
 def unit_ray(session, ray):
     # Install all test dependencies, then install this package in-place.
 

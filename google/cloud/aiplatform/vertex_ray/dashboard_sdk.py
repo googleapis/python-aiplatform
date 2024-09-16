@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 
 """Utility to interact with Ray-on-Vertex dashboard."""
 
+from ray.dashboard.modules import dashboard_sdk as oss_dashboard_sdk
+
 from .util import _gapic_utils
 from .util import _validation_utils
-from ray.dashboard.modules import dashboard_sdk as oss_dashboard_sdk
 
 
 def get_job_submission_client_cluster_info(
@@ -28,7 +29,7 @@ def get_job_submission_client_cluster_info(
     """A vertex_ray implementation of get_job_submission_client_cluster_info().
 
     Implements
-    https://github.com/ray-project/ray/blob/ray-2.3.1/dashboard/modules/dashboard_sdk.py#L82
+    https://github.com/ray-project/ray/blob/ray-2.33.0/python/ray/dashboard/modules/dashboard_sdk.py#L84
     This will be called in from Ray Job API Python client.
 
     Args:

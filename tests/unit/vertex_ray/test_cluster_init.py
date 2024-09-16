@@ -290,19 +290,20 @@ def cluster_eq(returned_cluster, expected_cluster):
     assert returned_cluster.state == expected_cluster.state
 
 
+@pytest.mark.parametrize("ray_version", ["2.9", "2.33"])
 @pytest.mark.usefixtures("google_auth_mock", "get_project_number_mock")
 class TestClusterManagement:
-    def setup_method(self):
+    def setup_method(self, ray_version):
         importlib.reload(aiplatform.initializer)
         importlib.reload(aiplatform)
         aiplatform.init()
 
-    def teardown_method(self):
+    def teardown_method(self, ray_version):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
     def test_create_ray_cluster_1_pool_gpu_success(
-        self, create_persistent_resource_1_pool_mock
+        self, create_persistent_resource_1_pool_mock, ray_version
     ):
         """If head and worker nodes are duplicate, merge to head pool."""
         cluster_name = vertex_ray.create_ray_cluster(
@@ -310,13 +311,24 @@ class TestClusterManagement:
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_1_POOL,
             network=tc.ProjectConstants.TEST_VPC_NETWORK,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+            ray_version=ray_version,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
 
+        test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL
+        if ray_version == "2.9":
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        else:
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
-            persistent_resource=tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL,
+            persistent_resource=test_persistent_resource,
             persistent_resource_id=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
         )
 
@@ -326,7 +338,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_custom_image_mock")
     def test_create_ray_cluster_1_pool_custom_image_success(
-        self, create_persistent_resource_1_pool_mock
+        self, create_persistent_resource_1_pool_mock, ray_version
     ):
         """If head and worker nodes are duplicate, merge to head pool."""
         custom_images = NodeImages(
@@ -355,7 +367,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
     def test_create_ray_cluster_1_pool_gpu_with_labels_success(
-        self, create_persistent_resource_1_pool_mock
+        self, create_persistent_resource_1_pool_mock, ray_version
     ):
         """If head and worker nodes are duplicate, merge to head pool."""
         # Also test disable logging and metrics collection.
@@ -367,13 +379,26 @@ class TestClusterManagement:
             labels=tc.ClusterConstants.TEST_LABELS,
             enable_metrics_collection=False,
             enable_logging=False,
+            ray_version=ray_version,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
 
+        test_persistent_resource = (
+            tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS
+        )
+        if ray_version == "2.9":
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        else:
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
-            persistent_resource=tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS,
+            persistent_resource=test_persistent_resource,
             persistent_resource_id=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
         )
 
@@ -383,7 +408,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_custom_image_mock")
     def test_create_ray_cluster_2_pools_custom_images_success(
-        self, create_persistent_resource_2_pools_custom_image_mock
+        self, create_persistent_resource_2_pools_custom_image_mock, ray_version
     ):
         """If head and worker nodes are not duplicate, create separate resource_pools."""
         cluster_name = vertex_ray.create_ray_cluster(
@@ -407,7 +432,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
     def test_create_ray_cluster_2_pools_success(
-        self, create_persistent_resource_2_pools_mock
+        self, create_persistent_resource_2_pools_mock, ray_version
     ):
         """If head and worker nodes are not duplicate, create separate resource_pools."""
         # Also test PSC-I.
@@ -419,12 +444,29 @@ class TestClusterManagement:
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_2_POOLS,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             psc_interface_config=psc_interface_config,
+            ray_version=ray_version,
         )
+
+        test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_2_POOLS
+        if ray_version == "2.9":
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_CPU_IMAGE_2_9
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "worker-pool1"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        else:
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_CPU_IMAGE_2_33
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "worker-pool1"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
-            persistent_resource=tc.ClusterConstants.TEST_REQUEST_RUNNING_2_POOLS,
+            persistent_resource=test_persistent_resource,
             persistent_resource_id=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
         )
 
@@ -434,7 +476,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("persistent_client_mock")
     def test_create_ray_cluster_initialized_success(
-        self, get_project_number_mock, api_client_mock
+        self, get_project_number_mock, api_client_mock, ray_version
     ):
         """If initialized, create_ray_cluster doesn't need many call args."""
         aiplatform.init(
@@ -469,7 +511,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_byosa_mock")
     def test_create_ray_cluster_byosa_success(
-        self, create_persistent_resource_1_pool_byosa_mock
+        self, create_persistent_resource_1_pool_byosa_mock, ray_version
     ):
         """If head and worker nodes are duplicate, merge to head pool."""
         cluster_name = vertex_ray.create_ray_cluster(
@@ -477,13 +519,24 @@ class TestClusterManagement:
             worker_node_types=tc.ClusterConstants.TEST_WORKER_NODE_TYPES_1_POOL,
             service_account=tc.ProjectConstants.TEST_SERVICE_ACCOUNT,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
+            ray_version=ray_version,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
 
+        test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_BYOSA
+        if ray_version == "2.9":
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        else:
+            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                "head-node"
+            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
-            persistent_resource=tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_BYOSA,
+            persistent_resource=test_persistent_resource,
             persistent_resource_id=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
         )
 
@@ -491,7 +544,7 @@ class TestClusterManagement:
             request,
         )
 
-    def test_create_ray_cluster_2_4_deprecated_error(self):
+    def test_create_ray_cluster_2_4_deprecated_error(self, ray_version):
         with pytest.raises(RuntimeError) as e:
             vertex_ray.create_ray_cluster(
                 head_node_type=Resources(node_count=3),
@@ -500,7 +553,7 @@ class TestClusterManagement:
             )
         e.match(regexp=re.escape(_TEST_V2_4_WARNING_MESSAGE))
 
-    def test_create_ray_cluster_head_multinode_error(self):
+    def test_create_ray_cluster_head_multinode_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 head_node_type=Resources(node_count=3),
@@ -508,7 +561,7 @@ class TestClusterManagement:
             )
         e.match(regexp=r"Resources.node_count must be 1.")
 
-    def test_create_ray_cluster_python_version_error(self):
+    def test_create_ray_cluster_python_version_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
@@ -516,7 +569,7 @@ class TestClusterManagement:
             )
         e.match(regexp=r"The supported Python version is 3")
 
-    def test_create_ray_cluster_ray_version_error(self):
+    def test_create_ray_cluster_ray_version_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
@@ -524,7 +577,7 @@ class TestClusterManagement:
             )
         e.match(regexp=r"The supported Ray versions are ")
 
-    def test_create_ray_cluster_same_pool_different_disk_error(self):
+    def test_create_ray_cluster_same_pool_different_disk_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 head_node_type=Resources(machine_type="n1-highmem-32", node_count=1),
@@ -540,7 +593,7 @@ class TestClusterManagement:
         e.match(regexp=r"Worker disk size must match the head node's disk size if")
 
     @pytest.mark.usefixtures("create_persistent_resource_exception_mock")
-    def test_create_ray_cluster_state_error(self):
+    def test_create_ray_cluster_state_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.create_ray_cluster(
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
@@ -548,7 +601,7 @@ class TestClusterManagement:
 
         e.match(regexp=r"Failed in cluster creation due to: ")
 
-    def test_delete_ray_cluster_success(self, persistent_client_mock):
+    def test_delete_ray_cluster_success(self, persistent_client_mock, ray_version):
         vertex_ray.delete_ray_cluster(
             cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
@@ -556,7 +609,7 @@ class TestClusterManagement:
         persistent_client_mock.assert_called_once()
 
     @pytest.mark.usefixtures("persistent_client_error_mock")
-    def test_delete_ray_cluster_error(self):
+    def test_delete_ray_cluster_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.delete_ray_cluster(
                 cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
@@ -564,7 +617,9 @@ class TestClusterManagement:
 
         e.match(regexp=r"Failed in cluster deletion due to: ")
 
-    def test_get_ray_cluster_success(self, get_persistent_resource_1_pool_mock):
+    def test_get_ray_cluster_success(
+        self, get_persistent_resource_1_pool_mock, ray_version
+    ):
         cluster = vertex_ray.get_ray_cluster(
             cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
@@ -573,7 +628,7 @@ class TestClusterManagement:
         cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER)
 
     def test_get_ray_cluster_with_custom_image_success(
-        self, get_persistent_resource_2_pools_custom_image_mock
+        self, get_persistent_resource_2_pools_custom_image_mock, ray_version
     ):
         cluster = vertex_ray.get_ray_cluster(
             cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
@@ -583,7 +638,7 @@ class TestClusterManagement:
         cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE)
 
     def test_get_ray_cluster_byosa_success(
-        self, get_persistent_resource_1_pool_byosa_mock
+        self, get_persistent_resource_1_pool_byosa_mock, ray_version
     ):
         cluster = vertex_ray.get_ray_cluster(
             cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
@@ -593,7 +648,7 @@ class TestClusterManagement:
         cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER_BYOSA)
 
     @pytest.mark.usefixtures("get_persistent_resource_exception_mock")
-    def test_get_ray_cluster_error(self):
+    def test_get_ray_cluster_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.get_ray_cluster(
                 cluster_resource_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
@@ -601,7 +656,9 @@ class TestClusterManagement:
 
         e.match(regexp=r"Failed in getting the cluster due to: ")
 
-    def test_list_ray_clusters_success(self, list_persistent_resources_mock):
+    def test_list_ray_clusters_success(
+        self, list_persistent_resources_mock, ray_version
+    ):
         clusters = vertex_ray.list_ray_clusters()
 
         list_persistent_resources_mock.assert_called_once()
@@ -612,7 +669,7 @@ class TestClusterManagement:
         cluster_eq(clusters[1], tc.ClusterConstants.TEST_CLUSTER_2)
 
     def test_list_ray_clusters_initialized_success(
-        self, get_project_number_mock, list_persistent_resources_mock
+        self, get_project_number_mock, list_persistent_resources_mock, ray_version
     ):
         aiplatform.init(
             project=tc.ProjectConstants.TEST_GCP_PROJECT_ID_OVERRIDE,
@@ -632,15 +689,16 @@ class TestClusterManagement:
         )
 
     @pytest.mark.usefixtures("list_persistent_resources_exception_mock")
-    def test_list_ray_clusters_error(self):
+    def test_list_ray_clusters_error(self, ray_version):
         with pytest.raises(ValueError) as e:
             vertex_ray.list_ray_clusters()
 
         e.match(regexp=r"Failed in listing the clusters due to: ")
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
-    def test_update_ray_cluster_1_pool(self, update_persistent_resource_1_pool_mock):
-
+    def test_update_ray_cluster_1_pool(
+        self, update_persistent_resource_1_pool_mock, ray_version
+    ):
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER.worker_node_types:
             # resize worker node to node_count = 1
@@ -662,7 +720,7 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
     def test_update_ray_cluster_1_pool_to_0_worker(
-        self, update_persistent_resource_1_pool_mock
+        self, update_persistent_resource_1_pool_mock, ray_version
     ):
 
         new_worker_node_types = []
@@ -685,7 +743,9 @@ class TestClusterManagement:
         assert returned_name == tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
 
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
-    def test_update_ray_cluster_2_pools(self, update_persistent_resource_2_pools_mock):
+    def test_update_ray_cluster_2_pools(
+        self, update_persistent_resource_2_pools_mock, ray_version
+    ):
 
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types:
@@ -707,7 +767,7 @@ class TestClusterManagement:
         assert returned_name == tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
 
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
-    def test_update_ray_cluster_2_pools_0_worker_fail(self):
+    def test_update_ray_cluster_2_pools_0_worker_fail(self, ray_version):
 
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types:
@@ -724,7 +784,7 @@ class TestClusterManagement:
             e.match(regexp=r"must update to >= 1 nodes.")
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
-    def test_update_ray_cluster_duplicate_worker_node_types_error(self):
+    def test_update_ray_cluster_duplicate_worker_node_types_error(self, ray_version):
         new_worker_node_types = (
             tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types
             + tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types
@@ -738,7 +798,9 @@ class TestClusterManagement:
             e.match(regexp=r"Worker_node_types have duplicate machine specs")
 
     @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
-    def test_update_ray_cluster_mismatch_worker_node_types_count_error(self):
+    def test_update_ray_cluster_mismatch_worker_node_types_count_error(
+        self, ray_version
+    ):
         with pytest.raises(ValueError) as e:
             new_worker_node_types = tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types
             vertex_ray.update_ray_cluster(

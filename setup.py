@@ -83,7 +83,7 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <=0.109.1",
+    "fastapi >= 0.71.0, <=0.114.0",
     "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
@@ -101,16 +101,19 @@ autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 preview_extra_require = []
 
 ray_extra_require = [
-    # Cluster only supports 2.9.3. Keep 2.4.0 for our testing environment.
+    # Cluster only supports 2.9.3 and 2.33.0. Keep 2.4.0 for our testing environment.
     # Note that testing is submiting a job in a cluster with Ray 2.9.3 remotely.
     (
-        "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
-        " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'"
+        "ray[default] >= 2.4, <= 2.33.0,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
+        " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2, !=2.10.*, !=2.11.*, !=2.12.*, !=2.13.*, !="
+        " 2.14.*, !=2.15.*, !=2.16.*, !=2.17.*, !=2.18.*, !=2.19.*, !=2.20.*, !="
+        " 2.21.*, !=2.22.*, !=2.23.*, !=2.24.*, !=2.25.*, !=2.26.*, !=2.27.*, !="
+        " 2.28.*, !=2.29.*, !=2.30.*, !=2.31.*, !=2.32.*; python_version<'3.11'"
     ),
     # To avoid  ImportError: cannot import name 'packaging' from 'pkg)resources'
     "setuptools < 70.0.0",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, <= 2.9.3; python_version=='3.11'",
+    "ray[default] >= 2.5, <= 2.33.0; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
     "pandas >= 1.0.0, < 2.2.0",

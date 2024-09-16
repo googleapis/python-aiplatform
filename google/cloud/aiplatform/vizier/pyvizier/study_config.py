@@ -55,7 +55,6 @@ class Algorithm(enum.Enum):
     GRID_SEARCH = study_pb2.StudySpec.Algorithm.GRID_SEARCH
     RANDOM_SEARCH = study_pb2.StudySpec.Algorithm.RANDOM_SEARCH
     # NSGA2 = study_pb2.StudySpec.Algorithm.NSGA2
-    # EMUKIT_GP_EI = study_pb2.StudySpec.Algorithm.EMUKIT_GP_EI
 
 
 class ObservationNoise(enum.Enum):
@@ -316,7 +315,7 @@ class StudyConfig(ProblemStatement):
     def _trial_to_external_values(
         self, pytrial: Trial
     ) -> Dict[str, Union[float, int, str, bool]]:
-        """Returns the trial paremeter values cast to external types."""
+        """Returns the trial parameter values cast to external types."""
         parameter_values: Dict[str, Union[float, int, str]] = {}
         external_values: Dict[str, Union[float, int, str, bool]] = {}
         # parameter_configs is a list of Tuple[parent_name, ParameterConfig].

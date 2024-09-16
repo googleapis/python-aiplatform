@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.66.0](https://github.com/googleapis/python-aiplatform/compare/v1.65.0...v1.66.0) (2024-09-11)
+
+
+### Features
+
+* Add max_wait_duration option to custom jobs. ([ee65917](https://github.com/googleapis/python-aiplatform/commit/ee65917fbc1edc58a7e57c3601f9329ffa1304b0))
+* Add Ray 2.33 support to SDK Client Builder, remove deprecated protocol_version from ray client context. ([708a67b](https://github.com/googleapis/python-aiplatform/commit/708a67b9b781d41564058904d60af7db9beafbe0))
+* Add support for version 2.33 for RoV Bigquery read/write, remove dead code from version 2.4 ([a4b6c60](https://github.com/googleapis/python-aiplatform/commit/a4b6c60051efe61ad590ede8682bd36b79cafc94))
+* Update Ray system tests to be compatible with new RoV 2.33 changes ([8c7bf27](https://github.com/googleapis/python-aiplatform/commit/8c7bf2724037f1ad1081d29e9534f8d26b18d95f))
+* Update setup.py for including Ray v2.33, restrict RoV prediction to 2.9.3 for now ([71c6f3c](https://github.com/googleapis/python-aiplatform/commit/71c6f3c6b48a001bfdbe5f5b47d787d4797ae9bf))
+
+
+### Bug Fixes
+
+* Identify nested Vertex Tensorboard profile runs for uploading when standard event data is not present ([0a08027](https://github.com/googleapis/python-aiplatform/commit/0a08027df7a7442af63522039445500ce1fdb7f1))
+* Move region tag to include imports ([6d1f7fd](https://github.com/googleapis/python-aiplatform/commit/6d1f7fdaadade0f9f6a77c136490fac58d054ca8))
+* Move region tag to include imports ([#4357](https://github.com/googleapis/python-aiplatform/issues/4357)) ([6d1f7fd](https://github.com/googleapis/python-aiplatform/commit/6d1f7fdaadade0f9f6a77c136490fac58d054ca8))
+* Rollback change to tensorboard uploader causing increased latency ([879dbcd](https://github.com/googleapis/python-aiplatform/commit/879dbcd1ed49bee573df65e764914b708382404c))
+
+
+### Documentation
+
+* Update SDK Job Submission with Ray v2.33 updated comments ([7fda11f](https://github.com/googleapis/python-aiplatform/commit/7fda11fd25b5a78fcca69e48f9c734f2a8f86eb0))
+
 ## [1.65.0](https://github.com/googleapis/python-aiplatform/compare/v1.64.0...v1.65.0) (2024-09-04)
 
 

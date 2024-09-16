@@ -18,6 +18,7 @@
 """Shared utils for tensorboard log uploader."""
 import abc
 import contextlib
+import json
 import logging
 import re
 import time
@@ -120,7 +121,7 @@ class OnePlatformResourceManager(object):
         """
         created_runs = []
         for run_name in run_names:
-            tb_run = self._get_or_create_run_resource(run_name)
+            tb_run = self._create_or_get_run_resource(run_name)
             created_runs.append(tb_run)
             if run_name not in self._run_name_to_run_resource_name:
                 self._run_name_to_run_resource_name[run_name] = tb_run.resource_name
@@ -195,11 +196,11 @@ class OnePlatformResourceManager(object):
                 Resource name of the run.
         """
         if run_name not in self._run_name_to_run_resource_name:
-            tb_run = self._get_or_create_run_resource(run_name)
+            tb_run = self._create_or_get_run_resource(run_name)
             self._run_name_to_run_resource_name[run_name] = tb_run.resource_name
         return self._run_name_to_run_resource_name[run_name]
 
-    def _get_or_create_run_resource(
+    def _create_or_get_run_resource(
         self, run_name: str
     ) -> tensorboard_run.TensorboardRun:
         """Creates new experiment run and tensorboard run resources.
@@ -270,7 +271,7 @@ class OnePlatformResourceManager(object):
                 Resource name of the time series
         """
         if (run_name, tag_name) not in self._run_tag_name_to_time_series_name:
-            time_series = self._get_or_create_time_series(
+            time_series = self._create_or_get_time_series(
                 self.get_run_resource_name(run_name),
                 tag_name,
                 time_series_resource_creator,
@@ -280,7 +281,7 @@ class OnePlatformResourceManager(object):
             ] = time_series.name
         return self._run_tag_name_to_time_series_name[(run_name, tag_name)]
 
-    def _get_or_create_time_series(
+    def _create_or_get_time_series(
         self,
         run_resource_name: str,
         tag_name: str,
@@ -310,29 +311,45 @@ class OnePlatformResourceManager(object):
             ValueError:
                 More than one time series with the resource name was found.
         """
-        time_series = None
-        run_name = run_resource_name.split("/")[-1]
-        run = self._get_or_create_run_resource(run_name)
-        time_series_id = run.get_tensorboard_time_series_id(tag_name)
-        if time_series_id:
-            time_series = self._api.get_tensorboard_time_series(
-                request=tensorboard_service.GetTensorboardTimeSeriesRequest(
-                    name=run_resource_name + "/timeSeries/" + time_series_id
-                )
+        time_series = time_series_resource_creator()
+        time_series.display_name = tag_name
+        try:
+            time_series = self._api.create_tensorboard_time_series(
+                parent=run_resource_name, tensorboard_time_series=time_series
             )
-        if not time_series:
-            time_series = time_series_resource_creator()
-            time_series.display_name = tag_name
-            try:
-                time_series = self._api.create_tensorboard_time_series(
-                    parent=run_resource_name, tensorboard_time_series=time_series
-                )
-            except exceptions.InvalidArgument as e:
-                raise ValueError(
-                    "Could not find time series resource with display name: {}".format(
-                        tag_name
+        except exceptions.InvalidArgument as e:
+            # If the time series display name already exists then retrieve it
+            if "already exist" in e.message:
+                list_of_time_series = self._api.list_tensorboard_time_series(
+                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
+                        parent=run_resource_name,
+                        filter="display_name = {}".format(json.dumps(str(tag_name))),
                     )
-                ) from e
+                )
+                num = 0
+                time_series = None
+
+                for ts in list_of_time_series:
+                    num += 1
+                    if num > 1:
+                        break
+                    time_series = ts
+
+                if not time_series:
+                    raise ExistingResourceNotFoundError(
+                        "Could not find time series resource with display name: {}".format(
+                            tag_name
+                        )
+                    )
+
+                if num != 1:
+                    raise ValueError(
+                        "More than one time series resource found with display_name: {}".format(
+                            tag_name
+                        )
+                    )
+            else:
+                raise
         return time_series
 
 
@@ -354,45 +371,6 @@ class TimeSeriesResourceManager(object):
         self._tag_to_time_series_proto: Dict[
             str, tensorboard_time_series.TensorboardTimeSeries
         ] = {}
-
-    def _get_run_resource(self) -> tensorboard_run.TensorboardRun:
-        """Gets or creates new experiment run and tensorboard run resources.
-
-        The experiment run will be associated with the tensorboard run resource.
-        This will link all tensorboard run data to the associated experiment.
-
-        Returns:
-            tb_run (tensorboard_run.TensorboardRun):
-                The TensorboardRun given the run_name.
-
-        Raises:
-            ValueError:
-                run_resource_id is invalid.
-        """
-        m = re.match(
-            "projects/(.*)/locations/(.*)/tensorboards/(.*)/experiments/(.*)/runs/(.*)",
-            self._run_resource_id,
-        )
-        project = m[1]
-        location = m[2]
-        tensorboard = m[3]
-        experiment = m[4]
-        run_name = m[5]
-        experiment_run = experiment_run_resource.ExperimentRun.get(
-            project=project, location=location, run_name=run_name
-        )
-        if not experiment_run:
-            experiment_run = experiment_run_resource.ExperimentRun.create(
-                project=project,
-                location=location,
-                run_name=run_name,
-                experiment=experiment,
-                tensorboard=tensorboard,
-                state=gca_execution.Execution.State.RUNNING,
-            )
-        tb_run_artifact = experiment_run._backing_tensorboard_run
-        tb_run = tb_run_artifact.resource
-        return tb_run
 
     def get_or_create(
         self,
@@ -416,36 +394,56 @@ class TimeSeriesResourceManager(object):
                 A new or existing tensorboard_time_series.TensorboardTimeSeries.
 
         Raises:
-            ValueError:
+            exceptions.InvalidArgument:
                 The tag_name or time_series_resource_creator is an invalid argument
                 to create_tensorboard_time_series api call.
+            ExistingResourceNotFoundError:
+                Could not find the resource given the tag name.
+            ValueError:
+                More than one time series with the resource name was found.
         """
         if tag_name in self._tag_to_time_series_proto:
             return self._tag_to_time_series_proto[tag_name]
 
-        time_series = None
-        tb_run = self._get_run_resource()
-        time_series_id = tb_run.get_tensorboard_time_series_id(tag_name)
-        if time_series_id:
-            time_series = self._api.get_tensorboard_time_series(
-                request=tensorboard_service.GetTensorboardTimeSeriesRequest(
-                    name=self._run_resource_id + "/timeSeries/" + time_series_id
-                )
+        time_series = time_series_resource_creator()
+        time_series.display_name = tag_name
+        try:
+            time_series = self._api.create_tensorboard_time_series(
+                parent=self._run_resource_id, tensorboard_time_series=time_series
             )
-        if not time_series:
-            time_series = time_series_resource_creator()
-            time_series.display_name = tag_name
-
-            try:
-                time_series = self._api.create_tensorboard_time_series(
-                    parent=self._run_resource_id, tensorboard_time_series=time_series
-                )
-            except exceptions.InvalidArgument as e:
-                raise ValueError(
-                    "Could not find time series resource with display name: {}".format(
-                        tag_name
+        except exceptions.InvalidArgument as e:
+            # If the time series display name already exists then retrieve it
+            if "already exist" in e.message:
+                list_of_time_series = self._api.list_tensorboard_time_series(
+                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
+                        parent=self._run_resource_id,
+                        filter="display_name = {}".format(json.dumps(str(tag_name))),
                     )
-                ) from e
+                )
+                num = 0
+                time_series = None
+
+                for ts in list_of_time_series:
+                    num += 1
+                    if num > 1:
+                        break
+                    time_series = ts
+
+                if not time_series:
+                    raise ExistingResourceNotFoundError(
+                        "Could not find time series resource with display name: {}".format(
+                            tag_name
+                        )
+                    )
+
+                if num != 1:
+                    raise ValueError(
+                        "More than one time series resource found with display_name: {}".format(
+                            tag_name
+                        )
+                    )
+            else:
+                raise
 
         self._tag_to_time_series_proto[tag_name] = time_series
         return time_series

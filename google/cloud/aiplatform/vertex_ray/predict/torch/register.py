@@ -61,10 +61,16 @@ def get_pytorch_model_from(
         ModuleNotFoundError: PyTorch isn't installed.
         RuntimeError: Model not found.
         RuntimeError: Ray version 2.4 is not supported.
+        RuntimeError: Only Ray version 2.9.3 is supported.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
+    if ray_version != "2.9.3":
+        raise RuntimeError(
+            f"Ray on Vertex does not support Ray version {ray_version} to"
+            " convert PyTorch model artifacts yet. Please use Ray 2.9.3."
+        )
 
     try:
         return checkpoint.get_model()

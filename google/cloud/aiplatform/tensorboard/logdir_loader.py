@@ -19,6 +19,7 @@
 
 import collections
 import os
+import tensorflow as tf
 
 from tensorboard.backend.event_processing import directory_watcher
 from tensorboard.backend.event_processing import io_wrapper
@@ -26,6 +27,37 @@ from tensorboard.util import tb_logging
 
 
 logger = tb_logging.get_logger()
+
+
+def is_plugins_subdirectory(path):
+    """Returns true if the path is a profile subdirectory."""
+    if not tf.io.gfile.isdir(path):
+        return False
+    dirs = tf.io.gfile.listdir(path)
+    return "plugins/" in dirs or "plugins" in dirs
+
+
+def get_plugins_subdirectories(path):
+    """Returns a list of plugins subdirectories within the given path."""
+    if not tf.io.gfile.exists(path):
+        # No directory to traverse.
+        logger.warning("Directory does not exist: %s", str(path))
+        return ()
+
+    current_glob_string = os.path.join(path, "*")
+    while True:
+        globs = tf.io.gfile.glob(current_glob_string)
+
+        if not globs:
+            # This subdirectory level lacks files. Terminate.
+            return
+
+        for glob in globs:
+            if is_plugins_subdirectory(glob):
+                yield glob
+
+        # Iterate to the next level of subdirectories.
+        current_glob_string = os.path.join(current_glob_string, "*")
 
 
 class LogdirLoader:
@@ -58,17 +90,21 @@ class LogdirLoader:
         self._directory_loaders = {}
 
     def synchronize_runs(self):
-        """Finds new runs within `logdir` and makes `DirectoryLoaders` for
-        them.
+        """Finds new runs within `logdir` and makes `DirectoryLoaders` for them.
 
         In addition, any existing `DirectoryLoader` whose run directory
         no longer exists will be deleted.
 
-        Modify run name to work with Experiments restrictions.
         """
         logger.info("Starting logdir traversal of %s", self._logdir)
         runs_seen = set()
         for subdir in io_wrapper.GetLogdirSubdirectories(self._logdir):
+            run = os.path.relpath(subdir, self._logdir)
+            runs_seen.add(run)
+            if run not in self._directory_loaders:
+                logger.info("- Adding run for relative directory %s", run)
+                self._directory_loaders[run] = self._directory_loader_factory(subdir)
+        for subdir in get_plugins_subdirectories(self._logdir):
             run = os.path.relpath(subdir, self._logdir)
             runs_seen.add(run)
             if run not in self._directory_loaders:

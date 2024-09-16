@@ -174,6 +174,7 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+        enable_caching: Optional[bool] = None,
     ) -> "_ModelEvaluationJob":
         """Submits a Model Evaluation Job using aiplatform.PipelineJob and returns
         the ModelEvaluationJob resource.
@@ -277,6 +278,16 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
             experiment (Union[str, experiments_resource.Experiment]):
                 Optional. The Vertex AI experiment name or instance to associate to the PipelineJob executing
                 this model evaluation job.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
         Returns:
             (ModelEvaluationJob): Instantiated represnetation of the model evaluation job.
         """
@@ -351,6 +362,7 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
             location=location,
             credentials=credentials,
             experiment=experiment,
+            enable_caching=enable_caching,
         )
 
         _LOGGER.info(
