@@ -45,6 +45,7 @@ from vertexai.preview.rag.utils import (
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     JiraSource,
+    Pinecone,
     RagCorpus,
     RagFile,
     SlackChannelsSource,
@@ -57,7 +58,7 @@ def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
-    vector_db: Optional[Union[Weaviate, VertexFeatureStore]] = None,
+    vector_db: Optional[Union[Weaviate, VertexFeatureStore, Pinecone]] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 

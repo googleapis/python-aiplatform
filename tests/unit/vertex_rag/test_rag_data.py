@@ -80,6 +80,21 @@ def create_rag_corpus_mock_vertex_feature_store():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_pinecone():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_pinecone:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_PINECONE
+        )
+        create_rag_corpus_mock_pinecone.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_pinecone
+
+
+@pytest.fixture
 def list_rag_corpora_pager_mock():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -241,6 +256,15 @@ class TestRagDataManagement:
         )
 
         rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE)
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone")
+    def test_create_corpus_pinecone_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_PINECONE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_PINECONE)
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_create_corpus_failure(self):

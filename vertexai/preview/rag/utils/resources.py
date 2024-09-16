@@ -99,6 +99,20 @@ class VertexFeatureStore:
 
 
 @dataclasses.dataclass
+class Pinecone:
+    """Pinecone.
+
+    Attributes:
+        index_name: The Pinecone index name.
+        api_key: The SecretManager resource name for the Pinecone DB API token. Format:
+            ``projects/{project}/secrets/{secret}/versions/{version}``
+    """
+
+    index_name: str
+    api_key: str
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -115,7 +129,7 @@ class RagCorpus:
     display_name: Optional[str] = None
     description: Optional[str] = None
     embedding_model_config: Optional[EmbeddingModelConfig] = None
-    vector_db: Optional[Union[Weaviate, VertexFeatureStore]] = None
+    vector_db: Optional[Union[Weaviate, VertexFeatureStore, Pinecone]] = None
 
 
 @dataclasses.dataclass

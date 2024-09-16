@@ -38,6 +38,7 @@ from google.cloud.aiplatform.utils import (
 )
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
+    Pinecone,
     RagCorpus,
     RagFile,
     SlackChannelsSource,
@@ -98,8 +99,8 @@ def convert_gapic_to_embedding_model_config(
 
 def convert_gapic_to_vector_db(
     gapic_vector_db: RagVectorDbConfig,
-) -> Union[Weaviate, VertexFeatureStore]:
-    """Convert Gapic RagVectorDbConfig to Weaviate or VertexFeatureStore."""
+) -> Union[Weaviate, VertexFeatureStore, Pinecone]:
+    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, or Pinecone."""
     if gapic_vector_db.__contains__("weaviate"):
         return Weaviate(
             weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
@@ -109,6 +110,11 @@ def convert_gapic_to_vector_db(
     elif gapic_vector_db.__contains__("vertex_feature_store"):
         return VertexFeatureStore(
             resource_name=gapic_vector_db.vertex_feature_store.feature_view_resource_name,
+        )
+    elif gapic_vector_db.__contains__("pinecone"):
+        return Pinecone(
+            index_name=gapic_vector_db.pinecone.index_name,
+            api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
     else:
         return None
@@ -395,7 +401,7 @@ def set_embedding_model_config(
 
 
 def set_vector_db(
-    vector_db: Union[Weaviate, VertexFeatureStore],
+    vector_db: Union[Weaviate, VertexFeatureStore, Pinecone],
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
@@ -423,5 +429,21 @@ def set_vector_db(
                 feature_view_resource_name=resource_name,
             ),
         )
+    elif isinstance(vector_db, Pinecone):
+        index_name = vector_db.index_name
+        api_key = vector_db.api_key
+
+        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
+            pinecone=RagVectorDbConfig.Pinecone(
+                index_name=index_name,
+            ),
+            api_auth=api_auth.ApiAuth(
+                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version=api_key
+                ),
+            ),
+        )
     else:
-        raise TypeError("vector_db must be a Weaviate or VertexFeatureStore.")
+        raise TypeError(
+            "vector_db must be a Weaviate, VertexFeatureStore, or Pinecone."
+        )
