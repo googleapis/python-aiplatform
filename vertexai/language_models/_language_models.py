@@ -2421,7 +2421,6 @@ class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
 
 class TextEmbeddingModel(
     _TextEmbeddingModel,
-    _ModelWithBatchPredict,
     _TunableTextEmbeddingModelMixin,
     _CountTokensMixin,
 ):
@@ -2431,8 +2430,8 @@ class TextEmbeddingModel(
 class _PreviewTextEmbeddingModel(
     _TextEmbeddingModel,
     _ModelWithBatchPredict,
-    _PreviewTunableTextEmbeddingModelMixin,
     _CountTokensMixin,
+    _PreviewTunableTextEmbeddingModelMixin,
 ):
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"

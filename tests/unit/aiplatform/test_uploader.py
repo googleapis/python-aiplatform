@@ -591,11 +591,6 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         with self.assertRaisesRegex(RuntimeError, "call create_experiment()"):
             uploader.start_uploading()
 
-    @parameterized.parameters(
-        {"nested_run_dir": ""},
-        {"nested_run_dir": "nested-dir/"},
-        {"nested_run_dir": "double/nested-dir/"},
-    )
     @patch.object(
         uploader_utils.OnePlatformResourceManager,
         "get_run_resource_name",
@@ -604,11 +599,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)
     def test_start_uploading_scalars(
-        self,
-        experiment_resources_mock,
-        experiment_tracker_mock,
-        run_resource_mock,
-        nested_run_dir,
+        self, experiment_resources_mock, experiment_tracker_mock, run_resource_mock
     ):
         experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
         experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
@@ -637,21 +628,21 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         mock_logdir_loader = mock.create_autospec(logdir_loader.LogdirLoader)
         mock_logdir_loader.get_run_events.side_effect = [
             {
-                f"{nested_run_dir}run 1": _apply_compat(
+                "run 1": _apply_compat(
                     [_scalar_event("1.1", 5.0), _scalar_event("1.2", 5.0)]
                 ),
-                f"{nested_run_dir}run 2": _apply_compat(
+                "run 2": _apply_compat(
                     [_scalar_event("2.1", 5.0), _scalar_event("2.2", 5.0)]
                 ),
             },
             {
-                f"{nested_run_dir}run 3": _apply_compat(
+                "run 3": _apply_compat(
                     [_scalar_event("3.1", 5.0), _scalar_event("3.2", 5.0)]
                 ),
-                f"{nested_run_dir}run 4": _apply_compat(
+                "run 4": _apply_compat(
                     [_scalar_event("4.1", 5.0), _scalar_event("4.2", 5.0)]
                 ),
-                f"{nested_run_dir}run 5": _apply_compat(
+                "run 5": _apply_compat(
                     [_scalar_event("5.1", 5.0), _scalar_event("5.2", 5.0)]
                 ),
             },
@@ -675,20 +666,11 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
 
     @parameterized.parameters(
-        {
-            "existing_experiment": None,
-            "one_platform_run_name": None,
-            "nested_run_dir": "",
-        },
-        {
-            "existing_experiment": None,
-            "one_platform_run_name": ".",
-            "nested_run_dir": "nested-dir/",
-        },
+        {"existing_experiment": None, "one_platform_run_name": None},
+        {"existing_experiment": None, "one_platform_run_name": "."},
         {
             "existing_experiment": _TEST_EXPERIMENT_NAME,
             "one_platform_run_name": _TEST_ONE_PLATFORM_RUN_NAME,
-            "nested_run_dir": "double/nested-dir/",
         },
     )
     @patch.object(
@@ -711,7 +693,6 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         run_resource_mock,
         existing_experiment,
         one_platform_run_name,
-        nested_run_dir,
     ):
         """Check that one-shot uploading stops without AbortUploadError."""
 
@@ -779,10 +760,10 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         mock_logdir_loader = mock.create_autospec(logdir_loader.LogdirLoader)
         mock_logdir_loader.get_run_events.side_effect = [
             {
-                f"{nested_run_dir}run 1": _apply_compat(
+                "run 1": _apply_compat(
                     [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
                 ),
-                f"{nested_run_dir}run 2": _apply_compat(
+                "run 2": _apply_compat(
                     [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
                 ),
             },
@@ -791,10 +772,10 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         mock_logdir_loader_pre_create = mock.create_autospec(logdir_loader.LogdirLoader)
         mock_logdir_loader_pre_create.get_run_events.side_effect = [
             {
-                f"{nested_run_dir}run 1": _apply_compat(
+                "run 1": _apply_compat(
                     [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
                 ),
-                f"{nested_run_dir}run 2": _apply_compat(
+                "run 2": _apply_compat(
                     [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
                 ),
             },
@@ -822,52 +803,6 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
         experiment_tracker_mock.set_experiment.assert_called_once()
-
-    @parameterized.parameters(
-        {"nested_run_dir": ""},
-        {"nested_run_dir": "nested-dir/"},
-        {"nested_run_dir": "double/nested-dir/"},
-    )
-    @patch.object(metadata, "_experiment_tracker", autospec=True)
-    @patch.object(experiment_resources, "Experiment", autospec=True)
-    def test_upload_nested_scalars_one_shot(
-        self,
-        experiment_resources_mock,
-        experiment_tracker_mock,
-        nested_run_dir,
-    ):
-        """Check that one-shot uploading stops without AbortUploadError."""
-
-        logdir = self.get_temp_dir()
-        uploader = _create_uploader(
-            logdir=logdir,
-        )
-        uploader.create_experiment()
-
-        run_1 = f"{nested_run_dir}run 1"
-        run_2 = f"{nested_run_dir}run 2"
-
-        mock_dispatcher = mock.create_autospec(uploader_lib._Dispatcher)
-        uploader._dispatcher = mock_dispatcher
-        mock_logdir_loader = mock.create_autospec(logdir_loader.LogdirLoader)
-        mock_logdir_loader.get_run_events.side_effect = [
-            {
-                run_1: _apply_compat(
-                    [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
-                ),
-                run_2: _apply_compat(
-                    [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
-                ),
-            },
-        ]
-        with mock.patch.object(uploader, "_logdir_loader", mock_logdir_loader):
-            uploader._upload_once()
-
-        self.assertEqual(1, mock_logdir_loader.get_run_events.call_count)
-        self.assertEqual(1, mock_dispatcher.dispatch_requests.call_count)
-        run_to_events = mock_dispatcher.dispatch_requests.call_args[0][0]
-        self.assertIn(run_1, run_to_events)
-        self.assertIn(run_2, run_to_events)
 
     @patch.object(metadata, "_experiment_tracker", autospec=True)
     @patch.object(experiment_resources, "Experiment", autospec=True)

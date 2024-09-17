@@ -4705,9 +4705,6 @@ def test_create_index_endpoint_rest(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
-                ],
             }
         ],
         "etag": "etag_value",
@@ -5899,9 +5896,6 @@ def test_update_index_endpoint_rest(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
-                ],
             }
         ],
         "etag": "etag_value",
@@ -7330,9 +7324,6 @@ def test_mutate_deployed_index_rest(request_type):
             "reserved_ip_ranges_value2",
         ],
         "deployment_group": "deployment_group_value",
-        "psc_automation_configs": [
-            {"project_id": "project_id_value", "network": "network_value"}
-        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

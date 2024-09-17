@@ -99,23 +99,6 @@ class VertexFeatureStore:
 
 
 @dataclasses.dataclass
-class VertexVectorSearch:
-    """VertexVectorSearch.
-
-    Attributes:
-        index_endpoint (str):
-            The resource name of the Index Endpoint. Format:
-            ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
-        index (str):
-            The resource name of the Index. Format:
-            ``projects/{project}/locations/{location}/indexes/{index}``
-    """
-
-    index_endpoint: str
-    index: str
-
-
-@dataclasses.dataclass
 class Pinecone:
     """Pinecone.
 
@@ -146,9 +129,7 @@ class RagCorpus:
     display_name: Optional[str] = None
     description: Optional[str] = None
     embedding_model_config: Optional[EmbeddingModelConfig] = None
-    vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]
-    ] = None
+    vector_db: Optional[Union[Weaviate, VertexFeatureStore, Pinecone]] = None
 
 
 @dataclasses.dataclass

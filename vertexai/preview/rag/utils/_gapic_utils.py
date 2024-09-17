@@ -44,7 +44,6 @@ from vertexai.preview.rag.utils.resources import (
     SlackChannelsSource,
     JiraSource,
     VertexFeatureStore,
-    VertexVectorSearch,
     Weaviate,
 )
 
@@ -98,57 +97,24 @@ def convert_gapic_to_embedding_model_config(
     return embedding_model_config
 
 
-def _check_weaviate(gapic_vector_db: RagVectorDbConfig) -> bool:
-    try:
-        return gapic_vector_db.__contains__("weaviate")
-    except AttributeError:
-        return gapic_vector_db.weaviate.ByteSize() > 0
-
-
-def _check_vertex_feature_store(gapic_vector_db: RagVectorDbConfig) -> bool:
-    try:
-        return gapic_vector_db.__contains__("vertex_feature_store")
-    except AttributeError:
-        return gapic_vector_db.vertex_feature_store.ByteSize() > 0
-
-
-def _check_pinecone(gapic_vector_db: RagVectorDbConfig) -> bool:
-    try:
-        return gapic_vector_db.__contains__("pinecone")
-    except AttributeError:
-        return gapic_vector_db.pinecone.ByteSize() > 0
-
-
-def _check_vertex_vector_search(gapic_vector_db: RagVectorDbConfig) -> bool:
-    try:
-        return gapic_vector_db.__contains__("vertex_vector_search")
-    except AttributeError:
-        return gapic_vector_db.vertex_vector_search.ByteSize() > 0
-
-
 def convert_gapic_to_vector_db(
     gapic_vector_db: RagVectorDbConfig,
-) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]:
-    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, VertexVectorSearch, or Pinecone."""
-    if _check_weaviate(gapic_vector_db):
+) -> Union[Weaviate, VertexFeatureStore, Pinecone]:
+    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, or Pinecone."""
+    if gapic_vector_db.__contains__("weaviate"):
         return Weaviate(
             weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
             collection_name=gapic_vector_db.weaviate.collection_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
-    elif _check_vertex_feature_store(gapic_vector_db):
+    elif gapic_vector_db.__contains__("vertex_feature_store"):
         return VertexFeatureStore(
             resource_name=gapic_vector_db.vertex_feature_store.feature_view_resource_name,
         )
-    elif _check_pinecone(gapic_vector_db):
+    elif gapic_vector_db.__contains__("pinecone"):
         return Pinecone(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
-        )
-    elif _check_vertex_vector_search(gapic_vector_db):
-        return VertexVectorSearch(
-            index_endpoint=gapic_vector_db.vertex_vector_search.index_endpoint,
-            index=gapic_vector_db.vertex_vector_search.index,
         )
     else:
         return None
@@ -452,7 +418,7 @@ def set_embedding_model_config(
 
 
 def set_vector_db(
-    vector_db: Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone],
+    vector_db: Union[Weaviate, VertexFeatureStore, Pinecone],
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
@@ -480,16 +446,6 @@ def set_vector_db(
                 feature_view_resource_name=resource_name,
             ),
         )
-    elif isinstance(vector_db, VertexVectorSearch):
-        index_endpoint = vector_db.index_endpoint
-        index = vector_db.index
-
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
-                index_endpoint=index_endpoint,
-                index=index,
-            ),
-        )
     elif isinstance(vector_db, Pinecone):
         index_name = vector_db.index_name
         api_key = vector_db.api_key
@@ -506,5 +462,5 @@ def set_vector_db(
         )
     else:
         raise TypeError(
-            "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, or Pinecone."
+            "vector_db must be a Weaviate, VertexFeatureStore, or Pinecone."
         )

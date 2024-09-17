@@ -3456,7 +3456,6 @@ def test_create_cached_content_rest(request_type):
                             "max_length": 1063,
                             "pattern": "pattern_value",
                             "example": {},
-                            "any_of": {},
                         },
                         "response": {},
                     }
@@ -4279,7 +4278,6 @@ def test_update_cached_content_rest(request_type):
                             "max_length": 1063,
                             "pattern": "pattern_value",
                             "example": {},
-                            "any_of": {},
                         },
                         "response": {},
                     }
