@@ -247,6 +247,7 @@ def prepare_import_files_request(
     chunk_overlap: int = 200,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: bool = False,
+    partial_failures_sink: Optional[str] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -288,6 +289,22 @@ def prepare_import_files_request(
                 resource_ids=resource_ids,
             )
             import_rag_files_config.google_drive_source = google_drive_source
+
+    if partial_failures_sink is not None:
+        if partial_failures_sink.startswith("gs://"):
+            import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = (
+                partial_failures_sink
+            )
+        elif partial_failures_sink.startswith(
+            "bq://"
+        ) or partial_failures_sink.startswith("bigquery://"):
+            import_rag_files_config.partial_failure_bigquery_sink.output_uri = (
+                partial_failures_sink
+            )
+        else:
+            raise ValueError(
+                "if provided, partial_failures_sink must be a GCS path or a BigQuery table."
+            )
 
     request = ImportRagFilesRequest(
         parent=corpus_name, import_rag_files_config=import_rag_files_config

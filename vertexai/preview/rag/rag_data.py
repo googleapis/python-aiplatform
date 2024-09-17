@@ -293,6 +293,7 @@ def import_files(
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
+    partial_failures_sink: Optional[str] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -378,6 +379,14 @@ def import_files(
         timeout: Default is 600 seconds.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files.
+        partial_failures_sink: Either a GCS path to store partial failures or a
+            BigQuery table to store partial failures. The format is
+            "gs://my-bucket/my/object.ndjson" for GCS or
+            "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
+            object cannot be used. However, the BigQuery table may or may not
+            exist - if it does not exist, it will be created. If it does exist,
+            the schema will be checked and the partial failures will be appended
+            to the table.
     Returns:
         ImportRagFilesResponse.
     """
@@ -394,6 +403,7 @@ def import_files(
         chunk_overlap=chunk_overlap,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+        partial_failures_sink=partial_failures_sink,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -412,6 +422,7 @@ async def import_files_async(
     chunk_overlap: int = 200,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
+    partial_failures_sink: Optional[str] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -497,6 +508,14 @@ async def import_files_async(
             QPM would be used.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files.
+        partial_failures_sink: Either a GCS path to store partial failures or a
+            BigQuery table to store partial failures. The format is
+            "gs://my-bucket/my/object.ndjson" for GCS or
+            "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
+            object cannot be used. However, the BigQuery table may or may not
+            exist - if it does not exist, it will be created. If it does exist,
+            the schema will be checked and the partial failures will be appended
+            to the table.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -513,6 +532,7 @@ async def import_files_async(
         chunk_overlap=chunk_overlap,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+        partial_failures_sink=partial_failures_sink,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
