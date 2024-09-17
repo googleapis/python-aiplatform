@@ -386,6 +386,7 @@ class TensorBoardUploader(object):
                 if (run_name and run_name != ".")
                 else uploader_utils.DEFAULT_RUN_NAME
             )
+            run_name = uploader_utils.reformat_run_name(run_name)
             run_names.append(run_name)
             for event in events:
                 _filter_graph_defs(event)
