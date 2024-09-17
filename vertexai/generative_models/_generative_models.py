@@ -39,6 +39,11 @@ from typing import (
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform_v1 import types as types_v1
+from google.cloud.aiplatform_v1.services import (
+    prediction_service as prediction_service_v1,
+    llm_utility_service as llm_utility_service_v1,
+)
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.services import llm_utility_service
@@ -847,14 +852,11 @@ class _GenerativeModel:
             contents=contents,
             tools=tools,
         )
-        return self._prediction_client.count_tokens(
-            request=gapic_prediction_service_types.CountTokensRequest(
-                endpoint=self._prediction_resource_name,
-                model=self._prediction_resource_name,
-                contents=request.contents,
-                system_instruction=request.system_instruction,
-                tools=request.tools,
-            )
+        return self._gapic_count_tokens(
+            prediction_resource_name=self._prediction_resource_name,
+            contents=request.contents,
+            system_instruction=request.system_instruction,
+            tools=request.tools,
         )
 
     async def count_tokens_async(
@@ -884,15 +886,44 @@ class _GenerativeModel:
             contents=contents,
             tools=tools,
         )
-        return await self._prediction_async_client.count_tokens(
-            request=gapic_prediction_service_types.CountTokensRequest(
-                endpoint=self._prediction_resource_name,
-                model=self._prediction_resource_name,
-                contents=request.contents,
-                system_instruction=request.system_instruction,
-                tools=request.tools,
-            )
+        return await self._gapic_count_tokens_async(
+            prediction_resource_name=self._prediction_resource_name,
+            contents=request.contents,
+            system_instruction=request.system_instruction,
+            tools=request.tools,
         )
+
+    def _gapic_count_tokens(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+        system_instruction: Optional[gapic_content_types.Content] = None,
+        tools: Optional[List[gapic_tool_types.Tool]] = None,
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_prediction_service_types.CountTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+            system_instruction=system_instruction,
+            tools=tools,
+        )
+        return self._prediction_client.count_tokens(request=request)
+
+    async def _gapic_count_tokens_async(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+        system_instruction: Optional[gapic_content_types.Content] = None,
+        tools: Optional[List[gapic_tool_types.Tool]] = None,
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_prediction_service_types.CountTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+            system_instruction=system_instruction,
+            tools=tools,
+        )
+        return await self._prediction_async_client.count_tokens(request=request)
 
     def compute_tokens(
         self, contents: ContentsType
@@ -917,12 +948,9 @@ class _GenerativeModel:
                              info consists tokens list, token_ids list and
                              a role.
         """
-        return self._llm_utility_client.compute_tokens(
-            request=gapic_llm_utility_service_types.ComputeTokensRequest(
-                endpoint=self._prediction_resource_name,
-                model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
-            )
+        return self._gapic_compute_tokens(
+            prediction_resource_name=self._prediction_resource_name,
+            contents=self._prepare_request(contents=contents).contents,
         )
 
     async def compute_tokens_async(
@@ -948,13 +976,34 @@ class _GenerativeModel:
                              info consists tokens list, token_ids list and
                              a role.
         """
-        return await self._llm_utility_async_client.compute_tokens(
-            request=gapic_llm_utility_service_types.ComputeTokensRequest(
-                endpoint=self._prediction_resource_name,
-                model=self._prediction_resource_name,
-                contents=self._prepare_request(contents=contents).contents,
-            )
+        return await self._gapic_compute_tokens_async(
+            prediction_resource_name=self._prediction_resource_name,
+            contents=self._prepare_request(contents=contents).contents,
         )
+
+    def _gapic_compute_tokens(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+        )
+        return self._llm_utility_client.compute_tokens(request=request)
+
+    async def _gapic_compute_tokens_async(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+        )
+        return await self._llm_utility_async_client.compute_tokens(request=request)
 
     def start_chat(
         self,
@@ -2771,6 +2820,164 @@ class AutomaticFunctionCallingResponder:
 
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
+
+    @property
+    def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_client_value", None):
+            self._prediction_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=prediction_service_v1.PredictionServiceClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_client_value
+
+    @property
+    def _prediction_async_client(
+        self,
+    ) -> prediction_service_v1.PredictionServiceAsyncClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_async_client_value", None):
+            self._prediction_async_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=prediction_service_v1.PredictionServiceAsyncClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_async_client_value
+
+    @property
+    def _llm_utility_client(self) -> llm_utility_service_v1.LlmUtilityServiceClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_llm_utility_client_value", None):
+            self._llm_utility_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=llm_utility_service_v1.LlmUtilityServiceClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._llm_utility_client_value
+
+    @property
+    def _llm_utility_async_client(
+        self,
+    ) -> llm_utility_service_v1.LlmUtilityServiceAsyncClient:
+        # Switch to @functools.cached_property once its available.
+        if not getattr(self, "_llm_utility_async_client_value", None):
+            self._llm_utility_async_client_value = (
+                aiplatform_initializer.global_config.create_client(
+                    client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
+                    location_override=self._location,
+                    prediction_client=True,
+                )
+            )
+        return self._llm_utility_async_client_value
+
+    def _prepare_request(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        system_instruction: Optional[PartsType] = None,
+    ) -> types_v1.GenerateContentRequest:
+        """Prepares a GAPIC GenerateContentRequest."""
+        request_v1beta1 = super()._prepare_request(
+            contents=contents,
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            tools=tools,
+            tool_config=tool_config,
+            system_instruction=system_instruction,
+        )
+        serialized_message_v1beta1 = type(request_v1beta1).serialize(request_v1beta1)
+        try:
+            response_v1 = types_v1.GenerateContentRequest.deserialize(
+                serialized_message_v1beta1
+            )
+        except Exception as ex:
+            raise ValueError(
+                "Failed to convert GenerateContentRequest from v1beta1 to v1:\n"
+                f"{serialized_message_v1beta1}"
+            ) from ex
+        return response_v1
+
+    def _parse_response(
+        self,
+        response: types_v1.GenerateContentResponse,
+    ) -> "GenerationResponse":
+        response_v1beta1 = aiplatform_types.GenerateContentResponse.deserialize(
+            type(response).serialize(response)
+        )
+        return super()._parse_response(
+            response=response_v1beta1,
+        )
+
+    # The count_tokens methods need to be overridden since in v1, the
+    # `count_tokens` method is implemented by the `LLMUtilityService` API
+    # not the `PredictionService` API.
+    def _gapic_count_tokens(
+        self,
+        prediction_resource_name: str,
+        contents: List[types_v1.Content],
+        system_instruction: Optional[types_v1.Content] = None,
+        tools: Optional[List[types_v1.Tool]] = None,
+    ) -> types_v1.CountTokensResponse:
+        request = types_v1.CountTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+            system_instruction=system_instruction,
+            tools=tools,
+        )
+        return self._llm_utility_client.count_tokens(request=request)
+
+    async def _gapic_count_tokens_async(
+        self,
+        prediction_resource_name: str,
+        contents: List[types_v1.Content],
+        system_instruction: Optional[types_v1.Content] = None,
+        tools: Optional[List[types_v1.Tool]] = None,
+    ) -> types_v1.CountTokensResponse:
+        request = types_v1.CountTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+            system_instruction=system_instruction,
+            tools=tools,
+        )
+        return await self._llm_utility_async_client.count_tokens(request=request)
+
+    # The compute_tokens methods need to be overridden since the request types differ.
+    def _gapic_compute_tokens(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+        )
+        return self._llm_utility_client.compute_tokens(request=request)
+
+    async def _gapic_compute_tokens_async(
+        self,
+        prediction_resource_name: str,
+        contents: List[gapic_content_types.Content],
+    ) -> gapic_prediction_service_types.CountTokensResponse:
+        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+            endpoint=prediction_resource_name,
+            model=prediction_resource_name,
+            contents=contents,
+        )
+        return await self._llm_utility_async_client.compute_tokens(request=request)
 
 
 class _PreviewGenerativeModel(_GenerativeModel):

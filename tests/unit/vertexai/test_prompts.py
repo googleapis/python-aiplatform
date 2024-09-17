@@ -36,10 +36,10 @@ from typing import Any, List, MutableSequence, Optional
 # TODO(b/360932655): Use mock_generate_content from test_generative_models
 from vertexai.preview import rag
 from vertexai.generative_models._generative_models import (
-    prediction_service,
-    gapic_prediction_service_types,
-    gapic_content_types,
-    gapic_tool_types,
+    prediction_service_v1 as prediction_service,
+    types_v1 as gapic_prediction_service_types,
+    types_v1 as gapic_content_types,
+    types_v1 as gapic_tool_types,
 )
 
 

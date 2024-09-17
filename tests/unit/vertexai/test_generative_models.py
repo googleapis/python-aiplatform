@@ -23,6 +23,11 @@ from unittest import mock
 
 import vertexai
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1 import types as types_v1
+from google.cloud.aiplatform_v1.services import (
+    prediction_service as prediction_service_v1,
+)
+from google.cloud.aiplatform_v1beta1 import types as types_v1beta1
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
@@ -326,6 +331,72 @@ def mock_stream_generate_content(
         yield blocked_chunk
 
 
+def mock_generate_content_v1(
+    self,
+    request: types_v1.GenerateContentRequest,
+    *,
+    model: Optional[str] = None,
+    contents: Optional[MutableSequence[types_v1.Content]] = None,
+) -> types_v1.GenerateContentResponse:
+    request_v1beta1 = types_v1beta1.GenerateContentRequest.deserialize(
+        type(request).serialize(request)
+    )
+    response_v1beta1 = mock_generate_content(
+        self=self,
+        request=request_v1beta1,
+    )
+    response_v1 = types_v1.GenerateContentResponse.deserialize(
+        type(response_v1beta1).serialize(response_v1beta1)
+    )
+    return response_v1
+
+
+def mock_stream_generate_content_v1(
+    self,
+    request: types_v1.GenerateContentRequest,
+    *,
+    model: Optional[str] = None,
+    contents: Optional[MutableSequence[types_v1.Content]] = None,
+) -> Iterable[types_v1.GenerateContentResponse]:
+    request_v1beta1 = types_v1beta1.GenerateContentRequest.deserialize(
+        type(request).serialize(request)
+    )
+    for response_v1beta1 in mock_stream_generate_content(
+        self=self,
+        request=request_v1beta1,
+    ):
+        response_v1 = types_v1.GenerateContentResponse.deserialize(
+            type(response_v1beta1).serialize(response_v1beta1)
+        )
+        yield response_v1
+
+
+def patch_genai_services(func: callable):
+    """Patches GenAI services (v1 and v1beta1, streaming and non-streaming)."""
+
+    func = mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )(func)
+    func = mock.patch.object(
+        target=prediction_service_v1.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content_v1,
+    )(func)
+    func = mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="stream_generate_content",
+        new=mock_stream_generate_content,
+    )(func)
+    func = mock.patch.object(
+        target=prediction_service_v1.PredictionServiceClient,
+        attribute="stream_generate_content",
+        new=mock_stream_generate_content_v1,
+    )(func)
+    return func
+
+
 @pytest.fixture
 def mock_get_cached_content_fixture():
     """Mocks GenAiCacheServiceClient.get_cached_content()."""
@@ -376,11 +447,6 @@ class TestGenerativeModels:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -489,11 +555,7 @@ class TestGenerativeModels:
             == "cached-content-id-in-from-cached-content-test"
         )
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -601,11 +663,7 @@ class TestGenerativeModels:
 
         assert response.text == "response to " + cached_content.resource_name
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="stream_generate_content",
-        new=mock_stream_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -616,11 +674,7 @@ class TestGenerativeModels:
         for chunk in stream:
             assert chunk.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -668,11 +722,7 @@ class TestGenerativeModels:
         assert e.match("no text")
         assert e.match("function_call")
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -685,11 +735,7 @@ class TestGenerativeModels:
         response2 = chat.send_message("Is sky blue on other planets?")
         assert response2.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="stream_generate_content",
-        new=mock_stream_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -704,11 +750,7 @@ class TestGenerativeModels:
         for chunk in stream2:
             assert chunk.candidates
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -727,11 +769,7 @@ class TestGenerativeModels:
         # Checking that history did not get updated
         assert len(chat.history) == 2
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -754,11 +792,7 @@ class TestGenerativeModels:
         # Checking that history did not get updated
         assert len(chat.history) == 2
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -775,11 +809,7 @@ class TestGenerativeModels:
         # Checking that history did not get updated
         assert not chat.history
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -808,11 +838,7 @@ class TestGenerativeModels:
         # Verify that history did not get updated
         assert not chat.history
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -861,11 +887,7 @@ class TestGenerativeModels:
         assert "nice" in response2.text
         assert not response2.candidates[0].function_calls
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -922,11 +944,7 @@ class TestGenerativeModels:
         assert "nice" in response2.text
         assert not response2.candidates[0].function_calls
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     @pytest.mark.parametrize(
         "generative_models",
         [generative_models, preview_generative_models],
@@ -982,11 +1000,7 @@ class TestGenerativeModels:
         # Checking that the enums are serialized as strings, not integers.
         assert response.to_dict()["candidates"][0]["finish_reason"] == "STOP"
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_generate_content_grounding_google_search_retriever_preview(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
@@ -999,11 +1013,7 @@ class TestGenerativeModels:
         )
         assert response.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_generate_content_grounding_google_search_retriever(self):
         model = generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
@@ -1016,11 +1026,7 @@ class TestGenerativeModels:
         )
         assert response.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_generate_content_grounding_vertex_ai_search_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
@@ -1035,11 +1041,7 @@ class TestGenerativeModels:
         )
         assert response.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_generate_content_grounding_vertex_ai_search_retriever_with_project_and_location(
         self,
     ):
@@ -1058,11 +1060,7 @@ class TestGenerativeModels:
         )
         assert response.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_generate_content_vertex_rag_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         rag_resources = [
@@ -1085,11 +1083,7 @@ class TestGenerativeModels:
         )
         assert response.text
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_chat_automatic_function_calling_with_function_returning_dict(self):
         generative_models = preview_generative_models
         get_current_weather_func = generative_models.FunctionDeclaration.from_func(
@@ -1124,11 +1118,7 @@ class TestGenerativeModels:
             chat2.send_message("What is the weather like in Boston?")
         assert err.match("Exceeded the maximum")
 
-    @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
-        attribute="generate_content",
-        new=mock_generate_content,
-    )
+    @patch_genai_services
     def test_chat_automatic_function_calling_with_function_returning_value(self):
         # Define a new function that returns a value instead of a dict.
         def get_current_weather(location: str):
