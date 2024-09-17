@@ -29,6 +29,7 @@ from vertexai.preview.rag import (
     JiraSource,
     JiraQuery,
     Weaviate,
+    VertexVectorSearch,
     VertexFeatureStore,
 )
 from google.cloud.aiplatform_v1beta1 import (
@@ -78,6 +79,12 @@ TEST_PINECONE_CONFIG = Pinecone(
     index_name=TEST_PINECONE_INDEX_NAME,
     api_key=TEST_PINECONE_API_KEY_SECRET_VERSION,
 )
+TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT = "test-vector-search-index-endpoint"
+TEST_VERTEX_VECTOR_SEARCH_INDEX = "test-vector-search-index"
+TEST_VERTEX_VECTOR_SEARCH_CONFIG = VertexVectorSearch(
+    index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
+    index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
+)
 TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME = "test-feature-view-resource-name"
 TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -112,6 +119,17 @@ TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE = GapicRagCorpus(
     rag_vector_db_config=RagVectorDbConfig(
         vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
             feature_view_resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME
+        ),
+    ),
+)
+TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    rag_vector_db_config=RagVectorDbConfig(
+        vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
+            index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
+            index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
         ),
     ),
 )
@@ -157,6 +175,12 @@ TEST_RAG_CORPUS_PINECONE = RagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
     vector_db=TEST_PINECONE_CONFIG,
+)
+TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 

@@ -44,6 +44,7 @@ from vertexai.preview.rag.utils.resources import (
     SlackChannelsSource,
     JiraSource,
     VertexFeatureStore,
+    VertexVectorSearch,
     Weaviate,
 )
 
@@ -99,8 +100,8 @@ def convert_gapic_to_embedding_model_config(
 
 def convert_gapic_to_vector_db(
     gapic_vector_db: RagVectorDbConfig,
-) -> Union[Weaviate, VertexFeatureStore, Pinecone]:
-    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, or Pinecone."""
+) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]:
+    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, VertexVectorSearch, or Pinecone."""
     if gapic_vector_db.__contains__("weaviate"):
         return Weaviate(
             weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
@@ -115,6 +116,11 @@ def convert_gapic_to_vector_db(
         return Pinecone(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
+        )
+    elif gapic_vector_db.__contains__("vertex_vector_search"):
+        return VertexVectorSearch(
+            index_endpoint=gapic_vector_db.vertex_vector_search.index_endpoint,
+            index=gapic_vector_db.vertex_vector_search.index,
         )
     else:
         return None
@@ -418,7 +424,7 @@ def set_embedding_model_config(
 
 
 def set_vector_db(
-    vector_db: Union[Weaviate, VertexFeatureStore, Pinecone],
+    vector_db: Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone],
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
@@ -446,6 +452,16 @@ def set_vector_db(
                 feature_view_resource_name=resource_name,
             ),
         )
+    elif isinstance(vector_db, VertexVectorSearch):
+        index_endpoint = vector_db.index_endpoint
+        index = vector_db.index
+
+        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
+            vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
+                index_endpoint=index_endpoint,
+                index=index,
+            ),
+        )
     elif isinstance(vector_db, Pinecone):
         index_name = vector_db.index_name
         api_key = vector_db.api_key
@@ -462,5 +478,5 @@ def set_vector_db(
         )
     else:
         raise TypeError(
-            "vector_db must be a Weaviate, VertexFeatureStore, or Pinecone."
+            "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, or Pinecone."
         )
