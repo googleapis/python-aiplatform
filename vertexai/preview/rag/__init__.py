@@ -47,6 +47,7 @@ from vertexai.preview.rag.utils.resources import (
     SlackChannel,
     SlackChannelsSource,
     VertexFeatureStore,
+    VertexVectorSearch,
     Weaviate,
 )
 
@@ -64,6 +65,7 @@ __all__ = (
     "SlackChannelsSource",
     "VertexFeatureStore",
     "VertexRagStore",
+    "VertexVectorSearch",
     "Weaviate",
     "create_corpus",
     "delete_corpus",
