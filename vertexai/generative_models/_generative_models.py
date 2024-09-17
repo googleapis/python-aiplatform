@@ -2960,7 +2960,7 @@ class GenerativeModel(_GenerativeModel):
         prediction_resource_name: str,
         contents: List[gapic_content_types.Content],
     ) -> gapic_prediction_service_types.CountTokensResponse:
-        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+        request = types_v1.ComputeTokensRequest(
             endpoint=prediction_resource_name,
             model=prediction_resource_name,
             contents=contents,
@@ -2972,7 +2972,7 @@ class GenerativeModel(_GenerativeModel):
         prediction_resource_name: str,
         contents: List[gapic_content_types.Content],
     ) -> gapic_prediction_service_types.CountTokensResponse:
-        request = gapic_llm_utility_service_types.ComputeTokensRequest(
+        request = types_v1.ComputeTokensRequest(
             endpoint=prediction_resource_name,
             model=prediction_resource_name,
             contents=contents,
