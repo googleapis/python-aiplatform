@@ -110,7 +110,7 @@ ray_extra_require = [
         " 2.21.*, !=2.22.*, !=2.23.*, !=2.24.*, !=2.25.*, !=2.26.*, !=2.27.*, !="
         " 2.28.*, !=2.29.*, !=2.30.*, !=2.31.*, !=2.32.*; python_version<'3.11'"
     ),
-    # To avoid  ImportError: cannot import name 'packaging' from 'pkg)resources'
+    # To avoid  ImportError: cannot import name 'packaging' from 'pkg_resources'
     "setuptools < 70.0.0",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
     "ray[default] >= 2.5, <= 2.33.0; python_version=='3.11'",
@@ -118,9 +118,6 @@ ray_extra_require = [
     "google-cloud-bigquery",
     "pandas >= 1.0.0, < 2.2.0",
     "pyarrow >= 6.0.1",
-    # Workaround for https://github.com/ray-project/ray/issues/36990.
-    # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
-    "pydantic < 2",
     "immutabledict",
 ]
 
