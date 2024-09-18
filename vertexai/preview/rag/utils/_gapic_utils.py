@@ -98,26 +98,54 @@ def convert_gapic_to_embedding_model_config(
     return embedding_model_config
 
 
+def _check_weaviate(gapic_vector_db: RagVectorDbConfig) -> bool:
+    try:
+        return gapic_vector_db.__contains__("weaviate")
+    except AttributeError:
+        return gapic_vector_db.weaviate.ByteSize() > 0
+
+
+def _check_vertex_feature_store(gapic_vector_db: RagVectorDbConfig) -> bool:
+    try:
+        return gapic_vector_db.__contains__("vertex_feature_store")
+    except AttributeError:
+        return gapic_vector_db.vertex_feature_store.ByteSize() > 0
+
+
+def _check_pinecone(gapic_vector_db: RagVectorDbConfig) -> bool:
+    try:
+        return gapic_vector_db.__contains__("pinecone")
+    except AttributeError:
+        return gapic_vector_db.pinecone.ByteSize() > 0
+
+
+def _check_vertex_vector_search(gapic_vector_db: RagVectorDbConfig) -> bool:
+    try:
+        return gapic_vector_db.__contains__("vertex_vector_search")
+    except AttributeError:
+        return gapic_vector_db.vertex_vector_search.ByteSize() > 0
+
+
 def convert_gapic_to_vector_db(
     gapic_vector_db: RagVectorDbConfig,
 ) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]:
     """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, VertexVectorSearch, or Pinecone."""
-    if gapic_vector_db.__contains__("weaviate"):
+    if _check_weaviate(gapic_vector_db):
         return Weaviate(
             weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
             collection_name=gapic_vector_db.weaviate.collection_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
-    elif gapic_vector_db.__contains__("vertex_feature_store"):
+    elif _check_vertex_feature_store(gapic_vector_db):
         return VertexFeatureStore(
             resource_name=gapic_vector_db.vertex_feature_store.feature_view_resource_name,
         )
-    elif gapic_vector_db.__contains__("pinecone"):
+    elif _check_pinecone(gapic_vector_db):
         return Pinecone(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
-    elif gapic_vector_db.__contains__("vertex_vector_search"):
+    elif _check_vertex_vector_search(gapic_vector_db):
         return VertexVectorSearch(
             index_endpoint=gapic_vector_db.vertex_vector_search.index_endpoint,
             index=gapic_vector_db.vertex_vector_search.index,
