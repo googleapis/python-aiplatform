@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.67.0](https://github.com/googleapis/python-aiplatform/compare/v1.66.0...v1.67.0) (2024-09-17)
+
+
+### Features
+
+* Add support for partial failures sink in import rag files. ([07e471e](https://github.com/googleapis/python-aiplatform/commit/07e471e0a069551f2c855e167e549fa92ac6af95))
+* Adding Feature Store Vector DB option for RAG corpuses to SDK ([cfc3421](https://github.com/googleapis/python-aiplatform/commit/cfc3421fe8a883d459b66ed8c9f39697ded23f20))
+* Adding Pinecone Vector DB option for RAG corpuses to SDK ([f78b953](https://github.com/googleapis/python-aiplatform/commit/f78b953f561b8697d07a530e89c7e727db1161ed))
+* Adding Vertex Vector Search Vector DB option for RAG corpuses to SDK ([f882657](https://github.com/googleapis/python-aiplatform/commit/f882657183e34c8e07baa4b8dc9f45ed8bca9db7))
+* Allow customizing pipeline caching options for model evaluation jobs. ([73490b2](https://github.com/googleapis/python-aiplatform/commit/73490b22a239cb1a3c31349f8db6cfbc5232e231))
+* GenAI - Switched the GA version of the `generative_models` classes to use the v1  service APIs instead of v1beta1 ([66d84af](https://github.com/googleapis/python-aiplatform/commit/66d84afdd5b20f70b3ff62f25cc32ac0b324d5d5))
+
+
+### Bug Fixes
+
+* GenAI - Fixed `GenerativeModel.compute_tokens` for v1 API ([0de2987](https://github.com/googleapis/python-aiplatform/commit/0de298786c43427cb1a20b91cbabd1ce921c16da))
+* Tensorboard - Fix error in tensorboard batch upload of nested dirs ([ab157c8](https://github.com/googleapis/python-aiplatform/commit/ab157c8ead718b2a1a1d13306c1256c1cb2561f1))
+
+
+### Documentation
+
+* Manually add summary overview page. ([0bc608a](https://github.com/googleapis/python-aiplatform/commit/0bc608a9c045007f12325231ed7f0069a40f469b))
+
 ## [1.66.0](https://github.com/googleapis/python-aiplatform/compare/v1.65.0...v1.66.0) (2024-09-11)
 
 
