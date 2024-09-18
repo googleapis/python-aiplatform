@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.67.1](https://github.com/googleapis/python-aiplatform/compare/v1.67.0...v1.67.1) (2024-09-18)
+
+
+### Bug Fixes
+
+* Fix rag corpus creation error ([6083b93](https://github.com/googleapis/python-aiplatform/commit/6083b93848be6ec975c95cd072c8d86357339d02))
+
 ## [1.67.0](https://github.com/googleapis/python-aiplatform/compare/v1.66.0...v1.67.0) (2024-09-17)
 
 
