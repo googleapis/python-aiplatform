@@ -165,7 +165,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         import time
         from unittest import mock
         from vertexai.generative_models._generative_models import (
-            prediction_service,
+            prediction_service_v1 as prediction_service,
         )
 
         gapic_response_time = None
