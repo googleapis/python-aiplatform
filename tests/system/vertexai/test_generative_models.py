@@ -164,7 +164,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     def test_generate_content_latency(self, api_endpoint_env_name):
         import time
         from unittest import mock
-        from vertexai.generative_models._generative_models import (
+        from google.cloud.aiplatform_v1.services import (
             prediction_service,
         )
 
