@@ -1,7 +1,6 @@
 # Vertex Generative AI SDK for Python
 The Vertex Generative AI SDK helps developers use Google's generative AI
 [Gemini models](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/overview)
-and [PaLM language models](http://cloud.google.com/vertex-ai/docs/generative-ai/language-model-overview)
 to build AI-powered features and applications.
 The SDKs support use cases like the following:
 
@@ -25,7 +24,13 @@ For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/do
 
 #### Imports:
 ```python
-from vertexai.generative_models import GenerativeModel, Image, Content, Part, Tool, FunctionDeclaration, GenerationConfig
+import vertexai
+```
+
+#### Initialization:
+
+```python
+vertexai.init(project='my-project', location='us-central1')
 ```
 
 #### Basic generation:
@@ -54,7 +59,7 @@ print(vision_model.generate_content(["What is in the video? ", video_part]))
 ```
 
 #### Chat
-```
+```python
 from vertexai.generative_models import GenerativeModel, Image
 vision_model = GenerativeModel("gemini-ultra-vision")
 vision_chat = vision_model.start_chat()
@@ -64,7 +69,7 @@ print(vision_chat.send_message("What things do I like?."))
 ```
 
 #### System instructions
-```
+```python
 from vertexai.generative_models import GenerativeModel
 model = GenerativeModel(
     "gemini-1.0-pro",
@@ -78,7 +83,7 @@ print(model.generate_content("Why is sky blue?"))
 
 #### Function calling
 
-```
+```python
 # First, create tools that the model is can use to answer your questions.
 # Describe a function by specifying it's schema (JsonSchema format)
 get_current_weather_func = generative_models.FunctionDeclaration(
@@ -132,7 +137,7 @@ print(chat.send_message(
 
 #### Automatic Function calling
 
-```
+```python
 from vertexai.preview.generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
 
 # First, create functions that the model can use to answer your questions.
@@ -179,7 +184,7 @@ print(chat.send_message("What is the weather like in Boston?"))
 
 -  To perform bring-your-own-response(BYOR) evaluation, provide the model responses in the `response` column in the dataset. If a pairwise metric is used for BYOR evaluation, provide the baseline model responses in the `baseline_model_response` column.
 
-```
+```python
 import pandas as pd
 from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
 
@@ -203,7 +208,7 @@ eval_result = eval_task.evaluate(experiment_run_name="eval-experiment-run")
 ```
 -  To perform evaluation with Gemini model inference, specify the `model` parameter with a `GenerativeModel` instance.  The input column name to the model is `prompt` and must be present in the dataset.
 
-```
+```python
 from vertexai.evaluation import EvalTask
 from vertexai.generative_models import GenerativeModel
 
@@ -223,7 +228,7 @@ result = EvalTask(
 
 - If a `prompt_template` is specified, the `prompt` column is not required. Prompts can be assembled from the evaluation dataset, and all prompt template variable names must be present in the dataset columns.
 
-```
+```python
 import pandas as pd
 from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
 from vertexai.generative_models import GenerativeModel
@@ -245,7 +250,7 @@ result = EvalTask(
 parameter with a custom inference function. The input column name to the
 custom inference function is `prompt` and must be present in the dataset.
 
-```
+```python
 from openai import OpenAI
 from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
 
@@ -279,7 +284,7 @@ the `baseline_model` input to a `PairwiseMetric` instance and the candidate
 `model` input to the `EvalTask.evaluate()` function. The input column name
 to both models is `prompt` and must be present in the dataset.
 
-```
+```python
 import pandas as pd
 from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples, PairwiseMetric
 from vertexai.generative_models import GenerativeModel

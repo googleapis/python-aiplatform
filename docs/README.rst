@@ -1,7 +1,12 @@
 Vertex AI SDK for Python
 =================================================
 
-|GA| |pypi| |versions|
+|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
+
+.. note::
+
+   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
+.. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
 
@@ -14,10 +19,15 @@ Vertex AI SDK for Python
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
+.. |unit-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.html
+.. |system-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
+.. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
-.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest/summary_overview
+.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
-
 
 Quick Start
 -----------
@@ -59,7 +69,6 @@ Mac/Linux
     <your-env>/bin/pip install google-cloud-aiplatform
 
 
-
 Windows
 ^^^^^^^
 
@@ -69,6 +78,7 @@ Windows
     virtualenv <your-env>
     <your-env>\Scripts\activate
     <your-env>\Scripts\pip.exe install google-cloud-aiplatform
+
 
 Supported Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -106,18 +116,6 @@ Vertex AI SDK resource based functionality can be used by importing the followin
 .. code-block:: Python
 
     from google.cloud import aiplatform
-
-Vertex AI SDK preview functionality can be used by importing the following namespace:
-
-.. code-block:: Python
-
-    from vertexai import preview
-
-Vertex AI SDK general availability (GA) functionality can be used by importing the following namespace:
-
-.. code-block:: Python
-
-    import vertexai
 
 Initialization
 ^^^^^^^^^^^^^^
@@ -175,8 +173,8 @@ You can also create and import a dataset in separate steps:
     my_dataset = aiplatform.TextDataset.create(
         display_name="my-dataset")
 
-    my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
+    my_dataset.import_data(
+        gcs_source=['gs://path/to/my/dataset.csv'],
         import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
     )
 
@@ -232,7 +230,6 @@ It must write the model artifact to the environment variable populated by the tr
       container_uri="us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-2:latest",
       requirements=["gcsfs==0.7.1"],
       model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
-
   )
 
   model = job.run(my_dataset,
@@ -311,7 +308,6 @@ To deploy a model:
 Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
-
 
 Model Evaluation
 ----------------
@@ -416,7 +412,6 @@ To get predictions from endpoints:
 .. code-block:: Python
 
   endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
 
 To undeploy models from an endpoint:
 
@@ -538,7 +533,6 @@ To use Explanation Metadata in endpoint deployment and model upload:
 
   # To upload a model with explanation
   aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
-
 
 
 Cloud Profiler
