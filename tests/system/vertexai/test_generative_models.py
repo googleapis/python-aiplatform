@@ -495,7 +495,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
         assert summary
 
-    def test_generate_content_model_router(self, gapi_endpoint_env_name):
+    def test_generate_content_model_router(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(SMART_ROUTER_NAME)
         response = model.generate_content(
             contents="Why is sky blue?",
