@@ -1576,6 +1576,7 @@ class GenerationConfig:
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
         seed: Optional[int] = None,
+        routing_config: Optional["RoutingConfig"] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1601,6 +1602,7 @@ class GenerationConfig:
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text. Only valid when
                 response_mime_type is application/json.
+            routing_config: Model routing preference set in the request.
 
         Usage:
             ```
@@ -1636,6 +1638,10 @@ class GenerationConfig:
             response_schema=raw_schema,
             seed=seed,
         )
+        if routing_config is not None:
+            self._raw_generation_config.routing_config = (
+                routing_config._gapic_routing_config
+            )
 
     @classmethod
     def _from_gapic(
@@ -1658,6 +1664,109 @@ class GenerationConfig:
 
     def __repr__(self) -> str:
         return self._raw_generation_config.__repr__()
+
+    class RoutingConfig:
+        r"""The configuration for model router requests.
+
+        The routing config is either one of the two nested classes:
+        - AutoRoutingMode: Automated routing.
+        - ManualRoutingMode: Manual routing.
+
+        Usage:
+        - AutoRoutingMode:
+
+            ```
+            routing_config=generative_models.RoutingConfig(
+                routing_config=generative_models.RoutingConfig.AutoRoutingMode(
+                    model_routing_preference=generative_models.RoutingConfig.AutoRoutingMode.ModelRoutingPreference.BALANCED,
+                ),
+            )
+            ```
+        - ManualRoutingMode:
+
+            ```
+            routing_config=generative_models.RoutingConfig(
+                routing_config=generative_models.RoutingConfig.ManutalRoutingMode(
+                    model_name="gemini-1.5-pro-001",
+                ),
+            )
+            ```
+        """
+
+        def __init__(
+            self,
+            *,
+            routing_config: Union[
+                "GenerationConfig.RoutingConfig.AutoRoutingMode",
+                "GenerationConfig.RoutingConfig.ManualRoutingMode",
+            ],
+        ):
+            if isinstance(routing_config, self.AutoRoutingMode):
+                self._gapic_routing_config = (
+                    gapic_content_types.GenerationConfig.RoutingConfig(
+                        auto_mode=routing_config._gapic_auto_mode
+                    )
+                )
+            else:
+                self._gapic_routing_config = (
+                    gapic_content_types.GenerationConfig.RoutingConfig(
+                        manual_mode=routing_config._gapic_manual_mode
+                    )
+                )
+
+        def __repr__(self):
+            return self._gapic_routing_config.__repr__()
+
+        class AutoRoutingMode:
+            r"""When automated routing is specified, the routing will be
+            determined by the routing model predicted quality and customer provided
+            model routing preference.
+            """
+
+            ModelRoutingPreference = (
+                gapic_content_types.GenerationConfig.RoutingConfig.AutoRoutingMode.ModelRoutingPreference
+            )
+
+            def __init__(
+                self,
+                *,
+                model_routing_preference: "GenerationConfig.RoutingConfig.AutoRoutingMode.ModelRoutingPreference",
+            ):
+                r"""AutoRouingMode constructor
+
+                Args:
+                    model_routing_preference: Model routing preference for the routing request.
+                """
+                self._gapic_auto_mode = (
+                    gapic_content_types.GenerationConfig.RoutingConfig.AutoRoutingMode(
+                        model_routing_preference=model_routing_preference
+                    )
+                )
+
+            def __repr__(self):
+                return self._gapic_auto_mode.__repr__()
+
+        class ManualRoutingMode:
+            r"""When manual routing is set, the specified model will be used
+            directly.
+            """
+
+            def __init__(
+                self,
+                *,
+                model_name: str,
+            ):
+                r"""ManualRoutingMode constructor
+
+                Args:
+                    model_name: The model to use. Only public LLM model names and those that are supported by the router are allowed.
+                """
+                self._gapic_manual_mode = gapic_content_types.GenerationConfig.RoutingConfig.ManualRoutingMode(
+                    model_name=model_name
+                )
+
+            def __repr__(self):
+                return self._gapic_manual_mode.__repr__()
 
 
 class Tool:
