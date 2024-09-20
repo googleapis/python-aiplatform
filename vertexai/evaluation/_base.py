@@ -88,9 +88,9 @@ class EvalResult:
     """Evaluation result.
 
     Attributes:
-      summary_metrics: The summary evaluation metrics for an evaluation run.
-      metrics_table: A table containing eval inputs, ground truth, and metric
-        results per row.
+      summary_metrics: A dictionary of summary evaluation metrics for an evaluation run.
+      metrics_table: A pandas.DataFrame table containing evaluation dataset inputs,
+        predictions, explanations, and metric results per row.
       metadata: The metadata for the evaluation run.
     """
 

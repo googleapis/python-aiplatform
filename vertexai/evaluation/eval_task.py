@@ -386,7 +386,6 @@ class EvalTask:
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
-            whole evaluation dataset, in seconds.
           output_file_name: The file name with csv suffix to store the output
             metrics_table.
 
