@@ -4126,7 +4126,9 @@ def test_generate_content(request_type, transport: str = "grpc"):
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = prediction_service.GenerateContentResponse()
+        call.return_value = prediction_service.GenerateContentResponse(
+            model_version="model_version_value",
+        )
         response = client.generate_content(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4137,6 +4139,7 @@ def test_generate_content(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
+    assert response.model_version == "model_version_value"
 
 
 def test_generate_content_empty_call():
@@ -4236,7 +4239,9 @@ async def test_generate_content_empty_call_async():
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            prediction_service.GenerateContentResponse()
+            prediction_service.GenerateContentResponse(
+                model_version="model_version_value",
+            )
         )
         response = await client.generate_content()
         call.assert_called()
@@ -4304,7 +4309,9 @@ async def test_generate_content_async(
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            prediction_service.GenerateContentResponse()
+            prediction_service.GenerateContentResponse(
+                model_version="model_version_value",
+            )
         )
         response = await client.generate_content(request)
 
@@ -4316,6 +4323,7 @@ async def test_generate_content_async(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
+    assert response.model_version == "model_version_value"
 
 
 @pytest.mark.asyncio
@@ -6951,7 +6959,9 @@ def test_generate_content_rest(request_type):
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = prediction_service.GenerateContentResponse()
+        return_value = prediction_service.GenerateContentResponse(
+            model_version="model_version_value",
+        )
 
         # Wrap the value into a proper Response obj
         response_value = Response()
@@ -6966,6 +6976,7 @@ def test_generate_content_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
+    assert response.model_version == "model_version_value"
 
 
 def test_generate_content_rest_use_cached_wrapped_rpc():
@@ -7266,7 +7277,9 @@ def test_stream_generate_content_rest(request_type):
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = prediction_service.GenerateContentResponse()
+        return_value = prediction_service.GenerateContentResponse(
+            model_version="model_version_value",
+        )
 
         # Wrap the value into a proper Response obj
         response_value = Response()
@@ -7288,6 +7301,7 @@ def test_stream_generate_content_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
+    assert response.model_version == "model_version_value"
 
 
 def test_stream_generate_content_rest_use_cached_wrapped_rpc():
