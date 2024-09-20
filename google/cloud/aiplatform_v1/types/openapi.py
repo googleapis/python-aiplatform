@@ -131,6 +131,10 @@ class Schema(proto.Message):
         example (google.protobuf.struct_pb2.Value):
             Optional. Example of the object. Will only
             populated when the object is the root.
+        any_of (MutableSequence[google.cloud.aiplatform_v1.types.Schema]):
+            Optional. The value should be validated
+            against any (one or more) of the subschemas in
+            the list.
     """
 
     type_: "Type" = proto.Field(
@@ -222,6 +226,11 @@ class Schema(proto.Message):
         proto.MESSAGE,
         number=4,
         message=struct_pb2.Value,
+    )
+    any_of: MutableSequence["Schema"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=11,
+        message="Schema",
     )
 
 

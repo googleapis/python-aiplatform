@@ -83,6 +83,7 @@ from google.cloud.aiplatform_v1beta1.types import reservation_affinity
 from google.cloud.aiplatform_v1beta1.types import schedule
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1beta1.types import schedule_service
+from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -4174,6 +4175,16 @@ def test_create_schedule_rest(request_type):
                 "preflight_validations": True,
                 "satisfies_pzs": True,
                 "satisfies_pzi": True,
+                "original_pipeline_job_id": 2512,
+                "pipeline_task_rerun_configs": [
+                    {
+                        "task_id": 735,
+                        "task_name": "task_name_value",
+                        "inputs": {"artifacts": {}, "parameter_values": {}},
+                        "skip_task": True,
+                        "skip_downstream_tasks": True,
+                    }
+                ],
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
@@ -6465,6 +6476,16 @@ def test_update_schedule_rest(request_type):
                 "preflight_validations": True,
                 "satisfies_pzs": True,
                 "satisfies_pzi": True,
+                "original_pipeline_job_id": 2512,
+                "pipeline_task_rerun_configs": [
+                    {
+                        "task_id": 735,
+                        "task_name": "task_name_value",
+                        "inputs": {"artifacts": {}, "parameter_values": {}},
+                        "skip_task": True,
+                        "skip_downstream_tasks": True,
+                    }
+                ],
             },
             "pipeline_job_id": "pipeline_job_id_value",
         },
