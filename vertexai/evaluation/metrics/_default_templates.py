@@ -390,7 +390,7 @@ Instruction following: The response demonstrates a clear understanding of the in
 
 ## Evaluation Steps
 STEP 1: Analyze Response A based on the instruction following criteria: Determine how well Response A fulfills the requirements outlined in the instructions and provide assessment according to the criterion.
-STEP 2: Analyze Response B based on the instruction following criteria: Determine how well Response A fulfills the requirements outlined in the instructions and provide assessment according to the criterion.
+STEP 2: Analyze Response B based on the instruction following criteria: Determine how well Response B fulfills the requirements outlined in the instructions and provide assessment according to the criterion.
 STEP 3: Compare the overall performance of Response A and Response B based on your analyses and assessment.
 STEP 4: Output your preference of "A", "SAME" or "B" to the pairwise_choice field according to the Rating Rubric.
 STEP 5: Output your assessment reasoning in the explanation field.
@@ -900,7 +900,7 @@ Fluent: The response is well-organized and easy to read.
 
 ## Evaluation Steps
 STEP 1: Analyze Response A based on the question answering quality criteria: Determine how well Response A fulfills the user requirements, is grounded in the context, is complete and fluent, and provides assessment according to the criterion.
-STEP 2: Analyze Response B based on the question answering quality criteria: Determine how well Response A fulfills the user requirements, is grounded in the context, is complete and fluent, and provides assessment according to the criterion.
+STEP 2: Analyze Response B based on the question answering quality criteria: Determine how well Response B fulfills the user requirements, is grounded in the context, is complete and fluent, and provides assessment according to the criterion.
 STEP 3: Compare the overall performance of Response A and Response B based on your analyses and assessment.
 STEP 4: Output your preference of "A", "SAME" or "B" to the pairwise_choice field according to the Rating Rubric.
 STEP 5: Output your assessment reasoning in the explanation field.
