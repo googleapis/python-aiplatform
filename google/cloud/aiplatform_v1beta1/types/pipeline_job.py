@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encrypt
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
+from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -39,6 +40,7 @@ __protobuf__ = proto.module(
         "PipelineJobDetail",
         "PipelineTaskDetail",
         "PipelineTaskExecutorDetail",
+        "PipelineTaskRerunConfig",
     },
 )
 
@@ -154,6 +156,24 @@ class PipelineJob(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        original_pipeline_job_id (int):
+            Output only. The original pipeline job id if
+            this pipeline job is a rerun of a previous
+            pipeline job.
+        pipeline_task_rerun_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig]):
+            Output only. The rerun configs for each task
+            in the pipeline job. By default, the rerun will:
+
+            1. Use the same input artifacts as the original
+                run.
+            2. Use the same input parameters as the original
+                run.
+            3. Skip all the tasks that are already succeeded
+                in the original run.
+            4. Rerun all the tasks that are not succeeded in
+                the original run. By providing this field,
+                users can override the default behavior and
+                specify the rerun config for each task.
     """
 
     class RuntimeConfig(proto.Message):
@@ -354,6 +374,17 @@ class PipelineJob(proto.Message):
     satisfies_pzi: bool = proto.Field(
         proto.BOOL,
         number=28,
+    )
+    original_pipeline_job_id: int = proto.Field(
+        proto.INT64,
+        number=29,
+    )
+    pipeline_task_rerun_configs: MutableSequence[
+        "PipelineTaskRerunConfig"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=30,
+        message="PipelineTaskRerunConfig",
     )
 
 
@@ -714,6 +745,93 @@ class PipelineTaskExecutorDetail(proto.Message):
         number=2,
         oneof="details",
         message=CustomJobDetail,
+    )
+
+
+class PipelineTaskRerunConfig(proto.Message):
+    r"""User provided rerun config to submit a rerun pipelinejob.
+    This includes
+    1. Which task to rerun
+    2. User override input parameters and artifacts.
+
+    Attributes:
+        task_id (int):
+            Output only. The system generated ID of the
+            task. Retrieved from original run.
+        task_name (str):
+            Output only. The name of the task.
+        inputs (google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig.Inputs):
+            Output only. The runtime input of the task
+            overridden by the user.
+        skip_task (bool):
+            Output only. Whether to skip this task.
+            Default value is False.
+        skip_downstream_tasks (bool):
+            Output only. Whether to skip downstream
+            tasks. Default value is False.
+    """
+
+    class ArtifactList(proto.Message):
+        r"""A list of artifact metadata.
+
+        Attributes:
+            artifacts (MutableSequence[google.cloud.aiplatform_v1beta1.types.RuntimeArtifact]):
+                Output only. A list of artifact metadata.
+        """
+
+        artifacts: MutableSequence[
+            ui_pipeline_spec.RuntimeArtifact
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=ui_pipeline_spec.RuntimeArtifact,
+        )
+
+    class Inputs(proto.Message):
+        r"""Runtime inputs data of the task.
+
+        Attributes:
+            artifacts (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig.ArtifactList]):
+                Output only. Input artifacts.
+            parameter_values (MutableMapping[str, google.protobuf.struct_pb2.Value]):
+                Output only. Input parameters.
+        """
+
+        artifacts: MutableMapping[
+            str, "PipelineTaskRerunConfig.ArtifactList"
+        ] = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=1,
+            message="PipelineTaskRerunConfig.ArtifactList",
+        )
+        parameter_values: MutableMapping[str, struct_pb2.Value] = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=2,
+            message=struct_pb2.Value,
+        )
+
+    task_id: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    task_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    inputs: Inputs = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=Inputs,
+    )
+    skip_task: bool = proto.Field(
+        proto.BOOL,
+        number=4,
+    )
+    skip_downstream_tasks: bool = proto.Field(
+        proto.BOOL,
+        number=5,
     )
 
 

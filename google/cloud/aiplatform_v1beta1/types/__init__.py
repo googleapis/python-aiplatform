@@ -48,6 +48,7 @@ from .content import (
     GroundingChunk,
     GroundingMetadata,
     GroundingSupport,
+    LogprobsResult,
     Part,
     SafetyRating,
     SafetySetting,
@@ -903,6 +904,7 @@ from .pipeline_job import (
     PipelineJobDetail,
     PipelineTaskDetail,
     PipelineTaskExecutorDetail,
+    PipelineTaskRerunConfig,
     PipelineTemplateMetadata,
 )
 from .pipeline_service import (
@@ -998,6 +1000,7 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
+    PSCAutomationConfig,
     PscInterfaceConfig,
 )
 from .specialist_pool import (
@@ -1132,6 +1135,10 @@ from .types import (
     StringArray,
     Tensor,
 )
+from .ui_pipeline_spec import (
+    ArtifactTypeSchema,
+    RuntimeArtifact,
+)
 from .unmanaged_container_model import (
     UnmanagedContainerModel,
 )
@@ -1222,6 +1229,7 @@ __all__ = (
     "GroundingChunk",
     "GroundingMetadata",
     "GroundingSupport",
+    "LogprobsResult",
     "Part",
     "SafetyRating",
     "SafetySetting",
@@ -1905,6 +1913,7 @@ __all__ = (
     "PipelineJobDetail",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTaskRerunConfig",
     "PipelineTemplateMetadata",
     "BatchCancelPipelineJobsOperationMetadata",
     "BatchCancelPipelineJobsRequest",
@@ -1976,6 +1985,7 @@ __all__ = (
     "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
+    "PSCAutomationConfig",
     "PscInterfaceConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
@@ -2083,6 +2093,8 @@ __all__ = (
     "Int64Array",
     "StringArray",
     "Tensor",
+    "ArtifactTypeSchema",
+    "RuntimeArtifact",
     "UnmanagedContainerModel",
     "UserActionReference",
     "Value",

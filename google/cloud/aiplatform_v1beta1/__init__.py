@@ -123,6 +123,7 @@ from .types.content import GenerationConfig
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
+from .types.content import LogprobsResult
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
@@ -822,6 +823,7 @@ from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_job import PipelineTaskRerunConfig
 from .types.pipeline_job import PipelineTemplateMetadata
 from .types.pipeline_service import BatchCancelPipelineJobsOperationMetadata
 from .types.pipeline_service import BatchCancelPipelineJobsRequest
@@ -893,6 +895,7 @@ from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
+from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
@@ -1000,6 +1003,8 @@ from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
 from .types.types import Tensor
+from .types.ui_pipeline_spec import ArtifactTypeSchema
+from .types.ui_pipeline_spec import RuntimeArtifact
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
@@ -1106,6 +1111,7 @@ __all__ = (
     "AnnotationSpec",
     "ApiAuth",
     "Artifact",
+    "ArtifactTypeSchema",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
@@ -1644,6 +1650,7 @@ __all__ = (
     "ListTuningJobsRequest",
     "ListTuningJobsResponse",
     "LlmUtilityServiceClient",
+    "LogprobsResult",
     "LookupStudyRequest",
     "MachineSpec",
     "ManualBatchTuningParameters",
@@ -1717,6 +1724,7 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "PSCAutomationConfig",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",
@@ -1743,6 +1751,7 @@ __all__ = (
     "PipelineState",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTaskRerunConfig",
     "PipelineTemplateMetadata",
     "PointwiseMetricInput",
     "PointwiseMetricInstance",
@@ -1851,6 +1860,7 @@ __all__ = (
     "RougeMetricValue",
     "RougeResults",
     "RougeSpec",
+    "RuntimeArtifact",
     "RuntimeConfig",
     "SafetyInput",
     "SafetyInstance",

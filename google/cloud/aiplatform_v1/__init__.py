@@ -101,6 +101,7 @@ from .types.content import GenerationConfig
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
+from .types.content import LogprobsResult
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
@@ -1423,6 +1424,7 @@ __all__ = (
     "ListTuningJobsRequest",
     "ListTuningJobsResponse",
     "LlmUtilityServiceClient",
+    "LogprobsResult",
     "LookupStudyRequest",
     "MachineSpec",
     "ManualBatchTuningParameters",

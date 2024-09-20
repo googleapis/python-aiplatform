@@ -709,6 +709,11 @@ class CountTokensRequest(proto.Message):
             A ``Tool`` is a piece of code that enables the system to
             interact with external systems to perform an action, or set
             of actions, outside of knowledge and scope of the model.
+        generation_config (google.cloud.aiplatform_v1.types.GenerationConfig):
+            Optional. Generation config that the model
+            will use to generate the response.
+
+            This field is a member of `oneof`_ ``_generation_config``.
     """
 
     endpoint: str = proto.Field(
@@ -739,6 +744,12 @@ class CountTokensRequest(proto.Message):
         proto.MESSAGE,
         number=6,
         message=tool.Tool,
+    )
+    generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        optional=True,
+        message=content.GenerationConfig,
     )
 
 
@@ -803,6 +814,17 @@ class GenerateContentRequest(proto.Message):
         tool_config (google.cloud.aiplatform_v1.types.ToolConfig):
             Optional. Tool config. This config is shared
             for all tools provided in the request.
+        labels (MutableMapping[str, str]):
+            Optional. The labels with user-defined
+            metadata for the request. It is used for billing
+            and reporting only.
+
+            Label keys and values can be no longer than 63
+            characters (Unicode codepoints) and can only
+            contain lowercase letters, numeric characters,
+            underscores, and dashes. International
+            characters are allowed. Label values are
+            optional. Label keys must start with a letter.
         safety_settings (MutableSequence[google.cloud.aiplatform_v1.types.SafetySetting]):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
@@ -836,6 +858,11 @@ class GenerateContentRequest(proto.Message):
         number=7,
         message=tool.ToolConfig,
     )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
+    )
     safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
@@ -854,6 +881,9 @@ class GenerateContentResponse(proto.Message):
     Attributes:
         candidates (MutableSequence[google.cloud.aiplatform_v1.types.Candidate]):
             Output only. Generated candidates.
+        model_version (str):
+            Output only. The model version used to
+            generate the response.
         prompt_feedback (google.cloud.aiplatform_v1.types.GenerateContentResponse.PromptFeedback):
             Output only. Content filter results for a
             prompt sent in the request. Note: Sent only in
@@ -926,7 +956,8 @@ class GenerateContentResponse(proto.Message):
             candidates_token_count (int):
                 Number of tokens in the response(s).
             total_token_count (int):
-
+                Total token count for prompt and response
+                candidates.
         """
 
         prompt_token_count: int = proto.Field(
@@ -946,6 +977,10 @@ class GenerateContentResponse(proto.Message):
         proto.MESSAGE,
         number=2,
         message=content.Candidate,
+    )
+    model_version: str = proto.Field(
+        proto.STRING,
+        number=11,
     )
     prompt_feedback: PromptFeedback = proto.Field(
         proto.MESSAGE,

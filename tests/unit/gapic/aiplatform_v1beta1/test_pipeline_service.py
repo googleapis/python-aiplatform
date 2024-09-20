@@ -78,6 +78,7 @@ from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -3415,6 +3416,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             preflight_validations=True,
             satisfies_pzs=True,
             satisfies_pzi=True,
+            original_pipeline_job_id=2512,
         )
         response = client.create_pipeline_job(request)
 
@@ -3437,6 +3439,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 def test_create_pipeline_job_empty_call():
@@ -3558,6 +3561,7 @@ async def test_create_pipeline_job_empty_call_async():
                 preflight_validations=True,
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                original_pipeline_job_id=2512,
             )
         )
         response = await client.create_pipeline_job()
@@ -3640,6 +3644,7 @@ async def test_create_pipeline_job_async(
                 preflight_validations=True,
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                original_pipeline_job_id=2512,
             )
         )
         response = await client.create_pipeline_job(request)
@@ -3663,6 +3668,7 @@ async def test_create_pipeline_job_async(
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 @pytest.mark.asyncio
@@ -3873,6 +3879,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             preflight_validations=True,
             satisfies_pzs=True,
             satisfies_pzi=True,
+            original_pipeline_job_id=2512,
         )
         response = client.get_pipeline_job(request)
 
@@ -3895,6 +3902,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 def test_get_pipeline_job_empty_call():
@@ -4006,6 +4014,7 @@ async def test_get_pipeline_job_empty_call_async():
                 preflight_validations=True,
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                original_pipeline_job_id=2512,
             )
         )
         response = await client.get_pipeline_job()
@@ -4085,6 +4094,7 @@ async def test_get_pipeline_job_async(
                 preflight_validations=True,
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                original_pipeline_job_id=2512,
             )
         )
         response = await client.get_pipeline_job(request)
@@ -4108,6 +4118,7 @@ async def test_get_pipeline_job_async(
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 @pytest.mark.asyncio
@@ -8427,6 +8438,16 @@ def test_create_pipeline_job_rest(request_type):
         "preflight_validations": True,
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "original_pipeline_job_id": 2512,
+        "pipeline_task_rerun_configs": [
+            {
+                "task_id": 735,
+                "task_name": "task_name_value",
+                "inputs": {"artifacts": {}, "parameter_values": {}},
+                "skip_task": True,
+                "skip_downstream_tasks": True,
+            }
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8512,6 +8533,7 @@ def test_create_pipeline_job_rest(request_type):
             preflight_validations=True,
             satisfies_pzs=True,
             satisfies_pzi=True,
+            original_pipeline_job_id=2512,
         )
 
         # Wrap the value into a proper Response obj
@@ -8538,6 +8560,7 @@ def test_create_pipeline_job_rest(request_type):
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 def test_create_pipeline_job_rest_use_cached_wrapped_rpc():
@@ -8854,6 +8877,7 @@ def test_get_pipeline_job_rest(request_type):
             preflight_validations=True,
             satisfies_pzs=True,
             satisfies_pzi=True,
+            original_pipeline_job_id=2512,
         )
 
         # Wrap the value into a proper Response obj
@@ -8880,6 +8904,7 @@ def test_get_pipeline_job_rest(request_type):
     assert response.preflight_validations is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.original_pipeline_job_id == 2512
 
 
 def test_get_pipeline_job_rest_use_cached_wrapped_rpc():
