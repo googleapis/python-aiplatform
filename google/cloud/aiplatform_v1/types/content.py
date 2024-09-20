@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "CitationMetadata",
         "Citation",
         "Candidate",
+        "LogprobsResult",
         "Segment",
         "GroundingChunk",
         "GroundingSupport",
@@ -64,12 +65,15 @@ class HarmCategory(proto.Enum):
         HARM_CATEGORY_SEXUALLY_EXPLICIT (4):
             The harm category is sexually explicit
             content.
+        HARM_CATEGORY_CIVIC_INTEGRITY (5):
+            The harm category is civic integrity.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
     HARM_CATEGORY_DANGEROUS_CONTENT = 2
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
+    HARM_CATEGORY_CIVIC_INTEGRITY = 5
 
 
 class Content(proto.Message):
@@ -294,6 +298,15 @@ class GenerationConfig(proto.Message):
             This field is a member of `oneof`_ ``_max_output_tokens``.
         stop_sequences (MutableSequence[str]):
             Optional. Stop sequences.
+        response_logprobs (bool):
+            Optional. If true, export the logprobs
+            results in response.
+
+            This field is a member of `oneof`_ ``_response_logprobs``.
+        logprobs (int):
+            Optional. Logit probabilities.
+
+            This field is a member of `oneof`_ ``_logprobs``.
         presence_penalty (float):
             Optional. Positive penalties.
 
@@ -456,6 +469,16 @@ class GenerationConfig(proto.Message):
     stop_sequences: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=6,
+    )
+    response_logprobs: bool = proto.Field(
+        proto.BOOL,
+        number=18,
+        optional=True,
+    )
+    logprobs: int = proto.Field(
+        proto.INT32,
+        number=7,
+        optional=True,
     )
     presence_penalty: float = proto.Field(
         proto.FLOAT,
@@ -734,6 +757,9 @@ class Candidate(proto.Message):
         avg_logprobs (float):
             Output only. Average log probability score of
             the candidate.
+        logprobs_result (google.cloud.aiplatform_v1.types.LogprobsResult):
+            Output only. Log-likelihood scores for the
+            response tokens and top tokens
         finish_reason (google.cloud.aiplatform_v1.types.Candidate.FinishReason):
             Output only. The reason why the model stopped
             generating tokens. If empty, the model has not
@@ -822,6 +848,11 @@ class Candidate(proto.Message):
         proto.DOUBLE,
         number=9,
     )
+    logprobs_result: "LogprobsResult" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="LogprobsResult",
+    )
     finish_reason: FinishReason = proto.Field(
         proto.ENUM,
         number=3,
@@ -846,6 +877,80 @@ class Candidate(proto.Message):
         proto.MESSAGE,
         number=7,
         message="GroundingMetadata",
+    )
+
+
+class LogprobsResult(proto.Message):
+    r"""Logprobs Result
+
+    Attributes:
+        top_candidates (MutableSequence[google.cloud.aiplatform_v1.types.LogprobsResult.TopCandidates]):
+            Length = total number of decoding steps.
+        chosen_candidates (MutableSequence[google.cloud.aiplatform_v1.types.LogprobsResult.Candidate]):
+            Length = total number of decoding steps. The chosen
+            candidates may or may not be in top_candidates.
+    """
+
+    class Candidate(proto.Message):
+        r"""Candidate for the logprobs token and score.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            token (str):
+                The candidate’s token string value.
+
+                This field is a member of `oneof`_ ``_token``.
+            token_id (int):
+                The candidate’s token id value.
+
+                This field is a member of `oneof`_ ``_token_id``.
+            log_probability (float):
+                The candidate's log probability.
+
+                This field is a member of `oneof`_ ``_log_probability``.
+        """
+
+        token: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        token_id: int = proto.Field(
+            proto.INT32,
+            number=3,
+            optional=True,
+        )
+        log_probability: float = proto.Field(
+            proto.FLOAT,
+            number=2,
+            optional=True,
+        )
+
+    class TopCandidates(proto.Message):
+        r"""Candidates with top log probabilities at each decoding step.
+
+        Attributes:
+            candidates (MutableSequence[google.cloud.aiplatform_v1.types.LogprobsResult.Candidate]):
+                Sorted by log probability in descending
+                order.
+        """
+
+        candidates: MutableSequence["LogprobsResult.Candidate"] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="LogprobsResult.Candidate",
+        )
+
+    top_candidates: MutableSequence[TopCandidates] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=TopCandidates,
+    )
+    chosen_candidates: MutableSequence[Candidate] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=Candidate,
     )
 
 
