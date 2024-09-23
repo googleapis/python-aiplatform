@@ -257,6 +257,8 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 candidate_count=1,
                 max_output_tokens=100,
                 stop_sequences=["STOP!"],
+                response_logprobs=True,
+                logprobs=3,
             ),
             safety_settings={
                 generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,

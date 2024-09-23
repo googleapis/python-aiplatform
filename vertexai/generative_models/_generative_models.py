@@ -1577,6 +1577,8 @@ class GenerationConfig:
         response_schema: Optional[Dict[str, Any]] = None,
         seed: Optional[int] = None,
         routing_config: Optional["RoutingConfig"] = None,
+        logprobs: Optional[int] = None,
+        response_logprobs: Optional[bool] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1603,6 +1605,8 @@ class GenerationConfig:
             response_schema: Output response schema of the genreated candidate text. Only valid when
                 response_mime_type is application/json.
             routing_config: Model routing preference set in the request.
+            logprobs: Logit probabilities.
+            reponse_logprobs: If true, export the logprobs results in response.
 
         Usage:
             ```
@@ -1637,6 +1641,8 @@ class GenerationConfig:
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
             seed=seed,
+            logprobs=logprobs,
+            response_logprobs=response_logprobs,
         )
         if routing_config is not None:
             self._raw_generation_config.routing_config = (
@@ -2222,6 +2228,10 @@ class Candidate:
     @property
     def avg_logprobs(self) -> float:
         return self._raw_candidate.avg_logprobs
+
+    @property
+    def logprobs_result(self) -> gapic_content_types.LogprobsResult:
+        return self._raw_candidate.logprobs_result
 
     @property
     def finish_reason(self) -> gapic_content_types.Candidate.FinishReason:

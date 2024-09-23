@@ -585,6 +585,8 @@ class TestGenerativeModels:
                 stop_sequences=["\n\n\n"],
                 presence_penalty=0.0,
                 frequency_penalty=0.0,
+                logprobs=5,
+                response_logprobs=True,
             ),
             safety_settings=[
                 generative_models.SafetySetting(
