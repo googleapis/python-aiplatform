@@ -232,3 +232,48 @@ class JiraSource:
     """
 
     queries: Sequence[JiraQuery]
+
+
+@dataclasses.dataclass
+class SharePointSource:
+    """SharePointSource.
+
+    Attributes:
+        sharepoint_folder_path: The path of the SharePoint folder to download
+            from.
+        sharepoint_folder_id: The ID of the SharePoint folder to download
+            from.
+        drive_name: The name of the drive to download from.
+        drive_id: The ID of the drive to download from.
+        client_id: The Application ID for the app registered in
+            Microsoft Azure Portal. The application must
+            also be configured with MS Graph permissions
+            "Files.ReadAll", "Sites.ReadAll" and
+            BrowserSiteLists.Read.All.
+        client_secret: The application secret for the app registered
+            in Azure.
+        tenant_id: Unique identifier of the Azure Active
+            Directory Instance.
+        sharepoint_site_name: The name of the SharePoint site to download
+            from. This can be the site name or the site id.
+    """
+
+    sharepoint_folder_path: Optional[str] = None
+    sharepoint_folder_id: Optional[str] = None
+    drive_name: Optional[str] = None
+    drive_id: Optional[str] = None
+    client_id: str = None
+    client_secret: str = None
+    tenant_id: str = None
+    sharepoint_site_name: str = None
+
+
+@dataclasses.dataclass
+class SharePointSources:
+    """SharePointSources.
+
+    Attributes:
+        share_point_sources: The SharePoint sources.
+    """
+
+    share_point_sources: Sequence[SharePointSource]

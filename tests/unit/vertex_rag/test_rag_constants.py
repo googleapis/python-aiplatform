@@ -24,6 +24,8 @@ from vertexai.preview.rag import (
     RagCorpus,
     RagFile,
     RagResource,
+    SharePointSource,
+    SharePointSources,
     SlackChannelsSource,
     SlackChannel,
     JiraSource,
@@ -42,6 +44,7 @@ from google.cloud.aiplatform_v1beta1 import (
     JiraSource as GapicJiraSource,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     RagContexts,
     RetrieveContextsResponse,
@@ -388,6 +391,122 @@ TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE.jira_source.jira_queries = [
 TEST_IMPORT_REQUEST_JIRA_SOURCE = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE,
+)
+
+# SharePoint sources
+TEST_SHARE_POINT_SOURCE = SharePointSources(
+    share_point_sources=[
+        SharePointSource(
+            sharepoint_folder_path="test-sharepoint-folder-path",
+            drive_name="test-drive-name",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            tenant_id="test-tenant-id",
+            sharepoint_site_name="test-sharepoint-site-name",
+        )
+    ],
+)
+TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE = ImportRagFilesConfig(
+    rag_file_chunking_config=RagFileChunkingConfig(
+        chunk_size=TEST_CHUNK_SIZE,
+        chunk_overlap=TEST_CHUNK_OVERLAP,
+    ),
+    share_point_sources=GapicSharePointSources(
+        share_point_sources=[
+            GapicSharePointSources.SharePointSource(
+                sharepoint_folder_path="test-sharepoint-folder-path",
+                drive_name="test-drive-name",
+                client_id="test-client-id",
+                client_secret=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version="test-client-secret"
+                ),
+                tenant_id="test-tenant-id",
+                sharepoint_site_name="test-sharepoint-site-name",
+            )
+        ]
+    ),
+)
+
+TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE,
+)
+
+TEST_SHARE_POINT_SOURCE_2_DRIVES = SharePointSources(
+    share_point_sources=[
+        SharePointSource(
+            sharepoint_folder_path="test-sharepoint-folder-path",
+            drive_name="test-drive-name",
+            drive_id="test-drive-id",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            tenant_id="test-tenant-id",
+            sharepoint_site_name="test-sharepoint-site-name",
+        )
+    ],
+)
+
+TEST_SHARE_POINT_SOURCE_NO_DRIVES = SharePointSources(
+    share_point_sources=[
+        SharePointSource(
+            sharepoint_folder_path="test-sharepoint-folder-path",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            tenant_id="test-tenant-id",
+            sharepoint_site_name="test-sharepoint-site-name",
+        )
+    ],
+)
+
+TEST_SHARE_POINT_SOURCE_2_FOLDERS = SharePointSources(
+    share_point_sources=[
+        SharePointSource(
+            sharepoint_folder_path="test-sharepoint-folder-path",
+            sharepoint_folder_id="test-sharepoint-folder-id",
+            drive_name="test-drive-name",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            tenant_id="test-tenant-id",
+            sharepoint_site_name="test-sharepoint-site-name",
+        )
+    ],
+)
+
+TEST_SHARE_POINT_SOURCE_NO_FOLDERS = SharePointSources(
+    share_point_sources=[
+        SharePointSource(
+            drive_name="test-drive-name",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            tenant_id="test-tenant-id",
+            sharepoint_site_name="test-sharepoint-site-name",
+        )
+    ],
+)
+
+TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
+    rag_file_chunking_config=RagFileChunkingConfig(
+        chunk_size=TEST_CHUNK_SIZE,
+        chunk_overlap=TEST_CHUNK_OVERLAP,
+    ),
+    share_point_sources=GapicSharePointSources(
+        share_point_sources=[
+            GapicSharePointSources.SharePointSource(
+                drive_name="test-drive-name",
+                client_id="test-client-id",
+                client_secret=api_auth.ApiAuth.ApiKeyConfig(
+                    api_key_secret_version="test-client-secret"
+                ),
+                tenant_id="test-tenant-id",
+                sharepoint_site_name="test-sharepoint-site-name",
+            )
+        ]
+    ),
+)
+
+TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE,
 )
 
 # Retrieval

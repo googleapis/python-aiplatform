@@ -563,6 +563,56 @@ class TestRagDataManagement:
         )
         import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_JIRA_SOURCE)
 
+    def test_prepare_import_files_request_sharepoint_source(self):
+        request = prepare_import_files_request(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            source=tc.TEST_SHARE_POINT_SOURCE,
+            chunk_size=tc.TEST_CHUNK_SIZE,
+            chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+        )
+        import_files_request_eq(request, tc.TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE)
+
+    def test_prepare_import_files_request_sharepoint_source_2_drives(self):
+        with pytest.raises(ValueError) as e:
+            prepare_import_files_request(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                source=tc.TEST_SHARE_POINT_SOURCE_2_DRIVES,
+                chunk_size=tc.TEST_CHUNK_SIZE,
+                chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+            )
+        e.match("drive_name and drive_id cannot both be set.")
+
+    def test_prepare_import_files_request_sharepoint_source_2_folders(self):
+        with pytest.raises(ValueError) as e:
+            prepare_import_files_request(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                source=tc.TEST_SHARE_POINT_SOURCE_2_FOLDERS,
+                chunk_size=tc.TEST_CHUNK_SIZE,
+                chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+            )
+        e.match("sharepoint_folder_path and sharepoint_folder_id cannot both be set.")
+
+    def test_prepare_import_files_request_sharepoint_source_no_drives(self):
+        with pytest.raises(ValueError) as e:
+            prepare_import_files_request(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                source=tc.TEST_SHARE_POINT_SOURCE_NO_DRIVES,
+                chunk_size=tc.TEST_CHUNK_SIZE,
+                chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+            )
+        e.match("Either drive_name and drive_id must be set.")
+
+    def test_prepare_import_files_request_sharepoint_source_no_folders(self):
+        request = prepare_import_files_request(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            source=tc.TEST_SHARE_POINT_SOURCE_NO_FOLDERS,
+            chunk_size=tc.TEST_CHUNK_SIZE,
+            chunk_overlap=tc.TEST_CHUNK_OVERLAP,
+        )
+        import_files_request_eq(
+            request, tc.TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS
+        )
+
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.EmbeddingModelConfig(
             publisher_model="whatever",
