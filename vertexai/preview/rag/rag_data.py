@@ -48,6 +48,7 @@ from vertexai.preview.rag.utils.resources import (
     Pinecone,
     RagCorpus,
     RagFile,
+    RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
     VertexFeatureStore,
@@ -61,7 +62,7 @@ def create_corpus(
     description: Optional[str] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
     vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]
+        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
@@ -102,11 +103,10 @@ def create_corpus(
             embedding_model_config=embedding_model_config,
             rag_corpus=rag_corpus,
         )
-    if vector_db is not None:
-        _gapic_utils.set_vector_db(
-            vector_db=vector_db,
-            rag_corpus=rag_corpus,
-        )
+    _gapic_utils.set_vector_db(
+        vector_db=vector_db,
+        rag_corpus=rag_corpus,
+    )
 
     request = CreateRagCorpusRequest(
         parent=parent,

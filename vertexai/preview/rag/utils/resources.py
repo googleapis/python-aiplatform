@@ -116,6 +116,11 @@ class VertexVectorSearch:
 
 
 @dataclasses.dataclass
+class RagManagedDb:
+    """RagManagedDb."""
+
+
+@dataclasses.dataclass
 class Pinecone:
     """Pinecone.
 
