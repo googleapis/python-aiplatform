@@ -40,7 +40,13 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.protobuf import struct_pb2
 
 
-_MODELS = ["gemini-1.0-pro", "gemini-1.5-pro", "gemini-1.5-flash"]
+_MODELS = [
+    "gemini-1.0-pro",
+    "gemini-1.5-pro",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-002",
+    "gemini-1.5.pro-002",
+]
 _CORPUS = [
     "udhr",
 ]
