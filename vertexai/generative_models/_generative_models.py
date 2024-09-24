@@ -2765,13 +2765,6 @@ def _dict_to_pretty_string(d: dict) -> str:
     return json.dumps(d, indent=2)
 
 
-_FORMAT_TO_MIME_TYPE = {
-    "png": "image/png",
-    "jpeg": "image/jpeg",
-    "gif": "image/gif",
-}
-
-
 class Image:
     """The image that can be sent to a generative model."""
 
@@ -2821,7 +2814,7 @@ class Image:
     def _mime_type(self) -> str:
         """Returns the MIME type of the image."""
         if PIL_Image:
-            return _FORMAT_TO_MIME_TYPE[self._pil_image.format.lower()]
+            return PIL_Image.MIME[self._pil_image.format.upper()]
         else:
             # Fall back to jpeg
             return "image/jpeg"
