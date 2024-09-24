@@ -6507,7 +6507,7 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
     by the
     [`SequenceToSequencePlusForecastingTrainingJob`](https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.SequenceToSequencePlusForecastingTrainingJob)
     and
-    [`TemporalFusionTransformerForecastingTrainingJob`]https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.TemporalFusionTransformerForecastingTrainingJob)
+    [`TemporalFusionTransformerForecastingTrainingJob`](https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.TemporalFusionTransformerForecastingTrainingJob)
     classes respectively, then `AutoML` is likely the best training method for
     your forecasting predictions.
 
