@@ -150,6 +150,7 @@ def _get_model_info(
             endpoint_name = tuned_vertex_model.deploy().resource_name
         else:
             endpoint_name = tuned_model_deployments[0].endpoint
+    print(f"endpoint_name: {endpoint_name}")
 
     if short_model_id in _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP:
         tuning_pipeline_uri = _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP[short_model_id]
