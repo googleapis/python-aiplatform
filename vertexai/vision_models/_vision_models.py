@@ -1031,16 +1031,18 @@ class ImageCaptioningModel(
 ):
     """Generates captions from image.
 
-    Examples::
+    Examples:
 
-        model = ImageCaptioningModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
-        captions = model.get_captions(
-            image=image,
-            # Optional:
-            number_of_results=1,
-            language="en",
-        )
+    ```py
+    model = ImageCaptioningModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
+    captions = model.get_captions(
+        image=image,
+        # Optional:
+        number_of_results=1,
+        language="en",
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"
