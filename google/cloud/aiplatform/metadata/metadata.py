@@ -931,16 +931,16 @@ class _ExperimentTracker:
         To start a new execution:
 
         ```py
-        with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer') as exc:
+        with aiplatform.start_execution(schema_title="system.ContainerExecution", display_name="trainer") as exc:
             exc.assign_input_artifacts([my_artifact])
-            model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
+            model = aiplatform.Artifact.create(uri="gs://my-uri", schema_title="system.Model")
             exc.assign_output_artifacts([model])
         ```
 
         To continue a previously created execution:
 
         ```py
-        with aiplatform.start_execution(resource_id='my-exc', resume=True) as exc:
+        with aiplatform.start_execution(resource_id="my-exc", resume=True) as exc:
             ...
         ```
         Args:
