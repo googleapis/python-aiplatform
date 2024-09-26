@@ -115,9 +115,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 retrieve the model. This overrides the project that was set by
                 `aiplatform.init`.
             location (str):
-                Optional. The Google Cloud region where this from where the
-                model is retrieved. This region overrides the region that was
-                set by `aiplatform.init`.
+                Optional. The Google Cloud region where the model is retrieved.
+                This region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
                 Optional. The credentials that are used to retrieve the model.
                 These credentials override the credentials set by
@@ -157,7 +156,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If `model_encryption_spec_key_name` is set, the traind model is
+                If `model_encryption_spec_key_name` is set, the trained model is
                 secured by this key.
 
                 This `model_encryption_spec_key_name` overrides the
@@ -281,7 +280,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
         passed in without knowing the `training_task_definition`.
 
         Example usage:
-        ```
+        
+        ```py
         aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
             'projects/.../locations/.../trainingPipelines/12345'
         )
@@ -2785,6 +2785,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Training Job from a Python script.
 
+        ```py
         job = aiplatform.CustomTrainingJob(
             display_name='test-train',
             script_path='test_script.py',
@@ -2795,9 +2796,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
+        ```py
         ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
@@ -2807,11 +2810,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_display_name='my-trained-model',
             model_labels={'key': 'value'},
         )
+        ```
 
         Usage without Dataset:
 
+        ```py
         job.run(replica_count=1, model_display_name='my-trained-model)
-
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
