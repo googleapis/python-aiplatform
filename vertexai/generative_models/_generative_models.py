@@ -281,28 +281,28 @@ class _GenerativeModel:
 
 
     Usage:
-        ```
-        model = GenerativeModel("gemini-pro")
-        response = model.generate_content(
-            contents="Why is sky blue?",
-            # Optional:
-            generation_config=GenerationConfig(
-                temperature=0.1,
-                top_p=0.95,
-                top_k=20,
-                candidate_count=1,
-                max_output_tokens=100,
-                stop_sequences=["STOP!"],
-            ),
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-            }
-        )
-        ```
-
+    
+    ```py
+    model = GenerativeModel("gemini-pro")
+    response = model.generate_content(
+        contents="Why is sky blue?",
+        # Optional:
+        generation_config=GenerationConfig(
+            temperature=0.1,
+            top_p=0.95,
+            top_k=20,
+            candidate_count=1,
+            max_output_tokens=100,
+            stop_sequences=["STOP!"],
+        ),
+        safety_settings={
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+        }
+    )
+    ```
     """
 
     _USER_ROLE = "user"
@@ -321,10 +321,11 @@ class _GenerativeModel:
         r"""Initializes GenerativeModel.
 
         Usage:
-            ```
-            model = GenerativeModel("gemini-pro")
-            print(model.generate_content("Hello"))
-            ```
+        
+        ```py
+        model = GenerativeModel("gemini-pro")
+        print(model.generate_content("Hello"))
+        ```
 
         Args:
             model_name: Model Garden model resource name.
@@ -1779,40 +1780,46 @@ class Tool:
     r"""A collection of functions that the model may use to generate response.
 
     Usage:
-        Create tool from function declarations:
-        ```
-        get_current_weather_func = generative_models.FunctionDeclaration(...)
-        weather_tool = generative_models.Tool(
-            function_declarations=[get_current_weather_func],
-        )
-        ```
-        Use tool in `GenerativeModel.generate_content`:
-        ```
-        model = GenerativeModel("gemini-pro")
-        print(model.generate_content(
-            "What is the weather like in Boston?",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-        ))
-        ```
-        Use tool in chat:
-        ```
-        model = GenerativeModel(
-            "gemini-pro",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-        )
-        chat = model.start_chat()
-        print(chat.send_message("What is the weather like in Boston?"))
-        print(chat.send_message(
-            Part.from_function_response(
-                name="get_current_weather",
-                response={
-                    "content": {"weather_there": "super nice"},
-                }
-            ),
-        ))
-        ```
+    
+    Create tool from function declarations:
+
+    ```py
+    get_current_weather_func = generative_models.FunctionDeclaration(...)
+    weather_tool = generative_models.Tool(
+        function_declarations=[get_current_weather_func],
+    )
+    ```
+
+    Use tool in `GenerativeModel.generate_content`:
+
+    ```py
+    model = GenerativeModel("gemini-pro")
+    print(model.generate_content(
+        "What is the weather like in Boston?",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+    ))
+    ```
+
+    Use tool in chat:
+
+    ```py
+    model = GenerativeModel(
+        "gemini-pro",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+    )
+    chat = model.start_chat()
+    print(chat.send_message("What is the weather like in Boston?"))
+    print(chat.send_message(
+        Part.from_function_response(
+            name="get_current_weather",
+            response={
+                "content": {"weather_there": "super nice"},
+            },
+        ),
+    ))
+    ```
     """
 
     _raw_tool: gapic_tool_types.Tool
@@ -1891,43 +1898,50 @@ class ToolConfig:
     r"""Config shared for all tools provided in the request.
 
     Usage:
-        Create ToolConfig
-        ```
-        tool_config = ToolConfig(
-            function_calling_config=ToolConfig.FunctionCallingConfig(
-                mode=ToolConfig.FunctionCallingConfig.Mode.ANY,
-                allowed_function_names=["get_current_weather_func"],
-        ))
-        ```
-        Use ToolConfig in `GenerativeModel.generate_content`:
-        ```
-        model = GenerativeModel("gemini-pro")
-        print(model.generate_content(
-            "What is the weather like in Boston?",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-            tool_config=tool_config,
-        ))
-        ```
-        Use ToolConfig in chat:
-        ```
-        model = GenerativeModel(
-            "gemini-pro",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-            tool_config=tool_config,
-        )
-        chat = model.start_chat()
-        print(chat.send_message("What is the weather like in Boston?"))
-        print(chat.send_message(
-            Part.from_function_response(
-                name="get_current_weather",
-                response={
-                    "content": {"weather_there": "super nice"},
-                }
-            ),
-        ))
-        ```
+    
+    Create ToolConfig:
+
+    ```py
+    tool_config = ToolConfig(
+        function_calling_config=ToolConfig.FunctionCallingConfig(
+            mode=ToolConfig.FunctionCallingConfig.Mode.ANY,
+            allowed_function_names=["get_current_weather_func"],
+        ),
+    )
+    ```
+
+    Use ToolConfig in `GenerativeModel.generate_content`:
+
+    ```py
+    model = GenerativeModel("gemini-pro")
+    print(model.generate_content(
+        "What is the weather like in Boston?",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+        tool_config=tool_config,
+    ))
+    ```
+
+    Use ToolConfig in chat:
+
+    ```py
+    model = GenerativeModel(
+        "gemini-pro",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+        tool_config=tool_config,
+    )
+    chat = model.start_chat()
+    print(chat.send_message("What is the weather like in Boston?"))
+    print(chat.send_message(
+        Part.from_function_response(
+            name="get_current_weather",
+            response={
+                "content": {"weather_there": "super nice"},
+            },
+        ),
+    ))
+    ```
     """
 
     class FunctionCallingConfig:
@@ -1962,62 +1976,68 @@ class FunctionDeclaration:
     r"""A representation of a function declaration.
 
     Usage:
-        Create function declaration and tool:
-        ```
-        get_current_weather_func = generative_models.FunctionDeclaration(
-            name="get_current_weather",
-            description="Get the current weather in a given location",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "string",
-                        "description": "The city and state, e.g. San Francisco, CA"
-                    },
-                    "unit": {
-                        "type": "string",
-                        "enum": [
-                            "celsius",
-                            "fahrenheit",
-                        ]
-                    }
+    
+    Create function declaration and tool:
+
+    ```py
+    get_current_weather_func = generative_models.FunctionDeclaration(
+        name="get_current_weather",
+        description="Get the current weather in a given location",
+        parameters={
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The city and state, e.g. San Francisco, CA",
                 },
-                "required": [
-                    "location"
-                ]
-            },
-        )
-        weather_tool = generative_models.Tool(
-            function_declarations=[get_current_weather_func],
-        )
-        ```
-        Use tool in `GenerativeModel.generate_content`:
-        ```
-        model = GenerativeModel("gemini-pro")
-        print(model.generate_content(
-            "What is the weather like in Boston?",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-        ))
-        ```
-        Use tool in chat:
-        ```
-        model = GenerativeModel(
-            "gemini-pro",
-            # You can specify tools when creating a model to avoid having to send them with every request.
-            tools=[weather_tool],
-        )
-        chat = model.start_chat()
-        print(chat.send_message("What is the weather like in Boston?"))
-        print(chat.send_message(
-            Part.from_function_response(
-                name="get_current_weather",
-                response={
-                    "content": {"weather_there": "super nice"},
+                "unit": {
+                    "type": "string",
+                    "enum": [
+                        "celsius",
+                        "fahrenheit",
+                    ],
                 }
-            ),
-        ))
-        ```
+            },
+            "required": [
+                "location",
+            ],
+        },
+    )
+    weather_tool = generative_models.Tool(
+        function_declarations=[get_current_weather_func],
+    )
+    ```
+
+    Use tool in `GenerativeModel.generate_content`:
+
+    ```py
+    model = GenerativeModel("gemini-pro")
+    print(model.generate_content(
+        "What is the weather like in Boston?",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+    ))
+    ```
+
+    Use tool in chat:
+
+    ```py
+    model = GenerativeModel(
+        "gemini-pro",
+        # You can specify tools when creating a model to avoid having to send them with every request.
+        tools=[weather_tool],
+    )
+    chat = model.start_chat()
+    print(chat.send_message("What is the weather like in Boston?"))
+    print(chat.send_message(
+        Part.from_function_response(
+            name="get_current_weather",
+            response={
+                "content": {"weather_there": "super nice"},
+            },
+        ),
+    ))
+    ```
     """
 
     def __init__(
@@ -2283,14 +2303,15 @@ class Candidate:
 
 
 class Content:
-    r"""The multi-part content of a message.
+    """The multi-part content of a message.
 
     Usage:
-        ```
-        response = model.generate_content(contents=[
-            Content(role="user", parts=[Part.from_text("Why is sky blue?")])
-        ])
-        ```
+
+    ```py
+    response = model.generate_content(contents=[
+        Content(role="user", parts=[Part.from_text("Why is sky blue?")])
+    ])
+    ```
     """
 
     def __init__(
@@ -2349,24 +2370,25 @@ class Content:
 
 
 class Part:
-    r"""A part of a multi-part Content message.
+    """A part of a multi-part Content message.
 
     Usage:
-        ```
-        text_part = Part.from_text("Why is sky blue?")
-        image_part = Part.from_image(Image.load_from_file("image.jpg"))
-        video_part = Part.from_uri(uri="gs://.../video.mp4", mime_type="video/mp4")
-        function_response_part = Part.from_function_response(
-            name="get_current_weather",
-            response={
-                "content": {"weather_there": "super nice"},
-            }
-        )
 
-        response1 = model.generate_content([text_part, image_part])
-        response2 = model.generate_content(video_part)
-        response3 = chat.send_message(function_response_part)
-        ```
+    ```py
+    text_part = Part.from_text("Why is sky blue?")
+    image_part = Part.from_image(Image.load_from_file("image.jpg"))
+    video_part = Part.from_uri(uri="gs://.../video.mp4", mime_type="video/mp4")
+    function_response_part = Part.from_function_response(
+        name="get_current_weather",
+        response={
+            "content": {"weather_there": "super nice"},
+        },
+    )
+
+    response1 = model.generate_content([text_part, image_part])
+    response2 = model.generate_content(video_part)
+    response3 = chat.send_message(function_response_part)
+    ```
     """
 
     def __init__(self):
