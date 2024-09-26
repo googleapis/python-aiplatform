@@ -1680,24 +1680,26 @@ class GenerationConfig:
         - ManualRoutingMode: Manual routing.
 
         Usage:
+
         - AutoRoutingMode:
 
-            ```
-            routing_config=generative_models.RoutingConfig(
-                routing_config=generative_models.RoutingConfig.AutoRoutingMode(
-                    model_routing_preference=generative_models.RoutingConfig.AutoRoutingMode.ModelRoutingPreference.BALANCED,
-                ),
-            )
-            ```
+        ```py
+        routing_config = generative_models.RoutingConfig(
+            routing_config=generative_models.RoutingConfig.AutoRoutingMode(
+                model_routing_preference=generative_models.RoutingConfig.AutoRoutingMode.ModelRoutingPreference.BALANCED,
+            ),
+        )
+        ```
+
         - ManualRoutingMode:
 
-            ```
-            routing_config=generative_models.RoutingConfig(
-                routing_config=generative_models.RoutingConfig.ManutalRoutingMode(
-                    model_name="gemini-1.5-pro-001",
-                ),
-            )
-            ```
+        ```py
+        routing_config = generative_models.RoutingConfig(
+            routing_config=generative_models.RoutingConfig.ManutalRoutingMode(
+                model_name="gemini-1.5-pro-001",
+            ),
+        )
+        ```
         """
 
         def __init__(
