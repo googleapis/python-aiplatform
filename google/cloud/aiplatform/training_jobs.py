@@ -2802,7 +2802,8 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         ```py
         ds = aiplatform.TabularDataset(
-            'projects/my-project/locations/us-central1/datasets/12345')
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
         job.run(
             ds,
@@ -2815,7 +2816,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         Usage without Dataset:
 
         ```py
-        job.run(replica_count=1, model_display_name='my-trained-model)
+        job.run(replica_count=1, model_display_name='my-trained-model')
         ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
@@ -4333,6 +4334,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
+        ```py
         job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
             container_uri='gcr.io/my_project_id/my_image_name:tag',
@@ -4342,11 +4344,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
+        ```py
         ds = aiplatform.TabularDataset(
-            'projects/my-project/locations/us-central1/datasets/12345')
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
         job.run(
             ds,
@@ -4354,11 +4359,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_display_name='my-trained-model',
             model_labels={'key': 'value'},
         )
+        ```
 
         Usage without Dataset:
 
-        job.run(replica_count=1, model_display_name='my-trained-model)
-
+        ```py
+        job.run(replica_count=1, model_display_name='my-trained-model')
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
@@ -7480,6 +7487,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         container](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/sdk/SDK_Custom_Training_Python_Package_Managed_Text_Dataset_Tensorflow_Serving_Container.ipynb)
         notebook.
 
+        ```py
         job = aiplatform.CustomPythonPackageTrainingJob(
             display_name='test-train',
             python_package_gcs_uri='gs://my-bucket/my-python-package.tar.gz',
@@ -7490,27 +7498,32 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
-            ds = aiplatform.TabularDataset(
-                'projects/my-project/locations/us-central1/datasets/12345'
-            )
+        ```py
+        ds = aiplatform.TabularDataset(
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
-            job.run(
-                ds,
-                replica_count=1,
-                model_display_name='my-trained-model',
-                model_labels={'key': 'value'},
-            )
+        job.run(
+            ds,
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
+        ```
 
         Usage without Dataset:
 
-            job.run(
-                replica_count=1,
-                model_display_name='my-trained-model',
-                model_labels={'key': 'value'},
-            )
+        ```py
+        job.run(
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
