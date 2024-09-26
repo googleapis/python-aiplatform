@@ -129,7 +129,7 @@ genai_requires = (
 ray_testing_extra_require = ray_extra_require + [
     "pytest-xdist",
     # ray train extras required for prediction tests
-    "ray[train] == 2.9.3",
+    "ray[train]",
     # Framework version constraints copied from testing_extra_require
     "scikit-learn",
     "tensorflow",

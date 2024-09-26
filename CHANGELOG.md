@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.68.0](https://github.com/googleapis/python-aiplatform/compare/v1.67.1...v1.68.0) (2024-09-24)
+
+
+### Features
+
+* A new field `response_logprbs` is added to message `.google.cloud.aiplatform.v1.GenerationConfig` ([#4410](https://github.com/googleapis/python-aiplatform/issues/4410)) ([470933f](https://github.com/googleapis/python-aiplatform/commit/470933f65c4a6d08ca6fa099b09bec31e959b026))
+* Add support for partial failures sink in import rag files. ([8070411](https://github.com/googleapis/python-aiplatform/commit/80704112095a39ea755ac25b3f5e3a76faaa03f1))
+* Add support for SharePoint as a ImportRagFiles source. ([f89df1f](https://github.com/googleapis/python-aiplatform/commit/f89df1f30822d260176487f74c3743cab88a38fd))
+* Adding Vertex Vector Search Vector DB option for RAG corpuses to SDK ([d4193f2](https://github.com/googleapis/python-aiplatform/commit/d4193f227e554f49845d87e98efa06be8dae74b8))
+* Batch_predict method generally-available at TextEmbeddingModel. ([73c0dae](https://github.com/googleapis/python-aiplatform/commit/73c0dae6b084a42c04dcaf53bfe9ba43761c667f))
+* GenAI - Add model routing config to sdk ([c0626fe](https://github.com/googleapis/python-aiplatform/commit/c0626fe015e4befe50f50688159a53ed9b7e583b))
+* GenAI - Add support for logprobs and response_logprobs. ([7acf0f7](https://github.com/googleapis/python-aiplatform/commit/7acf0f718f6b930ec5f1a1873872f92d55742012))
+
+
+### Bug Fixes
+
+* Fix rag corpus creation error ([d25edce](https://github.com/googleapis/python-aiplatform/commit/d25edce9024750f12293b9f3767c8636f7f58c3e))
+* Fix typo in eval_task docstring ([86fc215](https://github.com/googleapis/python-aiplatform/commit/86fc215cb854c006a0836a6e8f98e6d40c191fee))
+* Fix typos in evaluation example metric prompt templates. ([5f4d586](https://github.com/googleapis/python-aiplatform/commit/5f4d586d4f2d20f48f0c3bdd3ea00ec8e5bcdd77))
+* GenAI - Fixed `GenerativeModel.compute_tokens` for v1 API ([4637b4c](https://github.com/googleapis/python-aiplatform/commit/4637b4cd601357b5d15967ff652338667e2832d1))
+* Tensorboard - Fix error in tensorboard batch upload of nested dirs ([86be328](https://github.com/googleapis/python-aiplatform/commit/86be3282334347d29220d849d72dca5238c02920))
+
+
+### Documentation
+
+* Update Gemini docs ([c561aa6](https://github.com/googleapis/python-aiplatform/commit/c561aa6bbc25021642399c0d4bc0859ac1693d18))
+* Update Gemini docs ([2b84142](https://github.com/googleapis/python-aiplatform/commit/2b84142abc47f4be1324a653441ab148ecf8e28b))
+
 ## [1.67.1](https://github.com/googleapis/python-aiplatform/compare/v1.67.0...v1.67.1) (2024-09-18)
 
 
