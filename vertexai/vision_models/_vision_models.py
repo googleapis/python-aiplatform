@@ -1159,20 +1159,22 @@ class ImageQnAModel(
 class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     """Generates embedding vectors from images and videos.
 
-    Examples::
+    Examples:
 
-        model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
-        image = Image.load_from_file("image.png")
-        video = Video.load_from_file("video.mp4")
+    ```py
+    model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
+    image = Image.load_from_file("image.png")
+    video = Video.load_from_file("video.mp4")
 
-        embeddings = model.get_embeddings(
-            image=image,
-            video=video,
-            contextual_text="Hello world",
-        )
-        image_embedding = embeddings.image_embedding
-        video_embeddings = embeddings.video_embeddings
-        text_embedding = embeddings.text_embedding
+    embeddings = model.get_embeddings(
+        image=image,
+        video=video,
+        contextual_text="Hello world",
+    )
+    image_embedding = embeddings.image_embedding
+    video_embeddings = embeddings.video_embeddings
+    text_embedding = embeddings.text_embedding
+    ```
     """
 
     __module__ = "vertexai.vision_models"
