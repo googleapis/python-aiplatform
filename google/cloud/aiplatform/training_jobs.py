@@ -5778,6 +5778,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Example usage:
 
+        ```py
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name="my_display_name",
             optimization_prediction_type="classification",
@@ -5785,6 +5786,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             column_specs={"column_1": "auto", "column_2": "numeric"},
             labels={'key': 'value'},
         )
+        ```
 
         Args:
             display_name (str):
