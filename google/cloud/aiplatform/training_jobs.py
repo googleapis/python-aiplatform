@@ -5774,7 +5774,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Tabular Training Job.
+        """Constructs an AutoML Tabular Training Job.
 
         Example usage:
 
@@ -8468,7 +8468,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Video Training Job.
+        """Constructs an AutoML Video Training Job.
 
         Args:
             display_name (str):
@@ -8928,7 +8928,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Text Training Job.
+        """Constructs an AutoML Text Training Job.
 
         Args:
             display_name (str):
