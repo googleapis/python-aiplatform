@@ -1305,24 +1305,26 @@ class MultiModalEmbeddingResponse:
 class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     """Generates text from images.
 
-    Examples::
+    Examples:
 
-        model = ImageTextModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
+    ```py
+    model = ImageTextModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
 
-        captions = model.get_captions(
-            image=image,
-            # Optional:
-            number_of_results=1,
-            language="en",
-        )
+    captions = model.get_captions(
+        image=image,
+        # Optional:
+        number_of_results=1,
+        language="en",
+    )
 
-        answers = model.ask_question(
-            image=image,
-            question="What color is the car in this image?",
-            # Optional:
-            number_of_results=1,
-        )
+    answers = model.ask_question(
+        image=image,
+        question="What color is the car in this image?",
+        # Optional:
+        number_of_results=1,
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"
