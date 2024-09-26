@@ -1100,16 +1100,18 @@ class ImageQnAModel(
 ):
     """Answers questions about an image.
 
-    Examples::
+    Examples:
 
-        model = ImageQnAModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
-        answers = model.ask_question(
-            image=image,
-            question="What color is the car in this image?",
-            # Optional:
-            number_of_results=1,
-        )
+    ```py
+    model = ImageQnAModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
+    answers = model.ask_question(
+        image=image,
+        question="What color is the car in this image?",
+        # Optional:
+        number_of_results=1,
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"
