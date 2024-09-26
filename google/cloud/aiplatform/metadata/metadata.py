@@ -700,17 +700,18 @@ class _ExperimentTracker:
         Supported model frameworks: sklearn, xgboost, tensorflow.
 
         Example usage:
+
         ```py
-            model = LinearRegression()
-            model.fit(X, y)
-            aiplatform.init(
-                project="my-project",
-                location="my-location",
-                staging_bucket="gs://my-bucket",
-                experiment="my-exp"
-            )
-            with aiplatform.start_run("my-run"):
-                aiplatform.log_model(model, "my-sklearn-model")
+        model = LinearRegression()
+        model.fit(X, y)
+        aiplatform.init(
+            project="my-project",
+            location="my-location",
+            staging_bucket="gs://my-bucket",
+            experiment="my-exp"
+        )
+        with aiplatform.start_run("my-run"):
+            aiplatform.log_model(model, "my-sklearn-model")
         ```
 
         Args:
