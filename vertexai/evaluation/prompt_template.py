@@ -29,12 +29,12 @@ class PromptTemplate:
 
     Usage:
 
-        ```
-        template_str = "Hello, {name}! Today is {day}. How are you?"
-        prompt_template = PromptTemplate(template_str)
-        completed_prompt = prompt_template.assemble(name="John", day="Monday")
-        print(completed_prompt)
-        ```
+    ```py
+    template_str = "Hello, {name}! Today is {day}. How are you?"
+    prompt_template = PromptTemplate(template_str)
+    completed_prompt = prompt_template.assemble(name="John", day="Monday")
+    print(completed_prompt)
+    ```
     """
 
     def __init__(self, template: str):
