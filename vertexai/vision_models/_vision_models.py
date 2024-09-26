@@ -335,17 +335,19 @@ class ImageGenerationModel(
 ):
     """Generates images from text prompt.
 
-    Examples::
+    Examples:
 
-        model = ImageGenerationModel.from_pretrained("imagegeneration@002")
-        response = model.generate_images(
-            prompt="Astronaut riding a horse",
-            # Optional:
-            number_of_images=1,
-            seed=0,
-        )
-        response[0].show()
-        response[0].save("image1.png")
+    ```py
+    model = ImageGenerationModel.from_pretrained("imagegeneration@002")
+    response = model.generate_images(
+        prompt="Astronaut riding a horse",
+        # Optional:
+        number_of_images=1,
+        seed=0,
+    )
+    response[0].show()
+    response[0].save("image1.png")
+    ```
     """
 
     __module__ = "vertexai.preview.vision_models"
