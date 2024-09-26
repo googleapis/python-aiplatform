@@ -48,7 +48,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
 
     ```py
     my_dataset = aiplatform.TabularDataset.create(
-        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
+        display_name="my-dataset",
+        gcs_source=["gs://path/to/my/dataset.csv"],
+    )
     ```
 
     The following code shows you how to create and import a tabular
@@ -56,10 +58,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
 
     ```py
     my_dataset = aiplatform.TextDataset.create(
-        display_name="my-dataset")
+        display_name="my-dataset",
+    )
 
     my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
+        gcs_source=["gs://path/to/my/dataset.csv"],
         import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
     )
     ```
