@@ -6,9 +6,7 @@ Vertex AI SDK for Python
 Gemini API and Generative API
 -----------------------------
 
-.. note::
-
-   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
+**NOTE:** For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
 
 .. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
 
