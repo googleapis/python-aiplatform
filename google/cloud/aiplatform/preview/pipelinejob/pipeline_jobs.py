@@ -485,3 +485,116 @@ class _PipelineJob(
         )
 
         _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())
+
+    def rerun(
+        self,
+        original_pipelinejob_name: str,
+        pipeline_task_rerun_configs: Optional[
+            List[aiplatform_v1beta1.PipelineTaskRerunConfig]
+        ] = None,
+        parameter_values: Optional[Dict[str, Any]] = None,
+        job_id: Optional[str] = None,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
+    ) -> None:
+        """Rerun a PipelineJob.
+
+        Args:
+            original_pipelinejob_name (str):
+                Required. The name of the original PipelineJob.
+            pipeline_task_rerun_configs (List[aiplatform_v1beta1.PipelineTaskRerunConfig]):
+                Optional. The list of PipelineTaskRerunConfig to specify the tasks to rerun.
+            parameter_values (Dict[str, Any]):
+                Optional. The parameter values to override the original PipelineJob.
+            job_id (str):
+                Optional. The ID to use for the PipelineJob, which will become the final
+                component of the PipelineJob name. If not provided, an ID will be
+                automatically generated.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+
+                Private services access must already be configured for the network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC
+                network that can be used for this PipelineJob's workload. For example: ['vertex-ai-ip-range'].
+
+                If left unspecified, the job will be deployed to any IP ranges under
+                the provided VPC network.
+        """
+        network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
+        gca_resouce = self._v1_beta1_pipeline_job
+
+        if service_account:
+            gca_resouce.service_account = service_account
+
+        if network:
+            gca_resouce.network = network
+
+        if reserved_ip_ranges:
+            gca_resouce.reserved_ip_ranges = reserved_ip_ranges
+        user_project = initializer.global_config.project
+        user_location = initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+
+        client = self._instantiate_client(
+            location=user_location,
+            appended_user_agent=["preview-pipeline-job-submit"],
+        )
+        v1beta1_client = client.select_version(compat.V1BETA1)
+
+        _LOGGER.log_create_with_lro(self.__class__)
+
+        pipeline_job = self._v1_beta1_pipeline_job
+        try:
+            get_request = aiplatform_v1beta1.GetPipelineJobRequest(
+                name=original_pipelinejob_name
+            )
+            original_pipeline_job = v1beta1_client.get_pipeline_job(request=get_request)
+            pipeline_job.original_pipeline_job_id = int(
+                original_pipeline_job.labels["vertex-ai-pipelines-run-billing-id"]
+            )
+        except Exception as e:
+            raise ValueError(
+                f"Failed to get original pipeline job: {original_pipelinejob_name}"
+            ) from e
+
+        pipeline_job.pipeline_task_rerun_configs = pipeline_task_rerun_configs
+
+        if parameter_values:
+            runtime_config = self._v1_beta1_pipeline_job.runtime_config
+            runtime_config.parameter_values = parameter_values
+
+        pipeline_name = self._v1_beta1_pipeline_job.display_name
+
+        job_id = job_id or "{pipeline_name}-{timestamp}".format(
+            pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
+            .lstrip("-")
+            .rstrip("-"),
+            timestamp=_get_current_time().strftime("%Y%m%d%H%M%S"),
+        )
+
+        request = aiplatform_v1beta1.CreatePipelineJobRequest(
+            parent=parent,
+            pipeline_job=self._v1_beta1_pipeline_job,
+            pipeline_job_id=job_id,
+        )
+
+        response = v1beta1_client.create_pipeline_job(request=request)
+
+        self._gca_resource = response
+
+        _LOGGER.log_create_complete_with_getter(
+            self.__class__, self._gca_resource, "pipeline_job"
+        )
+
+        _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())

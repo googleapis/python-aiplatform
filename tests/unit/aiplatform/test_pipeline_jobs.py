@@ -27,6 +27,7 @@ from datetime import datetime
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.constants import pipeline as pipeline_constants
@@ -77,6 +78,7 @@ _TEST_GCS_BUCKET_NAME = "my-bucket"
 _TEST_GCS_OUTPUT_DIRECTORY = f"gs://{_TEST_GCS_BUCKET_NAME}/output_artifacts/"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
+_TEST_LABELS = {"vertex-ai-pipelines-run-billing-id": "100"}
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
 _TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
@@ -291,6 +293,53 @@ def mock_pipeline_v1beta1_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_v1beta1_service_get():
+    with mock.patch.object(
+        v1beta1_pipeline_service.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_pipeline_job:
+        mock_get_pipeline_job.side_effect = [
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_v1beta1_pipeline_job(
+                _TEST_PIPELINE_JOB_NAME,
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_pipeline_job
+
+
+@pytest.fixture
 def mock_pipeline_v1_service_batch_cancel():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "batch_cancel_pipeline_jobs"
@@ -351,6 +400,7 @@ def make_v1beta1_pipeline_job(name: str, state: v1beta1_pipeline_state.PipelineS
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        labels=_TEST_LABELS,
         job_detail=v1beta1_pipeline_job.PipelineJobDetail(
             pipeline_run_context=v1beta1_context.Context(
                 name=name,
@@ -2283,6 +2333,49 @@ class TestPipelineJob:
         job.submit()
 
         assert mock_pipeline_v1beta1_service_create.call_count == 1
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_v1beta1_service_create",
+        "mock_pipeline_v1beta1_service_get",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_rerun_v1beta1_pipeline_job_returns_response(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+        mock_pipeline_v1beta1_service_create,
+        mock_pipeline_v1beta1_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.submit()
+
+        job.rerun(
+            original_pipelinejob_name=_TEST_PIPELINE_JOB_NAME,
+            pipeline_task_rerun_configs=[
+                aiplatform_v1beta1.PipelineTaskRerunConfig(
+                    task_name="task-name",
+                    task_id=100,
+                )
+            ],
+            parameter_values={"param-1": "value-1"},
+        )
+
+        assert mock_pipeline_v1beta1_service_get.call_count == 1
+        assert mock_pipeline_v1beta1_service_create.call_count == 2
 
     @pytest.mark.parametrize(
         "job_spec",
