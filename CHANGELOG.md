@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.69.0](https://github.com/googleapis/python-aiplatform/compare/v1.68.0...v1.69.0) (2024-10-01)
+
+
+### Features
+
+* Add rerun method to pipeline job preview client. ([29dec74](https://github.com/googleapis/python-aiplatform/commit/29dec74c4f828a266829efbdc99b20d8dba9d8f8))
+
+
+### Bug Fixes
+
+* GenAI - Fixed from_dict methods ([3090812](https://github.com/googleapis/python-aiplatform/commit/3090812b1e2d189acf532506c7a654a698bd192c))
+
 ## [1.68.0](https://github.com/googleapis/python-aiplatform/compare/v1.67.1...v1.68.0) (2024-09-24)
 
 
