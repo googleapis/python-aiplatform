@@ -269,9 +269,8 @@ def _override_active_span_processor(
 class LangchainAgent:
     """A Langchain Agent.
 
-    Reference:
-    *   Agent: https://python.langchain.com/docs/modules/agents/concepts
-    *   Memory: https://python.langchain.com/docs/expression_language/how_to/message_history
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/reasoning-engine/develop
+    for details.
     """
 
     def __init__(
