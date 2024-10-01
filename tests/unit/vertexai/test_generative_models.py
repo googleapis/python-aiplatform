@@ -126,6 +126,50 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "required": ["location"],
 }
 
+# Input and expected output schema for renaming tests.
+_RENAMING_INPUT_SCHEMA = {
+    "type": "object",
+    "min_properties": 1,
+    "maxProperties": 3,
+    "properties": {
+        "names": {
+            "type": "ArRaY",
+            "minItems": 2,
+            "max_items": 4,
+            "items": {
+                "type": "String",
+                "minLength": 3,
+                "maxLength": 5,
+            },
+        },
+        "date": {
+            "type": "strinG",
+            "format": "date",
+        },
+    },
+}
+_RENAMING_EXPECTED_SCHEMA = {
+    "type_": "OBJECT",
+    "min_properties": "1",  # NB: int64 is converted to string
+    "max_properties": "3",
+    "properties": {
+        "names": {
+            "type_": "ARRAY",
+            "min_items": "2",
+            "max_items": "4",
+            "items": {
+                "type_": "STRING",
+                "min_length": "3",
+                "max_length": "5",
+            },
+        },
+        "date": {
+            "type_": "STRING",
+            "format_": "date",
+        },
+    },
+}
+
 
 def mock_generate_content(
     self,
@@ -1186,6 +1230,43 @@ class TestGenerativeModels:
         image = generative_models.Image.from_bytes(image_bytes_io.getvalue())
         image_part = generative_models.Part.from_image(image)
         assert image_part.mime_type == mime_type
+
+    def test_generation_config_response_schema_dict_renaming(self):
+        config = generative_models.GenerationConfig.from_dict(
+            {
+                "response_schema": _RENAMING_INPUT_SCHEMA,
+            }
+        )
+        assert config.to_dict()["response_schema"] == _RENAMING_EXPECTED_SCHEMA
+
+        config = generative_models.GenerationConfig(
+            response_schema=_RENAMING_INPUT_SCHEMA,
+        )
+        assert config.to_dict()["response_schema"] == _RENAMING_EXPECTED_SCHEMA
+
+    def test_tool_schema_dict_renaming(self):
+        # The `Tool` constructor does not take a dict so we don't test it here.
+        tool = generative_models.Tool.from_dict(
+            {
+                "function_declarations": [
+                    {
+                        "parameters": _RENAMING_INPUT_SCHEMA,
+                    }
+                ],
+            }
+        )
+        assert (
+            tool.to_dict()["function_declarations"][0]["parameters"]
+            == _RENAMING_EXPECTED_SCHEMA
+        )
+
+    def test_function_declaration_schema_dict_renaming(self):
+        # `FunctionDeclaration` doesn't have a `from_dict()` method to test.
+        function = generative_models.FunctionDeclaration(
+            name="test",
+            parameters=_RENAMING_INPUT_SCHEMA,
+        )
+        assert function.to_dict()["parameters"] == _RENAMING_EXPECTED_SCHEMA
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
