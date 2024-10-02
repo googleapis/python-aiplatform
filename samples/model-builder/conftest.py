@@ -1097,6 +1097,15 @@ def mock_get_experiment(mock_experiment):
 
 
 @pytest.fixture
+def mock_get_backing_tensorboard_resource(mock_experiment, mock_tensorboard):
+    with patch.object(
+        mock_experiment, "get_backing_tensorboard_resource"
+    ) as mock_get_backing_tensorboard_resource:
+        mock_get_backing_tensorboard_resource.return_value = mock_tensorboard
+        yield mock_get_backing_tensorboard_resource
+
+
+@pytest.fixture
 def mock_get_with_uri(mock_artifact):
     with patch.object(aiplatform.Artifact, "get_with_uri") as mock_get_with_uri:
         mock_get_with_uri.return_value = mock_artifact

@@ -16,7 +16,9 @@ from experiment_tracking import create_experiment_default_tensorboard_sample
 import test_constants as constants
 
 
-def test_create_experiment_default_tensorboard_sample(mock_sdk_init):
+def test_create_experiment_default_tensorboard_sample(
+    mock_sdk_init, mock_get_experiment, mock_get_backing_tensorboard_resource
+):
 
     create_experiment_default_tensorboard_sample.create_experiment_default_tensorboard_sample(
         experiment_name=constants.EXPERIMENT_NAME,
@@ -31,3 +33,7 @@ def test_create_experiment_default_tensorboard_sample(mock_sdk_init):
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
+
+    mock_get_experiment.assert_called_with(constants.EXPERIMENT_NAME)
+
+    mock_get_backing_tensorboard_resource.assert_called_once()

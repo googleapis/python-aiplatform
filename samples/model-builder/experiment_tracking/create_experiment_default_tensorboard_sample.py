@@ -29,5 +29,8 @@ def create_experiment_default_tensorboard_sample(
         location=location,
     )
 
+    tensorboard = aiplatform.Experiment(experiment_name).get_backing_tensorboard_resource()
+    print(f"Tensorboard resource name: {tensorboard.name}")
+
 
 #  [END aiplatform_sdk_create_experiment_default_tensorboard_sample]
