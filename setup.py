@@ -116,7 +116,7 @@ ray_extra_require = [
     "ray[default] >= 2.5, <= 2.33.0; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
-    "pandas >= 1.0.0, < 2.2.0",
+    "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
     "immutabledict",
 ]
