@@ -1605,11 +1605,12 @@ class GenerationConfig:
 
                 -  ``text/plain``: (default) Text output.
                 -  ``application/json``: JSON response in the candidates.
+                -  ``text/x.enum``: enum response in the candidates. Only valid when
+                    response_schema is provided.
 
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
-            response_schema: Output response schema of the genreated candidate text. Only valid when
-                response_mime_type is application/json.
+            response_schema: Output response schema of the genreated candidate text.
             routing_config: Model routing preference set in the request.
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
