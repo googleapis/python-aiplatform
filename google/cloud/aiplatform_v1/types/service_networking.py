@@ -23,10 +23,38 @@ import proto  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
+        "PSCAutomationConfig",
         "PrivateServiceConnectConfig",
         "PscAutomatedEndpoints",
     },
 )
+
+
+class PSCAutomationConfig(proto.Message):
+    r"""PSC config that is used to automatically create forwarding
+    rule via ServiceConnectionMap.
+
+    Attributes:
+        project_id (str):
+            Required. Project id used to create
+            forwarding rule.
+        network (str):
+            Required. The full name of the Google Compute Engine
+            `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__.
+            `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+            ``projects/{project}/global/networks/{network}``. Where
+            {project} is a project number, as in '12345', and {network}
+            is network name.
+    """
+
+    project_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    network: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class PrivateServiceConnectConfig(proto.Message):

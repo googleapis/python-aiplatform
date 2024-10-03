@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encrypt
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
@@ -133,6 +134,9 @@ class PipelineJob(proto.Message):
             to any ip ranges under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
+        psc_interface_config (google.cloud.aiplatform_v1beta1.types.PscInterfaceConfig):
+            Optional. Configuration for PSC-I for
+            PipelineJob.
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec],
@@ -157,12 +161,12 @@ class PipelineJob(proto.Message):
         satisfies_pzi (bool):
             Output only. Reserved for future use.
         original_pipeline_job_id (int):
-            Output only. The original pipeline job id if
+            Optional. The original pipeline job id if
             this pipeline job is a rerun of a previous
             pipeline job.
         pipeline_task_rerun_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig]):
-            Output only. The rerun configs for each task
-            in the pipeline job. By default, the rerun will:
+            Optional. The rerun configs for each task in
+            the pipeline job. By default, the rerun will:
 
             1. Use the same input artifacts as the original
                 run.
@@ -349,6 +353,11 @@ class PipelineJob(proto.Message):
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
+    )
+    psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=service_networking.PscInterfaceConfig,
     )
     template_uri: str = proto.Field(
         proto.STRING,
@@ -756,19 +765,19 @@ class PipelineTaskRerunConfig(proto.Message):
 
     Attributes:
         task_id (int):
-            Output only. The system generated ID of the
+            Optional. The system generated ID of the
             task. Retrieved from original run.
         task_name (str):
-            Output only. The name of the task.
+            Optional. The name of the task.
         inputs (google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig.Inputs):
-            Output only. The runtime input of the task
+            Optional. The runtime input of the task
             overridden by the user.
         skip_task (bool):
-            Output only. Whether to skip this task.
-            Default value is False.
+            Optional. Whether to skip this task. Default
+            value is False.
         skip_downstream_tasks (bool):
-            Output only. Whether to skip downstream
-            tasks. Default value is False.
+            Optional. Whether to skip downstream tasks.
+            Default value is False.
     """
 
     class ArtifactList(proto.Message):
@@ -776,7 +785,7 @@ class PipelineTaskRerunConfig(proto.Message):
 
         Attributes:
             artifacts (MutableSequence[google.cloud.aiplatform_v1beta1.types.RuntimeArtifact]):
-                Output only. A list of artifact metadata.
+                Optional. A list of artifact metadata.
         """
 
         artifacts: MutableSequence[
@@ -792,9 +801,9 @@ class PipelineTaskRerunConfig(proto.Message):
 
         Attributes:
             artifacts (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.PipelineTaskRerunConfig.ArtifactList]):
-                Output only. Input artifacts.
+                Optional. Input artifacts.
             parameter_values (MutableMapping[str, google.protobuf.struct_pb2.Value]):
-                Output only. Input parameters.
+                Optional. Input parameters.
         """
 
         artifacts: MutableMapping[

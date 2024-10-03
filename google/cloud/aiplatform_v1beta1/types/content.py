@@ -46,6 +46,7 @@ __protobuf__ = proto.module(
         "GroundingSupport",
         "GroundingMetadata",
         "SearchEntryPoint",
+        "RetrievalMetadata",
     },
 )
 
@@ -1136,6 +1137,10 @@ class GroundingMetadata(proto.Message):
             specified grounding source.
         grounding_supports (MutableSequence[google.cloud.aiplatform_v1beta1.types.GroundingSupport]):
             Optional. List of grounding support.
+        retrieval_metadata (google.cloud.aiplatform_v1beta1.types.RetrievalMetadata):
+            Optional. Output only. Retrieval metadata.
+
+            This field is a member of `oneof`_ ``_retrieval_metadata``.
     """
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
@@ -1162,6 +1167,12 @@ class GroundingMetadata(proto.Message):
         number=6,
         message="GroundingSupport",
     )
+    retrieval_metadata: "RetrievalMetadata" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        optional=True,
+        message="RetrievalMetadata",
+    )
 
 
 class SearchEntryPoint(proto.Message):
@@ -1182,6 +1193,26 @@ class SearchEntryPoint(proto.Message):
     )
     sdk_blob: bytes = proto.Field(
         proto.BYTES,
+        number=2,
+    )
+
+
+class RetrievalMetadata(proto.Message):
+    r"""Metadata related to retrieval in the grounding flow.
+
+    Attributes:
+        google_search_dynamic_retrieval_score (float):
+            Optional. Score indicating how likely information from
+            google search could help answer the prompt. The score is in
+            the range [0, 1], where 0 is the least likely and 1 is the
+            most likely. This score is only populated when google search
+            grounding and dynamic retrieval is enabled. It will be
+            compared to the threshold to determine whether to trigger
+            google search.
+    """
+
+    google_search_dynamic_retrieval_score: float = proto.Field(
+        proto.FLOAT,
         number=2,
     )
 

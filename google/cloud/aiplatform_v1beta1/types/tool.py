@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "VertexRagStore",
         "VertexAISearch",
         "GoogleSearchRetrieval",
+        "DynamicRetrievalConfig",
         "ToolConfig",
         "FunctionCallingConfig",
     },
@@ -436,7 +437,59 @@ class GoogleSearchRetrieval(proto.Message):
     r"""Tool to retrieve public web data for grounding, powered by
     Google.
 
+    Attributes:
+        dynamic_retrieval_config (google.cloud.aiplatform_v1beta1.types.DynamicRetrievalConfig):
+            Specifies the dynamic retrieval configuration
+            for the given source.
     """
+
+    dynamic_retrieval_config: "DynamicRetrievalConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="DynamicRetrievalConfig",
+    )
+
+
+class DynamicRetrievalConfig(proto.Message):
+    r"""Describes the options to customize dynamic retrieval.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        mode (google.cloud.aiplatform_v1beta1.types.DynamicRetrievalConfig.Mode):
+            The mode of the predictor to be used in
+            dynamic retrieval.
+        dynamic_threshold (float):
+            Optional. The threshold to be used in dynamic
+            retrieval. If not set, a system default value is
+            used.
+
+            This field is a member of `oneof`_ ``_dynamic_threshold``.
+    """
+
+    class Mode(proto.Enum):
+        r"""The mode of the predictor to be used in dynamic retrieval.
+
+        Values:
+            MODE_UNSPECIFIED (0):
+                Always trigger retrieval.
+            MODE_DYNAMIC (1):
+                Run retrieval only when system decides it is
+                necessary.
+        """
+        MODE_UNSPECIFIED = 0
+        MODE_DYNAMIC = 1
+
+    mode: Mode = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=Mode,
+    )
+    dynamic_threshold: float = proto.Field(
+        proto.FLOAT,
+        number=2,
+        optional=True,
+    )
 
 
 class ToolConfig(proto.Message):

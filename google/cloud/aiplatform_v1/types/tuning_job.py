@@ -36,6 +36,7 @@ __protobuf__ = proto.module(
         "TuningDataStats",
         "SupervisedHyperParameters",
         "SupervisedTuningSpec",
+        "TunedModelRef",
     },
 )
 
@@ -483,7 +484,7 @@ class SupervisedHyperParameters(proto.Message):
 
 
 class SupervisedTuningSpec(proto.Message):
-    r"""Tuning Spec for Supervised Tuning.
+    r"""Tuning Spec for Supervised Tuning for first party models.
 
     Attributes:
         training_dataset_uri (str):
@@ -510,6 +511,50 @@ class SupervisedTuningSpec(proto.Message):
         proto.MESSAGE,
         number=3,
         message="SupervisedHyperParameters",
+    )
+
+
+class TunedModelRef(proto.Message):
+    r"""TunedModel Reference for legacy model migration.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tuned_model (str):
+            Support migration from model registry.
+
+            This field is a member of `oneof`_ ``tuned_model_ref``.
+        tuning_job (str):
+            Support migration from tuning job list page,
+            from gemini-1.0-pro-002 to 1.5 and above.
+
+            This field is a member of `oneof`_ ``tuned_model_ref``.
+        pipeline_job (str):
+            Support migration from tuning job list page,
+            from bison model to gemini model.
+
+            This field is a member of `oneof`_ ``tuned_model_ref``.
+    """
+
+    tuned_model: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="tuned_model_ref",
+    )
+    tuning_job: str = proto.Field(
+        proto.STRING,
+        number=2,
+        oneof="tuned_model_ref",
+    )
+    pipeline_job: str = proto.Field(
+        proto.STRING,
+        number=3,
+        oneof="tuned_model_ref",
     )
 
 

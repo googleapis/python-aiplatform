@@ -125,6 +125,7 @@ from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
 from .types.content import Part
+from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
@@ -484,6 +485,8 @@ from .types.genai_tuning_service import CreateTuningJobRequest
 from .types.genai_tuning_service import GetTuningJobRequest
 from .types.genai_tuning_service import ListTuningJobsRequest
 from .types.genai_tuning_service import ListTuningJobsResponse
+from .types.genai_tuning_service import RebaseTunedModelOperationMetadata
+from .types.genai_tuning_service import RebaseTunedModelRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
 from .types.index import IndexDatapoint
@@ -968,6 +971,7 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import DynamicRetrievalConfig
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -996,6 +1000,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
 from .types.types import BoolArray
@@ -1342,6 +1347,7 @@ __all__ = (
     "DistillationHyperParameters",
     "DistillationSpec",
     "DoubleArray",
+    "DynamicRetrievalConfig",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
@@ -1837,6 +1843,8 @@ __all__ = (
     "ReasoningEngineExecutionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
+    "RebaseTunedModelOperationMetadata",
+    "RebaseTunedModelRequest",
     "RebootPersistentResourceOperationMetadata",
     "RebootPersistentResourceRequest",
     "RemoveContextChildrenRequest",
@@ -1853,6 +1861,7 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
     "RougeInput",
@@ -1988,6 +1997,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
     "Type",

@@ -327,6 +327,11 @@ class DeployedIndex(proto.Message):
 
             Note: we only support up to 5 deployment groups(not
             including 'default').
+        psc_automation_configs (MutableSequence[google.cloud.aiplatform_v1.types.PSCAutomationConfig]):
+            Optional. If set for PSC deployed index, PSC connection will
+            be automatically created after deployment is done and the
+            endpoint information is populated in
+            private_endpoints.psc_automated_endpoints.
     """
 
     id: str = proto.Field(
@@ -382,6 +387,13 @@ class DeployedIndex(proto.Message):
     deployment_group: str = proto.Field(
         proto.STRING,
         number=11,
+    )
+    psc_automation_configs: MutableSequence[
+        service_networking.PSCAutomationConfig
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=19,
+        message=service_networking.PSCAutomationConfig,
     )
 
 

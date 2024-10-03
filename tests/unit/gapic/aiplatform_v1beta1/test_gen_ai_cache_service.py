@@ -3479,7 +3479,9 @@ def test_create_cached_content_rest(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search_retrieval": {},
+                "google_search_retrieval": {
+                    "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
+                },
             }
         ],
         "tool_config": {
@@ -4302,7 +4304,9 @@ def test_update_cached_content_rest(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search_retrieval": {},
+                "google_search_retrieval": {
+                    "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
+                },
             }
         ],
         "tool_config": {

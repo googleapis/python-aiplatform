@@ -19,6 +19,8 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 
 
@@ -30,6 +32,8 @@ __protobuf__ = proto.module(
         "ListTuningJobsRequest",
         "ListTuningJobsResponse",
         "CancelTuningJobRequest",
+        "RebaseTunedModelRequest",
+        "RebaseTunedModelOperationMetadata",
     },
 )
 
@@ -152,6 +156,75 @@ class CancelTuningJobRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class RebaseTunedModelRequest(proto.Message):
+    r"""Request message for
+    [GenAiTuningService.RebaseTunedModel][google.cloud.aiplatform.v1beta1.GenAiTuningService.RebaseTunedModel].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location into which to
+            rebase the Model. Format:
+            ``projects/{project}/locations/{location}``
+        tuned_model_ref (google.cloud.aiplatform_v1beta1.types.TunedModelRef):
+            Required. TunedModel reference to retrieve
+            the legacy model information.
+        tuning_job (google.cloud.aiplatform_v1beta1.types.TuningJob):
+            Optional. The TuningJob to be updated. Users
+            can use this TuningJob field to overwrite tuning
+            configs.
+        artifact_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            Optional. The Google Cloud Storage location
+            to write the artifacts.
+        deploy_to_same_endpoint (bool):
+            Optional. By default, bison to gemini
+            migration will always create new model/endpoint,
+            but for gemini-1.0 to gemini-1.5 migration, we
+            default deploy to the same endpoint. See details
+            in this Section.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    tuned_model_ref: gca_tuning_job.TunedModelRef = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_tuning_job.TunedModelRef,
+    )
+    tuning_job: gca_tuning_job.TuningJob = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=gca_tuning_job.TuningJob,
+    )
+    artifact_destination: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=io.GcsDestination,
+    )
+    deploy_to_same_endpoint: bool = proto.Field(
+        proto.BOOL,
+        number=5,
+    )
+
+
+class RebaseTunedModelOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [GenAiTuningService.RebaseTunedModel][google.cloud.aiplatform.v1beta1.GenAiTuningService.RebaseTunedModel].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation generic
+            information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

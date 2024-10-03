@@ -68,6 +68,12 @@ class PrivateServiceConnectConfig(proto.Message):
         project_allowlist (MutableSequence[str]):
             A list of Projects from which the forwarding
             rule will target the service attachment.
+        enable_secure_private_service_connect (bool):
+            Optional. If set to true, enable secure
+            private service connect with IAM authorization.
+            Otherwise, private service connect will be done
+            without authorization. Note latency will be
+            slightly increased if authorization is enabled.
         service_attachment (str):
             Output only. The name of the generated
             service attachment resource. This is only
@@ -82,6 +88,10 @@ class PrivateServiceConnectConfig(proto.Message):
     project_allowlist: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+    enable_secure_private_service_connect: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
     service_attachment: str = proto.Field(
         proto.STRING,
