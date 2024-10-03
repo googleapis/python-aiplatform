@@ -1059,6 +1059,7 @@ class TestModelEvaluationJob:
             job_id=_TEST_PIPELINE_JOB_ID,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            credentials=_TEST_CREDENTIALS,
         )
 
         test_model_eval_job.wait()
@@ -1153,6 +1154,7 @@ class TestModelEvaluationJob:
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             enable_caching=False,
+            credentials=_TEST_CREDENTIALS,
         )
 
         test_model_eval_job.wait()
@@ -1253,6 +1255,7 @@ class TestModelEvaluationJob:
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             experiment=test_experiment,
+            credentials=_TEST_CREDENTIALS,
         )
 
         test_model_eval_job.wait()
@@ -1345,6 +1348,7 @@ class TestModelEvaluationJob:
             ],
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            credentials=_TEST_CREDENTIALS,
         )
 
         test_model_eval_job.wait()
@@ -1406,6 +1410,7 @@ class TestModelEvaluationJob:
             ],
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            credentials=_TEST_CREDENTIALS,
         )
 
         with pytest.raises(RuntimeError):
@@ -1447,6 +1452,7 @@ class TestModelEvaluationJob:
             ],
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            credentials=_TEST_CREDENTIALS,
         )
 
         assert test_model_eval_job.get_model_evaluation() is None

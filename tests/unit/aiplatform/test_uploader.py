@@ -675,6 +675,56 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
 
     @parameterized.parameters(
+        {"run_name": "test-run-1", "one_platform_run_name": "test-run-1"},
+        {"run_name": "test/run/2", "one_platform_run_name": "test-run-2"},
+        {"run_name": "test.run.3", "one_platform_run_name": "test-run-3"},
+        {"run_name": "test_run_4", "one_platform_run_name": "test-run-4"},
+        {"run_name": "test/.run_5", "one_platform_run_name": "test--run-5"},
+    )
+    @patch.object(
+        uploader_utils.OnePlatformResourceManager,
+        "get_run_resource_name",
+        autospec=True,
+    )
+    @patch.object(metadata, "_experiment_tracker", autospec=True)
+    @patch.object(experiment_resources, "Experiment", autospec=True)
+    def test_start_uploading_scalars_run_names_updated_to_one_platform_names(
+        self,
+        experiment_resources_mock,
+        experiment_tracker_mock,
+        run_resource_mock,
+        run_name,
+        one_platform_run_name,
+    ):
+        experiment_resources_mock.get.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_experiment.return_value = _TEST_EXPERIMENT_NAME
+        experiment_tracker_mock.set_tensorboard.return_value = (
+            _TEST_TENSORBOARD_RESOURCE_NAME
+        )
+        run_resource_mock.return_value = _TEST_ONE_PLATFORM_RUN_NAME
+        uploader = _create_uploader(
+            logdir=_TEST_LOG_DIR_NAME,
+        )
+        uploader.create_experiment()
+
+        mock_logdir_loader = mock.create_autospec(logdir_loader.LogdirLoader)
+        mock_logdir_loader.get_run_events.side_effect = [
+            {
+                run_name: _apply_compat(
+                    [_scalar_event("1.1", 5.0), _scalar_event("1.2", 5.0)]
+                ),
+            },
+            AbortUploadError,
+        ]
+
+        with mock.patch.object(
+            uploader, "_logdir_loader", mock_logdir_loader
+        ), self.assertRaises(AbortUploadError):
+            uploader.start_uploading()
+        experiment_runs = uploader._experiment_runs
+        self.assertIn(one_platform_run_name, experiment_runs)
+
+    @parameterized.parameters(
         {
             "existing_experiment": None,
             "one_platform_run_name": None,
