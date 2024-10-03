@@ -15,17 +15,19 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence, Tuple, Union
+from typing import Dict, Optional, Sequence, Tuple, Union, TYPE_CHECKING
 
 from google.auth import credentials as auth_credentials
 
-from google.cloud import bigquery
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
+
+if TYPE_CHECKING:
+    from google.cloud import bigquery
 
 _AUTOML_TRAINING_MIN_ROWS = 1000
 
@@ -200,7 +202,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
         cls,
         df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         staging_path: str,
-        bq_schema: Optional[Union[str, bigquery.SchemaField]] = None,
+        bq_schema: Optional[Union[str, "bigquery.SchemaField"]] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -282,6 +284,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
                 % (len(df_source), _AUTOML_TRAINING_MIN_ROWS),
             )
+
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
 
         bigquery_client = bigquery.Client(
             project=project or initializer.global_config.project,

@@ -16,7 +16,7 @@
 #
 
 import datetime
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING, Union
 import uuid
 from google.protobuf import timestamp_pb2
 
@@ -38,7 +38,8 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
-from google.cloud import bigquery
+if TYPE_CHECKING:
+    from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -1295,6 +1296,9 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
                 "Received datetime-like column in the dataframe. Please note that the column could be interpreted differently in BigQuery depending on which major version you are using. For more information, please reference the BigQuery v3 release notes here: https://github.com/googleapis/python-bigquery/releases/tag/v3.0.0"
             )
 
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
         bigquery_client = bigquery.Client(
             project=self.project, credentials=self.credentials
         )
@@ -1372,7 +1376,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def _get_bq_schema_field(
         name: str, feature_value_type: str
-    ) -> bigquery.SchemaField:
+    ) -> "bigquery.SchemaField":
         """Helper method to get BigQuery Schema Field.
 
         Args:
@@ -1385,6 +1389,9 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             bigquery.SchemaField: bigquery.SchemaField
         """
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
         bq_data_type = (
             utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
                 feature_value_type
