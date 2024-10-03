@@ -2085,16 +2085,19 @@ def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]
 
 def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     """Converts a JsonSchema to a dict that the Schema proto class accepts."""
-    schema_dict["type"] = schema_dict["type"].upper()
+    if "type" in schema_dict:
+        schema_dict["type"] = schema_dict["type"].upper()
 
-    items_schema = schema_dict.get("items")
-    if items_schema:
+    if items_schema := schema_dict.get("items"):
         _fix_schema_dict_for_gapic_in_place(items_schema)
 
-    properties = schema_dict.get("properties")
-    if properties:
+    if properties := schema_dict.get("properties"):
         for property_schema in properties.values():
             _fix_schema_dict_for_gapic_in_place(property_schema)
+
+    if any_of := (schema_dict.get("any_of") or schema_dict.get("anyOf")):
+        for any_of_schema in any_of:
+            _fix_schema_dict_for_gapic_in_place(any_of_schema)
 
 
 class CallableFunctionDeclaration(FunctionDeclaration):
