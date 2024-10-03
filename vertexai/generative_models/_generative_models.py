@@ -15,6 +15,8 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
+# DO NOT SUBMIT: Comment diff to trigger presubmits.
+
 from collections.abc import Mapping
 import copy
 import io
