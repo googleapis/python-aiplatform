@@ -83,6 +83,7 @@ from google.cloud.aiplatform_v1beta1.types import reservation_affinity
 from google.cloud.aiplatform_v1beta1.types import schedule
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1beta1.types import schedule_service
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value
 from google.cloud.location import locations_pb2
@@ -4169,6 +4170,9 @@ def test_create_schedule_rest(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value"
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -6470,6 +6474,9 @@ def test_update_schedule_rest(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value"
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -7971,10 +7978,38 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_notebook_execution_job_path():
+def test_network_attachment_path():
     project = "cuttlefish"
-    location = "mussel"
-    notebook_execution_job = "winkle"
+    region = "mussel"
+    networkattachment = "winkle"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = ScheduleServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "nautilus",
+        "region": "scallop",
+        "networkattachment": "abalone",
+    }
+    path = ScheduleServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_notebook_execution_job_path():
+    project = "squid"
+    location = "clam"
+    notebook_execution_job = "whelk"
     expected = "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
         project=project,
         location=location,
@@ -7988,9 +8023,9 @@ def test_notebook_execution_job_path():
 
 def test_parse_notebook_execution_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "notebook_execution_job": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "notebook_execution_job": "nudibranch",
     }
     path = ScheduleServiceClient.notebook_execution_job_path(**expected)
 
@@ -8000,9 +8035,9 @@ def test_parse_notebook_execution_job_path():
 
 
 def test_notebook_runtime_template_path():
-    project = "squid"
-    location = "clam"
-    notebook_runtime_template = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    notebook_runtime_template = "winkle"
     expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
         project=project,
         location=location,
@@ -8016,9 +8051,9 @@ def test_notebook_runtime_template_path():
 
 def test_parse_notebook_runtime_template_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "notebook_runtime_template": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "notebook_runtime_template": "abalone",
     }
     path = ScheduleServiceClient.notebook_runtime_template_path(**expected)
 
@@ -8028,9 +8063,9 @@ def test_parse_notebook_runtime_template_path():
 
 
 def test_pipeline_job_path():
-    project = "cuttlefish"
-    location = "mussel"
-    pipeline_job = "winkle"
+    project = "squid"
+    location = "clam"
+    pipeline_job = "whelk"
     expected = (
         "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project,
@@ -8044,9 +8079,9 @@ def test_pipeline_job_path():
 
 def test_parse_pipeline_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "pipeline_job": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "pipeline_job": "nudibranch",
     }
     path = ScheduleServiceClient.pipeline_job_path(**expected)
 
@@ -8056,9 +8091,9 @@ def test_parse_pipeline_job_path():
 
 
 def test_reservation_path():
-    project_id_or_number = "squid"
-    zone = "clam"
-    reservation_name = "whelk"
+    project_id_or_number = "cuttlefish"
+    zone = "mussel"
+    reservation_name = "winkle"
     expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
         project_id_or_number=project_id_or_number,
         zone=zone,
@@ -8072,9 +8107,9 @@ def test_reservation_path():
 
 def test_parse_reservation_path():
     expected = {
-        "project_id_or_number": "octopus",
-        "zone": "oyster",
-        "reservation_name": "nudibranch",
+        "project_id_or_number": "nautilus",
+        "zone": "scallop",
+        "reservation_name": "abalone",
     }
     path = ScheduleServiceClient.reservation_path(**expected)
 
@@ -8084,9 +8119,9 @@ def test_parse_reservation_path():
 
 
 def test_schedule_path():
-    project = "cuttlefish"
-    location = "mussel"
-    schedule = "winkle"
+    project = "squid"
+    location = "clam"
+    schedule = "whelk"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -8098,9 +8133,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "schedule": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "schedule": "nudibranch",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
@@ -8110,7 +8145,7 @@ def test_parse_schedule_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8120,7 +8155,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -8130,7 +8165,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8140,7 +8175,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -8150,7 +8185,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8160,7 +8195,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -8170,7 +8205,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8180,7 +8215,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -8190,8 +8225,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8202,8 +8237,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 

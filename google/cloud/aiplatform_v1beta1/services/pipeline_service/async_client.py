@@ -53,6 +53,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
@@ -100,6 +101,12 @@ class PipelineServiceAsyncClient:
     parse_model_path = staticmethod(PipelineServiceClient.parse_model_path)
     network_path = staticmethod(PipelineServiceClient.network_path)
     parse_network_path = staticmethod(PipelineServiceClient.parse_network_path)
+    network_attachment_path = staticmethod(
+        PipelineServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        PipelineServiceClient.parse_network_attachment_path
+    )
     pipeline_job_path = staticmethod(PipelineServiceClient.pipeline_job_path)
     parse_pipeline_job_path = staticmethod(
         PipelineServiceClient.parse_pipeline_job_path

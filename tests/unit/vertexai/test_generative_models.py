@@ -143,8 +143,20 @@ _RENAMING_INPUT_SCHEMA = {
             },
         },
         "date": {
-            "type": "strinG",
-            "format": "date",
+            "any_of": [
+                {
+                    "type": "strinG",
+                    "format": "date",
+                },
+                {
+                    "anyOf": [
+                        {
+                            "type": "inTegEr",
+                            "minimum": 20241001,
+                        },
+                    ],
+                },
+            ],
         },
     },
 }
@@ -164,8 +176,20 @@ _RENAMING_EXPECTED_SCHEMA = {
             },
         },
         "date": {
-            "type_": "STRING",
-            "format_": "date",
+            "any_of": [
+                {
+                    "type_": "STRING",
+                    "format_": "date",
+                },
+                {
+                    "any_of": [
+                        {
+                            "type_": "INTEGER",
+                            "minimum": 20241001,
+                        },
+                    ],
+                },
+            ],
         },
     },
 }

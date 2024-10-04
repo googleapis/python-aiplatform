@@ -20,6 +20,7 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers_async
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry_async as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
@@ -168,6 +169,7 @@ class GenAiTuningServiceGrpcAsyncIOTransport(GenAiTuningServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -245,6 +247,22 @@ class GenAiTuningServiceGrpcAsyncIOTransport(GenAiTuningServiceTransport):
         """
         # Return the channel from cache.
         return self._grpc_channel
+
+    @property
+    def operations_client(self) -> operations_v1.OperationsAsyncClient:
+        """Create the client designed to process long-running operations.
+
+        This property caches on the instance; repeated calls return the same
+        client.
+        """
+        # Quick check: Only create a new client if we do not already have one.
+        if self._operations_client is None:
+            self._operations_client = operations_v1.OperationsAsyncClient(
+                self.grpc_channel
+            )
+
+        # Return the client from cache.
+        return self._operations_client
 
     @property
     def create_tuning_job(
@@ -373,6 +391,38 @@ class GenAiTuningServiceGrpcAsyncIOTransport(GenAiTuningServiceTransport):
             )
         return self._stubs["cancel_tuning_job"]
 
+    @property
+    def rebase_tuned_model(
+        self,
+    ) -> Callable[
+        [genai_tuning_service.RebaseTunedModelRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the rebase tuned model method over gRPC.
+
+        Rebase a TunedModel.
+        Creates a LongRunningOperation that takes a legacy Tuned
+        GenAI model Reference and creates a TuningJob based on
+        newly available model.
+
+        Returns:
+            Callable[[~.RebaseTunedModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "rebase_tuned_model" not in self._stubs:
+            self._stubs["rebase_tuned_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.GenAiTuningService/RebaseTunedModel",
+                request_serializer=genai_tuning_service.RebaseTunedModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["rebase_tuned_model"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -393,6 +443,11 @@ class GenAiTuningServiceGrpcAsyncIOTransport(GenAiTuningServiceTransport):
             ),
             self.cancel_tuning_job: gapic_v1.method_async.wrap_method(
                 self.cancel_tuning_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.rebase_tuned_model: gapic_v1.method_async.wrap_method(
+                self.rebase_tuned_model,
                 default_timeout=None,
                 client_info=client_info,
             ),

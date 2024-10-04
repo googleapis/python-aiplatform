@@ -443,6 +443,8 @@ from .genai_tuning_service import (
     GetTuningJobRequest,
     ListTuningJobsRequest,
     ListTuningJobsResponse,
+    RebaseTunedModelOperationMetadata,
+    RebaseTunedModelRequest,
 )
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
@@ -884,6 +886,7 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
+    PSCAutomationConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1000,6 +1003,7 @@ from .tuning_job import (
     SupervisedTuningDataStats,
     SupervisedTuningSpec,
     TunedModel,
+    TunedModelRef,
     TuningDataStats,
     TuningJob,
 )
@@ -1388,6 +1392,8 @@ __all__ = (
     "GetTuningJobRequest",
     "ListTuningJobsRequest",
     "ListTuningJobsResponse",
+    "RebaseTunedModelOperationMetadata",
+    "RebaseTunedModelRequest",
     "HyperparameterTuningJob",
     "Index",
     "IndexDatapoint",
@@ -1733,6 +1739,7 @@ __all__ = (
     "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
+    "PSCAutomationConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1825,6 +1832,7 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningSpec",
     "TunedModel",
+    "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
     "BoolArray",

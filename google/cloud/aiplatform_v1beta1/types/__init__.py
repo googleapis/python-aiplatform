@@ -50,6 +50,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     Part,
+    RetrievalMetadata,
     SafetyRating,
     SafetySetting,
     SearchEntryPoint,
@@ -483,6 +484,8 @@ from .genai_tuning_service import (
     GetTuningJobRequest,
     ListTuningJobsRequest,
     ListTuningJobsResponse,
+    RebaseTunedModelOperationMetadata,
+    RebaseTunedModelRequest,
 )
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
@@ -1093,6 +1096,7 @@ from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
 from .tool import (
+    DynamicRetrievalConfig,
     FunctionCall,
     FunctionCallingConfig,
     FunctionDeclaration,
@@ -1125,6 +1129,7 @@ from .tuning_job import (
     SupervisedTuningDataStats,
     SupervisedTuningSpec,
     TunedModel,
+    TunedModelRef,
     TuningDataStats,
     TuningJob,
 )
@@ -1231,6 +1236,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "Part",
+    "RetrievalMetadata",
     "SafetyRating",
     "SafetySetting",
     "SearchEntryPoint",
@@ -1582,6 +1588,8 @@ __all__ = (
     "GetTuningJobRequest",
     "ListTuningJobsRequest",
     "ListTuningJobsResponse",
+    "RebaseTunedModelOperationMetadata",
+    "RebaseTunedModelRequest",
     "HyperparameterTuningJob",
     "Index",
     "IndexDatapoint",
@@ -2058,6 +2066,7 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "DynamicRetrievalConfig",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
@@ -2086,6 +2095,7 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningSpec",
     "TunedModel",
+    "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
     "BoolArray",

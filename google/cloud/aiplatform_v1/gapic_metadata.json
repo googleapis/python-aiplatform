@@ -1445,6 +1445,11 @@
               "methods": [
                 "list_tuning_jobs"
               ]
+            },
+            "RebaseTunedModel": {
+              "methods": [
+                "rebase_tuned_model"
+              ]
             }
           }
         },
@@ -1470,6 +1475,11 @@
               "methods": [
                 "list_tuning_jobs"
               ]
+            },
+            "RebaseTunedModel": {
+              "methods": [
+                "rebase_tuned_model"
+              ]
             }
           }
         },
@@ -1494,6 +1504,11 @@
             "ListTuningJobs": {
               "methods": [
                 "list_tuning_jobs"
+              ]
+            },
+            "RebaseTunedModel": {
+              "methods": [
+                "rebase_tuned_model"
               ]
             }
           }

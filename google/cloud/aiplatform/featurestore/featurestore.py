@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING, Union
 import uuid
 
 from google.auth import credentials as auth_credentials
@@ -37,7 +37,8 @@ from google.cloud.aiplatform.utils import (
     resource_manager_utils,
 )
 
-from google.cloud import bigquery
+if TYPE_CHECKING:
+    from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 
@@ -1241,6 +1242,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 f"{self.batch_serve_to_df.__name__}"
             )
 
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
         bigquery_client = bigquery.Client(
             project=self.project, credentials=self.credentials
         )
@@ -1360,7 +1364,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         return f"{project_id}.{temp_bq_dataset_name}"[:1024]
 
     def _create_ephemeral_bq_dataset(
-        self, bigquery_client: bigquery.Client, dataset_id: str
+        self, bigquery_client: "bigquery.Client", dataset_id: str
     ) -> "bigquery.Dataset":
         """Helper method to create an ephemeral dataset in BigQuery used to
         temporarily stage data.
@@ -1373,6 +1377,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             bigquery.Dataset - new BigQuery dataset used to temporarily stage data
         """
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
         temp_bq_dataset = bigquery.Dataset(dataset_ref=dataset_id)
         temp_bq_dataset.location = self.location
 

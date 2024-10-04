@@ -18,14 +18,16 @@
 
 import csv
 import logging
-from typing import List, Optional, Set
+from typing import List, Optional, Set, TYPE_CHECKING
 from google.auth import credentials as auth_credentials
 
-from google.cloud import bigquery
 from google.cloud import storage
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import datasets
+
+if TYPE_CHECKING:
+    from google.cloud import bigquery
 
 
 class _ColumnNamesDataset(datasets._Dataset):
@@ -165,7 +167,7 @@ class _ColumnNamesDataset(datasets._Dataset):
 
     @staticmethod
     def _get_bq_schema_field_names_recursively(
-        schema_field: bigquery.SchemaField,
+        schema_field: "bigquery.SchemaField",
     ) -> Set[str]:
         """Retrieve the name for a schema field along with ancestor fields.
         Nested schema fields are flattened and concatenated with a ".".
@@ -242,6 +244,9 @@ class _ColumnNamesDataset(datasets._Dataset):
         # Dataset IDs must be alphanumeric (plus underscores and dashes) and must be at most 1024 characters long.
         # Using dot-based "project.dataset.table" format instead.
         bq_table_uri = bq_table_uri.replace(":", ".")
+
+        # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
 
         client = bigquery.Client(project=project, credentials=credentials)
         table = client.get_table(bq_table_uri)
