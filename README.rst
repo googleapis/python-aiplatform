@@ -1,12 +1,18 @@
 Vertex AI SDK for Python
 =================================================
 
-|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
+
+Gemini API and Generative AI on Vertex AI
+-----------------------------------------
 
 .. note::
 
    For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
 .. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
+
+-----------------------------------------
+
+|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
 
