@@ -79,6 +79,8 @@ def rag_data_client_mock_exception():
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
         # create_rag_corpus
         api_client_mock.create_rag_corpus.side_effect = Exception
+        # update_rag_corpus
+        api_client_mock.update_rag_corpus.side_effect = Exception
         # get_rag_corpus
         api_client_mock.get_rag_corpus.side_effect = Exception
         # list_rag_corpora

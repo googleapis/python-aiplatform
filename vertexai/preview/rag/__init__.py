@@ -17,6 +17,7 @@
 
 from vertexai.preview.rag.rag_data import (
     create_corpus,
+    update_corpus,
     list_corpora,
     get_corpus,
     delete_corpus,
@@ -84,4 +85,5 @@ __all__ = (
     "list_files",
     "retrieval_query",
     "upload_file",
+    "update_corpus",
 )

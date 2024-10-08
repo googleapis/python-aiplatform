@@ -112,6 +112,70 @@ def create_rag_corpus_mock_pinecone():
 
 
 @pytest.fixture
+def update_rag_corpus_mock_weaviate():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_weaviate:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_WEAVIATE
+        )
+        update_rag_corpus_mock_weaviate.return_value = update_rag_corpus_lro_mock
+        yield update_rag_corpus_mock_weaviate
+
+
+@pytest.fixture
+def update_rag_corpus_mock_vertex_feature_store():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_vertex_feature_store:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE
+        )
+        update_rag_corpus_mock_vertex_feature_store.return_value = (
+            update_rag_corpus_lro_mock
+        )
+        yield update_rag_corpus_mock_vertex_feature_store
+
+
+@pytest.fixture
+def update_rag_corpus_mock_vertex_vector_search():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_vertex_vector_search:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH
+        )
+        update_rag_corpus_mock_vertex_vector_search.return_value = (
+            update_rag_corpus_lro_mock
+        )
+        yield update_rag_corpus_mock_vertex_vector_search
+
+
+@pytest.fixture
+def update_rag_corpus_mock_pinecone():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_pinecone:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            tc.TEST_GAPIC_RAG_CORPUS_PINECONE
+        )
+        update_rag_corpus_mock_pinecone.return_value = update_rag_corpus_lro_mock
+        yield update_rag_corpus_mock_pinecone
+
+
+@pytest.fixture
 def list_rag_corpora_pager_mock():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -297,6 +361,83 @@ class TestRagDataManagement:
         with pytest.raises(RuntimeError) as e:
             rag.create_corpus(display_name=tc.TEST_CORPUS_DISPLAY_NAME)
         e.match("Failed in RagCorpus creation due to")
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
+    def test_update_corpus_weaviate_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_WEAVIATE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_WEAVIATE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
+    def test_update_corpus_weaviate_no_display_name_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            vector_db=tc.TEST_WEAVIATE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_WEAVIATE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
+    def test_update_corpus_weaviate_with_description_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            description=tc.TEST_CORPUS_DISCRIPTION,
+            vector_db=tc.TEST_WEAVIATE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_WEAVIATE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
+    def test_update_corpus_weaviate_with_description_and_display_name_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            description=tc.TEST_CORPUS_DISCRIPTION,
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_WEAVIATE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_WEAVIATE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_feature_store")
+    def test_update_corpus_vertex_feature_store_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_VERTEX_FEATURE_STORE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_vector_search")
+    def test_update_corpus_vertex_vector_search_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+        )
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
+    def test_update_corpus_pinecone_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=tc.TEST_PINECONE_CONFIG,
+        )
+        rag_corpus_eq(rag_corpus, tc.TEST_RAG_CORPUS_PINECONE)
+
+    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    def test_update_corpus_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.update_corpus(
+                corpus_name=tc.TEST_RAG_CORPUS_RESOURCE_NAME,
+                display_name=tc.TEST_CORPUS_DISPLAY_NAME,
+            )
+        e.match("Failed in RagCorpus update due to")
 
     @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_success(self):
