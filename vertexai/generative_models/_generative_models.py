@@ -2302,13 +2302,13 @@ class Candidate:
             ) from e
 
     @property
-    def function_calls(self) -> Sequence[gapic_tool_types.FunctionCall]:
+    def function_calls(self) -> Sequence["FunctionCall"]:
         if not self.content or not self.content.parts:
             return []
         return [
             part.function_call
             for part in self.content.parts
-            if part and part.function_call
+            if part._raw_part._pb.WhichOneof("data") == "function_call"
         ]
 
 
@@ -2483,8 +2483,12 @@ class Part:
         return self._raw_part.file_data
 
     @property
-    def function_call(self) -> gapic_tool_types.FunctionCall:
-        return self._raw_part.function_call
+    def function_call(self) -> "FunctionCall":
+        return (
+            FunctionCall._from_gapic(self._raw_part.function_call)
+            if self._raw_part.function_call
+            else None
+        )
 
     @property
     def function_response(self) -> gapic_tool_types.FunctionResponse:
@@ -2493,6 +2497,40 @@ class Part:
     @property
     def _image(self) -> "Image":
         return Image.from_bytes(data=self._raw_part.inline_data.data)
+
+
+class FunctionCall:
+    """Function call."""
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        args: Dict[str, Any],
+    ):
+        self._raw_message = aiplatform_types.FunctionCall(name=name, args=args)
+
+    @classmethod
+    def _from_gapic(cls, raw_message: aiplatform_types.FunctionCall) -> "FunctionCall":
+        response = cls.__new__(cls)
+        response._raw_message = raw_message
+        return response
+
+    def to_dict(self) -> Dict[str, Any]:
+        return _proto_to_dict(self._raw_message)
+
+    def __repr__(self) -> str:
+        return self._raw_message.__repr__()
+
+    @property
+    def name(self) -> str:
+        return self._raw_message.name
+
+    @property
+    def args(self) -> Dict[str, Any]:
+        # We cannot use `type(self.args).to_dict(self.args)`
+        # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
+        return self.to_dict().get("args")
 
 
 class SafetySetting:
@@ -2953,10 +2991,9 @@ class AutomaticFunctionCallingResponder:
                     )
 
                 try:
-                    # We cannot use `function_args = type(function_call.args).to_dict(function_call.args)`
-                    # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
-                    function_args = type(function_call).to_dict(function_call)["args"]
-                    function_call_result = callable_function._function(**function_args)
+                    function_call_result = callable_function._function(
+                        **function_call.args
+                    )
                     if not isinstance(function_call_result, Mapping):
                         # If the function returns a single value, wrap it in the
                         # format that Part.from_function_response can accept.
