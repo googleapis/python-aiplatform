@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.70.0](https://github.com/googleapis/python-aiplatform/compare/v1.69.0...v1.70.0) (2024-10-08)
+
+
+### Features
+
+* Add a dynamic retrieval API ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add enable_secure_private_service_connect in service attachment ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add new `PscInterfaceConfig` field to `pipeline_job.proto` ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add psc_automation_configs to DeployIndex v1 ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add TunedModelRef and RebaseTunedModel Api for Vertex GenAiTuningService ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add TunedModelRef and RebaseTunedModel Api for Vertex GenAiTuningService ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Add update_corpus method for vertex rag ([09353cf](https://github.com/googleapis/python-aiplatform/commit/09353cfa030325471524be62cd0d87d59b885c38))
+* Automatically end Experiment runs when Tensorboard CustomJob is complete ([30cf221](https://github.com/googleapis/python-aiplatform/commit/30cf22191539ddb41ae2907ef9b2a266f6c2a668))
+* Vision Models - Add new safety filter levels to Vertex AI Image Generation API. ([b1d5007](https://github.com/googleapis/python-aiplatform/commit/b1d5007f07d50838ed596b35db00233343d14faf))
+
+
+### Bug Fixes
+
+* Annotate PipelineJob and PipelineTaskRerunConfig fields as optional ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+* Update the docstring for LangchainAgent ([f7fe2b0](https://github.com/googleapis/python-aiplatform/commit/f7fe2b0f98c2906a6c9ad2dc0cfca26f3df025f9))
+
+
+### Documentation
+
+* Add sample to retrieve experiment backing tensorboard resource name ([138dc1a](https://github.com/googleapis/python-aiplatform/commit/138dc1a8085e3260f1b12f68e973f08d72069a9b))
+* GenAI - update comments in GenerationConfig property ([c670eeb](https://github.com/googleapis/python-aiplatform/commit/c670eeb36a244bc1eca45b5c2c6e32815f16bf62))
+* Limit comment `SupervisedTuningSpec` for 1p tuning ([44df243](https://github.com/googleapis/python-aiplatform/commit/44df2430f1a4ba69a24d29a0be88a67670e3d742))
+
 ## [1.69.0](https://github.com/googleapis/python-aiplatform/compare/v1.68.0...v1.69.0) (2024-10-01)
 
 
