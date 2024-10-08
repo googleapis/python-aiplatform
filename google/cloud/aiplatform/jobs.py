@@ -1633,14 +1633,34 @@ class _RunnableJob(_Job):
 
         if isinstance(self, CustomJob):
             # End the experiment run associated with the custom job, if exists.
-            experiment_run = self._gca_resource.job_spec.experiment_run
-            if experiment_run:
+            experiment_runs = []
+            if self._gca_resource.job_spec.experiment_run:
+                experiment_runs = [self._gca_resource.job_spec.experiment_run]
+            elif self._gca_resource.job_spec.tensorboard:
+                tensorboard_id = self._gca_resource.job_spec.tensorboard.split("/")[-1]
+                try:
+                    tb_runs = aiplatform.TensorboardRun.list(
+                        tensorboard_experiment_name=self.name,
+                        tensorboard_id=tensorboard_id,
+                    )
+                    experiment_runs = [
+                        f"{self.name}-{tb_run.name.split('/')[-1]}"
+                        for tb_run in tb_runs
+                    ]
+                except (ValueError, api_exceptions.GoogleAPIError) as e:
+                    _LOGGER.warning(
+                        f"Failed to list experiment runs for tensorboard "
+                        f"{tensorboard_id} due to: {e}"
+                    )
+            for experiment_run in experiment_runs:
                 try:
                     # sync resource before end run
                     experiment_run_context = aiplatform.Context(experiment_run)
                     experiment_run_context.update(
                         metadata={
-                            metadata_constants._STATE_KEY: gca_execution_compat.Execution.State.COMPLETE.name
+                            metadata_constants._STATE_KEY: (
+                                gca_execution_compat.Execution.State.COMPLETE.name
+                            )
                         }
                     )
                 except (ValueError, api_exceptions.GoogleAPIError) as e:

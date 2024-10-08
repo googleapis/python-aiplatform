@@ -32,6 +32,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job_compat,
+    tensorboard_run as gca_tensorboard_run,
     io,
 )
 
@@ -55,7 +56,8 @@ _TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 _TEST_CUSTOM_JOB_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
-_TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
+_TEST_TENSORBOARD_ID = "987654321"
+_TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_TENSORBOARD_ID}"
 _TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
 _TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
 _TEST_TRAINING_CONTAINER_IMAGE = (
@@ -162,6 +164,8 @@ _TEST_EXPERIMENT_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXPERI
 _TEST_EXPERIMENT_RUN_CONTEXT_NAME = (
     f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXECUTION_ID}"
 )
+_TEST_TENSORBOARD_RUN_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_TENSORBOARD_ID}/experiments/{_TEST_ID}/runs/{_TEST_RUN}"
+_TEST_TENSORBOARD_RUN_CONTEXT_NAME = f"{_TEST_ID}-{_TEST_RUN}"
 
 _EXPERIMENT_MOCK = GapicContext(
     name=_TEST_CONTEXT_NAME,
@@ -204,6 +208,16 @@ def _get_custom_job_proto_with_experiments(state=None, name=None, error=None):
     custom_job_proto.error = error
     custom_job_proto.job_spec.experiment = _TEST_EXPERIMENT_CONTEXT_NAME
     custom_job_proto.job_spec.experiment_run = _TEST_EXPERIMENT_RUN_CONTEXT_NAME
+    return custom_job_proto
+
+
+def _get_custom_job_proto_with_tensorboard(state=None, name=None, error=None):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.job_spec.worker_pool_specs = _TEST_WORKER_POOL_SPEC
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+    custom_job_proto.error = error
+    custom_job_proto.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
     return custom_job_proto
 
 
@@ -277,6 +291,28 @@ def get_custom_job_with_experiments_mock():
                 state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
             ),
             _get_custom_job_proto_with_experiments(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def get_custom_job_with_tensorboard_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_tensorboard(
                 name=_TEST_CUSTOM_JOB_NAME,
                 state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
             ),
@@ -819,6 +855,98 @@ class TestCustomJob:
 
         assert (
             f"Failed to end experiment run {_TEST_EXPERIMENT_RUN_CONTEXT_NAME} due to:"
+            in caplog.text
+        )
+
+    @pytest.mark.usefixtures(
+        "get_experiment_run_not_found_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
+    def test_run_custom_job_with_tensorboard_cannot_list_experiment_runs(
+        self,
+        create_custom_job_mock_with_tensorboard,
+        get_custom_job_with_tensorboard_mock,
+        caplog,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
+        )
+
+        job.wait()
+
+        assert "Failed to list experiment runs for tensorboard" in caplog.text
+
+    @pytest.mark.usefixtures(
+        "get_experiment_run_not_found_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
+    def test_run_custom_job_with_tensorboard_cannot_end_experiment_run(
+        self,
+        create_custom_job_mock_with_tensorboard,
+        get_custom_job_with_tensorboard_mock,
+        caplog,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        with mock.patch.object(
+            aiplatform.TensorboardRun, "list"
+        ) as list_tensorboard_runs_mock:
+            tb_run = gca_tensorboard_run.TensorboardRun(
+                name=_TEST_TENSORBOARD_RUN_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+            )
+            list_tensorboard_runs_mock.return_value = [tb_run]
+
+            job.run(
+                service_account=_TEST_SERVICE_ACCOUNT,
+                tensorboard=_TEST_TENSORBOARD_NAME,
+                network=_TEST_NETWORK,
+                timeout=_TEST_TIMEOUT,
+                restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                create_request_timeout=None,
+                disable_retries=_TEST_DISABLE_RETRIES,
+                max_wait_duration=_TEST_MAX_WAIT_DURATION,
+            )
+
+        job.wait()
+
+        assert (
+            f"Failed to end experiment run {_TEST_TENSORBOARD_RUN_CONTEXT_NAME} due to:"
             in caplog.text
         )
 
