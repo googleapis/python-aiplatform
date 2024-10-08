@@ -180,6 +180,19 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     return rag_corpus
 
 
+def convert_gapic_to_rag_corpus_no_embedding_model_config(
+    gapic_rag_corpus: GapicRagCorpus,
+) -> RagCorpus:
+    """Convert GapicRagCorpus without embedding model config (for UpdateRagCorpus) to RagCorpus."""
+    rag_corpus = RagCorpus(
+        name=gapic_rag_corpus.name,
+        display_name=gapic_rag_corpus.display_name,
+        description=gapic_rag_corpus.description,
+        vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
+    )
+    return rag_corpus
+
+
 def convert_gapic_to_rag_file(gapic_rag_file: GapicRagFile) -> RagFile:
     """Convert GapicRagFile to RagFile."""
     rag_file = RagFile(

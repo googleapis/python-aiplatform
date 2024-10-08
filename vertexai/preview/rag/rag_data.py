@@ -16,7 +16,7 @@
 #
 """RAG data management SDK."""
 
-from typing import Optional, Union, Sequence
+from typing import Optional, Sequence, Union
 from google import auth
 from google.api_core import operation_async
 from google.auth.transport import requests as google_auth_requests
@@ -33,8 +33,8 @@ from google.cloud.aiplatform_v1beta1 import (
     ListRagCorporaRequest,
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
+    UpdateRagCorpusRequest,
 )
-
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
     ListRagFilesPager,
@@ -119,6 +119,84 @@ def create_corpus(
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus creation due to: ", e) from e
     return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=600))
+
+
+def update_corpus(
+    corpus_name: str,
+    display_name: Optional[str] = None,
+    description: Optional[str] = None,
+    vector_db: Optional[
+        Union[
+            Weaviate,
+            VertexFeatureStore,
+            VertexVectorSearch,
+            Pinecone,
+            RagManagedDb,
+        ]
+    ] = None,
+) -> RagCorpus:
+    """Updates a RagCorpus resource.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+
+    vertexai.init(project="my-project")
+
+    rag_corpus = rag.update_corpus(
+        corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
+        display_name="my-corpus-1",
+    )
+    ```
+
+    Args:
+        corpus_name: The name of the RagCorpus resource to update. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`` or
+          ``{rag_corpus}``.
+        display_name: If not provided, the display name will not be updated. The
+          display name of the RagCorpus. The name can be up to 128 characters long
+          and can consist of any UTF-8 characters.
+        description: The description of the RagCorpus. If not provided, the
+          description will not be updated.
+        vector_db: The vector db config of the RagCorpus. If not provided, the
+          vector db will not be updated.
+
+    Returns:
+        RagCorpus.
+    Raises:
+        RuntimeError: Failed in RagCorpus update due to exception.
+        RuntimeError: Failed in RagCorpus update due to operation error.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    if display_name and description:
+        rag_corpus = GapicRagCorpus(
+            name=corpus_name, display_name=display_name, description=description
+        )
+    elif display_name:
+        rag_corpus = GapicRagCorpus(name=corpus_name, display_name=display_name)
+    elif description:
+        rag_corpus = GapicRagCorpus(name=corpus_name, description=description)
+    else:
+        rag_corpus = GapicRagCorpus(name=corpus_name)
+
+    _gapic_utils.set_vector_db(
+        vector_db=vector_db,
+        rag_corpus=rag_corpus,
+    )
+
+    request = UpdateRagCorpusRequest(
+        rag_corpus=rag_corpus,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+
+    try:
+        response = client.update_rag_corpus(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagCorpus update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_corpus_no_embedding_model_config(
+        response.result(timeout=600)
+    )
 
 
 def get_corpus(name: str) -> RagCorpus:
