@@ -995,6 +995,7 @@ from .types.tuning_job import DatasetStats
 from .types.tuning_job import DistillationDataStats
 from .types.tuning_job import DistillationHyperParameters
 from .types.tuning_job import DistillationSpec
+from .types.tuning_job import PartnerModelTuningSpec
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
@@ -1745,6 +1746,7 @@ __all__ = (
     "PairwiseSummarizationQualityResult",
     "PairwiseSummarizationQualitySpec",
     "Part",
+    "PartnerModelTuningSpec",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
     "PersistentDiskSpec",

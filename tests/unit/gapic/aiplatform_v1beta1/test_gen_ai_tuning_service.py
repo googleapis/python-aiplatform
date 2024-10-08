@@ -3376,6 +3376,11 @@ def test_create_tuning_job_rest(request_type):
             "student_model": "student_model_value",
             "pipeline_root_directory": "pipeline_root_directory_value",
         },
+        "partner_model_tuning_spec": {
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {},
+        },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
         "description": "description_value",

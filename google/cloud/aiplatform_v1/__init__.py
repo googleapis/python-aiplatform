@@ -103,6 +103,7 @@ from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
 from .types.content import Part
+from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
@@ -863,6 +864,7 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import DynamicRetrievalConfig
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -1162,6 +1164,7 @@ __all__ = (
     "DirectRawPredictResponse",
     "DiskSpec",
     "DoubleArray",
+    "DynamicRetrievalConfig",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
@@ -1596,6 +1599,7 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalMetadata",
     "RougeInput",
     "RougeInstance",
     "RougeMetricValue",

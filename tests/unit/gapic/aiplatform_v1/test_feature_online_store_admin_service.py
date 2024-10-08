@@ -9214,7 +9214,7 @@ def test_create_feature_view_rest(request_type):
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
-        "sync_config": {"cron": "cron_value"},
+        "sync_config": {"cron": "cron_value", "continuous": True},
         "index_config": {
             "tree_ah_config": {"leaf_node_embedding_count": 2595},
             "brute_force_config": {},
@@ -10408,7 +10408,7 @@ def test_update_feature_view_rest(request_type):
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
-        "sync_config": {"cron": "cron_value"},
+        "sync_config": {"cron": "cron_value", "continuous": True},
         "index_config": {
             "tree_ah_config": {"leaf_node_embedding_count": 2595},
             "brute_force_config": {},

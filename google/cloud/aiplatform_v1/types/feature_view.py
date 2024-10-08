@@ -139,11 +139,18 @@ class FeatureView(proto.Message):
                 ${IANA_TIME_ZONE} may only be a valid string from IANA time
                 zone database. For example, "CRON_TZ=America/New_York 1 \*
                 \* \* \*", or "TZ=America/New_York 1 \* \* \* \*".
+            continuous (bool):
+                Optional. If true, syncs the FeatureView in a
+                continuous manner to Online Store.
         """
 
         cron: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+        continuous: bool = proto.Field(
+            proto.BOOL,
+            number=2,
         )
 
     class IndexConfig(proto.Message):
