@@ -80,9 +80,9 @@ class Weaviate:
             ``projects/{project}/secrets/{secret}/versions/{version}``
     """
 
-    weaviate_http_endpoint: str
-    collection_name: str
-    api_key: str
+    weaviate_http_endpoint: Optional[str] = None
+    collection_name: Optional[str] = None
+    api_key: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -95,7 +95,7 @@ class VertexFeatureStore:
               {feature_online_store}/featureViews/{feature_view}``
     """
 
-    resource_name: str
+    resource_name: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -111,8 +111,8 @@ class VertexVectorSearch:
             ``projects/{project}/locations/{location}/indexes/{index}``
     """
 
-    index_endpoint: str
-    index: str
+    index_endpoint: Optional[str] = None
+    index: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -130,8 +130,8 @@ class Pinecone:
             ``projects/{project}/secrets/{secret}/versions/{version}``
     """
 
-    index_name: str
-    api_key: str
+    index_name: Optional[str] = None
+    api_key: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -152,7 +152,7 @@ class RagCorpus:
     description: Optional[str] = None
     embedding_model_config: Optional[EmbeddingModelConfig] = None
     vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone]
+        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None
 
 
