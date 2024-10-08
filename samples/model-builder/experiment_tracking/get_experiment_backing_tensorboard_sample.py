@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#  [START aiplatform_sdk_create_experiment_default_tensorboard_sample]
+#  [START aiplatform_sdk_get_experiment_backing_tensorboard_sample]
 from google.cloud import aiplatform
 
 
-def get_experiment_backing_tensorboard_resource_name_sample(
+def get_experiment_backing_tensorboard_sample(
     experiment_name: str,
     project: str,
     location: str,
@@ -30,4 +30,4 @@ def get_experiment_backing_tensorboard_resource_name_sample(
     return backing_tensorboard.name
 
 
-#  [END aiplatform_sdk_create_experiment_default_tensorboard_sample]
+#  [END aiplatform_sdk_get_experiment_backing_tensorboard_sample]

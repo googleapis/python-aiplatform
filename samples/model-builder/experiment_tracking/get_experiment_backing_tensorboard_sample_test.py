@@ -16,11 +16,11 @@ from experiment_tracking import get_experiment_backing_tensorboard_sample
 import test_constants as constants
 
 
-def test_get_experiment_backing_tensorboard_resource_name_sample(
+def test_get_experiment_backing_tensorboard_sample(
     mock_get_experiment, mock_get_backing_tensorboard_resource
 ):
 
-    get_experiment_backing_tensorboard_sample.get_experiment_backing_tensorboard_resource_name_sample(
+    get_experiment_backing_tensorboard_sample.get_experiment_backing_tensorboard_sample(
         experiment_name=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
