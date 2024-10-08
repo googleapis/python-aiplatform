@@ -649,7 +649,7 @@ class TestImageGenerationModels:
             assert actual_parameters["addWatermark"]
 
     def test_generate_images_requests_safety_filter_level(self):
-        """Tests that the model class applies safety filter levels"""
+        """Tests that the model class applies safety filter levels."""
         model = self._get_image_generation_model()
 
         safety_filter_levels = [
@@ -657,6 +657,10 @@ class TestImageGenerationModels:
             "block_some",
             "block_few",
             "block_fewest",
+            "block_low_and_above",
+            "block_medium_and_above",
+            "block_only_high",
+            "block_none",
         ]
 
         for level in safety_filter_levels:

@@ -383,7 +383,16 @@ class ImageGenerationModel(
         output_gcs_uri: Optional[str] = None,
         add_watermark: Optional[bool] = None,
         safety_filter_level: Optional[
-            Literal["block_most", "block_some", "block_few", "block_fewest"]
+            Literal[
+                "block_most",
+                "block_some",
+                "block_few",
+                "block_fewest",
+                "block_low_and_above",
+                "block_medium_and_above",
+                "block_only_high",
+                "block_none",
+            ]
         ] = None,
         person_generation: Optional[
             Literal["dont_allow", "allow_adult", "allow_all"]
@@ -411,11 +420,13 @@ class ImageGenerationModel(
             base_image: Base image to use for the image generation.
             mask: Mask for the base image.
             edit_mode: Describes the editing mode for the request. Supported values
-              are - * inpainting-insert: fills the mask area based on the text
-              prompt (requires mask and text) * inpainting-remove: removes the
-              object(s) in the mask area. (requires mask)
+              are -
+                * inpainting-insert: fills the mask area based on the text
+                  prompt (requires mask and text)
+                * inpainting-remove: removes the object(s) in the mask area. (requires mask)
                 * outpainting: extend the image based on the mask area. (Requires
-                  mask) * product-image: Changes the background for the predominant
+                  mask)
+                * product-image: Changes the background for the predominant
                   product or subject in the image
             mask_mode: Solicits generation of the mask (v/s providing mask as an
               input). Supported values are:
@@ -433,8 +444,9 @@ class ImageGenerationModel(
                 * fixed: Fixed position
                 * reposition: Can be moved (default)
             output_mime_type: Which image format should the output be saved as.
-              Supported values: * image/png: Save as a PNG image * image/jpeg: Save
-              as a JPEG image
+              Supported values:
+                * image/png: Save as a PNG image
+                * image/jpeg: Save as a JPEG image
             compression_quality: Level of compression if the output mime type is
               selected to be image/jpeg. Float between 0 to 100
             language: Language of the text prompt for the image. Default: None.
@@ -444,14 +456,26 @@ class ImageGenerationModel(
             output_gcs_uri: Google Cloud Storage uri to store the generated images.
             add_watermark: Add a watermark to the generated image
             safety_filter_level: Adds a filter level to Safety filtering. Supported
-              values are: * "block_most" : Strongest filtering level, most strict
-              blocking * "block_some" : Block some problematic prompts and responses
-              * "block_few" : Block fewer problematic prompts and responses *
-              "block_fewest" : Block very few problematic prompts and responses
+              values are:
+                * block_most : Strongest filtering level, most strict
+                  blocking
+                * block_some : Block some problematic prompts and responses
+                * block_few : Block fewer problematic prompts and responses
+                * block_fewest : Block very few problematic prompts and
+                  responses
+              For Imagen 3.0 and Imagen 2.0 Editing (model_name:
+              `imagen-3.0-generate-001`, `imagen-3.0-fast-generate-001`,
+              `imagen-2.0-edit-preview-0627` and `imagegeneration@006`), the
+              following safety filter levels are supported:
+                * block_low_and_above : Block low and above safety scores
+                * block_medium_and_above : Block medium and above safety scores
+                * block_only_high : Block only high safety scores
+                * block_none : Block nothing
             person_generation: Allow generation of people by the model Supported
-              values are: * "dont_allow" : Block generation of people *
-              "allow_adult" : Generate adults, but not children * "allow_all" :
-              Generate adults and children
+              values are:
+                * dont_allow : Block generation of people
+                * allow_adult : Generate adults, but not children
+                * allow_all : Generate adults and children
 
         Returns:
             An `ImageGenerationResponse` object.
