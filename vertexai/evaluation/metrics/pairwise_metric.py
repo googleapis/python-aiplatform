@@ -38,48 +38,48 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
 
     Result Details:
 
-        * In `EvalResult.summary_metrics`, win rates for both the baseline and
-        candidate model are computed. The win rate is computed as proportion of
-        wins of one model's responses to total attempts as a decimal value
-        between 0 and 1.
+    * In `EvalResult.summary_metrics`, win rates for both the baseline and
+    candidate model are computed. The win rate is computed as proportion of
+    wins of one model's responses to total attempts as a decimal value
+    between 0 and 1.
 
-        * In `EvalResult.metrics_table`, a pairwise metric produces two
-        evaluation results per dataset row:
-            * `pairwise_choice`: The choice shows whether the candidate model or
-              the baseline model performs better, or if they are equally good.
-            * `explanation`: The rationale behind each verdict using
-              chain-of-thought reasoning. The explanation helps users scrutinize
-              the judgment and builds appropriate trust in the decisions.
+    * In `EvalResult.metrics_table`, a pairwise metric produces two
+    evaluation results per dataset row:
+        * `pairwise_choice`: The choice shows whether the candidate model or
+          the baseline model performs better, or if they are equally good.
+        * `explanation`: The rationale behind each verdict using
+          chain-of-thought reasoning. The explanation helps users scrutinize
+          the judgment and builds appropriate trust in the decisions.
 
-        See [documentation
-        page](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#understand-results)
-        for more details on understanding the metric results.
+    See [documentation
+    page](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval#understand-results)
+    for more details on understanding the metric results.
 
     Usage Examples:
 
-        ```
-        baseline_model = GenerativeModel("gemini-1.0-pro")
-        candidate_model = GenerativeModel("gemini-1.5-pro")
+    ```py
+    baseline_model = GenerativeModel("gemini-1.0-pro")
+    candidate_model = GenerativeModel("gemini-1.5-pro")
 
-        pairwise_groundedness = PairwiseMetric(
-            metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
-                "pairwise_groundedness"
-            ),
-            baseline_model=baseline_model,
-        )
-        eval_dataset = pd.DataFrame({
-              "prompt"  : [...],
-        })
-        pairwise_task = EvalTask(
-            dataset=eval_dataset,
-            metrics=[pairwise_groundedness],
-            experiment="my-pairwise-experiment",
-        )
-        pairwise_result = pairwise_task.evaluate(
-            model=candidate_model,
-            experiment_run_name="gemini-pairwise-eval-run",
-        )
-        ```
+    pairwise_groundedness = PairwiseMetric(
+        metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
+            "pairwise_groundedness",
+        ),
+        baseline_model=baseline_model,
+    )
+    eval_dataset = pd.DataFrame({
+          "prompt": [...],
+    })
+    pairwise_task = EvalTask(
+        dataset=eval_dataset,
+        metrics=[pairwise_groundedness],
+        experiment="my-pairwise-experiment",
+    )
+    pairwise_result = pairwise_task.evaluate(
+        model=candidate_model,
+        experiment_run_name="gemini-pairwise-eval-run",
+    )
+    ```
     """
 
     def __init__(

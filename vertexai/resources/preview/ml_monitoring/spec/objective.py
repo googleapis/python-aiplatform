@@ -46,14 +46,17 @@ class DataDriftSpec:
     compare the recent production dataset with a dataset from a previous period.
 
     Example:
-        feature_drift_spec=DataDriftSpec(
-                features=["feature1"]
-                categorical_metric_type="l_infinity",
-                numeric_metric_type="jensen_shannon_divergence",
-                default_categorical_alert_threshold=0.01,
-                default_numeric_alert_threshold=0.02,
-                feature_alert_thresholds={"feature1":0.02, "feature2":0.01},
-        )
+
+    ```py
+    feature_drift_spec = DataDriftSpec(
+        features=["feature1"]
+        categorical_metric_type="l_infinity",
+        numeric_metric_type="jensen_shannon_divergence",
+        default_categorical_alert_threshold=0.01,
+        default_numeric_alert_threshold=0.02,
+        feature_alert_thresholds={"feature1": 0.02, "feature2": 0.01},
+    )
+    ```
 
     Attributes:
         features (List[str]):
@@ -153,16 +156,19 @@ class FeatureAttributionSpec:
     """Feature attribution spec.
 
     Example:
-        feature_attribution_spec=FeatureAttributionSpec(
-                features=["feature1"]
-                default_alert_threshold=0.01,
-                feature_alert_thresholds={"feature1":0.02, "feature2":0.01},
-                batch_dedicated_resources=BatchDedicatedResources(
-                    starting_replica_count=1,
-                    max_replica_count=2,
-                    machine_spec=my_machine_spec,
-                ),
-        )
+
+    ```py
+    feature_attribution_spec = FeatureAttributionSpec(
+        features=["feature1"]
+        default_alert_threshold=0.01,
+        feature_alert_thresholds={"feature1": 0.02, "feature2": 0.01},
+        batch_dedicated_resources=BatchDedicatedResources(
+            starting_replica_count=1,
+            max_replica_count=2,
+            machine_spec=my_machine_spec,
+        ),
+    )
+    ```
 
     Attributes:
         features (List[str]):
