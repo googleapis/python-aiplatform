@@ -59,6 +59,8 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
 import warnings
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 
 if TYPE_CHECKING:
     from vertexai.preview import caching
@@ -67,10 +69,13 @@ try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
 except ImportError:
     PIL_Image = None
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 T = TypeVar("T")
-
 
 # Re-exporting some GAPIC types
 
@@ -537,6 +542,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: Literal[False] = False,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
     ) -> "GenerationResponse":
         ...
 
@@ -550,6 +556,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: Literal[True],
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
     ) -> Iterable["GenerationResponse"]:
         ...
 
@@ -562,6 +569,7 @@ class _GenerativeModel:
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
     ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
         """Generates content.
 
@@ -578,6 +586,7 @@ class _GenerativeModel:
             tools: A list of tools (functions) that the model can try calling.
             tool_config: Config shared for all tools provided in the request.
             stream: Whether to stream the response.
+            retry: Designation of what errors, if any, should be retried.
 
         Returns:
             A single GenerationResponse object if stream == False
@@ -599,6 +608,7 @@ class _GenerativeModel:
                 safety_settings=safety_settings,
                 tools=tools,
                 tool_config=tool_config,
+                retry=retry,
             )
 
     @overload
@@ -682,6 +692,7 @@ class _GenerativeModel:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         tool_config: Optional["ToolConfig"] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -697,7 +708,7 @@ class _GenerativeModel:
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
             tool_config: Config shared for all tools provided in the request.
-
+            retry: Designation of what errors, if any, should be retried.
         Returns:
             A single GenerationResponse object
         """
@@ -708,7 +719,10 @@ class _GenerativeModel:
             tools=tools,
             tool_config=tool_config,
         )
-        gapic_response = self._prediction_client.generate_content(request=request)
+        gapic_response = self._prediction_client.generate_content(
+            request=request,
+            retry=retry,
+        )
         return self._parse_response(gapic_response)
 
     async def _generate_content_async(
