@@ -20,8 +20,12 @@ from vertexai.tuning._supervised_tuning import (
     train,
     SupervisedTuningJob,
 )
+from vertexai.tuning._tuning import (
+    rebase_tuned_model,
+)
 
 __all__ = [
+    "rebase_tuned_model",
     "train",
     "SupervisedTuningJob",
 ]
