@@ -1188,7 +1188,7 @@ class TestExperiments:
         )
 
     @pytest.mark.usefixtures("get_or_create_default_tb_none_mock")
-    def test_init_experiment_with_existing_metadataStore_and_context(
+    def test_init_experiment_with_existing_metadataStore_and_context_2(
         self, get_metadata_store_mock, get_experiment_run_run_mock
     ):
         aiplatform.init(
