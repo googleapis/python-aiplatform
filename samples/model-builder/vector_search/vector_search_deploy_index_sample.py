@@ -32,8 +32,10 @@ def vector_search_deploy_index(
           resource name or a index ID.  Example:
           "projects/123/locations/us-central1/indexes/my_index_id" or
           "my_index_id".
-        index_endpoint_name (str): Required. Index endpoint to deploy the index to.
-        deployed_index_id (str): Required. The user specified ID of the DeployedIndex.
+        index_endpoint_name (str): Required. Index endpoint to deploy the index
+          to.
+        deployed_index_id (str): Required. The user specified ID of the
+          DeployedIndex.
     """
     # Initialize the Vertex AI client
     aiplatform.init(project=project, location=location)
@@ -55,3 +57,55 @@ def vector_search_deploy_index(
 
 
 #  [END aiplatform_sdk_vector_search_deploy_index_sample]
+
+
+#  [START aiplatform_sdk_vector_search_deploy_autoscaling_index_sample]
+def vector_search_deploy_autoscaling_index(
+    project: str,
+    location: str,
+    index_name: str,
+    index_endpoint_name: str,
+    deployed_index_id: str,
+    min_replica_count: int,
+    max_replica_count: int,
+) -> None:
+    """Deploy a vector search index to a vector search index endpoint.
+
+    Args:
+        project (str): Required. Project ID
+        location (str): Required. The region name
+        index_name (str): Required. The index to update. A fully-qualified index
+          resource name or a index ID.  Example:
+          "projects/123/locations/us-central1/indexes/my_index_id" or
+          "my_index_id".
+        index_endpoint_name (str): Required. Index endpoint to deploy the index
+          to.
+        deployed_index_id (str): Required. The user specified ID of the
+          DeployedIndex.
+        min_replica_count (int): Required. The minimum number of replicas to
+          deploy.
+        max_replica_count (int): Required. The maximum number of replicas to
+          deploy.
+    """
+    # Initialize the Vertex AI client
+    aiplatform.init(project=project, location=location)
+
+    # Create the index instance from an existing index
+    index = aiplatform.MatchingEngineIndex(index_name=index_name)
+
+    # Create the index endpoint instance from an existing endpoint.
+    index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        index_endpoint_name=index_endpoint_name
+    )
+
+    # Deploy Index to Endpoint. Specifying min and max replica counts will
+    # enable autoscaling.
+    index_endpoint.deploy_index(
+        index=index,
+        deployed_index_id=deployed_index_id,
+        min_replica_count=min_replica_count,
+        max_replica_count=max_replica_count,
+    )
+
+
+#  [END aiplatform_sdk_vector_search_deploy_autoscaling_index_sample]
