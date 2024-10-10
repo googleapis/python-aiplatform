@@ -121,6 +121,7 @@ class _Config:
         self._api_transport = None
         self._request_metadata = None
         self._resource_type = None
+        self._search_location = None
 
     def init(
         self,
@@ -141,13 +142,14 @@ class _Config:
         api_key: Optional[str] = None,
         api_transport: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        search_location: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
         Args:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
-                set defaults to us-central-1.
+                set defaults to us-central1.
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
             experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard, bool]):
@@ -164,7 +166,7 @@ class _Config:
                 `experiment_tensorboard` will automatically assign the global Tensorboard
                 to the `experiment`.
 
-                If `experiment_tensorboard` is ommitted or set to `True` or `None` the global
+                If `experiment_tensorboard` is omitted or set to `True` or `None` the global
                 Tensorboard will be assigned to the `experiment`. If a global Tensorboard is
                 not set, the default Tensorboard instance will be used, and created if it does not exist.
 
@@ -208,6 +210,9 @@ class _Config:
                 beta state (preview).
             request_metadata:
                 Optional. Additional gRPC metadata to send with every client request.
+            search_location:
+                Optional. The default location to use when making API calls for
+                Vertex AI Search. If not set defaults to global.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -229,6 +234,10 @@ class _Config:
                 raise ValueError(f"{api_transport} is not supported with API keys. ")
         if location:
             utils.validate_region(location)
+
+        if search_location:
+            utils.validate_region_search(search_location)
+
         if experiment_description and experiment is None:
             raise ValueError(
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
@@ -270,6 +279,8 @@ class _Config:
             self._request_metadata = request_metadata
         if api_key is not None:
             self._api_key = api_key
+        if search_location is not None:
+            self._search_location = search_location
         self._resource_type = None
 
         # Finally, perform secondary state updates
@@ -404,6 +415,14 @@ class _Config:
         """Default experiment name, if provided."""
         return metadata._experiment_tracker.experiment_name
 
+    @property
+    def search_location(self) -> str:
+        """Default search location."""
+        if self._search_location:
+            return self._search_location
+
+        return constants.DEFAULT_REGION_SEARCH
+
     def get_resource_type(self) -> _Product:
         """Returns the resource type from environment variables."""
         if self._resource_type:
@@ -461,15 +480,22 @@ class _Config:
         # If both project and API key are passed in, project takes precedence.
         if api_endpoint is None:
             # Form the default endpoint to use with no API key.
-            if not (self.location or location_override):
+            if not (self.location or self.search_location or location_override):
                 raise ValueError(
                     "No location found. Provide or initialize SDK with a location."
                 )
 
-            region = location_override or self.location
+            region = location_override or self.location or self.search_location
             region = region.lower()
 
-            utils.validate_region(region)
+            if (
+                api_base_path_override
+                and api_base_path_override.lower()
+                == constants.DISCOVERYENGINE_API_BASE_PATH
+            ):
+                utils.validate_region_search(region)
+            else:
+                utils.validate_region(region)
 
             service_base_path = api_base_path_override or (
                 constants.PREDICTION_API_BASE_PATH

@@ -171,6 +171,8 @@ langchain_testing_extra_require = list(
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
 tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
+search_extra_require = ["google-cloud-discoveryengine"]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -188,6 +190,7 @@ full_extra_require = list(
         + preview_extra_require
         + ray_extra_require
         + evaluation_extra_require
+        + search_extra_require
     )
 )
 testing_extra_require = (
@@ -276,6 +279,7 @@ setuptools.setup(
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,
+        "search": search_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

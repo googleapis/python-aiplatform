@@ -312,6 +312,30 @@ def validate_region(region: str) -> bool:
     return True
 
 
+def validate_region_search(region: str) -> bool:
+    """Validates region against supported regions.
+
+    Args:
+        region: region to validate
+    Returns:
+        bool: True if no errors raised
+    Raises:
+        ValueError: If region is not in supported regions.
+    """
+    if not region:
+        raise ValueError(
+            f"Please provide a region, select from {constants.SUPPORTED_REGIONS_SEARCH}"
+        )
+
+    region = region.lower()
+    if region not in constants.SUPPORTED_REGIONS_SEARCH:
+        raise ValueError(
+            f"Unsupported region for Vertex AI Search, select from {constants.SUPPORTED_REGIONS_SEARCH}"
+        )
+
+    return True
+
+
 def validate_accelerator_type(accelerator_type: str) -> bool:
     """Validates user provided accelerator_type string for training and
     prediction.
