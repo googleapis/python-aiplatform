@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.71.0](https://github.com/googleapis/python-aiplatform/compare/v1.70.0...v1.71.0) (2024-10-10)
+
+
+### Features
+
+* Support tuning new text & code embedding model in LLM SDK. ([4268f28](https://github.com/googleapis/python-aiplatform/commit/4268f282823f806418a8f0dc0bf65854381bd444))
+
 ## [1.70.0](https://github.com/googleapis/python-aiplatform/compare/v1.69.0...v1.70.0) (2024-10-08)
 
 
