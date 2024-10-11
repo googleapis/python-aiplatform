@@ -16,14 +16,11 @@
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
 import json  # type: ignore
-import grpc  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
-from google.api_core import path_template
 from google.api_core import gapic_v1
 
 from google.protobuf import json_format
@@ -31,16 +28,11 @@ from google.api_core import operations_v1
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
+
 from requests import __version__ as requests_version
 import dataclasses
-import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 from google.cloud.aiplatform_v1.types import batch_prediction_job
@@ -65,7 +57,14 @@ from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
-from .base import JobServiceTransport, DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
+
+from .rest_base import _BaseJobServiceRestTransport
+from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -1328,8 +1327,8 @@ class JobServiceRestStub:
     _interceptor: JobServiceRestInterceptor
 
 
-class JobServiceRestTransport(JobServiceTransport):
-    """REST backend transport for JobService.
+class JobServiceRestTransport(_BaseJobServiceRestTransport):
+    """REST backend synchronous transport for JobService.
 
     A service for creating and managing Vertex AI's jobs.
 
@@ -1338,7 +1337,6 @@ class JobServiceRestTransport(JobServiceTransport):
     and call it.
 
     It sends JSON representations of protocol buffers over HTTP/1.1
-
     """
 
     def __init__(
@@ -1392,21 +1390,12 @@ class JobServiceRestTransport(JobServiceTransport):
         # TODO(yon-mg): resolve other ctor params i.e. scopes, quota, etc.
         # TODO: When custom host (api_endpoint) is set, `scopes` must *also* be set on the
         # credentials object
-        maybe_url_match = re.match("^(?P<scheme>http(?:s)?://)?(?P<host>.*)$", host)
-        if maybe_url_match is None:
-            raise ValueError(
-                f"Unexpected hostname structure: {host}"
-            )  # pragma: NO COVER
-
-        url_match_items = maybe_url_match.groupdict()
-
-        host = f"{url_scheme}://{host}" if not url_match_items["scheme"] else host
-
         super().__init__(
             host=host,
             credentials=credentials,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            url_scheme=url_scheme,
             api_audience=api_audience,
         )
         self._session = AuthorizedSession(
@@ -3256,19 +3245,35 @@ class JobServiceRestTransport(JobServiceTransport):
         # Return the client from cache.
         return self._operations_client
 
-    class _CancelBatchPredictionJob(JobServiceRestStub):
+    class _CancelBatchPredictionJob(
+        _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CancelBatchPredictionJob")
+            return hash("JobServiceRestTransport.CancelBatchPredictionJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3292,47 +3297,34 @@ class JobServiceRestTransport(JobServiceTransport):
                         sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/batchPredictionJobs/*}:cancel",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_batch_prediction_job(
                 request, metadata
             )
-            pb_request = job_service.CancelBatchPredictionJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CancelBatchPredictionJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3340,19 +3332,35 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _CancelCustomJob(JobServiceRestStub):
+    class _CancelCustomJob(
+        _BaseJobServiceRestTransport._BaseCancelCustomJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CancelCustomJob")
+            return hash("JobServiceRestTransport.CancelCustomJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3375,47 +3383,34 @@ class JobServiceRestTransport(JobServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}:cancel",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelCustomJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_custom_job(
                 request, metadata
             )
-            pb_request = job_service.CancelCustomJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCancelCustomJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCancelCustomJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCancelCustomJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CancelCustomJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3423,19 +3418,35 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _CancelDataLabelingJob(JobServiceRestStub):
+    class _CancelDataLabelingJob(
+        _BaseJobServiceRestTransport._BaseCancelDataLabelingJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CancelDataLabelingJob")
+            return hash("JobServiceRestTransport.CancelDataLabelingJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3458,47 +3469,34 @@ class JobServiceRestTransport(JobServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}:cancel",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_data_labeling_job(
                 request, metadata
             )
-            pb_request = job_service.CancelDataLabelingJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CancelDataLabelingJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3506,19 +3504,36 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _CancelHyperparameterTuningJob(JobServiceRestStub):
+    class _CancelHyperparameterTuningJob(
+        _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CancelHyperparameterTuningJob")
+            return hash("JobServiceRestTransport.CancelHyperparameterTuningJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3542,47 +3557,36 @@ class JobServiceRestTransport(JobServiceTransport):
                         sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}:cancel",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_hyperparameter_tuning_job(
                 request, metadata
             )
-            pb_request = job_service.CancelHyperparameterTuningJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                JobServiceRestTransport._CancelHyperparameterTuningJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3590,19 +3594,35 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _CancelNasJob(JobServiceRestStub):
+    class _CancelNasJob(
+        _BaseJobServiceRestTransport._BaseCancelNasJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CancelNasJob")
+            return hash("JobServiceRestTransport.CancelNasJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3625,45 +3645,38 @@ class JobServiceRestTransport(JobServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/nasJobs/*}:cancel",
-                    "body": "*",
-                },
-            ]
-            request, metadata = self._interceptor.pre_cancel_nas_job(request, metadata)
-            pb_request = job_service.CancelNasJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelNasJob._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            request, metadata = self._interceptor.pre_cancel_nas_job(request, metadata)
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseCancelNasJob._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            body = (
+                _BaseJobServiceRestTransport._BaseCancelNasJob._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseCancelNasJob._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CancelNasJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3671,19 +3684,35 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _CreateBatchPredictionJob(JobServiceRestStub):
+    class _CreateBatchPredictionJob(
+        _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateBatchPredictionJob")
+            return hash("JobServiceRestTransport.CreateBatchPredictionJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3718,47 +3747,34 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/batchPredictionJobs",
-                    "body": "batch_prediction_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_batch_prediction_job(
                 request, metadata
             )
-            pb_request = job_service.CreateBatchPredictionJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CreateBatchPredictionJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3774,19 +3790,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_batch_prediction_job(resp)
             return resp
 
-    class _CreateCustomJob(JobServiceRestStub):
+    class _CreateCustomJob(
+        _BaseJobServiceRestTransport._BaseCreateCustomJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateCustomJob")
+            return hash("JobServiceRestTransport.CreateCustomJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3821,47 +3853,34 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/customJobs",
-                    "body": "custom_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateCustomJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_custom_job(
                 request, metadata
             )
-            pb_request = job_service.CreateCustomJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCreateCustomJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCreateCustomJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCreateCustomJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CreateCustomJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3877,19 +3896,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_custom_job(resp)
             return resp
 
-    class _CreateDataLabelingJob(JobServiceRestStub):
+    class _CreateDataLabelingJob(
+        _BaseJobServiceRestTransport._BaseCreateDataLabelingJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateDataLabelingJob")
+            return hash("JobServiceRestTransport.CreateDataLabelingJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3919,47 +3954,34 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/dataLabelingJobs",
-                    "body": "data_labeling_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_data_labeling_job(
                 request, metadata
             )
-            pb_request = job_service.CreateDataLabelingJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CreateDataLabelingJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3975,19 +3997,36 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_data_labeling_job(resp)
             return resp
 
-    class _CreateHyperparameterTuningJob(JobServiceRestStub):
+    class _CreateHyperparameterTuningJob(
+        _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateHyperparameterTuningJob")
+            return hash("JobServiceRestTransport.CreateHyperparameterTuningJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4019,47 +4058,36 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/hyperparameterTuningJobs",
-                    "body": "hyperparameter_tuning_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_hyperparameter_tuning_job(
                 request, metadata
             )
-            pb_request = job_service.CreateHyperparameterTuningJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                JobServiceRestTransport._CreateHyperparameterTuningJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4075,19 +4103,36 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_hyperparameter_tuning_job(resp)
             return resp
 
-    class _CreateModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _CreateModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.CreateModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4120,52 +4165,37 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/modelDeploymentMonitoringJobs",
-                    "body": "model_deployment_monitoring_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_create_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CreateModelDeploymentMonitoringJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4185,19 +4215,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_model_deployment_monitoring_job(resp)
             return resp
 
-    class _CreateNasJob(JobServiceRestStub):
+    class _CreateNasJob(
+        _BaseJobServiceRestTransport._BaseCreateNasJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateNasJob")
+            return hash("JobServiceRestTransport.CreateNasJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4226,45 +4272,38 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/nasJobs",
-                    "body": "nas_job",
-                },
-            ]
-            request, metadata = self._interceptor.pre_create_nas_job(request, metadata)
-            pb_request = job_service.CreateNasJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCreateNasJob._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            request, metadata = self._interceptor.pre_create_nas_job(request, metadata)
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseCreateNasJob._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            body = (
+                _BaseJobServiceRestTransport._BaseCreateNasJob._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseCreateNasJob._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._CreateNasJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4280,19 +4319,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_create_nas_job(resp)
             return resp
 
-    class _DeleteBatchPredictionJob(JobServiceRestStub):
+    class _DeleteBatchPredictionJob(
+        _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteBatchPredictionJob")
+            return hash("JobServiceRestTransport.DeleteBatchPredictionJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4323,40 +4377,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/batchPredictionJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_batch_prediction_job(
                 request, metadata
             )
-            pb_request = job_service.DeleteBatchPredictionJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._DeleteBatchPredictionJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4370,19 +4413,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_batch_prediction_job(resp)
             return resp
 
-    class _DeleteCustomJob(JobServiceRestStub):
+    class _DeleteCustomJob(
+        _BaseJobServiceRestTransport._BaseDeleteCustomJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteCustomJob")
+            return hash("JobServiceRestTransport.DeleteCustomJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4412,40 +4470,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteCustomJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_custom_job(
                 request, metadata
             )
-            pb_request = job_service.DeleteCustomJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteCustomJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseDeleteCustomJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._DeleteCustomJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4459,19 +4506,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_custom_job(resp)
             return resp
 
-    class _DeleteDataLabelingJob(JobServiceRestStub):
+    class _DeleteDataLabelingJob(
+        _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteDataLabelingJob")
+            return hash("JobServiceRestTransport.DeleteDataLabelingJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4501,40 +4563,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_data_labeling_job(
                 request, metadata
             )
-            pb_request = job_service.DeleteDataLabelingJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._DeleteDataLabelingJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4548,19 +4599,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_data_labeling_job(resp)
             return resp
 
-    class _DeleteHyperparameterTuningJob(JobServiceRestStub):
+    class _DeleteHyperparameterTuningJob(
+        _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteHyperparameterTuningJob")
+            return hash("JobServiceRestTransport.DeleteHyperparameterTuningJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4591,40 +4658,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_hyperparameter_tuning_job(
                 request, metadata
             )
-            pb_request = job_service.DeleteHyperparameterTuningJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                JobServiceRestTransport._DeleteHyperparameterTuningJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4638,19 +4696,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_hyperparameter_tuning_job(resp)
             return resp
 
-    class _DeleteModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _DeleteModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.DeleteModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4681,45 +4755,32 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_delete_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._DeleteModelDeploymentMonitoringJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4733,19 +4794,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_model_deployment_monitoring_job(resp)
             return resp
 
-    class _DeleteNasJob(JobServiceRestStub):
+    class _DeleteNasJob(
+        _BaseJobServiceRestTransport._BaseDeleteNasJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteNasJob")
+            return hash("JobServiceRestTransport.DeleteNasJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4775,38 +4851,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/nasJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteNasJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_nas_job(request, metadata)
-            pb_request = job_service.DeleteNasJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseDeleteNasJob._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseDeleteNasJob._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._DeleteNasJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4820,19 +4889,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_delete_nas_job(resp)
             return resp
 
-    class _GetBatchPredictionJob(JobServiceRestStub):
+    class _GetBatchPredictionJob(
+        _BaseJobServiceRestTransport._BaseGetBatchPredictionJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetBatchPredictionJob")
+            return hash("JobServiceRestTransport.GetBatchPredictionJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4866,40 +4950,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/batchPredictionJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetBatchPredictionJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_batch_prediction_job(
                 request, metadata
             )
-            pb_request = job_service.GetBatchPredictionJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseGetBatchPredictionJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseGetBatchPredictionJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._GetBatchPredictionJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4915,19 +4988,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_batch_prediction_job(resp)
             return resp
 
-    class _GetCustomJob(JobServiceRestStub):
+    class _GetCustomJob(
+        _BaseJobServiceRestTransport._BaseGetCustomJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetCustomJob")
+            return hash("JobServiceRestTransport.GetCustomJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4962,38 +5050,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetCustomJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_custom_job(request, metadata)
-            pb_request = job_service.GetCustomJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseGetCustomJob._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseGetCustomJob._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._GetCustomJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5009,19 +5090,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_custom_job(resp)
             return resp
 
-    class _GetDataLabelingJob(JobServiceRestStub):
+    class _GetDataLabelingJob(
+        _BaseJobServiceRestTransport._BaseGetDataLabelingJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetDataLabelingJob")
+            return hash("JobServiceRestTransport.GetDataLabelingJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5051,40 +5147,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetDataLabelingJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_data_labeling_job(
                 request, metadata
             )
-            pb_request = job_service.GetDataLabelingJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseGetDataLabelingJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseGetDataLabelingJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._GetDataLabelingJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5100,19 +5185,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_data_labeling_job(resp)
             return resp
 
-    class _GetHyperparameterTuningJob(JobServiceRestStub):
+    class _GetHyperparameterTuningJob(
+        _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetHyperparameterTuningJob")
+            return hash("JobServiceRestTransport.GetHyperparameterTuningJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5144,40 +5244,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_hyperparameter_tuning_job(
                 request, metadata
             )
-            pb_request = job_service.GetHyperparameterTuningJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                JobServiceRestTransport._GetHyperparameterTuningJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5193,19 +5284,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_hyperparameter_tuning_job(resp)
             return resp
 
-    class _GetModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _GetModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.GetModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5238,43 +5345,34 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_get_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.GetModelDeploymentMonitoringJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                JobServiceRestTransport._GetModelDeploymentMonitoringJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5292,19 +5390,32 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_model_deployment_monitoring_job(resp)
             return resp
 
-    class _GetNasJob(JobServiceRestStub):
+    class _GetNasJob(_BaseJobServiceRestTransport._BaseGetNasJob, JobServiceRestStub):
         def __hash__(self):
-            return hash("GetNasJob")
+            return hash("JobServiceRestTransport.GetNasJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5333,38 +5444,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/nasJobs/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetNasJob._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_nas_job(request, metadata)
-            pb_request = job_service.GetNasJobRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseGetNasJob._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseGetNasJob._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._GetNasJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5380,19 +5484,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_nas_job(resp)
             return resp
 
-    class _GetNasTrialDetail(JobServiceRestStub):
+    class _GetNasTrialDetail(
+        _BaseJobServiceRestTransport._BaseGetNasTrialDetail, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetNasTrialDetail")
+            return hash("JobServiceRestTransport.GetNasTrialDetail")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5423,40 +5542,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/nasJobs/*/nasTrialDetails/*}",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetNasTrialDetail._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_nas_trial_detail(
                 request, metadata
             )
-            pb_request = job_service.GetNasTrialDetailRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseGetNasTrialDetail._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseGetNasTrialDetail._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._GetNasTrialDetail._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5472,19 +5580,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_get_nas_trial_detail(resp)
             return resp
 
-    class _ListBatchPredictionJobs(JobServiceRestStub):
+    class _ListBatchPredictionJobs(
+        _BaseJobServiceRestTransport._BaseListBatchPredictionJobs, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListBatchPredictionJobs")
+            return hash("JobServiceRestTransport.ListBatchPredictionJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5514,40 +5637,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/batchPredictionJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListBatchPredictionJobs._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_batch_prediction_jobs(
                 request, metadata
             )
-            pb_request = job_service.ListBatchPredictionJobsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListBatchPredictionJobs._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseListBatchPredictionJobs._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListBatchPredictionJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5563,19 +5675,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_batch_prediction_jobs(resp)
             return resp
 
-    class _ListCustomJobs(JobServiceRestStub):
+    class _ListCustomJobs(
+        _BaseJobServiceRestTransport._BaseListCustomJobs, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListCustomJobs")
+            return hash("JobServiceRestTransport.ListCustomJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5604,40 +5731,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/customJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListCustomJobs._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_custom_jobs(
                 request, metadata
             )
-            pb_request = job_service.ListCustomJobsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListCustomJobs._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            query_params = (
+                _BaseJobServiceRestTransport._BaseListCustomJobs._get_query_params_json(
+                    transcoded_request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListCustomJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5653,19 +5771,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_custom_jobs(resp)
             return resp
 
-    class _ListDataLabelingJobs(JobServiceRestStub):
+    class _ListDataLabelingJobs(
+        _BaseJobServiceRestTransport._BaseListDataLabelingJobs, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListDataLabelingJobs")
+            return hash("JobServiceRestTransport.ListDataLabelingJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5694,40 +5827,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/dataLabelingJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListDataLabelingJobs._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_data_labeling_jobs(
                 request, metadata
             )
-            pb_request = job_service.ListDataLabelingJobsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListDataLabelingJobs._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseListDataLabelingJobs._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListDataLabelingJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5743,19 +5865,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_data_labeling_jobs(resp)
             return resp
 
-    class _ListHyperparameterTuningJobs(JobServiceRestStub):
+    class _ListHyperparameterTuningJobs(
+        _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListHyperparameterTuningJobs")
+            return hash("JobServiceRestTransport.ListHyperparameterTuningJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5785,40 +5923,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/hyperparameterTuningJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_hyperparameter_tuning_jobs(
                 request, metadata
             )
-            pb_request = job_service.ListHyperparameterTuningJobsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                JobServiceRestTransport._ListHyperparameterTuningJobs._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5834,19 +5963,35 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_hyperparameter_tuning_jobs(resp)
             return resp
 
-    class _ListModelDeploymentMonitoringJobs(JobServiceRestStub):
+    class _ListModelDeploymentMonitoringJobs(
+        _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListModelDeploymentMonitoringJobs")
+            return hash("JobServiceRestTransport.ListModelDeploymentMonitoringJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5876,45 +6021,32 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/modelDeploymentMonitoringJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_list_model_deployment_monitoring_jobs(
                 request, metadata
             )
-            pb_request = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListModelDeploymentMonitoringJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5930,19 +6062,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_model_deployment_monitoring_jobs(resp)
             return resp
 
-    class _ListNasJobs(JobServiceRestStub):
+    class _ListNasJobs(
+        _BaseJobServiceRestTransport._BaseListNasJobs, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListNasJobs")
+            return hash("JobServiceRestTransport.ListNasJobs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5971,38 +6118,31 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/nasJobs",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListNasJobs._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_nas_jobs(request, metadata)
-            pb_request = job_service.ListNasJobsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
-
-            # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseListNasJobs._get_transcoded_request(
+                    http_options, request
                 )
             )
-            query_params.update(self._get_unset_required_fields(query_params))
 
-            query_params["$alt"] = "json;enum-encoding=int"
+            # Jsonify the query params
+            query_params = (
+                _BaseJobServiceRestTransport._BaseListNasJobs._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListNasJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6018,19 +6158,34 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_nas_jobs(resp)
             return resp
 
-    class _ListNasTrialDetails(JobServiceRestStub):
+    class _ListNasTrialDetails(
+        _BaseJobServiceRestTransport._BaseListNasTrialDetails, JobServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListNasTrialDetails")
+            return hash("JobServiceRestTransport.ListNasTrialDetails")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -6059,40 +6214,29 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/nasJobs/*}/nasTrialDetails",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListNasTrialDetails._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_nas_trial_details(
                 request, metadata
             )
-            pb_request = job_service.ListNasTrialDetailsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListNasTrialDetails._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseListNasTrialDetails._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = JobServiceRestTransport._ListNasTrialDetails._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6108,19 +6252,36 @@ class JobServiceRestTransport(JobServiceTransport):
             resp = self._interceptor.post_list_nas_trial_details(resp)
             return resp
 
-    class _PauseModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _PauseModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("PauseModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.PauseModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6144,52 +6305,37 @@ class JobServiceRestTransport(JobServiceTransport):
                         sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:pause",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_pause_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.PauseModelDeploymentMonitoringJobRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._PauseModelDeploymentMonitoringJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6197,19 +6343,36 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _ResumeModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _ResumeModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ResumeModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.ResumeModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6233,52 +6396,37 @@ class JobServiceRestTransport(JobServiceTransport):
                         sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:resume",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_resume_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.ResumeModelDeploymentMonitoringJobRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._ResumeModelDeploymentMonitoringJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6286,19 +6434,38 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
-    class _SearchModelDeploymentMonitoringStatsAnomalies(JobServiceRestStub):
+    class _SearchModelDeploymentMonitoringStatsAnomalies(
+        _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("SearchModelDeploymentMonitoringStatsAnomalies")
+            return hash(
+                "JobServiceRestTransport.SearchModelDeploymentMonitoringStatsAnomalies"
+            )
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6328,54 +6495,37 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{model_deployment_monitoring_job=projects/*/locations/*/modelDeploymentMonitoringJobs/*}:searchModelDeploymentMonitoringStatsAnomalies",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_search_model_deployment_monitoring_stats_anomalies(
                 request, metadata
             )
-            pb_request = (
-                job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
-                    request
-                )
+            transcoded_request = _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._SearchModelDeploymentMonitoringStatsAnomalies._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6397,21 +6547,36 @@ class JobServiceRestTransport(JobServiceTransport):
             )
             return resp
 
-    class _UpdateModelDeploymentMonitoringJob(JobServiceRestStub):
+    class _UpdateModelDeploymentMonitoringJob(
+        _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob,
+        JobServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateModelDeploymentMonitoringJob")
+            return hash("JobServiceRestTransport.UpdateModelDeploymentMonitoringJob")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "updateMask": {},
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6442,52 +6607,37 @@ class JobServiceRestTransport(JobServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{model_deployment_monitoring_job.name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}",
-                    "body": "model_deployment_monitoring_job",
-                },
-            ]
+            http_options = (
+                _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_update_model_deployment_monitoring_job(
                 request, metadata
             )
-            pb_request = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
-                request
+            transcoded_request = _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = JobServiceRestTransport._UpdateModelDeploymentMonitoringJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6840,7 +6990,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def get_location(self):
         return self._GetLocation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetLocation(JobServiceRestStub):
+    class _GetLocation(
+        _BaseJobServiceRestTransport._BaseGetLocation, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.GetLocation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.GetLocationRequest,
@@ -6865,36 +7043,31 @@ class JobServiceRestTransport(JobServiceTransport):
                 locations_pb2.Location: Response from GetLocation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetLocation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseGetLocation._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseGetLocation._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._GetLocation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6902,8 +7075,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.Location()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
             return resp
 
@@ -6911,7 +7085,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def list_locations(self):
         return self._ListLocations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListLocations(JobServiceRestStub):
+    class _ListLocations(
+        _BaseJobServiceRestTransport._BaseListLocations, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.ListLocations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.ListLocationsRequest,
@@ -6936,36 +7138,31 @@ class JobServiceRestTransport(JobServiceTransport):
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*}/locations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*}/locations",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListLocations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseListLocations._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseListLocations._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._ListLocations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6973,8 +7170,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.ListLocationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
             return resp
 
@@ -6982,7 +7180,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def get_iam_policy(self):
         return self._GetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetIamPolicy(JobServiceRestStub):
+    class _GetIamPolicy(
+        _BaseJobServiceRestTransport._BaseGetIamPolicy, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.GetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.GetIamPolicyRequest,
@@ -7007,84 +7233,31 @@ class JobServiceRestTransport(JobServiceTransport):
                 policy_pb2.Policy: Response from GetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._GetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7092,8 +7265,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
             return resp
 
@@ -7101,7 +7275,36 @@ class JobServiceRestTransport(JobServiceTransport):
     def set_iam_policy(self):
         return self._SetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _SetIamPolicy(JobServiceRestStub):
+    class _SetIamPolicy(
+        _BaseJobServiceRestTransport._BaseSetIamPolicy, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.SetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.SetIamPolicyRequest,
@@ -7126,95 +7329,38 @@ class JobServiceRestTransport(JobServiceTransport):
                 policy_pb2.Policy: Response from SetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseSetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = (
+                _BaseJobServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
+                    transcoded_request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = JobServiceRestTransport._SetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7222,8 +7368,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
             return resp
 
@@ -7231,7 +7378,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def test_iam_permissions(self):
         return self._TestIamPermissions(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _TestIamPermissions(JobServiceRestStub):
+    class _TestIamPermissions(
+        _BaseJobServiceRestTransport._BaseTestIamPermissions, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.TestIamPermissions")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.TestIamPermissionsRequest,
@@ -7256,82 +7431,29 @@ class JobServiceRestTransport(JobServiceTransport):
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseTestIamPermissions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseJobServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._TestIamPermissions._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7339,8 +7461,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = iam_policy_pb2.TestIamPermissionsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
             return resp
 
@@ -7348,7 +7471,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def cancel_operation(self):
         return self._CancelOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _CancelOperation(JobServiceRestStub):
+    class _CancelOperation(
+        _BaseJobServiceRestTransport._BaseCancelOperation, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.CancelOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.CancelOperationRequest,
@@ -7370,366 +7521,29 @@ class JobServiceRestTransport(JobServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseCancelOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseCancelOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseJobServiceRestTransport._BaseCancelOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._CancelOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7743,7 +7557,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def delete_operation(self):
         return self._DeleteOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _DeleteOperation(JobServiceRestStub):
+    class _DeleteOperation(
+        _BaseJobServiceRestTransport._BaseDeleteOperation, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.DeleteOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.DeleteOperationRequest,
@@ -7765,390 +7607,29 @@ class JobServiceRestTransport(JobServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseDeleteOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseJobServiceRestTransport._BaseDeleteOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._DeleteOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8162,7 +7643,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def get_operation(self):
         return self._GetOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetOperation(JobServiceRestStub):
+    class _GetOperation(
+        _BaseJobServiceRestTransport._BaseGetOperation, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.GetOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.GetOperationRequest,
@@ -8187,400 +7696,31 @@ class JobServiceRestTransport(JobServiceTransport):
                 operations_pb2.Operation: Response from GetOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDeploymentJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseGetOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseGetOperation._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseGetOperation._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._GetOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8588,8 +7728,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
             return resp
 
@@ -8597,7 +7738,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def list_operations(self):
         return self._ListOperations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListOperations(JobServiceRestStub):
+    class _ListOperations(
+        _BaseJobServiceRestTransport._BaseListOperations, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.ListOperations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.ListOperationsRequest,
@@ -8622,396 +7791,29 @@ class JobServiceRestTransport(JobServiceTransport):
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseListOperations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseJobServiceRestTransport._BaseListOperations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseListOperations._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._ListOperations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -9019,8 +7821,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.ListOperationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
             return resp
 
@@ -9028,7 +7831,35 @@ class JobServiceRestTransport(JobServiceTransport):
     def wait_operation(self):
         return self._WaitOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _WaitOperation(JobServiceRestStub):
+    class _WaitOperation(
+        _BaseJobServiceRestTransport._BaseWaitOperation, JobServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("JobServiceRestTransport.WaitOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.WaitOperationRequest,
@@ -9053,392 +7884,31 @@ class JobServiceRestTransport(JobServiceTransport):
                 operations_pb2.Operation: Response from WaitOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseJobServiceRestTransport._BaseWaitOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = (
+                _BaseJobServiceRestTransport._BaseWaitOperation._get_transcoded_request(
+                    http_options, request
+                )
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = (
+                _BaseJobServiceRestTransport._BaseWaitOperation._get_query_params_json(
+                    transcoded_request
+                )
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = JobServiceRestTransport._WaitOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -9446,8 +7916,9 @@ class JobServiceRestTransport(JobServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
             return resp
 

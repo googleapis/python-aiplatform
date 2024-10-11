@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import inspect
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -232,6 +233,9 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             )
 
         # Wrap messages. This must be done after self._grpc_channel exists
+        self._wrap_with_kind = (
+            "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
+        )
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -711,85 +715,144 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
-            self.predict: gapic_v1.method_async.wrap_method(
+            self.predict: self._wrap_method(
                 self.predict,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.raw_predict: gapic_v1.method_async.wrap_method(
+            self.raw_predict: self._wrap_method(
                 self.raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.stream_raw_predict: gapic_v1.method_async.wrap_method(
+            self.stream_raw_predict: self._wrap_method(
                 self.stream_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.direct_predict: gapic_v1.method_async.wrap_method(
+            self.direct_predict: self._wrap_method(
                 self.direct_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.direct_raw_predict: gapic_v1.method_async.wrap_method(
+            self.direct_raw_predict: self._wrap_method(
                 self.direct_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.stream_direct_predict: gapic_v1.method_async.wrap_method(
+            self.stream_direct_predict: self._wrap_method(
                 self.stream_direct_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.stream_direct_raw_predict: gapic_v1.method_async.wrap_method(
+            self.stream_direct_raw_predict: self._wrap_method(
                 self.stream_direct_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.streaming_predict: gapic_v1.method_async.wrap_method(
+            self.streaming_predict: self._wrap_method(
                 self.streaming_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.server_streaming_predict: gapic_v1.method_async.wrap_method(
+            self.server_streaming_predict: self._wrap_method(
                 self.server_streaming_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.streaming_raw_predict: gapic_v1.method_async.wrap_method(
+            self.streaming_raw_predict: self._wrap_method(
                 self.streaming_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.explain: gapic_v1.method_async.wrap_method(
+            self.explain: self._wrap_method(
                 self.explain,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.count_tokens: gapic_v1.method_async.wrap_method(
+            self.count_tokens: self._wrap_method(
                 self.count_tokens,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.generate_content: gapic_v1.method_async.wrap_method(
+            self.generate_content: self._wrap_method(
                 self.generate_content,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.stream_generate_content: gapic_v1.method_async.wrap_method(
+            self.stream_generate_content: self._wrap_method(
                 self.stream_generate_content,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.chat_completions: gapic_v1.method_async.wrap_method(
+            self.chat_completions: self._wrap_method(
                 self.chat_completions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_location: self._wrap_method(
+                self.get_location,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_locations: self._wrap_method(
+                self.list_locations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_iam_policy: self._wrap_method(
+                self.get_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_iam_policy: self._wrap_method(
+                self.set_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.test_iam_permissions: self._wrap_method(
+                self.test_iam_permissions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_operation: self._wrap_method(
+                self.cancel_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_operation: self._wrap_method(
+                self.delete_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_operation: self._wrap_method(
+                self.get_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_operations: self._wrap_method(
+                self.list_operations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.wait_operation: self._wrap_method(
+                self.wait_operation,
                 default_timeout=None,
                 client_info=client_info,
             ),
         }
 
+    def _wrap_method(self, func, *args, **kwargs):
+        if self._wrap_with_kind:  # pragma: NO COVER
+            kwargs["kind"] = self.kind
+        return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
     def close(self):
         return self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc_asyncio"
 
     @property
     def delete_operation(
@@ -834,7 +897,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
+        if "wait_operation" not in self._stubs:
             self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,

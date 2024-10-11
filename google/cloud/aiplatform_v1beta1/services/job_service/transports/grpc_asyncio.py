@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import inspect
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -254,6 +255,9 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             )
 
         # Wrap messages. This must be done after self._grpc_channel exists
+        self._wrap_with_kind = (
+            "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
+        )
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -1373,185 +1377,244 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
-            self.create_custom_job: gapic_v1.method_async.wrap_method(
+            self.create_custom_job: self._wrap_method(
                 self.create_custom_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_custom_job: gapic_v1.method_async.wrap_method(
+            self.get_custom_job: self._wrap_method(
                 self.get_custom_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_custom_jobs: gapic_v1.method_async.wrap_method(
+            self.list_custom_jobs: self._wrap_method(
                 self.list_custom_jobs,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_custom_job: gapic_v1.method_async.wrap_method(
+            self.delete_custom_job: self._wrap_method(
                 self.delete_custom_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.cancel_custom_job: gapic_v1.method_async.wrap_method(
+            self.cancel_custom_job: self._wrap_method(
                 self.cancel_custom_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.create_data_labeling_job: gapic_v1.method_async.wrap_method(
+            self.create_data_labeling_job: self._wrap_method(
                 self.create_data_labeling_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_data_labeling_job: gapic_v1.method_async.wrap_method(
+            self.get_data_labeling_job: self._wrap_method(
                 self.get_data_labeling_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_data_labeling_jobs: gapic_v1.method_async.wrap_method(
+            self.list_data_labeling_jobs: self._wrap_method(
                 self.list_data_labeling_jobs,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_data_labeling_job: gapic_v1.method_async.wrap_method(
+            self.delete_data_labeling_job: self._wrap_method(
                 self.delete_data_labeling_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.cancel_data_labeling_job: gapic_v1.method_async.wrap_method(
+            self.cancel_data_labeling_job: self._wrap_method(
                 self.cancel_data_labeling_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.create_hyperparameter_tuning_job: gapic_v1.method_async.wrap_method(
+            self.create_hyperparameter_tuning_job: self._wrap_method(
                 self.create_hyperparameter_tuning_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_hyperparameter_tuning_job: gapic_v1.method_async.wrap_method(
+            self.get_hyperparameter_tuning_job: self._wrap_method(
                 self.get_hyperparameter_tuning_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_hyperparameter_tuning_jobs: gapic_v1.method_async.wrap_method(
+            self.list_hyperparameter_tuning_jobs: self._wrap_method(
                 self.list_hyperparameter_tuning_jobs,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_hyperparameter_tuning_job: gapic_v1.method_async.wrap_method(
+            self.delete_hyperparameter_tuning_job: self._wrap_method(
                 self.delete_hyperparameter_tuning_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.cancel_hyperparameter_tuning_job: gapic_v1.method_async.wrap_method(
+            self.cancel_hyperparameter_tuning_job: self._wrap_method(
                 self.cancel_hyperparameter_tuning_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.create_nas_job: gapic_v1.method_async.wrap_method(
+            self.create_nas_job: self._wrap_method(
                 self.create_nas_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_nas_job: gapic_v1.method_async.wrap_method(
+            self.get_nas_job: self._wrap_method(
                 self.get_nas_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_nas_jobs: gapic_v1.method_async.wrap_method(
+            self.list_nas_jobs: self._wrap_method(
                 self.list_nas_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_nas_job: gapic_v1.method_async.wrap_method(
+            self.delete_nas_job: self._wrap_method(
                 self.delete_nas_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.cancel_nas_job: gapic_v1.method_async.wrap_method(
+            self.cancel_nas_job: self._wrap_method(
                 self.cancel_nas_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_nas_trial_detail: gapic_v1.method_async.wrap_method(
+            self.get_nas_trial_detail: self._wrap_method(
                 self.get_nas_trial_detail,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_nas_trial_details: gapic_v1.method_async.wrap_method(
+            self.list_nas_trial_details: self._wrap_method(
                 self.list_nas_trial_details,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.create_batch_prediction_job: gapic_v1.method_async.wrap_method(
+            self.create_batch_prediction_job: self._wrap_method(
                 self.create_batch_prediction_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_batch_prediction_job: gapic_v1.method_async.wrap_method(
+            self.get_batch_prediction_job: self._wrap_method(
                 self.get_batch_prediction_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_batch_prediction_jobs: gapic_v1.method_async.wrap_method(
+            self.list_batch_prediction_jobs: self._wrap_method(
                 self.list_batch_prediction_jobs,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_batch_prediction_job: gapic_v1.method_async.wrap_method(
+            self.delete_batch_prediction_job: self._wrap_method(
                 self.delete_batch_prediction_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.cancel_batch_prediction_job: gapic_v1.method_async.wrap_method(
+            self.cancel_batch_prediction_job: self._wrap_method(
                 self.cancel_batch_prediction_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.create_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.create_model_deployment_monitoring_job: self._wrap_method(
                 self.create_model_deployment_monitoring_job,
                 default_timeout=60.0,
                 client_info=client_info,
             ),
-            self.search_model_deployment_monitoring_stats_anomalies: gapic_v1.method_async.wrap_method(
+            self.search_model_deployment_monitoring_stats_anomalies: self._wrap_method(
                 self.search_model_deployment_monitoring_stats_anomalies,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.get_model_deployment_monitoring_job: self._wrap_method(
                 self.get_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_model_deployment_monitoring_jobs: gapic_v1.method_async.wrap_method(
+            self.list_model_deployment_monitoring_jobs: self._wrap_method(
                 self.list_model_deployment_monitoring_jobs,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.update_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.update_model_deployment_monitoring_job: self._wrap_method(
                 self.update_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.delete_model_deployment_monitoring_job: self._wrap_method(
                 self.delete_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.pause_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.pause_model_deployment_monitoring_job: self._wrap_method(
                 self.pause_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.resume_model_deployment_monitoring_job: gapic_v1.method_async.wrap_method(
+            self.resume_model_deployment_monitoring_job: self._wrap_method(
                 self.resume_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.get_location: self._wrap_method(
+                self.get_location,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_locations: self._wrap_method(
+                self.list_locations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_iam_policy: self._wrap_method(
+                self.get_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_iam_policy: self._wrap_method(
+                self.set_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.test_iam_permissions: self._wrap_method(
+                self.test_iam_permissions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_operation: self._wrap_method(
+                self.cancel_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_operation: self._wrap_method(
+                self.delete_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_operation: self._wrap_method(
+                self.get_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_operations: self._wrap_method(
+                self.list_operations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.wait_operation: self._wrap_method(
+                self.wait_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
+
+    def _wrap_method(self, func, *args, **kwargs):
+        if self._wrap_with_kind:  # pragma: NO COVER
+            kwargs["kind"] = self.kind
+        return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
 
     def close(self):
         return self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc_asyncio"
 
     @property
     def delete_operation(
@@ -1596,7 +1659,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
+        if "wait_operation" not in self._stubs:
             self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,

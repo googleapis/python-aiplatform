@@ -16,14 +16,11 @@
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
 import json  # type: ignore
-import grpc  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
-from google.api_core import path_template
 from google.api_core import gapic_v1
 
 from google.protobuf import json_format
@@ -31,16 +28,11 @@ from google.api_core import operations_v1
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
+
 from requests import __version__ as requests_version
 import dataclasses
-import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 from google.cloud.aiplatform_v1.types import artifact
@@ -56,10 +48,14 @@ from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
 from google.longrunning import operations_pb2  # type: ignore
 
-from .base import (
-    MetadataServiceTransport,
-    DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO,
-)
+
+from .rest_base import _BaseMetadataServiceRestTransport
+from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -1314,8 +1310,8 @@ class MetadataServiceRestStub:
     _interceptor: MetadataServiceRestInterceptor
 
 
-class MetadataServiceRestTransport(MetadataServiceTransport):
-    """REST backend transport for MetadataService.
+class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
+    """REST backend synchronous transport for MetadataService.
 
     Service for reading and writing metadata entries.
 
@@ -1324,7 +1320,6 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     and call it.
 
     It sends JSON representations of protocol buffers over HTTP/1.1
-
     """
 
     def __init__(
@@ -1378,21 +1373,12 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
         # TODO(yon-mg): resolve other ctor params i.e. scopes, quota, etc.
         # TODO: When custom host (api_endpoint) is set, `scopes` must *also* be set on the
         # credentials object
-        maybe_url_match = re.match("^(?P<scheme>http(?:s)?://)?(?P<host>.*)$", host)
-        if maybe_url_match is None:
-            raise ValueError(
-                f"Unexpected hostname structure: {host}"
-            )  # pragma: NO COVER
-
-        url_match_items = maybe_url_match.groupdict()
-
-        host = f"{url_scheme}://{host}" if not url_match_items["scheme"] else host
-
         super().__init__(
             host=host,
             credentials=credentials,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            url_scheme=url_scheme,
             api_audience=api_audience,
         )
         self._session = AuthorizedSession(
@@ -3242,19 +3228,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
         # Return the client from cache.
         return self._operations_client
 
-    class _AddContextArtifactsAndExecutions(MetadataServiceRestStub):
+    class _AddContextArtifactsAndExecutions(
+        _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("AddContextArtifactsAndExecutions")
+            return hash("MetadataServiceRestTransport.AddContextArtifactsAndExecutions")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3284,52 +3287,37 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{context=projects/*/locations/*/metadataStores/*/contexts/*}:addContextArtifactsAndExecutions",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_add_context_artifacts_and_executions(
                 request, metadata
             )
-            pb_request = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
-                request
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._AddContextArtifactsAndExecutions._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3345,19 +3333,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_add_context_artifacts_and_executions(resp)
             return resp
 
-    class _AddContextChildren(MetadataServiceRestStub):
+    class _AddContextChildren(
+        _BaseMetadataServiceRestTransport._BaseAddContextChildren,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("AddContextChildren")
+            return hash("MetadataServiceRestTransport.AddContextChildren")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3386,47 +3391,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{context=projects/*/locations/*/metadataStores/*/contexts/*}:addContextChildren",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_http_options()
+            )
             request, metadata = self._interceptor.pre_add_context_children(
                 request, metadata
             )
-            pb_request = metadata_service.AddContextChildrenRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._AddContextChildren._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3442,19 +3434,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_add_context_children(resp)
             return resp
 
-    class _AddExecutionEvents(MetadataServiceRestStub):
+    class _AddExecutionEvents(
+        _BaseMetadataServiceRestTransport._BaseAddExecutionEvents,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("AddExecutionEvents")
+            return hash("MetadataServiceRestTransport.AddExecutionEvents")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3483,47 +3492,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{execution=projects/*/locations/*/metadataStores/*/executions/*}:addExecutionEvents",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_http_options()
+            )
             request, metadata = self._interceptor.pre_add_execution_events(
                 request, metadata
             )
-            pb_request = metadata_service.AddExecutionEventsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._AddExecutionEvents._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3539,19 +3535,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_add_execution_events(resp)
             return resp
 
-    class _CreateArtifact(MetadataServiceRestStub):
+    class _CreateArtifact(
+        _BaseMetadataServiceRestTransport._BaseCreateArtifact, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateArtifact")
+            return hash("MetadataServiceRestTransport.CreateArtifact")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3578,45 +3590,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general artifact.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/artifacts",
-                    "body": "artifact",
-                },
-            ]
-            request, metadata = self._interceptor.pre_create_artifact(request, metadata)
-            pb_request = metadata_service.CreateArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_create_artifact(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._CreateArtifact._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3632,19 +3631,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_create_artifact(resp)
             return resp
 
-    class _CreateContext(MetadataServiceRestStub):
+    class _CreateContext(
+        _BaseMetadataServiceRestTransport._BaseCreateContext, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateContext")
+            return hash("MetadataServiceRestTransport.CreateContext")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3671,45 +3686,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general context.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/contexts",
-                    "body": "context",
-                },
-            ]
-            request, metadata = self._interceptor.pre_create_context(request, metadata)
-            pb_request = metadata_service.CreateContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCreateContext._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_create_context(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateContext._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BaseCreateContext._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseCreateContext._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._CreateContext._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3725,19 +3727,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_create_context(resp)
             return resp
 
-    class _CreateExecution(MetadataServiceRestStub):
+    class _CreateExecution(
+        _BaseMetadataServiceRestTransport._BaseCreateExecution, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("CreateExecution")
+            return hash("MetadataServiceRestTransport.CreateExecution")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3764,47 +3782,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general execution.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/executions",
-                    "body": "execution",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCreateExecution._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_execution(
                 request, metadata
             )
-            pb_request = metadata_service.CreateExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateExecution._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseCreateExecution._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseCreateExecution._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._CreateExecution._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3820,19 +3825,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_create_execution(resp)
             return resp
 
-    class _CreateMetadataSchema(MetadataServiceRestStub):
+    class _CreateMetadataSchema(
+        _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateMetadataSchema")
+            return hash("MetadataServiceRestTransport.CreateMetadataSchema")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3859,47 +3881,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general MetadataSchema.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/metadataSchemas",
-                    "body": "metadata_schema",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_metadata_schema(
                 request, metadata
             )
-            pb_request = metadata_service.CreateMetadataSchemaRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._CreateMetadataSchema._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3915,19 +3924,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_create_metadata_schema(resp)
             return resp
 
-    class _CreateMetadataStore(MetadataServiceRestStub):
+    class _CreateMetadataStore(
+        _BaseMetadataServiceRestTransport._BaseCreateMetadataStore,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateMetadataStore")
+            return hash("MetadataServiceRestTransport.CreateMetadataStore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3957,47 +3983,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/metadataStores",
-                    "body": "metadata_store",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_metadata_store(
                 request, metadata
             )
-            pb_request = metadata_service.CreateMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._CreateMetadataStore._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4011,19 +4024,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_create_metadata_store(resp)
             return resp
 
-    class _DeleteArtifact(MetadataServiceRestStub):
+    class _DeleteArtifact(
+        _BaseMetadataServiceRestTransport._BaseDeleteArtifact, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteArtifact")
+            return hash("MetadataServiceRestTransport.DeleteArtifact")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4053,38 +4081,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_artifact(request, metadata)
-            pb_request = metadata_service.DeleteArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._DeleteArtifact._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4098,19 +4115,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_delete_artifact(resp)
             return resp
 
-    class _DeleteContext(MetadataServiceRestStub):
+    class _DeleteContext(
+        _BaseMetadataServiceRestTransport._BaseDeleteContext, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteContext")
+            return hash("MetadataServiceRestTransport.DeleteContext")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4140,38 +4172,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseDeleteContext._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_context(request, metadata)
-            pb_request = metadata_service.DeleteContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteContext._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseDeleteContext._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._DeleteContext._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4185,19 +4206,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_delete_context(resp)
             return resp
 
-    class _DeleteExecution(MetadataServiceRestStub):
+    class _DeleteExecution(
+        _BaseMetadataServiceRestTransport._BaseDeleteExecution, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("DeleteExecution")
+            return hash("MetadataServiceRestTransport.DeleteExecution")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4227,40 +4263,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_execution(
                 request, metadata
             )
-            pb_request = metadata_service.DeleteExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._DeleteExecution._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4274,19 +4299,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_delete_execution(resp)
             return resp
 
-    class _DeleteMetadataStore(MetadataServiceRestStub):
+    class _DeleteMetadataStore(
+        _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteMetadataStore")
+            return hash("MetadataServiceRestTransport.DeleteMetadataStore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4316,40 +4357,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_metadata_store(
                 request, metadata
             )
-            pb_request = metadata_service.DeleteMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._DeleteMetadataStore._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4363,19 +4393,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_delete_metadata_store(resp)
             return resp
 
-    class _GetArtifact(MetadataServiceRestStub):
+    class _GetArtifact(
+        _BaseMetadataServiceRestTransport._BaseGetArtifact, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetArtifact")
+            return hash("MetadataServiceRestTransport.GetArtifact")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4402,38 +4447,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general artifact.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetArtifact._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_artifact(request, metadata)
-            pb_request = metadata_service.GetArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetArtifact._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseGetArtifact._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._GetArtifact._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4449,19 +4483,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_get_artifact(resp)
             return resp
 
-    class _GetContext(MetadataServiceRestStub):
+    class _GetContext(
+        _BaseMetadataServiceRestTransport._BaseGetContext, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetContext")
+            return hash("MetadataServiceRestTransport.GetContext")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4488,38 +4537,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general context.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetContext._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_context(request, metadata)
-            pb_request = metadata_service.GetContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetContext._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseGetContext._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._GetContext._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4535,19 +4573,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_get_context(resp)
             return resp
 
-    class _GetExecution(MetadataServiceRestStub):
+    class _GetExecution(
+        _BaseMetadataServiceRestTransport._BaseGetExecution, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetExecution")
+            return hash("MetadataServiceRestTransport.GetExecution")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4574,38 +4627,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general execution.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetExecution._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_execution(request, metadata)
-            pb_request = metadata_service.GetExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetExecution._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseGetExecution._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._GetExecution._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4621,19 +4663,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_get_execution(resp)
             return resp
 
-    class _GetMetadataSchema(MetadataServiceRestStub):
+    class _GetMetadataSchema(
+        _BaseMetadataServiceRestTransport._BaseGetMetadataSchema,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetMetadataSchema")
+            return hash("MetadataServiceRestTransport.GetMetadataSchema")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4660,40 +4718,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general MetadataSchema.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/metadataSchemas/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_metadata_schema(
                 request, metadata
             )
-            pb_request = metadata_service.GetMetadataSchemaRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._GetMetadataSchema._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4709,19 +4756,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_get_metadata_schema(resp)
             return resp
 
-    class _GetMetadataStore(MetadataServiceRestStub):
+    class _GetMetadataStore(
+        _BaseMetadataServiceRestTransport._BaseGetMetadataStore, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("GetMetadataStore")
+            return hash("MetadataServiceRestTransport.GetMetadataStore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4751,40 +4813,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*}",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_metadata_store(
                 request, metadata
             )
-            pb_request = metadata_service.GetMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._GetMetadataStore._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4800,19 +4851,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_get_metadata_store(resp)
             return resp
 
-    class _ListArtifacts(MetadataServiceRestStub):
+    class _ListArtifacts(
+        _BaseMetadataServiceRestTransport._BaseListArtifacts, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListArtifacts")
+            return hash("MetadataServiceRestTransport.ListArtifacts")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4841,38 +4907,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/artifacts",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListArtifacts._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_artifacts(request, metadata)
-            pb_request = metadata_service.ListArtifactsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListArtifacts._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseListArtifacts._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._ListArtifacts._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4888,19 +4943,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_list_artifacts(resp)
             return resp
 
-    class _ListContexts(MetadataServiceRestStub):
+    class _ListContexts(
+        _BaseMetadataServiceRestTransport._BaseListContexts, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListContexts")
+            return hash("MetadataServiceRestTransport.ListContexts")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4929,38 +4999,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/contexts",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListContexts._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_contexts(request, metadata)
-            pb_request = metadata_service.ListContextsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListContexts._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseListContexts._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._ListContexts._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4976,19 +5035,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_list_contexts(resp)
             return resp
 
-    class _ListExecutions(MetadataServiceRestStub):
+    class _ListExecutions(
+        _BaseMetadataServiceRestTransport._BaseListExecutions, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("ListExecutions")
+            return hash("MetadataServiceRestTransport.ListExecutions")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5017,38 +5091,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/executions",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListExecutions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_executions(request, metadata)
-            pb_request = metadata_service.ListExecutionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListExecutions._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseListExecutions._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._ListExecutions._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5064,19 +5127,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_list_executions(resp)
             return resp
 
-    class _ListMetadataSchemas(MetadataServiceRestStub):
+    class _ListMetadataSchemas(
+        _BaseMetadataServiceRestTransport._BaseListMetadataSchemas,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListMetadataSchemas")
+            return hash("MetadataServiceRestTransport.ListMetadataSchemas")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5105,40 +5184,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/metadataSchemas",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_metadata_schemas(
                 request, metadata
             )
-            pb_request = metadata_service.ListMetadataSchemasRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._ListMetadataSchemas._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5154,19 +5222,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_list_metadata_schemas(resp)
             return resp
 
-    class _ListMetadataStores(MetadataServiceRestStub):
+    class _ListMetadataStores(
+        _BaseMetadataServiceRestTransport._BaseListMetadataStores,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListMetadataStores")
+            return hash("MetadataServiceRestTransport.ListMetadataStores")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5195,40 +5279,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/metadataStores",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_metadata_stores(
                 request, metadata
             )
-            pb_request = metadata_service.ListMetadataStoresRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._ListMetadataStores._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5244,19 +5317,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_list_metadata_stores(resp)
             return resp
 
-    class _PurgeArtifacts(MetadataServiceRestStub):
+    class _PurgeArtifacts(
+        _BaseMetadataServiceRestTransport._BasePurgeArtifacts, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("PurgeArtifacts")
+            return hash("MetadataServiceRestTransport.PurgeArtifacts")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5286,45 +5375,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/artifacts:purge",
-                    "body": "*",
-                },
-            ]
-            request, metadata = self._interceptor.pre_purge_artifacts(request, metadata)
-            pb_request = metadata_service.PurgeArtifactsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_purge_artifacts(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._PurgeArtifacts._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5338,19 +5414,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_purge_artifacts(resp)
             return resp
 
-    class _PurgeContexts(MetadataServiceRestStub):
+    class _PurgeContexts(
+        _BaseMetadataServiceRestTransport._BasePurgeContexts, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("PurgeContexts")
+            return hash("MetadataServiceRestTransport.PurgeContexts")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5380,45 +5472,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/contexts:purge",
-                    "body": "*",
-                },
-            ]
-            request, metadata = self._interceptor.pre_purge_contexts(request, metadata)
-            pb_request = metadata_service.PurgeContextsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BasePurgeContexts._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_purge_contexts(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BasePurgeContexts._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BasePurgeContexts._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BasePurgeContexts._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._PurgeContexts._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5432,19 +5511,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_purge_contexts(resp)
             return resp
 
-    class _PurgeExecutions(MetadataServiceRestStub):
+    class _PurgeExecutions(
+        _BaseMetadataServiceRestTransport._BasePurgeExecutions, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("PurgeExecutions")
+            return hash("MetadataServiceRestTransport.PurgeExecutions")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5474,47 +5569,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/metadataStores/*}/executions:purge",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_purge_executions(
                 request, metadata
             )
-            pb_request = metadata_service.PurgeExecutionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._PurgeExecutions._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5528,19 +5610,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_purge_executions(resp)
             return resp
 
-    class _QueryArtifactLineageSubgraph(MetadataServiceRestStub):
+    class _QueryArtifactLineageSubgraph(
+        _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("QueryArtifactLineageSubgraph")
+            return hash("MetadataServiceRestTransport.QueryArtifactLineageSubgraph")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5571,42 +5669,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{artifact=projects/*/locations/*/metadataStores/*/artifacts/*}:queryArtifactLineageSubgraph",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_http_options()
+            )
             request, metadata = self._interceptor.pre_query_artifact_lineage_subgraph(
                 request, metadata
             )
-            pb_request = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
-                request
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._QueryArtifactLineageSubgraph._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5622,19 +5707,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_query_artifact_lineage_subgraph(resp)
             return resp
 
-    class _QueryContextLineageSubgraph(MetadataServiceRestStub):
+    class _QueryContextLineageSubgraph(
+        _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("QueryContextLineageSubgraph")
+            return hash("MetadataServiceRestTransport.QueryContextLineageSubgraph")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5665,40 +5766,31 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{context=projects/*/locations/*/metadataStores/*/contexts/*}:queryContextLineageSubgraph",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_http_options()
+            )
             request, metadata = self._interceptor.pre_query_context_lineage_subgraph(
                 request, metadata
             )
-            pb_request = metadata_service.QueryContextLineageSubgraphRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                MetadataServiceRestTransport._QueryContextLineageSubgraph._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5714,19 +5806,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_query_context_lineage_subgraph(resp)
             return resp
 
-    class _QueryExecutionInputsAndOutputs(MetadataServiceRestStub):
+    class _QueryExecutionInputsAndOutputs(
+        _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("QueryExecutionInputsAndOutputs")
+            return hash("MetadataServiceRestTransport.QueryExecutionInputsAndOutputs")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5757,45 +5865,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{execution=projects/*/locations/*/metadataStores/*/executions/*}:queryExecutionInputsAndOutputs",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_query_execution_inputs_and_outputs(
                 request, metadata
             )
-            pb_request = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
-                request
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = MetadataServiceRestTransport._QueryExecutionInputsAndOutputs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5811,19 +5906,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_query_execution_inputs_and_outputs(resp)
             return resp
 
-    class _RemoveContextChildren(MetadataServiceRestStub):
+    class _RemoveContextChildren(
+        _BaseMetadataServiceRestTransport._BaseRemoveContextChildren,
+        MetadataServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("RemoveContextChildren")
+            return hash("MetadataServiceRestTransport.RemoveContextChildren")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5852,47 +5964,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{context=projects/*/locations/*/metadataStores/*/contexts/*}:removeContextChildren",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_http_options()
+            )
             request, metadata = self._interceptor.pre_remove_context_children(
                 request, metadata
             )
-            pb_request = metadata_service.RemoveContextChildrenRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                MetadataServiceRestTransport._RemoveContextChildren._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5908,19 +6009,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_remove_context_children(resp)
             return resp
 
-    class _UpdateArtifact(MetadataServiceRestStub):
+    class _UpdateArtifact(
+        _BaseMetadataServiceRestTransport._BaseUpdateArtifact, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("UpdateArtifact")
+            return hash("MetadataServiceRestTransport.UpdateArtifact")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5947,45 +6064,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general artifact.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{artifact.name=projects/*/locations/*/metadataStores/*/artifacts/*}",
-                    "body": "artifact",
-                },
-            ]
-            request, metadata = self._interceptor.pre_update_artifact(request, metadata)
-            pb_request = metadata_service.UpdateArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_update_artifact(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._UpdateArtifact._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6001,19 +6105,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_update_artifact(resp)
             return resp
 
-    class _UpdateContext(MetadataServiceRestStub):
+    class _UpdateContext(
+        _BaseMetadataServiceRestTransport._BaseUpdateContext, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("UpdateContext")
+            return hash("MetadataServiceRestTransport.UpdateContext")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6040,45 +6160,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general context.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{context.name=projects/*/locations/*/metadataStores/*/contexts/*}",
-                    "body": "context",
-                },
-            ]
-            request, metadata = self._interceptor.pre_update_context(request, metadata)
-            pb_request = metadata_service.UpdateContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseUpdateContext._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_update_context(request, metadata)
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseUpdateContext._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseMetadataServiceRestTransport._BaseUpdateContext._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseUpdateContext._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._UpdateContext._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6094,19 +6201,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             resp = self._interceptor.post_update_context(resp)
             return resp
 
-    class _UpdateExecution(MetadataServiceRestStub):
+    class _UpdateExecution(
+        _BaseMetadataServiceRestTransport._BaseUpdateExecution, MetadataServiceRestStub
+    ):
         def __hash__(self):
-            return hash("UpdateExecution")
+            return hash("MetadataServiceRestTransport.UpdateExecution")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6133,47 +6256,34 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     Instance of a general execution.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{execution.name=projects/*/locations/*/metadataStores/*/executions/*}",
-                    "body": "execution",
-                },
-            ]
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_execution(
                 request, metadata
             )
-            pb_request = metadata_service.UpdateExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = MetadataServiceRestTransport._UpdateExecution._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6494,7 +6604,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def get_location(self):
         return self._GetLocation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetLocation(MetadataServiceRestStub):
+    class _GetLocation(
+        _BaseMetadataServiceRestTransport._BaseGetLocation, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.GetLocation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.GetLocationRequest,
@@ -6519,36 +6657,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 locations_pb2.Location: Response from GetLocation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetLocation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetLocation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseGetLocation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._GetLocation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6556,8 +6685,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.Location()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
             return resp
 
@@ -6565,7 +6695,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def list_locations(self):
         return self._ListLocations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListLocations(MetadataServiceRestStub):
+    class _ListLocations(
+        _BaseMetadataServiceRestTransport._BaseListLocations, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.ListLocations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.ListLocationsRequest,
@@ -6590,36 +6748,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*}/locations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*}/locations",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListLocations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListLocations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseListLocations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._ListLocations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6627,8 +6776,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.ListLocationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
             return resp
 
@@ -6636,7 +6786,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def get_iam_policy(self):
         return self._GetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetIamPolicy(MetadataServiceRestStub):
+    class _GetIamPolicy(
+        _BaseMetadataServiceRestTransport._BaseGetIamPolicy, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.GetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.GetIamPolicyRequest,
@@ -6661,84 +6839,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 policy_pb2.Policy: Response from GetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._GetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6746,8 +6867,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
             return resp
 
@@ -6755,7 +6877,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def set_iam_policy(self):
         return self._SetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _SetIamPolicy(MetadataServiceRestStub):
+    class _SetIamPolicy(
+        _BaseMetadataServiceRestTransport._BaseSetIamPolicy, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.SetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.SetIamPolicyRequest,
@@ -6780,95 +6931,32 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 policy_pb2.Policy: Response from SetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = MetadataServiceRestTransport._SetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6876,8 +6964,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
             return resp
 
@@ -6885,7 +6974,36 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def test_iam_permissions(self):
         return self._TestIamPermissions(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _TestIamPermissions(MetadataServiceRestStub):
+    class _TestIamPermissions(
+        _BaseMetadataServiceRestTransport._BaseTestIamPermissions,
+        MetadataServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.TestIamPermissions")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.TestIamPermissionsRequest,
@@ -6910,82 +7028,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseTestIamPermissions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._TestIamPermissions._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6993,8 +7058,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = iam_policy_pb2.TestIamPermissionsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
             return resp
 
@@ -7002,7 +7068,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def cancel_operation(self):
         return self._CancelOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _CancelOperation(MetadataServiceRestStub):
+    class _CancelOperation(
+        _BaseMetadataServiceRestTransport._BaseCancelOperation, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.CancelOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.CancelOperationRequest,
@@ -7024,366 +7118,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseCancelOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseCancelOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseCancelOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._CancelOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7397,7 +7154,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def delete_operation(self):
         return self._DeleteOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _DeleteOperation(MetadataServiceRestStub):
+    class _DeleteOperation(
+        _BaseMetadataServiceRestTransport._BaseDeleteOperation, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.DeleteOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.DeleteOperationRequest,
@@ -7419,390 +7204,29 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseDeleteOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseDeleteOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._DeleteOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7816,7 +7240,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def get_operation(self):
         return self._GetOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetOperation(MetadataServiceRestStub):
+    class _GetOperation(
+        _BaseMetadataServiceRestTransport._BaseGetOperation, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.GetOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.GetOperationRequest,
@@ -7841,400 +7293,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 operations_pb2.Operation: Response from GetOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDeploymentJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseGetOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseGetOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseGetOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._GetOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8242,8 +7321,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
             return resp
 
@@ -8251,7 +7331,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def list_operations(self):
         return self._ListOperations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListOperations(MetadataServiceRestStub):
+    class _ListOperations(
+        _BaseMetadataServiceRestTransport._BaseListOperations, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.ListOperations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.ListOperationsRequest,
@@ -8276,396 +7384,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseListOperations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseListOperations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseListOperations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._ListOperations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8673,8 +7412,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.ListOperationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
             return resp
 
@@ -8682,7 +7422,35 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
     def wait_operation(self):
         return self._WaitOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _WaitOperation(MetadataServiceRestStub):
+    class _WaitOperation(
+        _BaseMetadataServiceRestTransport._BaseWaitOperation, MetadataServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("MetadataServiceRestTransport.WaitOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.WaitOperationRequest,
@@ -8707,392 +7475,27 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
                 operations_pb2.Operation: Response from WaitOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseMetadataServiceRestTransport._BaseWaitOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseMetadataServiceRestTransport._BaseWaitOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseMetadataServiceRestTransport._BaseWaitOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = MetadataServiceRestTransport._WaitOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -9100,8 +7503,9 @@ class MetadataServiceRestTransport(MetadataServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
             return resp
 

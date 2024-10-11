@@ -22,6 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import job_state
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 
@@ -41,6 +42,7 @@ __protobuf__ = proto.module(
         "SupervisedTuningSpec",
         "DistillationSpec",
         "DistillationHyperParameters",
+        "PartnerModelTuningSpec",
         "TunedModelRef",
     },
 )
@@ -68,6 +70,11 @@ class TuningJob(proto.Message):
             This field is a member of `oneof`_ ``tuning_spec``.
         distillation_spec (google.cloud.aiplatform_v1beta1.types.DistillationSpec):
             Tuning Spec for Distillation.
+
+            This field is a member of `oneof`_ ``tuning_spec``.
+        partner_model_tuning_spec (google.cloud.aiplatform_v1beta1.types.PartnerModelTuningSpec):
+            Tuning Spec for open sourced and third party
+            partner models.
 
             This field is a member of `oneof`_ ``tuning_spec``.
         name (str):
@@ -155,6 +162,12 @@ class TuningJob(proto.Message):
         number=17,
         oneof="tuning_spec",
         message="DistillationSpec",
+    )
+    partner_model_tuning_spec: "PartnerModelTuningSpec" = proto.Field(
+        proto.MESSAGE,
+        number=21,
+        oneof="tuning_spec",
+        message="PartnerModelTuningSpec",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -849,6 +862,40 @@ class DistillationHyperParameters(proto.Message):
         proto.ENUM,
         number=3,
         enum="SupervisedHyperParameters.AdapterSize",
+    )
+
+
+class PartnerModelTuningSpec(proto.Message):
+    r"""Tuning spec for Partner models.
+
+    Attributes:
+        training_dataset_uri (str):
+            Required. Cloud Storage path to file
+            containing training dataset for tuning. The
+            dataset must be formatted as a JSONL file.
+        validation_dataset_uri (str):
+            Optional. Cloud Storage path to file
+            containing validation dataset for tuning. The
+            dataset must be formatted as a JSONL file.
+        hyper_parameters (MutableMapping[str, google.protobuf.struct_pb2.Value]):
+            Hyperparameters for tuning. The accepted hyper_parameters
+            and their valid range of values will differ depending on the
+            base model.
+    """
+
+    training_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    hyper_parameters: MutableMapping[str, struct_pb2.Value] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
     )
 
 

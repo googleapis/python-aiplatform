@@ -24,7 +24,7 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
-from collections.abc import Iterable
+from collections.abc import Iterable, AsyncIterable
 from google.protobuf import json_format
 import json
 import math
@@ -36,6 +36,13 @@ from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
 from google.protobuf import json_format
+
+try:
+    from google.auth.aio import credentials as ga_credentials_async
+
+    HAS_GOOGLE_AUTH_AIO = True
+except ImportError:  # pragma: NO COVER
+    HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -84,8 +91,22 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+async def mock_async_gen(data, chunk_size=1):
+    for i in range(0, len(data)):  # pragma: NO COVER
+        chunk = data[i : i + chunk_size]
+        yield chunk.encode("utf-8")
+
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
+
+
+# TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
+# See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
+def async_anonymous_credentials():
+    if HAS_GOOGLE_AUTH_AIO:
+        return ga_credentials_async.AnonymousCredentials()
+    return ga_credentials.AnonymousCredentials()
 
 
 # If default endpoint is localhost, then default mtls endpoint will be the same.
@@ -1208,27 +1229,6 @@ def test_create_metadata_store(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_create_metadata_store_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_metadata_store), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataStoreRequest()
-
-
 def test_create_metadata_store_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -1307,29 +1307,6 @@ def test_create_metadata_store_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_metadata_store_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_metadata_store), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.create_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataStoreRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_metadata_store_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1337,7 +1314,7 @@ async def test_create_metadata_store_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1382,7 +1359,7 @@ async def test_create_metadata_store_async(
     request_type=metadata_service.CreateMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1449,7 +1426,7 @@ def test_create_metadata_store_field_headers():
 @pytest.mark.asyncio
 async def test_create_metadata_store_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1533,7 +1510,7 @@ def test_create_metadata_store_flattened_error():
 @pytest.mark.asyncio
 async def test_create_metadata_store_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1572,7 +1549,7 @@ async def test_create_metadata_store_flattened_async():
 @pytest.mark.asyncio
 async def test_create_metadata_store_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1624,27 +1601,6 @@ def test_get_metadata_store(request_type, transport: str = "grpc"):
     assert isinstance(response, metadata_store.MetadataStore)
     assert response.name == "name_value"
     assert response.description == "description_value"
-
-
-def test_get_metadata_store_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_metadata_store), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataStoreRequest()
 
 
 def test_get_metadata_store_non_empty_request_with_auto_populated_field():
@@ -1717,32 +1673,6 @@ def test_get_metadata_store_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_metadata_store_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_metadata_store), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_store.MetadataStore(
-                name="name_value",
-                description="description_value",
-            )
-        )
-        response = await client.get_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataStoreRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_metadata_store_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1750,7 +1680,7 @@ async def test_get_metadata_store_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1790,7 +1720,7 @@ async def test_get_metadata_store_async(
     request_type=metadata_service.GetMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1862,7 +1792,7 @@ def test_get_metadata_store_field_headers():
 @pytest.mark.asyncio
 async def test_get_metadata_store_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1936,7 +1866,7 @@ def test_get_metadata_store_flattened_error():
 @pytest.mark.asyncio
 async def test_get_metadata_store_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1967,7 +1897,7 @@ async def test_get_metadata_store_flattened_async():
 @pytest.mark.asyncio
 async def test_get_metadata_store_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2015,27 +1945,6 @@ def test_list_metadata_stores(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataStoresPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_metadata_stores_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_metadata_stores), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_metadata_stores()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataStoresRequest()
 
 
 def test_list_metadata_stores_non_empty_request_with_auto_populated_field():
@@ -2110,31 +2019,6 @@ def test_list_metadata_stores_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_metadata_stores_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_metadata_stores), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.ListMetadataStoresResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_metadata_stores()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataStoresRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_metadata_stores_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2142,7 +2026,7 @@ async def test_list_metadata_stores_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2182,7 +2066,7 @@ async def test_list_metadata_stores_async(
     request_type=metadata_service.ListMetadataStoresRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2252,7 +2136,7 @@ def test_list_metadata_stores_field_headers():
 @pytest.mark.asyncio
 async def test_list_metadata_stores_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2326,7 +2210,7 @@ def test_list_metadata_stores_flattened_error():
 @pytest.mark.asyncio
 async def test_list_metadata_stores_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2357,7 +2241,7 @@ async def test_list_metadata_stores_flattened_async():
 @pytest.mark.asyncio
 async def test_list_metadata_stores_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2471,7 +2355,7 @@ def test_list_metadata_stores_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_metadata_stores_async_pager():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2523,7 +2407,7 @@ async def test_list_metadata_stores_async_pager():
 @pytest.mark.asyncio
 async def test_list_metadata_stores_async_pages():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2606,27 +2490,6 @@ def test_delete_metadata_store(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_metadata_store_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_metadata_store), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteMetadataStoreRequest()
-
-
 def test_delete_metadata_store_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -2703,29 +2566,6 @@ def test_delete_metadata_store_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_metadata_store_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_metadata_store), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_metadata_store()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteMetadataStoreRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_metadata_store_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2733,7 +2573,7 @@ async def test_delete_metadata_store_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2778,7 +2618,7 @@ async def test_delete_metadata_store_async(
     request_type=metadata_service.DeleteMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2845,7 +2685,7 @@ def test_delete_metadata_store_field_headers():
 @pytest.mark.asyncio
 async def test_delete_metadata_store_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2919,7 +2759,7 @@ def test_delete_metadata_store_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_metadata_store_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2950,7 +2790,7 @@ async def test_delete_metadata_store_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_metadata_store_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3010,25 +2850,6 @@ def test_create_artifact(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_artifact_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateArtifactRequest()
 
 
 def test_create_artifact_non_empty_request_with_auto_populated_field():
@@ -3097,36 +2918,6 @@ def test_create_artifact_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_artifact_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_artifact.Artifact(
-                name="name_value",
-                display_name="display_name_value",
-                uri="uri_value",
-                etag="etag_value",
-                state=gca_artifact.Artifact.State.PENDING,
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.create_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateArtifactRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_artifact_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3134,7 +2925,7 @@ async def test_create_artifact_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3173,7 +2964,7 @@ async def test_create_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.CreateArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3253,7 +3044,7 @@ def test_create_artifact_field_headers():
 @pytest.mark.asyncio
 async def test_create_artifact_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3333,7 +3124,7 @@ def test_create_artifact_flattened_error():
 @pytest.mark.asyncio
 async def test_create_artifact_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3370,7 +3161,7 @@ async def test_create_artifact_flattened_async():
 @pytest.mark.asyncio
 async def test_create_artifact_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3432,25 +3223,6 @@ def test_get_artifact(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_artifact_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetArtifactRequest()
 
 
 def test_get_artifact_non_empty_request_with_auto_populated_field():
@@ -3517,36 +3289,6 @@ def test_get_artifact_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_artifact_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            artifact.Artifact(
-                name="name_value",
-                display_name="display_name_value",
-                uri="uri_value",
-                etag="etag_value",
-                state=artifact.Artifact.State.PENDING,
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.get_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetArtifactRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_artifact_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3554,7 +3296,7 @@ async def test_get_artifact_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3593,7 +3335,7 @@ async def test_get_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3673,7 +3415,7 @@ def test_get_artifact_field_headers():
 @pytest.mark.asyncio
 async def test_get_artifact_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3741,7 +3483,7 @@ def test_get_artifact_flattened_error():
 @pytest.mark.asyncio
 async def test_get_artifact_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3768,7 +3510,7 @@ async def test_get_artifact_flattened_async():
 @pytest.mark.asyncio
 async def test_get_artifact_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3814,25 +3556,6 @@ def test_list_artifacts(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListArtifactsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_artifacts_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_artifacts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListArtifactsRequest()
 
 
 def test_list_artifacts_non_empty_request_with_auto_populated_field():
@@ -3905,29 +3628,6 @@ def test_list_artifacts_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_artifacts_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.ListArtifactsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_artifacts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListArtifactsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_artifacts_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3935,7 +3635,7 @@ async def test_list_artifacts_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3974,7 +3674,7 @@ async def test_list_artifacts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListArtifactsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4040,7 +3740,7 @@ def test_list_artifacts_field_headers():
 @pytest.mark.asyncio
 async def test_list_artifacts_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4110,7 +3810,7 @@ def test_list_artifacts_flattened_error():
 @pytest.mark.asyncio
 async def test_list_artifacts_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4139,7 +3839,7 @@ async def test_list_artifacts_flattened_async():
 @pytest.mark.asyncio
 async def test_list_artifacts_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4249,7 +3949,7 @@ def test_list_artifacts_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_artifacts_async_pager():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4299,7 +3999,7 @@ async def test_list_artifacts_async_pager():
 @pytest.mark.asyncio
 async def test_list_artifacts_async_pages():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4395,25 +4095,6 @@ def test_update_artifact(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
 
 
-def test_update_artifact_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateArtifactRequest()
-
-
 def test_update_artifact_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -4474,36 +4155,6 @@ def test_update_artifact_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_artifact_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_artifact.Artifact(
-                name="name_value",
-                display_name="display_name_value",
-                uri="uri_value",
-                etag="etag_value",
-                state=gca_artifact.Artifact.State.PENDING,
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.update_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateArtifactRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_artifact_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4511,7 +4162,7 @@ async def test_update_artifact_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4550,7 +4201,7 @@ async def test_update_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.UpdateArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4630,7 +4281,7 @@ def test_update_artifact_field_headers():
 @pytest.mark.asyncio
 async def test_update_artifact_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4705,7 +4356,7 @@ def test_update_artifact_flattened_error():
 @pytest.mark.asyncio
 async def test_update_artifact_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4738,7 +4389,7 @@ async def test_update_artifact_flattened_async():
 @pytest.mark.asyncio
 async def test_update_artifact_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4782,25 +4433,6 @@ def test_delete_artifact(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_artifact_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteArtifactRequest()
 
 
 def test_delete_artifact_non_empty_request_with_auto_populated_field():
@@ -4874,27 +4506,6 @@ def test_delete_artifact_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_artifact_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_artifact()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteArtifactRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_artifact_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4902,7 +4513,7 @@ async def test_delete_artifact_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4946,7 +4557,7 @@ async def test_delete_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.DeleteArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5009,7 +4620,7 @@ def test_delete_artifact_field_headers():
 @pytest.mark.asyncio
 async def test_delete_artifact_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5079,7 +4690,7 @@ def test_delete_artifact_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_artifact_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5108,7 +4719,7 @@ async def test_delete_artifact_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_artifact_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5151,25 +4762,6 @@ def test_purge_artifacts(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_artifacts_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.purge_artifacts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeArtifactsRequest()
 
 
 def test_purge_artifacts_non_empty_request_with_auto_populated_field():
@@ -5243,27 +4835,6 @@ def test_purge_artifacts_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_purge_artifacts_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.purge_artifacts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeArtifactsRequest()
-
-
-@pytest.mark.asyncio
 async def test_purge_artifacts_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5271,7 +4842,7 @@ async def test_purge_artifacts_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5315,7 +4886,7 @@ async def test_purge_artifacts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.PurgeArtifactsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5378,7 +4949,7 @@ def test_purge_artifacts_field_headers():
 @pytest.mark.asyncio
 async def test_purge_artifacts_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5448,7 +5019,7 @@ def test_purge_artifacts_flattened_error():
 @pytest.mark.asyncio
 async def test_purge_artifacts_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5477,7 +5048,7 @@ async def test_purge_artifacts_flattened_async():
 @pytest.mark.asyncio
 async def test_purge_artifacts_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5535,25 +5106,6 @@ def test_create_context(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_context_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateContextRequest()
 
 
 def test_create_context_non_empty_request_with_auto_populated_field():
@@ -5622,35 +5174,6 @@ def test_create_context_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_context_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_context.Context(
-                name="name_value",
-                display_name="display_name_value",
-                etag="etag_value",
-                parent_contexts=["parent_contexts_value"],
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.create_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateContextRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_context_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5658,7 +5181,7 @@ async def test_create_context_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5697,7 +5220,7 @@ async def test_create_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.CreateContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5775,7 +5298,7 @@ def test_create_context_field_headers():
 @pytest.mark.asyncio
 async def test_create_context_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5853,7 +5376,7 @@ def test_create_context_flattened_error():
 @pytest.mark.asyncio
 async def test_create_context_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5888,7 +5411,7 @@ async def test_create_context_flattened_async():
 @pytest.mark.asyncio
 async def test_create_context_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5948,25 +5471,6 @@ def test_get_context(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_context_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetContextRequest()
 
 
 def test_get_context_non_empty_request_with_auto_populated_field():
@@ -6033,35 +5537,6 @@ def test_get_context_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_context_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            context.Context(
-                name="name_value",
-                display_name="display_name_value",
-                etag="etag_value",
-                parent_contexts=["parent_contexts_value"],
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.get_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetContextRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_context_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6069,7 +5544,7 @@ async def test_get_context_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6108,7 +5583,7 @@ async def test_get_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6186,7 +5661,7 @@ def test_get_context_field_headers():
 @pytest.mark.asyncio
 async def test_get_context_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6254,7 +5729,7 @@ def test_get_context_flattened_error():
 @pytest.mark.asyncio
 async def test_get_context_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6281,7 +5756,7 @@ async def test_get_context_flattened_async():
 @pytest.mark.asyncio
 async def test_get_context_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6327,25 +5802,6 @@ def test_list_contexts(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListContextsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_contexts_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_contexts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListContextsRequest()
 
 
 def test_list_contexts_non_empty_request_with_auto_populated_field():
@@ -6418,29 +5874,6 @@ def test_list_contexts_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_contexts_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.ListContextsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_contexts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListContextsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_contexts_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6448,7 +5881,7 @@ async def test_list_contexts_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6487,7 +5920,7 @@ async def test_list_contexts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListContextsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6553,7 +5986,7 @@ def test_list_contexts_field_headers():
 @pytest.mark.asyncio
 async def test_list_contexts_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6623,7 +6056,7 @@ def test_list_contexts_flattened_error():
 @pytest.mark.asyncio
 async def test_list_contexts_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6652,7 +6085,7 @@ async def test_list_contexts_flattened_async():
 @pytest.mark.asyncio
 async def test_list_contexts_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6762,7 +6195,7 @@ def test_list_contexts_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_contexts_async_pager():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6812,7 +6245,7 @@ async def test_list_contexts_async_pager():
 @pytest.mark.asyncio
 async def test_list_contexts_async_pages():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6906,25 +6339,6 @@ def test_update_context(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
 
 
-def test_update_context_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateContextRequest()
-
-
 def test_update_context_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -6985,35 +6399,6 @@ def test_update_context_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_context_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_context.Context(
-                name="name_value",
-                display_name="display_name_value",
-                etag="etag_value",
-                parent_contexts=["parent_contexts_value"],
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.update_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateContextRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_context_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7021,7 +6406,7 @@ async def test_update_context_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7060,7 +6445,7 @@ async def test_update_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.UpdateContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7138,7 +6523,7 @@ def test_update_context_field_headers():
 @pytest.mark.asyncio
 async def test_update_context_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7211,7 +6596,7 @@ def test_update_context_flattened_error():
 @pytest.mark.asyncio
 async def test_update_context_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7242,7 +6627,7 @@ async def test_update_context_flattened_async():
 @pytest.mark.asyncio
 async def test_update_context_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7286,25 +6671,6 @@ def test_delete_context(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_context_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteContextRequest()
 
 
 def test_delete_context_non_empty_request_with_auto_populated_field():
@@ -7378,27 +6744,6 @@ def test_delete_context_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_context_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_context()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteContextRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_context_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7406,7 +6751,7 @@ async def test_delete_context_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7450,7 +6795,7 @@ async def test_delete_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.DeleteContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7513,7 +6858,7 @@ def test_delete_context_field_headers():
 @pytest.mark.asyncio
 async def test_delete_context_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7583,7 +6928,7 @@ def test_delete_context_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_context_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7612,7 +6957,7 @@ async def test_delete_context_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_context_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7655,25 +7000,6 @@ def test_purge_contexts(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_contexts_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.purge_contexts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeContextsRequest()
 
 
 def test_purge_contexts_non_empty_request_with_auto_populated_field():
@@ -7747,27 +7073,6 @@ def test_purge_contexts_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_purge_contexts_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.purge_contexts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeContextsRequest()
-
-
-@pytest.mark.asyncio
 async def test_purge_contexts_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7775,7 +7080,7 @@ async def test_purge_contexts_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7819,7 +7124,7 @@ async def test_purge_contexts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.PurgeContextsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7882,7 +7187,7 @@ def test_purge_contexts_field_headers():
 @pytest.mark.asyncio
 async def test_purge_contexts_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7952,7 +7257,7 @@ def test_purge_contexts_flattened_error():
 @pytest.mark.asyncio
 async def test_purge_contexts_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7981,7 +7286,7 @@ async def test_purge_contexts_flattened_async():
 @pytest.mark.asyncio
 async def test_purge_contexts_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -8028,27 +7333,6 @@ def test_add_context_artifacts_and_executions(request_type, transport: str = "gr
     assert isinstance(
         response, metadata_service.AddContextArtifactsAndExecutionsResponse
     )
-
-
-def test_add_context_artifacts_and_executions_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_context_artifacts_and_executions), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.add_context_artifacts_and_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
 
 
 def test_add_context_artifacts_and_executions_non_empty_request_with_auto_populated_field():
@@ -8122,29 +7406,6 @@ def test_add_context_artifacts_and_executions_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_add_context_artifacts_and_executions_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_context_artifacts_and_executions), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.AddContextArtifactsAndExecutionsResponse()
-        )
-        response = await client.add_context_artifacts_and_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
-
-
-@pytest.mark.asyncio
 async def test_add_context_artifacts_and_executions_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -8152,7 +7413,7 @@ async def test_add_context_artifacts_and_executions_async_use_cached_wrapped_rpc
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -8192,7 +7453,7 @@ async def test_add_context_artifacts_and_executions_async(
     request_type=metadata_service.AddContextArtifactsAndExecutionsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -8261,7 +7522,7 @@ def test_add_context_artifacts_and_executions_field_headers():
 @pytest.mark.asyncio
 async def test_add_context_artifacts_and_executions_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -8345,7 +7606,7 @@ def test_add_context_artifacts_and_executions_flattened_error():
 @pytest.mark.asyncio
 async def test_add_context_artifacts_and_executions_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8384,7 +7645,7 @@ async def test_add_context_artifacts_and_executions_flattened_async():
 @pytest.mark.asyncio
 async def test_add_context_artifacts_and_executions_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -8431,27 +7692,6 @@ def test_add_context_children(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddContextChildrenResponse)
-
-
-def test_add_context_children_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_context_children), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.add_context_children()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextChildrenRequest()
 
 
 def test_add_context_children_non_empty_request_with_auto_populated_field():
@@ -8524,29 +7764,6 @@ def test_add_context_children_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_add_context_children_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_context_children), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.AddContextChildrenResponse()
-        )
-        response = await client.add_context_children()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextChildrenRequest()
-
-
-@pytest.mark.asyncio
 async def test_add_context_children_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -8554,7 +7771,7 @@ async def test_add_context_children_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -8594,7 +7811,7 @@ async def test_add_context_children_async(
     request_type=metadata_service.AddContextChildrenRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -8661,7 +7878,7 @@ def test_add_context_children_field_headers():
 @pytest.mark.asyncio
 async def test_add_context_children_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -8740,7 +7957,7 @@ def test_add_context_children_flattened_error():
 @pytest.mark.asyncio
 async def test_add_context_children_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8775,7 +7992,7 @@ async def test_add_context_children_flattened_async():
 @pytest.mark.asyncio
 async def test_add_context_children_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -8821,27 +8038,6 @@ def test_remove_context_children(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.RemoveContextChildrenResponse)
-
-
-def test_remove_context_children_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.remove_context_children), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.remove_context_children()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.RemoveContextChildrenRequest()
 
 
 def test_remove_context_children_non_empty_request_with_auto_populated_field():
@@ -8915,29 +8111,6 @@ def test_remove_context_children_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_remove_context_children_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.remove_context_children), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.RemoveContextChildrenResponse()
-        )
-        response = await client.remove_context_children()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.RemoveContextChildrenRequest()
-
-
-@pytest.mark.asyncio
 async def test_remove_context_children_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -8945,7 +8118,7 @@ async def test_remove_context_children_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -8985,7 +8158,7 @@ async def test_remove_context_children_async(
     request_type=metadata_service.RemoveContextChildrenRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -9052,7 +8225,7 @@ def test_remove_context_children_field_headers():
 @pytest.mark.asyncio
 async def test_remove_context_children_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9131,7 +8304,7 @@ def test_remove_context_children_flattened_error():
 @pytest.mark.asyncio
 async def test_remove_context_children_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9166,7 +8339,7 @@ async def test_remove_context_children_flattened_async():
 @pytest.mark.asyncio
 async def test_remove_context_children_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -9212,27 +8385,6 @@ def test_query_context_lineage_subgraph(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
-
-
-def test_query_context_lineage_subgraph_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_context_lineage_subgraph), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.query_context_lineage_subgraph()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
 
 
 def test_query_context_lineage_subgraph_non_empty_request_with_auto_populated_field():
@@ -9306,29 +8458,6 @@ def test_query_context_lineage_subgraph_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_query_context_lineage_subgraph_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_context_lineage_subgraph), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            lineage_subgraph.LineageSubgraph()
-        )
-        response = await client.query_context_lineage_subgraph()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
-
-
-@pytest.mark.asyncio
 async def test_query_context_lineage_subgraph_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -9336,7 +8465,7 @@ async def test_query_context_lineage_subgraph_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -9376,7 +8505,7 @@ async def test_query_context_lineage_subgraph_async(
     request_type=metadata_service.QueryContextLineageSubgraphRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -9443,7 +8572,7 @@ def test_query_context_lineage_subgraph_field_headers():
 @pytest.mark.asyncio
 async def test_query_context_lineage_subgraph_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9517,7 +8646,7 @@ def test_query_context_lineage_subgraph_flattened_error():
 @pytest.mark.asyncio
 async def test_query_context_lineage_subgraph_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9548,7 +8677,7 @@ async def test_query_context_lineage_subgraph_flattened_async():
 @pytest.mark.asyncio
 async def test_query_context_lineage_subgraph_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -9606,25 +8735,6 @@ def test_create_execution(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_execution_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateExecutionRequest()
 
 
 def test_create_execution_non_empty_request_with_auto_populated_field():
@@ -9695,35 +8805,6 @@ def test_create_execution_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_execution_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_execution.Execution(
-                name="name_value",
-                display_name="display_name_value",
-                state=gca_execution.Execution.State.NEW,
-                etag="etag_value",
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.create_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateExecutionRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_execution_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -9731,7 +8812,7 @@ async def test_create_execution_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -9771,7 +8852,7 @@ async def test_create_execution_async(
     request_type=metadata_service.CreateExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -9849,7 +8930,7 @@ def test_create_execution_field_headers():
 @pytest.mark.asyncio
 async def test_create_execution_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9929,7 +9010,7 @@ def test_create_execution_flattened_error():
 @pytest.mark.asyncio
 async def test_create_execution_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9966,7 +9047,7 @@ async def test_create_execution_flattened_async():
 @pytest.mark.asyncio
 async def test_create_execution_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -10026,25 +9107,6 @@ def test_get_execution(request_type, transport: str = "grpc"):
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_execution_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetExecutionRequest()
 
 
 def test_get_execution_non_empty_request_with_auto_populated_field():
@@ -10111,35 +9173,6 @@ def test_get_execution_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_execution_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            execution.Execution(
-                name="name_value",
-                display_name="display_name_value",
-                state=execution.Execution.State.NEW,
-                etag="etag_value",
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.get_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetExecutionRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_execution_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -10147,7 +9180,7 @@ async def test_get_execution_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -10186,7 +9219,7 @@ async def test_get_execution_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetExecutionRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -10264,7 +9297,7 @@ def test_get_execution_field_headers():
 @pytest.mark.asyncio
 async def test_get_execution_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -10332,7 +9365,7 @@ def test_get_execution_flattened_error():
 @pytest.mark.asyncio
 async def test_get_execution_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10359,7 +9392,7 @@ async def test_get_execution_flattened_async():
 @pytest.mark.asyncio
 async def test_get_execution_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -10405,25 +9438,6 @@ def test_list_executions(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListExecutionsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_executions_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListExecutionsRequest()
 
 
 def test_list_executions_non_empty_request_with_auto_populated_field():
@@ -10496,29 +9510,6 @@ def test_list_executions_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_executions_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.ListExecutionsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListExecutionsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_executions_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -10526,7 +9517,7 @@ async def test_list_executions_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -10565,7 +9556,7 @@ async def test_list_executions_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListExecutionsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -10631,7 +9622,7 @@ def test_list_executions_field_headers():
 @pytest.mark.asyncio
 async def test_list_executions_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -10701,7 +9692,7 @@ def test_list_executions_flattened_error():
 @pytest.mark.asyncio
 async def test_list_executions_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10730,7 +9721,7 @@ async def test_list_executions_flattened_async():
 @pytest.mark.asyncio
 async def test_list_executions_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -10840,7 +9831,7 @@ def test_list_executions_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_executions_async_pager():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10890,7 +9881,7 @@ async def test_list_executions_async_pager():
 @pytest.mark.asyncio
 async def test_list_executions_async_pages():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10984,25 +9975,6 @@ def test_update_execution(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
 
 
-def test_update_execution_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateExecutionRequest()
-
-
 def test_update_execution_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -11065,35 +10037,6 @@ def test_update_execution_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_execution_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_execution.Execution(
-                name="name_value",
-                display_name="display_name_value",
-                state=gca_execution.Execution.State.NEW,
-                etag="etag_value",
-                schema_title="schema_title_value",
-                schema_version="schema_version_value",
-                description="description_value",
-            )
-        )
-        response = await client.update_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateExecutionRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_execution_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -11101,7 +10044,7 @@ async def test_update_execution_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -11141,7 +10084,7 @@ async def test_update_execution_async(
     request_type=metadata_service.UpdateExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -11219,7 +10162,7 @@ def test_update_execution_field_headers():
 @pytest.mark.asyncio
 async def test_update_execution_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -11294,7 +10237,7 @@ def test_update_execution_flattened_error():
 @pytest.mark.asyncio
 async def test_update_execution_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11327,7 +10270,7 @@ async def test_update_execution_flattened_async():
 @pytest.mark.asyncio
 async def test_update_execution_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -11371,25 +10314,6 @@ def test_delete_execution(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_execution_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteExecutionRequest()
 
 
 def test_delete_execution_non_empty_request_with_auto_populated_field():
@@ -11465,27 +10389,6 @@ def test_delete_execution_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_execution_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_execution()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteExecutionRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_execution_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -11493,7 +10396,7 @@ async def test_delete_execution_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -11538,7 +10441,7 @@ async def test_delete_execution_async(
     request_type=metadata_service.DeleteExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -11601,7 +10504,7 @@ def test_delete_execution_field_headers():
 @pytest.mark.asyncio
 async def test_delete_execution_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -11671,7 +10574,7 @@ def test_delete_execution_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_execution_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11700,7 +10603,7 @@ async def test_delete_execution_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_execution_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -11743,25 +10646,6 @@ def test_purge_executions(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_executions_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.purge_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeExecutionsRequest()
 
 
 def test_purge_executions_non_empty_request_with_auto_populated_field():
@@ -11837,27 +10721,6 @@ def test_purge_executions_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_purge_executions_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.purge_executions()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeExecutionsRequest()
-
-
-@pytest.mark.asyncio
 async def test_purge_executions_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -11865,7 +10728,7 @@ async def test_purge_executions_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -11910,7 +10773,7 @@ async def test_purge_executions_async(
     request_type=metadata_service.PurgeExecutionsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -11973,7 +10836,7 @@ def test_purge_executions_field_headers():
 @pytest.mark.asyncio
 async def test_purge_executions_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12043,7 +10906,7 @@ def test_purge_executions_flattened_error():
 @pytest.mark.asyncio
 async def test_purge_executions_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12072,7 +10935,7 @@ async def test_purge_executions_flattened_async():
 @pytest.mark.asyncio
 async def test_purge_executions_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12117,27 +10980,6 @@ def test_add_execution_events(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddExecutionEventsResponse)
-
-
-def test_add_execution_events_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_execution_events), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.add_execution_events()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddExecutionEventsRequest()
 
 
 def test_add_execution_events_non_empty_request_with_auto_populated_field():
@@ -12210,29 +11052,6 @@ def test_add_execution_events_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_add_execution_events_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_execution_events), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.AddExecutionEventsResponse()
-        )
-        response = await client.add_execution_events()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddExecutionEventsRequest()
-
-
-@pytest.mark.asyncio
 async def test_add_execution_events_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -12240,7 +11059,7 @@ async def test_add_execution_events_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -12280,7 +11099,7 @@ async def test_add_execution_events_async(
     request_type=metadata_service.AddExecutionEventsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12347,7 +11166,7 @@ def test_add_execution_events_field_headers():
 @pytest.mark.asyncio
 async def test_add_execution_events_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12426,7 +11245,7 @@ def test_add_execution_events_flattened_error():
 @pytest.mark.asyncio
 async def test_add_execution_events_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12461,7 +11280,7 @@ async def test_add_execution_events_flattened_async():
 @pytest.mark.asyncio
 async def test_add_execution_events_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12507,27 +11326,6 @@ def test_query_execution_inputs_and_outputs(request_type, transport: str = "grpc
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
-
-
-def test_query_execution_inputs_and_outputs_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_execution_inputs_and_outputs), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.query_execution_inputs_and_outputs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
 
 
 def test_query_execution_inputs_and_outputs_non_empty_request_with_auto_populated_field():
@@ -12601,29 +11399,6 @@ def test_query_execution_inputs_and_outputs_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_query_execution_inputs_and_outputs_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_execution_inputs_and_outputs), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            lineage_subgraph.LineageSubgraph()
-        )
-        response = await client.query_execution_inputs_and_outputs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
-
-
-@pytest.mark.asyncio
 async def test_query_execution_inputs_and_outputs_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -12631,7 +11406,7 @@ async def test_query_execution_inputs_and_outputs_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -12671,7 +11446,7 @@ async def test_query_execution_inputs_and_outputs_async(
     request_type=metadata_service.QueryExecutionInputsAndOutputsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12738,7 +11513,7 @@ def test_query_execution_inputs_and_outputs_field_headers():
 @pytest.mark.asyncio
 async def test_query_execution_inputs_and_outputs_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12812,7 +11587,7 @@ def test_query_execution_inputs_and_outputs_flattened_error():
 @pytest.mark.asyncio
 async def test_query_execution_inputs_and_outputs_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12843,7 +11618,7 @@ async def test_query_execution_inputs_and_outputs_flattened_async():
 @pytest.mark.asyncio
 async def test_query_execution_inputs_and_outputs_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12902,27 +11677,6 @@ def test_create_metadata_schema(request_type, transport: str = "grpc"):
         == gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
     )
     assert response.description == "description_value"
-
-
-def test_create_metadata_schema_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_metadata_schema), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_metadata_schema()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataSchemaRequest()
 
 
 def test_create_metadata_schema_non_empty_request_with_auto_populated_field():
@@ -12998,35 +11752,6 @@ def test_create_metadata_schema_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_metadata_schema_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_metadata_schema), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_metadata_schema.MetadataSchema(
-                name="name_value",
-                schema_version="schema_version_value",
-                schema="schema_value",
-                schema_type=gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
-                description="description_value",
-            )
-        )
-        response = await client.create_metadata_schema()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataSchemaRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_metadata_schema_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13034,7 +11759,7 @@ async def test_create_metadata_schema_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13074,7 +11799,7 @@ async def test_create_metadata_schema_async(
     request_type=metadata_service.CreateMetadataSchemaRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13155,7 +11880,7 @@ def test_create_metadata_schema_field_headers():
 @pytest.mark.asyncio
 async def test_create_metadata_schema_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13239,7 +11964,7 @@ def test_create_metadata_schema_flattened_error():
 @pytest.mark.asyncio
 async def test_create_metadata_schema_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -13278,7 +12003,7 @@ async def test_create_metadata_schema_flattened_async():
 @pytest.mark.asyncio
 async def test_create_metadata_schema_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -13339,27 +12064,6 @@ def test_get_metadata_schema(request_type, transport: str = "grpc"):
         == metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
     )
     assert response.description == "description_value"
-
-
-def test_get_metadata_schema_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_metadata_schema), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_metadata_schema()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataSchemaRequest()
 
 
 def test_get_metadata_schema_non_empty_request_with_auto_populated_field():
@@ -13432,35 +12136,6 @@ def test_get_metadata_schema_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_metadata_schema_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_metadata_schema), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_schema.MetadataSchema(
-                name="name_value",
-                schema_version="schema_version_value",
-                schema="schema_value",
-                schema_type=metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
-                description="description_value",
-            )
-        )
-        response = await client.get_metadata_schema()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataSchemaRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_metadata_schema_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13468,7 +12143,7 @@ async def test_get_metadata_schema_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13508,7 +12183,7 @@ async def test_get_metadata_schema_async(
     request_type=metadata_service.GetMetadataSchemaRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13589,7 +12264,7 @@ def test_get_metadata_schema_field_headers():
 @pytest.mark.asyncio
 async def test_get_metadata_schema_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13663,7 +12338,7 @@ def test_get_metadata_schema_flattened_error():
 @pytest.mark.asyncio
 async def test_get_metadata_schema_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -13694,7 +12369,7 @@ async def test_get_metadata_schema_flattened_async():
 @pytest.mark.asyncio
 async def test_get_metadata_schema_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -13742,27 +12417,6 @@ def test_list_metadata_schemas(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataSchemasPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_metadata_schemas_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_metadata_schemas), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_metadata_schemas()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataSchemasRequest()
 
 
 def test_list_metadata_schemas_non_empty_request_with_auto_populated_field():
@@ -13840,31 +12494,6 @@ def test_list_metadata_schemas_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_metadata_schemas_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_metadata_schemas), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_service.ListMetadataSchemasResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_metadata_schemas()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataSchemasRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_metadata_schemas_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13872,7 +12501,7 @@ async def test_list_metadata_schemas_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13912,7 +12541,7 @@ async def test_list_metadata_schemas_async(
     request_type=metadata_service.ListMetadataSchemasRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13982,7 +12611,7 @@ def test_list_metadata_schemas_field_headers():
 @pytest.mark.asyncio
 async def test_list_metadata_schemas_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14056,7 +12685,7 @@ def test_list_metadata_schemas_flattened_error():
 @pytest.mark.asyncio
 async def test_list_metadata_schemas_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14087,7 +12716,7 @@ async def test_list_metadata_schemas_flattened_async():
 @pytest.mark.asyncio
 async def test_list_metadata_schemas_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -14201,7 +12830,7 @@ def test_list_metadata_schemas_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_metadata_schemas_async_pager():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14253,7 +12882,7 @@ async def test_list_metadata_schemas_async_pager():
 @pytest.mark.asyncio
 async def test_list_metadata_schemas_async_pages():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14336,27 +12965,6 @@ def test_query_artifact_lineage_subgraph(request_type, transport: str = "grpc"):
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
 
 
-def test_query_artifact_lineage_subgraph_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_artifact_lineage_subgraph), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.query_artifact_lineage_subgraph()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
-
-
 def test_query_artifact_lineage_subgraph_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -14430,29 +13038,6 @@ def test_query_artifact_lineage_subgraph_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_query_artifact_lineage_subgraph_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.query_artifact_lineage_subgraph), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            lineage_subgraph.LineageSubgraph()
-        )
-        response = await client.query_artifact_lineage_subgraph()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
-
-
-@pytest.mark.asyncio
 async def test_query_artifact_lineage_subgraph_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -14460,7 +13045,7 @@ async def test_query_artifact_lineage_subgraph_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = MetadataServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -14500,7 +13085,7 @@ async def test_query_artifact_lineage_subgraph_async(
     request_type=metadata_service.QueryArtifactLineageSubgraphRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14567,7 +13152,7 @@ def test_query_artifact_lineage_subgraph_field_headers():
 @pytest.mark.asyncio
 async def test_query_artifact_lineage_subgraph_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14641,7 +13226,7 @@ def test_query_artifact_lineage_subgraph_flattened_error():
 @pytest.mark.asyncio
 async def test_query_artifact_lineage_subgraph_flattened_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14672,7 +13257,7 @@ async def test_query_artifact_lineage_subgraph_flattened_async():
 @pytest.mark.asyncio
 async def test_query_artifact_lineage_subgraph_flattened_error_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -14682,119 +13267,6 @@ async def test_query_artifact_lineage_subgraph_flattened_error_async():
             metadata_service.QueryArtifactLineageSubgraphRequest(),
             artifact="artifact_value",
         )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.CreateMetadataStoreRequest,
-        dict,
-    ],
-)
-def test_create_metadata_store_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["metadata_store"] = {
-        "name": "name_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "description": "description_value",
-        "state": {"disk_utilization_bytes": 2380},
-        "dataplex_config": {"enabled_pipelines_lineage": True},
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.CreateMetadataStoreRequest.meta.fields[
-        "metadata_store"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["metadata_store"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["metadata_store"][field])):
-                    del request_init["metadata_store"][field][i][subfield]
-            else:
-                del request_init["metadata_store"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_metadata_store(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_create_metadata_store_rest_use_cached_wrapped_rpc():
@@ -14933,89 +13405,6 @@ def test_create_metadata_store_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_metadata_store_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_create_metadata_store"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_create_metadata_store"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.CreateMetadataStoreRequest.pb(
-            metadata_service.CreateMetadataStoreRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.CreateMetadataStoreRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.create_metadata_store(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_metadata_store_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.CreateMetadataStoreRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_metadata_store(request)
-
-
 def test_create_metadata_store_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15073,54 +13462,6 @@ def test_create_metadata_store_rest_flattened_error(transport: str = "rest"):
             metadata_store=gca_metadata_store.MetadataStore(name="name_value"),
             metadata_store_id="metadata_store_id_value",
         )
-
-
-def test_create_metadata_store_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.GetMetadataStoreRequest,
-        dict,
-    ],
-)
-def test_get_metadata_store_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_store.MetadataStore(
-            name="name_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_store.MetadataStore.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_metadata_store(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, metadata_store.MetadataStore)
-    assert response.name == "name_value"
-    assert response.description == "description_value"
 
 
 def test_get_metadata_store_rest_use_cached_wrapped_rpc():
@@ -15246,87 +13587,6 @@ def test_get_metadata_store_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_metadata_store_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_get_metadata_store"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_get_metadata_store"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.GetMetadataStoreRequest.pb(
-            metadata_service.GetMetadataStoreRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_store.MetadataStore.to_json(
-            metadata_store.MetadataStore()
-        )
-
-        request = metadata_service.GetMetadataStoreRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_store.MetadataStore()
-
-        client.get_metadata_store(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_metadata_store_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.GetMetadataStoreRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_metadata_store(request)
-
-
 def test_get_metadata_store_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15384,52 +13644,6 @@ def test_get_metadata_store_rest_flattened_error(transport: str = "rest"):
             metadata_service.GetMetadataStoreRequest(),
             name="name_value",
         )
-
-
-def test_get_metadata_store_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.ListMetadataStoresRequest,
-        dict,
-    ],
-)
-def test_list_metadata_stores_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.ListMetadataStoresResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.ListMetadataStoresResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_metadata_stores(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListMetadataStoresPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_metadata_stores_rest_use_cached_wrapped_rpc():
@@ -15570,87 +13784,6 @@ def test_list_metadata_stores_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_metadata_stores_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_list_metadata_stores"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_list_metadata_stores"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.ListMetadataStoresRequest.pb(
-            metadata_service.ListMetadataStoresRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.ListMetadataStoresResponse.to_json(
-            metadata_service.ListMetadataStoresResponse()
-        )
-
-        request = metadata_service.ListMetadataStoresRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.ListMetadataStoresResponse()
-
-        client.list_metadata_stores(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_metadata_stores_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.ListMetadataStoresRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_metadata_stores(request)
-
-
 def test_list_metadata_stores_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15769,41 +13902,6 @@ def test_list_metadata_stores_rest_pager(transport: str = "rest"):
         pages = list(client.list_metadata_stores(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.DeleteMetadataStoreRequest,
-        dict,
-    ],
-)
-def test_delete_metadata_store_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_metadata_store(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_metadata_store_rest_use_cached_wrapped_rpc():
@@ -15933,89 +14031,6 @@ def test_delete_metadata_store_rest_unset_required_fields():
     assert set(unset_fields) == (set(("force",)) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_metadata_store_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_delete_metadata_store"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_delete_metadata_store"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
-            metadata_service.DeleteMetadataStoreRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.DeleteMetadataStoreRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_metadata_store(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_metadata_store_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.DeleteMetadataStoreRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_metadata_store(request)
-
-
 def test_delete_metadata_store_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16071,149 +14086,6 @@ def test_delete_metadata_store_rest_flattened_error(transport: str = "rest"):
             metadata_service.DeleteMetadataStoreRequest(),
             name="name_value",
         )
-
-
-def test_delete_metadata_store_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.CreateArtifactRequest,
-        dict,
-    ],
-)
-def test_create_artifact_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request_init["artifact"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "uri": "uri_value",
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "state": 1,
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.CreateArtifactRequest.meta.fields["artifact"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["artifact"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["artifact"][field])):
-                    del request_init["artifact"][field][i][subfield]
-            else:
-                del request_init["artifact"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_artifact.Artifact(
-            name="name_value",
-            display_name="display_name_value",
-            uri="uri_value",
-            etag="etag_value",
-            state=gca_artifact.Artifact.State.PENDING,
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_artifact.Artifact.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_artifact(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_artifact.Artifact)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.uri == "uri_value"
-    assert response.etag == "etag_value"
-    assert response.state == gca_artifact.Artifact.State.PENDING
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_create_artifact_rest_use_cached_wrapped_rpc():
@@ -16346,89 +14218,6 @@ def test_create_artifact_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_artifact_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_create_artifact"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_create_artifact"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.CreateArtifactRequest.pb(
-            metadata_service.CreateArtifactRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_artifact.Artifact.to_json(
-            gca_artifact.Artifact()
-        )
-
-        request = metadata_service.CreateArtifactRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_artifact.Artifact()
-
-        client.create_artifact(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_artifact_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.CreateArtifactRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_artifact(request)
-
-
 def test_create_artifact_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16490,68 +14279,6 @@ def test_create_artifact_rest_flattened_error(transport: str = "rest"):
             artifact=gca_artifact.Artifact(name="name_value"),
             artifact_id="artifact_id_value",
         )
-
-
-def test_create_artifact_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.GetArtifactRequest,
-        dict,
-    ],
-)
-def test_get_artifact_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = artifact.Artifact(
-            name="name_value",
-            display_name="display_name_value",
-            uri="uri_value",
-            etag="etag_value",
-            state=artifact.Artifact.State.PENDING,
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = artifact.Artifact.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_artifact(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, artifact.Artifact)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.uri == "uri_value"
-    assert response.etag == "etag_value"
-    assert response.state == artifact.Artifact.State.PENDING
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_get_artifact_rest_use_cached_wrapped_rpc():
@@ -16673,87 +14400,6 @@ def test_get_artifact_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_artifact_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_get_artifact"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_get_artifact"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.GetArtifactRequest.pb(
-            metadata_service.GetArtifactRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = artifact.Artifact.to_json(artifact.Artifact())
-
-        request = metadata_service.GetArtifactRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = artifact.Artifact()
-
-        client.get_artifact(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_artifact_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.GetArtifactRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_artifact(request)
-
-
 def test_get_artifact_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16811,54 +14457,6 @@ def test_get_artifact_rest_flattened_error(transport: str = "rest"):
             metadata_service.GetArtifactRequest(),
             name="name_value",
         )
-
-
-def test_get_artifact_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.ListArtifactsRequest,
-        dict,
-    ],
-)
-def test_list_artifacts_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.ListArtifactsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.ListArtifactsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_artifacts(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListArtifactsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_artifacts_rest_use_cached_wrapped_rpc():
@@ -16999,89 +14597,6 @@ def test_list_artifacts_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_artifacts_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_list_artifacts"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_list_artifacts"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.ListArtifactsRequest.pb(
-            metadata_service.ListArtifactsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.ListArtifactsResponse.to_json(
-            metadata_service.ListArtifactsResponse()
-        )
-
-        request = metadata_service.ListArtifactsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.ListArtifactsResponse()
-
-        client.list_artifacts(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_artifacts_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.ListArtifactsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_artifacts(request)
-
-
 def test_list_artifacts_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17204,145 +14719,6 @@ def test_list_artifacts_rest_pager(transport: str = "rest"):
         pages = list(client.list_artifacts(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.UpdateArtifactRequest,
-        dict,
-    ],
-)
-def test_update_artifact_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "artifact": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-        }
-    }
-    request_init["artifact"] = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4",
-        "display_name": "display_name_value",
-        "uri": "uri_value",
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "state": 1,
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.UpdateArtifactRequest.meta.fields["artifact"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["artifact"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["artifact"][field])):
-                    del request_init["artifact"][field][i][subfield]
-            else:
-                del request_init["artifact"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_artifact.Artifact(
-            name="name_value",
-            display_name="display_name_value",
-            uri="uri_value",
-            etag="etag_value",
-            state=gca_artifact.Artifact.State.PENDING,
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_artifact.Artifact.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_artifact(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_artifact.Artifact)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.uri == "uri_value"
-    assert response.etag == "etag_value"
-    assert response.state == gca_artifact.Artifact.State.PENDING
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_update_artifact_rest_use_cached_wrapped_rpc():
@@ -17475,91 +14851,6 @@ def test_update_artifact_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_artifact_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_update_artifact"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_update_artifact"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.UpdateArtifactRequest.pb(
-            metadata_service.UpdateArtifactRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_artifact.Artifact.to_json(
-            gca_artifact.Artifact()
-        )
-
-        request = metadata_service.UpdateArtifactRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_artifact.Artifact()
-
-        client.update_artifact(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_artifact_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.UpdateArtifactRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "artifact": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_artifact(request)
-
-
 def test_update_artifact_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17621,49 +14912,6 @@ def test_update_artifact_rest_flattened_error(transport: str = "rest"):
             artifact=gca_artifact.Artifact(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_artifact_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.DeleteArtifactRequest,
-        dict,
-    ],
-)
-def test_delete_artifact_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_artifact(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_artifact_rest_use_cached_wrapped_rpc():
@@ -17788,91 +15036,6 @@ def test_delete_artifact_rest_unset_required_fields():
     assert set(unset_fields) == (set(("etag",)) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_artifact_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_delete_artifact"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_delete_artifact"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.DeleteArtifactRequest.pb(
-            metadata_service.DeleteArtifactRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.DeleteArtifactRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_artifact(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_artifact_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.DeleteArtifactRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_artifact(request)
-
-
 def test_delete_artifact_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17928,49 +15091,6 @@ def test_delete_artifact_rest_flattened_error(transport: str = "rest"):
             metadata_service.DeleteArtifactRequest(),
             name="name_value",
         )
-
-
-def test_delete_artifact_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.PurgeArtifactsRequest,
-        dict,
-    ],
-)
-def test_purge_artifacts_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.purge_artifacts(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_purge_artifacts_rest_use_cached_wrapped_rpc():
@@ -18106,91 +15226,6 @@ def test_purge_artifacts_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_purge_artifacts_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_purge_artifacts"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_purge_artifacts"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.PurgeArtifactsRequest.pb(
-            metadata_service.PurgeArtifactsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.PurgeArtifactsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.purge_artifacts(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_purge_artifacts_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.PurgeArtifactsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.purge_artifacts(request)
-
-
 def test_purge_artifacts_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18246,146 +15281,6 @@ def test_purge_artifacts_rest_flattened_error(transport: str = "rest"):
             metadata_service.PurgeArtifactsRequest(),
             parent="parent_value",
         )
-
-
-def test_purge_artifacts_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.CreateContextRequest,
-        dict,
-    ],
-)
-def test_create_context_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request_init["context"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "parent_contexts": ["parent_contexts_value1", "parent_contexts_value2"],
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.CreateContextRequest.meta.fields["context"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["context"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["context"][field])):
-                    del request_init["context"][field][i][subfield]
-            else:
-                del request_init["context"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_context.Context(
-            name="name_value",
-            display_name="display_name_value",
-            etag="etag_value",
-            parent_contexts=["parent_contexts_value"],
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_context.Context.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_context(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_context.Context)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.etag == "etag_value"
-    assert response.parent_contexts == ["parent_contexts_value"]
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_create_context_rest_use_cached_wrapped_rpc():
@@ -18518,87 +15413,6 @@ def test_create_context_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_context_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_create_context"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_create_context"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.CreateContextRequest.pb(
-            metadata_service.CreateContextRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_context.Context.to_json(gca_context.Context())
-
-        request = metadata_service.CreateContextRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_context.Context()
-
-        client.create_context(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_context_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.CreateContextRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_context(request)
-
-
 def test_create_context_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18660,66 +15474,6 @@ def test_create_context_rest_flattened_error(transport: str = "rest"):
             context=gca_context.Context(name="name_value"),
             context_id="context_id_value",
         )
-
-
-def test_create_context_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.GetContextRequest,
-        dict,
-    ],
-)
-def test_get_context_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = context.Context(
-            name="name_value",
-            display_name="display_name_value",
-            etag="etag_value",
-            parent_contexts=["parent_contexts_value"],
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = context.Context.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_context(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, context.Context)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.etag == "etag_value"
-    assert response.parent_contexts == ["parent_contexts_value"]
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_get_context_rest_use_cached_wrapped_rpc():
@@ -18841,87 +15595,6 @@ def test_get_context_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_context_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_get_context"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_get_context"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.GetContextRequest.pb(
-            metadata_service.GetContextRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = context.Context.to_json(context.Context())
-
-        request = metadata_service.GetContextRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = context.Context()
-
-        client.get_context(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_context_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.GetContextRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_context(request)
-
-
 def test_get_context_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18979,54 +15652,6 @@ def test_get_context_rest_flattened_error(transport: str = "rest"):
             metadata_service.GetContextRequest(),
             name="name_value",
         )
-
-
-def test_get_context_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.ListContextsRequest,
-        dict,
-    ],
-)
-def test_list_contexts_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.ListContextsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.ListContextsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_contexts(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListContextsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_contexts_rest_use_cached_wrapped_rpc():
@@ -19167,89 +15792,6 @@ def test_list_contexts_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_contexts_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_list_contexts"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_list_contexts"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.ListContextsRequest.pb(
-            metadata_service.ListContextsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.ListContextsResponse.to_json(
-            metadata_service.ListContextsResponse()
-        )
-
-        request = metadata_service.ListContextsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.ListContextsResponse()
-
-        client.list_contexts(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_contexts_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.ListContextsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_contexts(request)
-
-
 def test_list_contexts_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -19372,142 +15914,6 @@ def test_list_contexts_rest_pager(transport: str = "rest"):
         pages = list(client.list_contexts(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.UpdateContextRequest,
-        dict,
-    ],
-)
-def test_update_context_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-        }
-    }
-    request_init["context"] = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4",
-        "display_name": "display_name_value",
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "parent_contexts": ["parent_contexts_value1", "parent_contexts_value2"],
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.UpdateContextRequest.meta.fields["context"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["context"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["context"][field])):
-                    del request_init["context"][field][i][subfield]
-            else:
-                del request_init["context"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_context.Context(
-            name="name_value",
-            display_name="display_name_value",
-            etag="etag_value",
-            parent_contexts=["parent_contexts_value"],
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_context.Context.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_context(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_context.Context)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.etag == "etag_value"
-    assert response.parent_contexts == ["parent_contexts_value"]
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_update_context_rest_use_cached_wrapped_rpc():
@@ -19640,89 +16046,6 @@ def test_update_context_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_context_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_update_context"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_update_context"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.UpdateContextRequest.pb(
-            metadata_service.UpdateContextRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_context.Context.to_json(gca_context.Context())
-
-        request = metadata_service.UpdateContextRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_context.Context()
-
-        client.update_context(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_context_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.UpdateContextRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_context(request)
-
-
 def test_update_context_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -19784,49 +16107,6 @@ def test_update_context_rest_flattened_error(transport: str = "rest"):
             context=gca_context.Context(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_context_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.DeleteContextRequest,
-        dict,
-    ],
-)
-def test_delete_context_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_context(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_context_rest_use_cached_wrapped_rpc():
@@ -19964,91 +16244,6 @@ def test_delete_context_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_context_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_delete_context"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_delete_context"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.DeleteContextRequest.pb(
-            metadata_service.DeleteContextRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.DeleteContextRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_context(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_context_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.DeleteContextRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_context(request)
-
-
 def test_delete_context_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20104,49 +16299,6 @@ def test_delete_context_rest_flattened_error(transport: str = "rest"):
             metadata_service.DeleteContextRequest(),
             name="name_value",
         )
-
-
-def test_delete_context_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.PurgeContextsRequest,
-        dict,
-    ],
-)
-def test_purge_contexts_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.purge_contexts(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_purge_contexts_rest_use_cached_wrapped_rpc():
@@ -20282,91 +16434,6 @@ def test_purge_contexts_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_purge_contexts_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_purge_contexts"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_purge_contexts"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.PurgeContextsRequest.pb(
-            metadata_service.PurgeContextsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.PurgeContextsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.purge_contexts(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_purge_contexts_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.PurgeContextsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.purge_contexts(request)
-
-
 def test_purge_contexts_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20422,55 +16489,6 @@ def test_purge_contexts_rest_flattened_error(transport: str = "rest"):
             metadata_service.PurgeContextsRequest(),
             parent="parent_value",
         )
-
-
-def test_purge_contexts_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.AddContextArtifactsAndExecutionsRequest,
-        dict,
-    ],
-)
-def test_add_context_artifacts_and_executions_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.AddContextArtifactsAndExecutionsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.add_context_artifacts_and_executions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(
-        response, metadata_service.AddContextArtifactsAndExecutionsResponse
-    )
 
 
 def test_add_context_artifacts_and_executions_rest_use_cached_wrapped_rpc():
@@ -20602,94 +16620,6 @@ def test_add_context_artifacts_and_executions_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("context",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor,
-        "post_add_context_artifacts_and_executions",
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor,
-        "pre_add_context_artifacts_and_executions",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
-            metadata_service.AddContextArtifactsAndExecutionsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            metadata_service.AddContextArtifactsAndExecutionsResponse.to_json(
-                metadata_service.AddContextArtifactsAndExecutionsResponse()
-            )
-        )
-
-        request = metadata_service.AddContextArtifactsAndExecutionsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
-
-        client.add_context_artifacts_and_executions(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_add_context_artifacts_and_executions_rest_bad_request(
-    transport: str = "rest",
-    request_type=metadata_service.AddContextArtifactsAndExecutionsRequest,
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.add_context_artifacts_and_executions(request)
-
-
 def test_add_context_artifacts_and_executions_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20755,51 +16685,6 @@ def test_add_context_artifacts_and_executions_rest_flattened_error(
             artifacts=["artifacts_value"],
             executions=["executions_value"],
         )
-
-
-def test_add_context_artifacts_and_executions_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.AddContextChildrenRequest,
-        dict,
-    ],
-)
-def test_add_context_children_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.AddContextChildrenResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.AddContextChildrenResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.add_context_children(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, metadata_service.AddContextChildrenResponse)
 
 
 def test_add_context_children_rest_use_cached_wrapped_rpc():
@@ -20926,89 +16811,6 @@ def test_add_context_children_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("context",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_add_context_children_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_add_context_children"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_add_context_children"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.AddContextChildrenRequest.pb(
-            metadata_service.AddContextChildrenRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.AddContextChildrenResponse.to_json(
-            metadata_service.AddContextChildrenResponse()
-        )
-
-        request = metadata_service.AddContextChildrenRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.AddContextChildrenResponse()
-
-        client.add_context_children(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_add_context_children_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.AddContextChildrenRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.add_context_children(request)
-
-
 def test_add_context_children_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -21068,51 +16870,6 @@ def test_add_context_children_rest_flattened_error(transport: str = "rest"):
             context="context_value",
             child_contexts=["child_contexts_value"],
         )
-
-
-def test_add_context_children_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.RemoveContextChildrenRequest,
-        dict,
-    ],
-)
-def test_remove_context_children_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.RemoveContextChildrenResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.RemoveContextChildrenResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.remove_context_children(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, metadata_service.RemoveContextChildrenResponse)
 
 
 def test_remove_context_children_rest_use_cached_wrapped_rpc():
@@ -21242,91 +16999,6 @@ def test_remove_context_children_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("context",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_remove_context_children_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_remove_context_children"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_remove_context_children"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.RemoveContextChildrenRequest.pb(
-            metadata_service.RemoveContextChildrenRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            metadata_service.RemoveContextChildrenResponse.to_json(
-                metadata_service.RemoveContextChildrenResponse()
-            )
-        )
-
-        request = metadata_service.RemoveContextChildrenRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.RemoveContextChildrenResponse()
-
-        client.remove_context_children(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_remove_context_children_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.RemoveContextChildrenRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.remove_context_children(request)
-
-
 def test_remove_context_children_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -21386,51 +17058,6 @@ def test_remove_context_children_rest_flattened_error(transport: str = "rest"):
             context="context_value",
             child_contexts=["child_contexts_value"],
         )
-
-
-def test_remove_context_children_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.QueryContextLineageSubgraphRequest,
-        dict,
-    ],
-)
-def test_query_context_lineage_subgraph_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = lineage_subgraph.LineageSubgraph()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.query_context_lineage_subgraph(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, lineage_subgraph.LineageSubgraph)
 
 
 def test_query_context_lineage_subgraph_rest_use_cached_wrapped_rpc():
@@ -21559,90 +17186,6 @@ def test_query_context_lineage_subgraph_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("context",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_query_context_lineage_subgraph"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_query_context_lineage_subgraph"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
-            metadata_service.QueryContextLineageSubgraphRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = lineage_subgraph.LineageSubgraph.to_json(
-            lineage_subgraph.LineageSubgraph()
-        )
-
-        request = metadata_service.QueryContextLineageSubgraphRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = lineage_subgraph.LineageSubgraph()
-
-        client.query_context_lineage_subgraph(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_query_context_lineage_subgraph_rest_bad_request(
-    transport: str = "rest",
-    request_type=metadata_service.QueryContextLineageSubgraphRequest,
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.query_context_lineage_subgraph(request)
-
-
 def test_query_context_lineage_subgraph_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -21700,146 +17243,6 @@ def test_query_context_lineage_subgraph_rest_flattened_error(transport: str = "r
             metadata_service.QueryContextLineageSubgraphRequest(),
             context="context_value",
         )
-
-
-def test_query_context_lineage_subgraph_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.CreateExecutionRequest,
-        dict,
-    ],
-)
-def test_create_execution_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request_init["execution"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "state": 1,
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.CreateExecutionRequest.meta.fields["execution"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["execution"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["execution"][field])):
-                    del request_init["execution"][field][i][subfield]
-            else:
-                del request_init["execution"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_execution.Execution(
-            name="name_value",
-            display_name="display_name_value",
-            state=gca_execution.Execution.State.NEW,
-            etag="etag_value",
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_execution.Execution.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_execution(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_execution.Execution)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.state == gca_execution.Execution.State.NEW
-    assert response.etag == "etag_value"
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_create_execution_rest_use_cached_wrapped_rpc():
@@ -21974,89 +17377,6 @@ def test_create_execution_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_execution_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_create_execution"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_create_execution"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.CreateExecutionRequest.pb(
-            metadata_service.CreateExecutionRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_execution.Execution.to_json(
-            gca_execution.Execution()
-        )
-
-        request = metadata_service.CreateExecutionRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_execution.Execution()
-
-        client.create_execution(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_execution_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.CreateExecutionRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_execution(request)
-
-
 def test_create_execution_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22118,66 +17438,6 @@ def test_create_execution_rest_flattened_error(transport: str = "rest"):
             execution=gca_execution.Execution(name="name_value"),
             execution_id="execution_id_value",
         )
-
-
-def test_create_execution_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.GetExecutionRequest,
-        dict,
-    ],
-)
-def test_get_execution_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = execution.Execution(
-            name="name_value",
-            display_name="display_name_value",
-            state=execution.Execution.State.NEW,
-            etag="etag_value",
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = execution.Execution.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_execution(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, execution.Execution)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.state == execution.Execution.State.NEW
-    assert response.etag == "etag_value"
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_get_execution_rest_use_cached_wrapped_rpc():
@@ -22299,87 +17559,6 @@ def test_get_execution_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_execution_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_get_execution"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_get_execution"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.GetExecutionRequest.pb(
-            metadata_service.GetExecutionRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = execution.Execution.to_json(execution.Execution())
-
-        request = metadata_service.GetExecutionRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = execution.Execution()
-
-        client.get_execution(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_execution_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.GetExecutionRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_execution(request)
-
-
 def test_get_execution_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22437,54 +17616,6 @@ def test_get_execution_rest_flattened_error(transport: str = "rest"):
             metadata_service.GetExecutionRequest(),
             name="name_value",
         )
-
-
-def test_get_execution_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.ListExecutionsRequest,
-        dict,
-    ],
-)
-def test_list_executions_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.ListExecutionsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.ListExecutionsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_executions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListExecutionsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_executions_rest_use_cached_wrapped_rpc():
@@ -22625,89 +17756,6 @@ def test_list_executions_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_executions_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_list_executions"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_list_executions"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.ListExecutionsRequest.pb(
-            metadata_service.ListExecutionsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.ListExecutionsResponse.to_json(
-            metadata_service.ListExecutionsResponse()
-        )
-
-        request = metadata_service.ListExecutionsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.ListExecutionsResponse()
-
-        client.list_executions(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_executions_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.ListExecutionsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_executions(request)
-
-
 def test_list_executions_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22830,142 +17878,6 @@ def test_list_executions_rest_pager(transport: str = "rest"):
         pages = list(client.list_executions(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.UpdateExecutionRequest,
-        dict,
-    ],
-)
-def test_update_execution_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-        }
-    }
-    request_init["execution"] = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4",
-        "display_name": "display_name_value",
-        "state": 1,
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "schema_title": "schema_title_value",
-        "schema_version": "schema_version_value",
-        "metadata": {"fields": {}},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.UpdateExecutionRequest.meta.fields["execution"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["execution"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["execution"][field])):
-                    del request_init["execution"][field][i][subfield]
-            else:
-                del request_init["execution"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_execution.Execution(
-            name="name_value",
-            display_name="display_name_value",
-            state=gca_execution.Execution.State.NEW,
-            etag="etag_value",
-            schema_title="schema_title_value",
-            schema_version="schema_version_value",
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_execution.Execution.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_execution(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_execution.Execution)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.state == gca_execution.Execution.State.NEW
-    assert response.etag == "etag_value"
-    assert response.schema_title == "schema_title_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.description == "description_value"
 
 
 def test_update_execution_rest_use_cached_wrapped_rpc():
@@ -23100,91 +18012,6 @@ def test_update_execution_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_execution_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_update_execution"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_update_execution"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.UpdateExecutionRequest.pb(
-            metadata_service.UpdateExecutionRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_execution.Execution.to_json(
-            gca_execution.Execution()
-        )
-
-        request = metadata_service.UpdateExecutionRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_execution.Execution()
-
-        client.update_execution(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_execution_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.UpdateExecutionRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": {
-            "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_execution(request)
-
-
 def test_update_execution_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23246,49 +18073,6 @@ def test_update_execution_rest_flattened_error(transport: str = "rest"):
             execution=gca_execution.Execution(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_execution_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.DeleteExecutionRequest,
-        dict,
-    ],
-)
-def test_delete_execution_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_execution(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_execution_rest_use_cached_wrapped_rpc():
@@ -23415,91 +18199,6 @@ def test_delete_execution_rest_unset_required_fields():
     assert set(unset_fields) == (set(("etag",)) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_execution_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_delete_execution"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_delete_execution"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.DeleteExecutionRequest.pb(
-            metadata_service.DeleteExecutionRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.DeleteExecutionRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_execution(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_execution_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.DeleteExecutionRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_execution(request)
-
-
 def test_delete_execution_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23555,49 +18254,6 @@ def test_delete_execution_rest_flattened_error(transport: str = "rest"):
             metadata_service.DeleteExecutionRequest(),
             name="name_value",
         )
-
-
-def test_delete_execution_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.PurgeExecutionsRequest,
-        dict,
-    ],
-)
-def test_purge_executions_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.purge_executions(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_purge_executions_rest_use_cached_wrapped_rpc():
@@ -23735,91 +18391,6 @@ def test_purge_executions_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_purge_executions_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_purge_executions"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_purge_executions"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.PurgeExecutionsRequest.pb(
-            metadata_service.PurgeExecutionsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = metadata_service.PurgeExecutionsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.purge_executions(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_purge_executions_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.PurgeExecutionsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.purge_executions(request)
-
-
 def test_purge_executions_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23875,51 +18446,6 @@ def test_purge_executions_rest_flattened_error(transport: str = "rest"):
             metadata_service.PurgeExecutionsRequest(),
             parent="parent_value",
         )
-
-
-def test_purge_executions_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.AddExecutionEventsRequest,
-        dict,
-    ],
-)
-def test_add_execution_events_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.AddExecutionEventsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.AddExecutionEventsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.add_execution_events(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, metadata_service.AddExecutionEventsResponse)
 
 
 def test_add_execution_events_rest_use_cached_wrapped_rpc():
@@ -24046,89 +18572,6 @@ def test_add_execution_events_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("execution",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_add_execution_events_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_add_execution_events"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_add_execution_events"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.AddExecutionEventsRequest.pb(
-            metadata_service.AddExecutionEventsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_service.AddExecutionEventsResponse.to_json(
-            metadata_service.AddExecutionEventsResponse()
-        )
-
-        request = metadata_service.AddExecutionEventsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.AddExecutionEventsResponse()
-
-        client.add_execution_events(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_add_execution_events_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.AddExecutionEventsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.add_execution_events(request)
-
-
 def test_add_execution_events_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24188,51 +18631,6 @@ def test_add_execution_events_rest_flattened_error(transport: str = "rest"):
             execution="execution_value",
             events=[event.Event(artifact="artifact_value")],
         )
-
-
-def test_add_execution_events_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.QueryExecutionInputsAndOutputsRequest,
-        dict,
-    ],
-)
-def test_query_execution_inputs_and_outputs_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = lineage_subgraph.LineageSubgraph()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.query_execution_inputs_and_outputs(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, lineage_subgraph.LineageSubgraph)
 
 
 def test_query_execution_inputs_and_outputs_rest_use_cached_wrapped_rpc():
@@ -24361,92 +18759,6 @@ def test_query_execution_inputs_and_outputs_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("execution",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor,
-        "post_query_execution_inputs_and_outputs",
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor,
-        "pre_query_execution_inputs_and_outputs",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
-            metadata_service.QueryExecutionInputsAndOutputsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = lineage_subgraph.LineageSubgraph.to_json(
-            lineage_subgraph.LineageSubgraph()
-        )
-
-        request = metadata_service.QueryExecutionInputsAndOutputsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = lineage_subgraph.LineageSubgraph()
-
-        client.query_execution_inputs_and_outputs(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_query_execution_inputs_and_outputs_rest_bad_request(
-    transport: str = "rest",
-    request_type=metadata_service.QueryExecutionInputsAndOutputsRequest,
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.query_execution_inputs_and_outputs(request)
-
-
 def test_query_execution_inputs_and_outputs_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24506,142 +18818,6 @@ def test_query_execution_inputs_and_outputs_rest_flattened_error(
             metadata_service.QueryExecutionInputsAndOutputsRequest(),
             execution="execution_value",
         )
-
-
-def test_query_execution_inputs_and_outputs_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.CreateMetadataSchemaRequest,
-        dict,
-    ],
-)
-def test_create_metadata_schema_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request_init["metadata_schema"] = {
-        "name": "name_value",
-        "schema_version": "schema_version_value",
-        "schema": "schema_value",
-        "schema_type": 1,
-        "create_time": {"seconds": 751, "nanos": 543},
-        "description": "description_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = metadata_service.CreateMetadataSchemaRequest.meta.fields[
-        "metadata_schema"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["metadata_schema"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["metadata_schema"][field])):
-                    del request_init["metadata_schema"][field][i][subfield]
-            else:
-                del request_init["metadata_schema"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_metadata_schema.MetadataSchema(
-            name="name_value",
-            schema_version="schema_version_value",
-            schema="schema_value",
-            schema_type=gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_metadata_schema.MetadataSchema.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_metadata_schema(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_metadata_schema.MetadataSchema)
-    assert response.name == "name_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.schema == "schema_value"
-    assert (
-        response.schema_type
-        == gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
-    )
-    assert response.description == "description_value"
 
 
 def test_create_metadata_schema_rest_use_cached_wrapped_rpc():
@@ -24779,89 +18955,6 @@ def test_create_metadata_schema_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_metadata_schema_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_create_metadata_schema"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_create_metadata_schema"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
-            metadata_service.CreateMetadataSchemaRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_metadata_schema.MetadataSchema.to_json(
-            gca_metadata_schema.MetadataSchema()
-        )
-
-        request = metadata_service.CreateMetadataSchemaRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_metadata_schema.MetadataSchema()
-
-        client.create_metadata_schema(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_metadata_schema_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.CreateMetadataSchemaRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_metadata_schema(request)
-
-
 def test_create_metadata_schema_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24923,65 +19016,6 @@ def test_create_metadata_schema_rest_flattened_error(transport: str = "rest"):
             metadata_schema=gca_metadata_schema.MetadataSchema(name="name_value"),
             metadata_schema_id="metadata_schema_id_value",
         )
-
-
-def test_create_metadata_schema_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.GetMetadataSchemaRequest,
-        dict,
-    ],
-)
-def test_get_metadata_schema_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/metadataSchemas/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_schema.MetadataSchema(
-            name="name_value",
-            schema_version="schema_version_value",
-            schema="schema_value",
-            schema_type=metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
-            description="description_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_schema.MetadataSchema.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_metadata_schema(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, metadata_schema.MetadataSchema)
-    assert response.name == "name_value"
-    assert response.schema_version == "schema_version_value"
-    assert response.schema == "schema_value"
-    assert (
-        response.schema_type
-        == metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
-    )
-    assert response.description == "description_value"
 
 
 def test_get_metadata_schema_rest_use_cached_wrapped_rpc():
@@ -25107,89 +19141,6 @@ def test_get_metadata_schema_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_metadata_schema_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_get_metadata_schema"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_get_metadata_schema"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.GetMetadataSchemaRequest.pb(
-            metadata_service.GetMetadataSchemaRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = metadata_schema.MetadataSchema.to_json(
-            metadata_schema.MetadataSchema()
-        )
-
-        request = metadata_service.GetMetadataSchemaRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_schema.MetadataSchema()
-
-        client.get_metadata_schema(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_metadata_schema_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.GetMetadataSchemaRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/metadataStores/sample3/metadataSchemas/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_metadata_schema(request)
-
-
 def test_get_metadata_schema_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -25247,54 +19198,6 @@ def test_get_metadata_schema_rest_flattened_error(transport: str = "rest"):
             metadata_service.GetMetadataSchemaRequest(),
             name="name_value",
         )
-
-
-def test_get_metadata_schema_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.ListMetadataSchemasRequest,
-        dict,
-    ],
-)
-def test_list_metadata_schemas_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = metadata_service.ListMetadataSchemasResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = metadata_service.ListMetadataSchemasResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_metadata_schemas(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListMetadataSchemasPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_metadata_schemas_rest_use_cached_wrapped_rpc():
@@ -25438,91 +19341,6 @@ def test_list_metadata_schemas_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_metadata_schemas_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "post_list_metadata_schemas"
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_list_metadata_schemas"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.ListMetadataSchemasRequest.pb(
-            metadata_service.ListMetadataSchemasRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            metadata_service.ListMetadataSchemasResponse.to_json(
-                metadata_service.ListMetadataSchemasResponse()
-            )
-        )
-
-        request = metadata_service.ListMetadataSchemasRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = metadata_service.ListMetadataSchemasResponse()
-
-        client.list_metadata_schemas(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_metadata_schemas_rest_bad_request(
-    transport: str = "rest", request_type=metadata_service.ListMetadataSchemasRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_metadata_schemas(request)
-
-
 def test_list_metadata_schemas_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -25645,45 +19463,6 @@ def test_list_metadata_schemas_rest_pager(transport: str = "rest"):
         pages = list(client.list_metadata_schemas(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        metadata_service.QueryArtifactLineageSubgraphRequest,
-        dict,
-    ],
-)
-def test_query_artifact_lineage_subgraph_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "artifact": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = lineage_subgraph.LineageSubgraph()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.query_artifact_lineage_subgraph(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, lineage_subgraph.LineageSubgraph)
 
 
 def test_query_artifact_lineage_subgraph_rest_use_cached_wrapped_rpc():
@@ -25827,91 +19606,6 @@ def test_query_artifact_lineage_subgraph_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
-    transport = transports.MetadataServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
-    )
-    client = MetadataServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.MetadataServiceRestInterceptor,
-        "post_query_artifact_lineage_subgraph",
-    ) as post, mock.patch.object(
-        transports.MetadataServiceRestInterceptor, "pre_query_artifact_lineage_subgraph"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
-            metadata_service.QueryArtifactLineageSubgraphRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = lineage_subgraph.LineageSubgraph.to_json(
-            lineage_subgraph.LineageSubgraph()
-        )
-
-        request = metadata_service.QueryArtifactLineageSubgraphRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = lineage_subgraph.LineageSubgraph()
-
-        client.query_artifact_lineage_subgraph(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_query_artifact_lineage_subgraph_rest_bad_request(
-    transport: str = "rest",
-    request_type=metadata_service.QueryArtifactLineageSubgraphRequest,
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "artifact": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.query_artifact_lineage_subgraph(request)
-
-
 def test_query_artifact_lineage_subgraph_rest_flattened():
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -25969,12 +19663,6 @@ def test_query_artifact_lineage_subgraph_rest_flattened_error(transport: str = "
             metadata_service.QueryArtifactLineageSubgraphRequest(),
             artifact="artifact_value",
         )
-
-
-def test_query_artifact_lineage_subgraph_rest_error():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
 
 
 def test_credentials_transport_error():
@@ -26069,18 +19757,7657 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+def test_transport_kind_grpc():
+    transport = MetadataServiceClient.get_transport_class("grpc")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "grpc"
+
+
+def test_initialize_client_w_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_metadata_store_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_store), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_metadata_store_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_store), "__call__"
+    ) as call:
+        call.return_value = metadata_store.MetadataStore()
+        client.get_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_metadata_stores_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_stores), "__call__"
+    ) as call:
+        call.return_value = metadata_service.ListMetadataStoresResponse()
+        client.list_metadata_stores(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataStoresRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_metadata_store_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_metadata_store), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_artifact_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
+        call.return_value = gca_artifact.Artifact()
+        client.create_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_artifact_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
+        call.return_value = artifact.Artifact()
+        client.get_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_artifacts_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
+        call.return_value = metadata_service.ListArtifactsResponse()
+        client.list_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_artifact_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
+        call.return_value = gca_artifact.Artifact()
+        client.update_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_artifact_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_artifacts_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.purge_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_context_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
+        call.return_value = gca_context.Context()
+        client.create_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_context_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
+        call.return_value = context.Context()
+        client.get_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_contexts_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
+        call.return_value = metadata_service.ListContextsResponse()
+        client.list_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_context_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
+        call.return_value = gca_context.Context()
+        client.update_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_context_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_contexts_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.purge_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_context_artifacts_and_executions_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_artifacts_and_executions), "__call__"
+    ) as call:
+        call.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+        client.add_context_artifacts_and_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextArtifactsAndExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_context_children_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_children), "__call__"
+    ) as call:
+        call.return_value = metadata_service.AddContextChildrenResponse()
+        client.add_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_remove_context_children_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_context_children), "__call__"
+    ) as call:
+        call.return_value = metadata_service.RemoveContextChildrenResponse()
+        client.remove_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.RemoveContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_context_lineage_subgraph_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_context_lineage_subgraph), "__call__"
+    ) as call:
+        call.return_value = lineage_subgraph.LineageSubgraph()
+        client.query_context_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryContextLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_execution_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
+        call.return_value = gca_execution.Execution()
+        client.create_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_execution_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
+        call.return_value = execution.Execution()
+        client.get_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_executions_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
+        call.return_value = metadata_service.ListExecutionsResponse()
+        client.list_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_execution_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
+        call.return_value = gca_execution.Execution()
+        client.update_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_execution_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_executions_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.purge_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_execution_events_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_execution_events), "__call__"
+    ) as call:
+        call.return_value = metadata_service.AddExecutionEventsResponse()
+        client.add_execution_events(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddExecutionEventsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_execution_inputs_and_outputs_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_execution_inputs_and_outputs), "__call__"
+    ) as call:
+        call.return_value = lineage_subgraph.LineageSubgraph()
+        client.query_execution_inputs_and_outputs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryExecutionInputsAndOutputsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_metadata_schema_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_schema), "__call__"
+    ) as call:
+        call.return_value = gca_metadata_schema.MetadataSchema()
+        client.create_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_metadata_schema_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_schema), "__call__"
+    ) as call:
+        call.return_value = metadata_schema.MetadataSchema()
+        client.get_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_metadata_schemas_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_schemas), "__call__"
+    ) as call:
+        call.return_value = metadata_service.ListMetadataSchemasResponse()
+        client.list_metadata_schemas(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataSchemasRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_artifact_lineage_subgraph_empty_call_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_artifact_lineage_subgraph), "__call__"
+    ) as call:
+        call.return_value = lineage_subgraph.LineageSubgraph()
+        client.query_artifact_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryArtifactLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_grpc_asyncio():
+    transport = MetadataServiceAsyncClient.get_transport_class("grpc_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "grpc_asyncio"
+
+
+def test_initialize_client_w_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_metadata_store_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_metadata_store_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_store.MetadataStore(
+                name="name_value",
+                description="description_value",
+            )
+        )
+        await client.get_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_metadata_stores_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_stores), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListMetadataStoresResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_metadata_stores(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataStoresRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_metadata_store_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_artifact_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=gca_artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.create_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_artifact_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.get_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_artifacts_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListArtifactsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_artifact_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=gca_artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.update_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_artifact_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_purge_artifacts_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.purge_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_context_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.create_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_context_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.get_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_contexts_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListContextsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_context_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.update_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_context_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_purge_contexts_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.purge_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_add_context_artifacts_and_executions_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_artifacts_and_executions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddContextArtifactsAndExecutionsResponse()
+        )
+        await client.add_context_artifacts_and_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextArtifactsAndExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_add_context_children_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_children), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddContextChildrenResponse()
+        )
+        await client.add_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_remove_context_children_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_context_children), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.RemoveContextChildrenResponse()
+        )
+        await client.remove_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.RemoveContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_query_context_lineage_subgraph_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_context_lineage_subgraph), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        await client.query_context_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryContextLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_execution_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.create_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_execution_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.get_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_executions_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListExecutionsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_execution_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        await client.update_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_execution_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_purge_executions_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.purge_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_add_execution_events_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_execution_events), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddExecutionEventsResponse()
+        )
+        await client.add_execution_events(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddExecutionEventsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_query_execution_inputs_and_outputs_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_execution_inputs_and_outputs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        await client.query_execution_inputs_and_outputs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryExecutionInputsAndOutputsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_metadata_schema_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_schema), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_metadata_schema.MetadataSchema(
+                name="name_value",
+                schema_version="schema_version_value",
+                schema="schema_value",
+                schema_type=gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+                description="description_value",
+            )
+        )
+        await client.create_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_metadata_schema_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_schema), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_schema.MetadataSchema(
+                name="name_value",
+                schema_version="schema_version_value",
+                schema="schema_value",
+                schema_type=metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+                description="description_value",
+            )
+        )
+        await client.get_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_metadata_schemas_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_schemas), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListMetadataSchemasResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_metadata_schemas(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataSchemasRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_empty_call_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_artifact_lineage_subgraph), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        await client.query_artifact_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryArtifactLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_rest():
+    transport = MetadataServiceClient.get_transport_class("rest")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "rest"
+
+
+def test_create_metadata_store_rest_bad_request(
+    request_type=metadata_service.CreateMetadataStoreRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_metadata_store(request)
+
+
 @pytest.mark.parametrize(
-    "transport_name",
+    "request_type",
     [
-        "grpc",
-        "rest",
+        metadata_service.CreateMetadataStoreRequest,
+        dict,
     ],
 )
-def test_transport_kind(transport_name):
-    transport = MetadataServiceClient.get_transport_class(transport_name)(
-        credentials=ga_credentials.AnonymousCredentials(),
+def test_create_metadata_store_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-    assert transport.kind == transport_name
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["metadata_store"] = {
+        "name": "name_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "description": "description_value",
+        "state": {"disk_utilization_bytes": 2380},
+        "dataplex_config": {"enabled_pipelines_lineage": True},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.CreateMetadataStoreRequest.meta.fields[
+        "metadata_store"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["metadata_store"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["metadata_store"][field])):
+                    del request_init["metadata_store"][field][i][subfield]
+            else:
+                del request_init["metadata_store"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_metadata_store(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_metadata_store_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_metadata_store"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_create_metadata_store"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.CreateMetadataStoreRequest.pb(
+            metadata_service.CreateMetadataStoreRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.CreateMetadataStoreRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_metadata_store(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_metadata_store_rest_bad_request(
+    request_type=metadata_service.GetMetadataStoreRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_metadata_store(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetMetadataStoreRequest,
+        dict,
+    ],
+)
+def test_get_metadata_store_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_store.MetadataStore(
+            name="name_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_store.MetadataStore.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_metadata_store(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, metadata_store.MetadataStore)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_metadata_store_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_metadata_store"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_get_metadata_store"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.GetMetadataStoreRequest.pb(
+            metadata_service.GetMetadataStoreRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_store.MetadataStore.to_json(
+            metadata_store.MetadataStore()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.GetMetadataStoreRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_store.MetadataStore()
+
+        client.get_metadata_store(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_metadata_stores_rest_bad_request(
+    request_type=metadata_service.ListMetadataStoresRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_metadata_stores(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListMetadataStoresRequest,
+        dict,
+    ],
+)
+def test_list_metadata_stores_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.ListMetadataStoresResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.ListMetadataStoresResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_metadata_stores(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListMetadataStoresPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_metadata_stores_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_metadata_stores"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_list_metadata_stores"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.ListMetadataStoresRequest.pb(
+            metadata_service.ListMetadataStoresRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.ListMetadataStoresResponse.to_json(
+            metadata_service.ListMetadataStoresResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.ListMetadataStoresRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.ListMetadataStoresResponse()
+
+        client.list_metadata_stores(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_metadata_store_rest_bad_request(
+    request_type=metadata_service.DeleteMetadataStoreRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_metadata_store(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.DeleteMetadataStoreRequest,
+        dict,
+    ],
+)
+def test_delete_metadata_store_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/metadataStores/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_metadata_store(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_metadata_store_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_metadata_store"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_delete_metadata_store"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
+            metadata_service.DeleteMetadataStoreRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.DeleteMetadataStoreRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_metadata_store(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_artifact_rest_bad_request(
+    request_type=metadata_service.CreateArtifactRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_artifact(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.CreateArtifactRequest,
+        dict,
+    ],
+)
+def test_create_artifact_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request_init["artifact"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "uri": "uri_value",
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "state": 1,
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.CreateArtifactRequest.meta.fields["artifact"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["artifact"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["artifact"][field])):
+                    del request_init["artifact"][field][i][subfield]
+            else:
+                del request_init["artifact"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_artifact.Artifact(
+            name="name_value",
+            display_name="display_name_value",
+            uri="uri_value",
+            etag="etag_value",
+            state=gca_artifact.Artifact.State.PENDING,
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_artifact.Artifact.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_artifact(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_artifact.Artifact)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.uri == "uri_value"
+    assert response.etag == "etag_value"
+    assert response.state == gca_artifact.Artifact.State.PENDING
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_artifact_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_artifact"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_create_artifact"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.CreateArtifactRequest.pb(
+            metadata_service.CreateArtifactRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
+        req.return_value.content = return_value
+
+        request = metadata_service.CreateArtifactRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_artifact.Artifact()
+
+        client.create_artifact(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_artifact_rest_bad_request(
+    request_type=metadata_service.GetArtifactRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_artifact(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetArtifactRequest,
+        dict,
+    ],
+)
+def test_get_artifact_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = artifact.Artifact(
+            name="name_value",
+            display_name="display_name_value",
+            uri="uri_value",
+            etag="etag_value",
+            state=artifact.Artifact.State.PENDING,
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = artifact.Artifact.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_artifact(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, artifact.Artifact)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.uri == "uri_value"
+    assert response.etag == "etag_value"
+    assert response.state == artifact.Artifact.State.PENDING
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_artifact_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_artifact"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_get_artifact"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.GetArtifactRequest.pb(
+            metadata_service.GetArtifactRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = artifact.Artifact.to_json(artifact.Artifact())
+        req.return_value.content = return_value
+
+        request = metadata_service.GetArtifactRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = artifact.Artifact()
+
+        client.get_artifact(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_artifacts_rest_bad_request(
+    request_type=metadata_service.ListArtifactsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_artifacts(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListArtifactsRequest,
+        dict,
+    ],
+)
+def test_list_artifacts_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.ListArtifactsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.ListArtifactsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_artifacts(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListArtifactsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_artifacts_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_artifacts"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_list_artifacts"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.ListArtifactsRequest.pb(
+            metadata_service.ListArtifactsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.ListArtifactsResponse.to_json(
+            metadata_service.ListArtifactsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.ListArtifactsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.ListArtifactsResponse()
+
+        client.list_artifacts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_artifact_rest_bad_request(
+    request_type=metadata_service.UpdateArtifactRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "artifact": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_artifact(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.UpdateArtifactRequest,
+        dict,
+    ],
+)
+def test_update_artifact_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "artifact": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+        }
+    }
+    request_init["artifact"] = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4",
+        "display_name": "display_name_value",
+        "uri": "uri_value",
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "state": 1,
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.UpdateArtifactRequest.meta.fields["artifact"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["artifact"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["artifact"][field])):
+                    del request_init["artifact"][field][i][subfield]
+            else:
+                del request_init["artifact"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_artifact.Artifact(
+            name="name_value",
+            display_name="display_name_value",
+            uri="uri_value",
+            etag="etag_value",
+            state=gca_artifact.Artifact.State.PENDING,
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_artifact.Artifact.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_artifact(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_artifact.Artifact)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.uri == "uri_value"
+    assert response.etag == "etag_value"
+    assert response.state == gca_artifact.Artifact.State.PENDING
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_artifact_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_artifact"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_update_artifact"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.UpdateArtifactRequest.pb(
+            metadata_service.UpdateArtifactRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
+        req.return_value.content = return_value
+
+        request = metadata_service.UpdateArtifactRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_artifact.Artifact()
+
+        client.update_artifact(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_artifact_rest_bad_request(
+    request_type=metadata_service.DeleteArtifactRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_artifact(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.DeleteArtifactRequest,
+        dict,
+    ],
+)
+def test_delete_artifact_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_artifact(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_artifact_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_artifact"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_delete_artifact"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.DeleteArtifactRequest.pb(
+            metadata_service.DeleteArtifactRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.DeleteArtifactRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_artifact(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_purge_artifacts_rest_bad_request(
+    request_type=metadata_service.PurgeArtifactsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.purge_artifacts(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.PurgeArtifactsRequest,
+        dict,
+    ],
+)
+def test_purge_artifacts_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.purge_artifacts(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_purge_artifacts_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_artifacts"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_purge_artifacts"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.PurgeArtifactsRequest.pb(
+            metadata_service.PurgeArtifactsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.PurgeArtifactsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.purge_artifacts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_context_rest_bad_request(
+    request_type=metadata_service.CreateContextRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_context(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.CreateContextRequest,
+        dict,
+    ],
+)
+def test_create_context_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request_init["context"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "parent_contexts": ["parent_contexts_value1", "parent_contexts_value2"],
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.CreateContextRequest.meta.fields["context"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["context"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["context"][field])):
+                    del request_init["context"][field][i][subfield]
+            else:
+                del request_init["context"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_context.Context(
+            name="name_value",
+            display_name="display_name_value",
+            etag="etag_value",
+            parent_contexts=["parent_contexts_value"],
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_context.Context.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_context(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_context.Context)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.etag == "etag_value"
+    assert response.parent_contexts == ["parent_contexts_value"]
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_context_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_context"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_create_context"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.CreateContextRequest.pb(
+            metadata_service.CreateContextRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_context.Context.to_json(gca_context.Context())
+        req.return_value.content = return_value
+
+        request = metadata_service.CreateContextRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_context.Context()
+
+        client.create_context(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_context_rest_bad_request(request_type=metadata_service.GetContextRequest):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_context(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetContextRequest,
+        dict,
+    ],
+)
+def test_get_context_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = context.Context(
+            name="name_value",
+            display_name="display_name_value",
+            etag="etag_value",
+            parent_contexts=["parent_contexts_value"],
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = context.Context.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_context(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, context.Context)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.etag == "etag_value"
+    assert response.parent_contexts == ["parent_contexts_value"]
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_context_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_context"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_get_context"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.GetContextRequest.pb(
+            metadata_service.GetContextRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = context.Context.to_json(context.Context())
+        req.return_value.content = return_value
+
+        request = metadata_service.GetContextRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = context.Context()
+
+        client.get_context(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_contexts_rest_bad_request(
+    request_type=metadata_service.ListContextsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_contexts(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListContextsRequest,
+        dict,
+    ],
+)
+def test_list_contexts_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.ListContextsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.ListContextsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_contexts(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListContextsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_contexts_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_contexts"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_list_contexts"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.ListContextsRequest.pb(
+            metadata_service.ListContextsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.ListContextsResponse.to_json(
+            metadata_service.ListContextsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.ListContextsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.ListContextsResponse()
+
+        client.list_contexts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_context_rest_bad_request(
+    request_type=metadata_service.UpdateContextRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_context(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.UpdateContextRequest,
+        dict,
+    ],
+)
+def test_update_context_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+        }
+    }
+    request_init["context"] = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4",
+        "display_name": "display_name_value",
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "parent_contexts": ["parent_contexts_value1", "parent_contexts_value2"],
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.UpdateContextRequest.meta.fields["context"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["context"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["context"][field])):
+                    del request_init["context"][field][i][subfield]
+            else:
+                del request_init["context"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_context.Context(
+            name="name_value",
+            display_name="display_name_value",
+            etag="etag_value",
+            parent_contexts=["parent_contexts_value"],
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_context.Context.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_context(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_context.Context)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.etag == "etag_value"
+    assert response.parent_contexts == ["parent_contexts_value"]
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_context_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_context"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_update_context"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.UpdateContextRequest.pb(
+            metadata_service.UpdateContextRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_context.Context.to_json(gca_context.Context())
+        req.return_value.content = return_value
+
+        request = metadata_service.UpdateContextRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_context.Context()
+
+        client.update_context(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_context_rest_bad_request(
+    request_type=metadata_service.DeleteContextRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_context(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.DeleteContextRequest,
+        dict,
+    ],
+)
+def test_delete_context_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_context(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_context_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_context"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_delete_context"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.DeleteContextRequest.pb(
+            metadata_service.DeleteContextRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.DeleteContextRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_context(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_purge_contexts_rest_bad_request(
+    request_type=metadata_service.PurgeContextsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.purge_contexts(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.PurgeContextsRequest,
+        dict,
+    ],
+)
+def test_purge_contexts_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.purge_contexts(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_purge_contexts_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_contexts"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_purge_contexts"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.PurgeContextsRequest.pb(
+            metadata_service.PurgeContextsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.PurgeContextsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.purge_contexts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_add_context_artifacts_and_executions_rest_bad_request(
+    request_type=metadata_service.AddContextArtifactsAndExecutionsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.add_context_artifacts_and_executions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.AddContextArtifactsAndExecutionsRequest,
+        dict,
+    ],
+)
+def test_add_context_artifacts_and_executions_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.AddContextArtifactsAndExecutionsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.add_context_artifacts_and_executions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, metadata_service.AddContextArtifactsAndExecutionsResponse
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_add_context_artifacts_and_executions",
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "pre_add_context_artifacts_and_executions",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
+            metadata_service.AddContextArtifactsAndExecutionsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            metadata_service.AddContextArtifactsAndExecutionsResponse.to_json(
+                metadata_service.AddContextArtifactsAndExecutionsResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.AddContextArtifactsAndExecutionsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+
+        client.add_context_artifacts_and_executions(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_add_context_children_rest_bad_request(
+    request_type=metadata_service.AddContextChildrenRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.add_context_children(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.AddContextChildrenRequest,
+        dict,
+    ],
+)
+def test_add_context_children_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.AddContextChildrenResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.AddContextChildrenResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.add_context_children(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, metadata_service.AddContextChildrenResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_add_context_children_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_add_context_children"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_add_context_children"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.AddContextChildrenRequest.pb(
+            metadata_service.AddContextChildrenRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.AddContextChildrenResponse.to_json(
+            metadata_service.AddContextChildrenResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.AddContextChildrenRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.AddContextChildrenResponse()
+
+        client.add_context_children(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_remove_context_children_rest_bad_request(
+    request_type=metadata_service.RemoveContextChildrenRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.remove_context_children(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.RemoveContextChildrenRequest,
+        dict,
+    ],
+)
+def test_remove_context_children_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.RemoveContextChildrenResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.RemoveContextChildrenResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.remove_context_children(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, metadata_service.RemoveContextChildrenResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_remove_context_children_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_remove_context_children"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_remove_context_children"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.RemoveContextChildrenRequest.pb(
+            metadata_service.RemoveContextChildrenRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.RemoveContextChildrenResponse.to_json(
+            metadata_service.RemoveContextChildrenResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.RemoveContextChildrenRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.RemoveContextChildrenResponse()
+
+        client.remove_context_children(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_query_context_lineage_subgraph_rest_bad_request(
+    request_type=metadata_service.QueryContextLineageSubgraphRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.query_context_lineage_subgraph(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.QueryContextLineageSubgraphRequest,
+        dict,
+    ],
+)
+def test_query_context_lineage_subgraph_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "context": "projects/sample1/locations/sample2/metadataStores/sample3/contexts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = lineage_subgraph.LineageSubgraph()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.query_context_lineage_subgraph(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, lineage_subgraph.LineageSubgraph)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_query_context_lineage_subgraph"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_query_context_lineage_subgraph"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
+            metadata_service.QueryContextLineageSubgraphRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = lineage_subgraph.LineageSubgraph.to_json(
+            lineage_subgraph.LineageSubgraph()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.QueryContextLineageSubgraphRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = lineage_subgraph.LineageSubgraph()
+
+        client.query_context_lineage_subgraph(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_execution_rest_bad_request(
+    request_type=metadata_service.CreateExecutionRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_execution(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.CreateExecutionRequest,
+        dict,
+    ],
+)
+def test_create_execution_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request_init["execution"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "state": 1,
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.CreateExecutionRequest.meta.fields["execution"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["execution"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["execution"][field])):
+                    del request_init["execution"][field][i][subfield]
+            else:
+                del request_init["execution"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_execution.Execution(
+            name="name_value",
+            display_name="display_name_value",
+            state=gca_execution.Execution.State.NEW,
+            etag="etag_value",
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_execution.Execution.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_execution(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_execution.Execution)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == gca_execution.Execution.State.NEW
+    assert response.etag == "etag_value"
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_execution_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_execution"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_create_execution"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.CreateExecutionRequest.pb(
+            metadata_service.CreateExecutionRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_execution.Execution.to_json(gca_execution.Execution())
+        req.return_value.content = return_value
+
+        request = metadata_service.CreateExecutionRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_execution.Execution()
+
+        client.create_execution(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_execution_rest_bad_request(
+    request_type=metadata_service.GetExecutionRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_execution(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetExecutionRequest,
+        dict,
+    ],
+)
+def test_get_execution_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = execution.Execution(
+            name="name_value",
+            display_name="display_name_value",
+            state=execution.Execution.State.NEW,
+            etag="etag_value",
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = execution.Execution.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_execution(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, execution.Execution)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == execution.Execution.State.NEW
+    assert response.etag == "etag_value"
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_execution_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_execution"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_get_execution"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.GetExecutionRequest.pb(
+            metadata_service.GetExecutionRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = execution.Execution.to_json(execution.Execution())
+        req.return_value.content = return_value
+
+        request = metadata_service.GetExecutionRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = execution.Execution()
+
+        client.get_execution(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_executions_rest_bad_request(
+    request_type=metadata_service.ListExecutionsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_executions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListExecutionsRequest,
+        dict,
+    ],
+)
+def test_list_executions_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.ListExecutionsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.ListExecutionsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_executions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListExecutionsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_executions_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_executions"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_list_executions"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.ListExecutionsRequest.pb(
+            metadata_service.ListExecutionsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.ListExecutionsResponse.to_json(
+            metadata_service.ListExecutionsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.ListExecutionsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.ListExecutionsResponse()
+
+        client.list_executions(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_execution_rest_bad_request(
+    request_type=metadata_service.UpdateExecutionRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_execution(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.UpdateExecutionRequest,
+        dict,
+    ],
+)
+def test_update_execution_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": {
+            "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+        }
+    }
+    request_init["execution"] = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4",
+        "display_name": "display_name_value",
+        "state": 1,
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "schema_title": "schema_title_value",
+        "schema_version": "schema_version_value",
+        "metadata": {"fields": {}},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.UpdateExecutionRequest.meta.fields["execution"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["execution"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["execution"][field])):
+                    del request_init["execution"][field][i][subfield]
+            else:
+                del request_init["execution"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_execution.Execution(
+            name="name_value",
+            display_name="display_name_value",
+            state=gca_execution.Execution.State.NEW,
+            etag="etag_value",
+            schema_title="schema_title_value",
+            schema_version="schema_version_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_execution.Execution.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_execution(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_execution.Execution)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == gca_execution.Execution.State.NEW
+    assert response.etag == "etag_value"
+    assert response.schema_title == "schema_title_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_execution_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_execution"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_update_execution"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.UpdateExecutionRequest.pb(
+            metadata_service.UpdateExecutionRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_execution.Execution.to_json(gca_execution.Execution())
+        req.return_value.content = return_value
+
+        request = metadata_service.UpdateExecutionRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_execution.Execution()
+
+        client.update_execution(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_execution_rest_bad_request(
+    request_type=metadata_service.DeleteExecutionRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_execution(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.DeleteExecutionRequest,
+        dict,
+    ],
+)
+def test_delete_execution_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_execution(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_execution_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_execution"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_delete_execution"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.DeleteExecutionRequest.pb(
+            metadata_service.DeleteExecutionRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.DeleteExecutionRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_execution(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_purge_executions_rest_bad_request(
+    request_type=metadata_service.PurgeExecutionsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.purge_executions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.PurgeExecutionsRequest,
+        dict,
+    ],
+)
+def test_purge_executions_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.purge_executions(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_purge_executions_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_executions"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_purge_executions"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.PurgeExecutionsRequest.pb(
+            metadata_service.PurgeExecutionsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = metadata_service.PurgeExecutionsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.purge_executions(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_add_execution_events_rest_bad_request(
+    request_type=metadata_service.AddExecutionEventsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.add_execution_events(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.AddExecutionEventsRequest,
+        dict,
+    ],
+)
+def test_add_execution_events_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.AddExecutionEventsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.AddExecutionEventsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.add_execution_events(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, metadata_service.AddExecutionEventsResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_add_execution_events_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_add_execution_events"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_add_execution_events"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.AddExecutionEventsRequest.pb(
+            metadata_service.AddExecutionEventsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.AddExecutionEventsResponse.to_json(
+            metadata_service.AddExecutionEventsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.AddExecutionEventsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.AddExecutionEventsResponse()
+
+        client.add_execution_events(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_query_execution_inputs_and_outputs_rest_bad_request(
+    request_type=metadata_service.QueryExecutionInputsAndOutputsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.query_execution_inputs_and_outputs(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.QueryExecutionInputsAndOutputsRequest,
+        dict,
+    ],
+)
+def test_query_execution_inputs_and_outputs_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "execution": "projects/sample1/locations/sample2/metadataStores/sample3/executions/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = lineage_subgraph.LineageSubgraph()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.query_execution_inputs_and_outputs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, lineage_subgraph.LineageSubgraph)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_execution_inputs_and_outputs",
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "pre_query_execution_inputs_and_outputs",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
+            metadata_service.QueryExecutionInputsAndOutputsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = lineage_subgraph.LineageSubgraph.to_json(
+            lineage_subgraph.LineageSubgraph()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.QueryExecutionInputsAndOutputsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = lineage_subgraph.LineageSubgraph()
+
+        client.query_execution_inputs_and_outputs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_metadata_schema_rest_bad_request(
+    request_type=metadata_service.CreateMetadataSchemaRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_metadata_schema(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.CreateMetadataSchemaRequest,
+        dict,
+    ],
+)
+def test_create_metadata_schema_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request_init["metadata_schema"] = {
+        "name": "name_value",
+        "schema_version": "schema_version_value",
+        "schema": "schema_value",
+        "schema_type": 1,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "description": "description_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = metadata_service.CreateMetadataSchemaRequest.meta.fields[
+        "metadata_schema"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["metadata_schema"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["metadata_schema"][field])):
+                    del request_init["metadata_schema"][field][i][subfield]
+            else:
+                del request_init["metadata_schema"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_metadata_schema.MetadataSchema(
+            name="name_value",
+            schema_version="schema_version_value",
+            schema="schema_value",
+            schema_type=gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_metadata_schema.MetadataSchema.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_metadata_schema(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_metadata_schema.MetadataSchema)
+    assert response.name == "name_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.schema == "schema_value"
+    assert (
+        response.schema_type
+        == gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
+    )
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_metadata_schema_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_metadata_schema"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_create_metadata_schema"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
+            metadata_service.CreateMetadataSchemaRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_metadata_schema.MetadataSchema.to_json(
+            gca_metadata_schema.MetadataSchema()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.CreateMetadataSchemaRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_metadata_schema.MetadataSchema()
+
+        client.create_metadata_schema(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_metadata_schema_rest_bad_request(
+    request_type=metadata_service.GetMetadataSchemaRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/metadataSchemas/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_metadata_schema(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetMetadataSchemaRequest,
+        dict,
+    ],
+)
+def test_get_metadata_schema_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/metadataStores/sample3/metadataSchemas/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_schema.MetadataSchema(
+            name="name_value",
+            schema_version="schema_version_value",
+            schema="schema_value",
+            schema_type=metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_schema.MetadataSchema.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_metadata_schema(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, metadata_schema.MetadataSchema)
+    assert response.name == "name_value"
+    assert response.schema_version == "schema_version_value"
+    assert response.schema == "schema_value"
+    assert (
+        response.schema_type
+        == metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
+    )
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_metadata_schema_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_metadata_schema"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_get_metadata_schema"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.GetMetadataSchemaRequest.pb(
+            metadata_service.GetMetadataSchemaRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_schema.MetadataSchema.to_json(
+            metadata_schema.MetadataSchema()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.GetMetadataSchemaRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_schema.MetadataSchema()
+
+        client.get_metadata_schema(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_metadata_schemas_rest_bad_request(
+    request_type=metadata_service.ListMetadataSchemasRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_metadata_schemas(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListMetadataSchemasRequest,
+        dict,
+    ],
+)
+def test_list_metadata_schemas_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/metadataStores/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = metadata_service.ListMetadataSchemasResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = metadata_service.ListMetadataSchemasResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_metadata_schemas(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListMetadataSchemasPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_metadata_schemas_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_metadata_schemas"
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_list_metadata_schemas"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.ListMetadataSchemasRequest.pb(
+            metadata_service.ListMetadataSchemasRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = metadata_service.ListMetadataSchemasResponse.to_json(
+            metadata_service.ListMetadataSchemasResponse()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.ListMetadataSchemasRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = metadata_service.ListMetadataSchemasResponse()
+
+        client.list_metadata_schemas(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_query_artifact_lineage_subgraph_rest_bad_request(
+    request_type=metadata_service.QueryArtifactLineageSubgraphRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "artifact": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.query_artifact_lineage_subgraph(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.QueryArtifactLineageSubgraphRequest,
+        dict,
+    ],
+)
+def test_query_artifact_lineage_subgraph_rest_call_success(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "artifact": "projects/sample1/locations/sample2/metadataStores/sample3/artifacts/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = lineage_subgraph.LineageSubgraph()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = lineage_subgraph.LineageSubgraph.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.query_artifact_lineage_subgraph(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, lineage_subgraph.LineageSubgraph)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
+    transport = transports.MetadataServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.MetadataServiceRestInterceptor(),
+    )
+    client = MetadataServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_artifact_lineage_subgraph",
+    ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "pre_query_artifact_lineage_subgraph"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
+            metadata_service.QueryArtifactLineageSubgraphRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = lineage_subgraph.LineageSubgraph.to_json(
+            lineage_subgraph.LineageSubgraph()
+        )
+        req.return_value.content = return_value
+
+        request = metadata_service.QueryArtifactLineageSubgraphRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = lineage_subgraph.LineageSubgraph()
+
+        client.query_artifact_lineage_subgraph(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_metadata_store_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_store), "__call__"
+    ) as call:
+        client.create_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_metadata_store_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_store), "__call__"
+    ) as call:
+        client.get_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_metadata_stores_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_stores), "__call__"
+    ) as call:
+        client.list_metadata_stores(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataStoresRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_metadata_store_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_metadata_store), "__call__"
+    ) as call:
+        client.delete_metadata_store(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteMetadataStoreRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_artifact_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
+        client.create_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_artifact_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
+        client.get_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_artifacts_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
+        client.list_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_artifact_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
+        client.update_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_artifact_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
+        client.delete_artifact(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteArtifactRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_artifacts_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
+        client.purge_artifacts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeArtifactsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_context_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
+        client.create_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_context_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
+        client.get_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_contexts_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
+        client.list_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_context_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
+        client.update_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_context_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
+        client.delete_context(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteContextRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_contexts_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
+        client.purge_contexts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_context_artifacts_and_executions_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_artifacts_and_executions), "__call__"
+    ) as call:
+        client.add_context_artifacts_and_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextArtifactsAndExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_context_children_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_children), "__call__"
+    ) as call:
+        client.add_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_remove_context_children_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_context_children), "__call__"
+    ) as call:
+        client.remove_context_children(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.RemoveContextChildrenRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_context_lineage_subgraph_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_context_lineage_subgraph), "__call__"
+    ) as call:
+        client.query_context_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryContextLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_execution_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
+        client.create_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_execution_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
+        client.get_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_executions_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
+        client.list_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_execution_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
+        client.update_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.UpdateExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_execution_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
+        client.delete_execution(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.DeleteExecutionRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_purge_executions_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
+        client.purge_executions(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.PurgeExecutionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_execution_events_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_execution_events), "__call__"
+    ) as call:
+        client.add_execution_events(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.AddExecutionEventsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_execution_inputs_and_outputs_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_execution_inputs_and_outputs), "__call__"
+    ) as call:
+        client.query_execution_inputs_and_outputs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryExecutionInputsAndOutputsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_metadata_schema_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_schema), "__call__"
+    ) as call:
+        client.create_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.CreateMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_metadata_schema_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_schema), "__call__"
+    ) as call:
+        client.get_metadata_schema(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.GetMetadataSchemaRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_metadata_schemas_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_schemas), "__call__"
+    ) as call:
+        client.list_metadata_schemas(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.ListMetadataSchemasRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_query_artifact_lineage_subgraph_empty_call_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_artifact_lineage_subgraph), "__call__"
+    ) as call:
+        client.query_artifact_lineage_subgraph(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = metadata_service.QueryArtifactLineageSubgraphRequest()
+
+        assert args[0] == request_msg
+
+
+def test_metadata_service_rest_lro_client():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
 
 
 def test_transport_grpc_default():
@@ -26356,23 +27683,6 @@ def test_metadata_service_http_transport_client_cert_source_for_mtls():
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
-
-
-def test_metadata_service_rest_lro_client():
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.AbstractOperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
 
 
 @pytest.mark.parametrize(
@@ -26974,607 +28284,6 @@ def test_client_with_default_client_info():
         prep.assert_called_once_with(client_info)
 
 
-@pytest.mark.asyncio
-async def test_transport_close_async():
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    with mock.patch.object(
-        type(getattr(client.transport, "grpc_channel")), "close"
-    ) as close:
-        async with client:
-            close.assert_not_called()
-        close.assert_called_once()
-
-
-def test_get_location_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_location(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
-def test_get_location_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.Location()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_location(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.Location)
-
-
-def test_list_locations_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_locations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
-def test_list_locations_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.ListLocationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_locations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.ListLocationsResponse)
-
-
-def test_get_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_get_iam_policy_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_set_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.set_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_set_iam_policy_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.set_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_test_iam_permissions_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.test_iam_permissions(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
-def test_test_iam_permissions_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = iam_policy_pb2.TestIamPermissionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.test_iam_permissions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
-
-
-def test_cancel_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.cancel_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
-def test_cancel_operation_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.cancel_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_delete_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
-def test_delete_operation_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.delete_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_get_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
-def test_get_operation_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
-def test_list_operations_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_operations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
-def test_list_operations_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.ListOperationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_operations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.ListOperationsResponse)
-
-
-def test_wait_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
-):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.wait_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
-def test_wait_operation_rest(request_type):
-    client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.wait_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
 def test_delete_operation(transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -27602,7 +28311,7 @@ def test_delete_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27655,7 +28364,7 @@ def test_delete_operation_field_headers():
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27700,7 +28409,7 @@ def test_delete_operation_from_dict():
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
@@ -27741,7 +28450,7 @@ def test_cancel_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27794,7 +28503,7 @@ def test_cancel_operation_field_headers():
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27839,7 +28548,7 @@ def test_cancel_operation_from_dict():
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
@@ -27880,7 +28589,7 @@ def test_wait_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27935,7 +28644,7 @@ def test_wait_operation_field_headers():
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27982,7 +28691,7 @@ def test_wait_operation_from_dict():
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
@@ -28025,7 +28734,7 @@ def test_get_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28080,7 +28789,7 @@ def test_get_operation_field_headers():
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28127,7 +28836,7 @@ def test_get_operation_from_dict():
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
@@ -28170,7 +28879,7 @@ def test_list_operations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28225,7 +28934,7 @@ def test_list_operations_field_headers():
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28272,7 +28981,7 @@ def test_list_operations_from_dict():
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
@@ -28315,7 +29024,7 @@ def test_list_locations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28370,7 +29079,7 @@ def test_list_locations_field_headers():
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28417,7 +29126,7 @@ def test_list_locations_from_dict():
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -28460,7 +29169,7 @@ def test_get_location(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28512,9 +29221,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+    client = MetadataServiceAsyncClient(credentials=async_anonymous_credentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -28560,7 +29267,7 @@ def test_get_location_from_dict():
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -28611,7 +29318,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28676,7 +29383,7 @@ def test_set_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28724,7 +29431,7 @@ def test_set_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
@@ -28777,7 +29484,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28843,7 +29550,7 @@ def test_get_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28891,7 +29598,7 @@ def test_get_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
@@ -28943,7 +29650,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -29010,7 +29717,7 @@ def test_test_iam_permissions_field_headers():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -29064,7 +29771,7 @@ def test_test_iam_permissions_from_dict():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -29084,22 +29791,41 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
-def test_transport_close():
-    transports = {
-        "rest": "_session",
-        "grpc": "_grpc_channel",
-    }
+def test_transport_close_grpc():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
-    for transport, close_name in transports.items():
-        client = MetadataServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
-        )
-        with mock.patch.object(
-            type(getattr(client.transport, close_name)), "close"
-        ) as close:
-            with client:
-                close.assert_not_called()
-            close.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_transport_close_grpc_asyncio():
+    client = MetadataServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close_rest():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
 
 def test_client_ctx():

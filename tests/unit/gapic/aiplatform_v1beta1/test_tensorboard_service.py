@@ -24,7 +24,7 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
-from collections.abc import Iterable
+from collections.abc import Iterable, AsyncIterable
 from google.protobuf import json_format
 import json
 import math
@@ -36,6 +36,13 @@ from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
 from google.protobuf import json_format
+
+try:
+    from google.auth.aio import credentials as ga_credentials_async
+
+    HAS_GOOGLE_AUTH_AIO = True
+except ImportError:  # pragma: NO COVER
+    HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -86,8 +93,22 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+async def mock_async_gen(data, chunk_size=1):
+    for i in range(0, len(data)):  # pragma: NO COVER
+        chunk = data[i : i + chunk_size]
+        yield chunk.encode("utf-8")
+
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
+
+
+# TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
+# See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
+def async_anonymous_credentials():
+    if HAS_GOOGLE_AUTH_AIO:
+        return ga_credentials_async.AnonymousCredentials()
+    return ga_credentials.AnonymousCredentials()
 
 
 # If default endpoint is localhost, then default mtls endpoint will be the same.
@@ -1228,27 +1249,6 @@ def test_create_tensorboard(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_create_tensorboard_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRequest()
-
-
 def test_create_tensorboard_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -1324,29 +1324,6 @@ def test_create_tensorboard_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_tensorboard_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.create_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_tensorboard_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1354,7 +1331,7 @@ async def test_create_tensorboard_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1399,7 +1376,7 @@ async def test_create_tensorboard_async(
     request_type=tensorboard_service.CreateTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1466,7 +1443,7 @@ def test_create_tensorboard_field_headers():
 @pytest.mark.asyncio
 async def test_create_tensorboard_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1545,7 +1522,7 @@ def test_create_tensorboard_flattened_error():
 @pytest.mark.asyncio
 async def test_create_tensorboard_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1580,7 +1557,7 @@ async def test_create_tensorboard_flattened_async():
 @pytest.mark.asyncio
 async def test_create_tensorboard_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1643,25 +1620,6 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
     assert response.is_default is True
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
-
-
-def test_get_tensorboard_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRequest()
 
 
 def test_get_tensorboard_non_empty_request_with_auto_populated_field():
@@ -1728,37 +1686,6 @@ def test_get_tensorboard_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_tensorboard_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard.Tensorboard(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                blob_storage_path_prefix="blob_storage_path_prefix_value",
-                run_count=989,
-                etag="etag_value",
-                is_default=True,
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
-        response = await client.get_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_tensorboard_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1766,7 +1693,7 @@ async def test_get_tensorboard_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1806,7 +1733,7 @@ async def test_get_tensorboard_async(
     request_type=tensorboard_service.GetTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1888,7 +1815,7 @@ def test_get_tensorboard_field_headers():
 @pytest.mark.asyncio
 async def test_get_tensorboard_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1958,7 +1885,7 @@ def test_get_tensorboard_flattened_error():
 @pytest.mark.asyncio
 async def test_get_tensorboard_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1987,7 +1914,7 @@ async def test_get_tensorboard_flattened_async():
 @pytest.mark.asyncio
 async def test_get_tensorboard_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2032,27 +1959,6 @@ def test_update_tensorboard(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_update_tensorboard_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
 
 
 def test_update_tensorboard_non_empty_request_with_auto_populated_field():
@@ -2126,29 +2032,6 @@ def test_update_tensorboard_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_tensorboard_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.update_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_tensorboard_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2156,7 +2039,7 @@ async def test_update_tensorboard_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2201,7 +2084,7 @@ async def test_update_tensorboard_async(
     request_type=tensorboard_service.UpdateTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2268,7 +2151,7 @@ def test_update_tensorboard_field_headers():
 @pytest.mark.asyncio
 async def test_update_tensorboard_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2347,7 +2230,7 @@ def test_update_tensorboard_flattened_error():
 @pytest.mark.asyncio
 async def test_update_tensorboard_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2382,7 +2265,7 @@ async def test_update_tensorboard_flattened_async():
 @pytest.mark.asyncio
 async def test_update_tensorboard_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2431,27 +2314,6 @@ def test_list_tensorboards(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_tensorboards_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboards), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_tensorboards()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardsRequest()
 
 
 def test_list_tensorboards_non_empty_request_with_auto_populated_field():
@@ -2528,31 +2390,6 @@ def test_list_tensorboards_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_tensorboards_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboards), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ListTensorboardsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_tensorboards()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_tensorboards_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2560,7 +2397,7 @@ async def test_list_tensorboards_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2600,7 +2437,7 @@ async def test_list_tensorboards_async(
     request_type=tensorboard_service.ListTensorboardsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2670,7 +2507,7 @@ def test_list_tensorboards_field_headers():
 @pytest.mark.asyncio
 async def test_list_tensorboards_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2744,7 +2581,7 @@ def test_list_tensorboards_flattened_error():
 @pytest.mark.asyncio
 async def test_list_tensorboards_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2775,7 +2612,7 @@ async def test_list_tensorboards_flattened_async():
 @pytest.mark.asyncio
 async def test_list_tensorboards_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2889,7 +2726,7 @@ def test_list_tensorboards_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_tensorboards_async_pager():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2941,7 +2778,7 @@ async def test_list_tensorboards_async_pager():
 @pytest.mark.asyncio
 async def test_list_tensorboards_async_pages():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3024,27 +2861,6 @@ def test_delete_tensorboard(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_tensorboard_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRequest()
-
-
 def test_delete_tensorboard_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -3120,29 +2936,6 @@ def test_delete_tensorboard_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_tensorboard_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_tensorboard()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_tensorboard_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3150,7 +2943,7 @@ async def test_delete_tensorboard_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3195,7 +2988,7 @@ async def test_delete_tensorboard_async(
     request_type=tensorboard_service.DeleteTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3262,7 +3055,7 @@ def test_delete_tensorboard_field_headers():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3336,7 +3129,7 @@ def test_delete_tensorboard_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3367,7 +3160,7 @@ async def test_delete_tensorboard_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3412,27 +3205,6 @@ def test_read_tensorboard_usage(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
-
-
-def test_read_tensorboard_usage_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_usage), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.read_tensorboard_usage()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
 
 
 def test_read_tensorboard_usage_non_empty_request_with_auto_populated_field():
@@ -3506,29 +3278,6 @@ def test_read_tensorboard_usage_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_read_tensorboard_usage_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_usage), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ReadTensorboardUsageResponse()
-        )
-        response = await client.read_tensorboard_usage()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
-
-
-@pytest.mark.asyncio
 async def test_read_tensorboard_usage_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3536,7 +3285,7 @@ async def test_read_tensorboard_usage_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3576,7 +3325,7 @@ async def test_read_tensorboard_usage_async(
     request_type=tensorboard_service.ReadTensorboardUsageRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3643,7 +3392,7 @@ def test_read_tensorboard_usage_field_headers():
 @pytest.mark.asyncio
 async def test_read_tensorboard_usage_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3717,7 +3466,7 @@ def test_read_tensorboard_usage_flattened_error():
 @pytest.mark.asyncio
 async def test_read_tensorboard_usage_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3748,7 +3497,7 @@ async def test_read_tensorboard_usage_flattened_async():
 @pytest.mark.asyncio
 async def test_read_tensorboard_usage_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3796,27 +3545,6 @@ def test_read_tensorboard_size(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
     assert response.storage_size_byte == 1826
-
-
-def test_read_tensorboard_size_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_size), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.read_tensorboard_size()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
 
 
 def test_read_tensorboard_size_non_empty_request_with_auto_populated_field():
@@ -3890,31 +3618,6 @@ def test_read_tensorboard_size_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_read_tensorboard_size_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_size), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ReadTensorboardSizeResponse(
-                storage_size_byte=1826,
-            )
-        )
-        response = await client.read_tensorboard_size()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
-
-
-@pytest.mark.asyncio
 async def test_read_tensorboard_size_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3922,7 +3625,7 @@ async def test_read_tensorboard_size_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3962,7 +3665,7 @@ async def test_read_tensorboard_size_async(
     request_type=tensorboard_service.ReadTensorboardSizeRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4032,7 +3735,7 @@ def test_read_tensorboard_size_field_headers():
 @pytest.mark.asyncio
 async def test_read_tensorboard_size_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4106,7 +3809,7 @@ def test_read_tensorboard_size_flattened_error():
 @pytest.mark.asyncio
 async def test_read_tensorboard_size_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4137,7 +3840,7 @@ async def test_read_tensorboard_size_flattened_async():
 @pytest.mark.asyncio
 async def test_read_tensorboard_size_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4193,27 +3896,6 @@ def test_create_tensorboard_experiment(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.source == "source_value"
-
-
-def test_create_tensorboard_experiment_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_experiment), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
 
 
 def test_create_tensorboard_experiment_non_empty_request_with_auto_populated_field():
@@ -4289,35 +3971,6 @@ def test_create_tensorboard_experiment_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_tensorboard_experiment_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_experiment), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_experiment.TensorboardExperiment(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                source="source_value",
-            )
-        )
-        response = await client.create_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_tensorboard_experiment_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4325,7 +3978,7 @@ async def test_create_tensorboard_experiment_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4365,7 +4018,7 @@ async def test_create_tensorboard_experiment_async(
     request_type=tensorboard_service.CreateTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4443,7 +4096,7 @@ def test_create_tensorboard_experiment_field_headers():
 @pytest.mark.asyncio
 async def test_create_tensorboard_experiment_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4531,7 +4184,7 @@ def test_create_tensorboard_experiment_flattened_error():
 @pytest.mark.asyncio
 async def test_create_tensorboard_experiment_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4572,7 +4225,7 @@ async def test_create_tensorboard_experiment_flattened_async():
 @pytest.mark.asyncio
 async def test_create_tensorboard_experiment_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4632,27 +4285,6 @@ def test_get_tensorboard_experiment(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.source == "source_value"
-
-
-def test_get_tensorboard_experiment_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_experiment), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
 
 
 def test_get_tensorboard_experiment_non_empty_request_with_auto_populated_field():
@@ -4726,35 +4358,6 @@ def test_get_tensorboard_experiment_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_tensorboard_experiment_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_experiment), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_experiment.TensorboardExperiment(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                source="source_value",
-            )
-        )
-        response = await client.get_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_tensorboard_experiment_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4762,7 +4365,7 @@ async def test_get_tensorboard_experiment_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4802,7 +4405,7 @@ async def test_get_tensorboard_experiment_async(
     request_type=tensorboard_service.GetTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4880,7 +4483,7 @@ def test_get_tensorboard_experiment_field_headers():
 @pytest.mark.asyncio
 async def test_get_tensorboard_experiment_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4954,7 +4557,7 @@ def test_get_tensorboard_experiment_flattened_error():
 @pytest.mark.asyncio
 async def test_get_tensorboard_experiment_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4985,7 +4588,7 @@ async def test_get_tensorboard_experiment_flattened_async():
 @pytest.mark.asyncio
 async def test_get_tensorboard_experiment_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5041,27 +4644,6 @@ def test_update_tensorboard_experiment(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.source == "source_value"
-
-
-def test_update_tensorboard_experiment_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_experiment), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
 
 
 def test_update_tensorboard_experiment_non_empty_request_with_auto_populated_field():
@@ -5131,35 +4713,6 @@ def test_update_tensorboard_experiment_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_tensorboard_experiment_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_experiment), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_experiment.TensorboardExperiment(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                source="source_value",
-            )
-        )
-        response = await client.update_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_tensorboard_experiment_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5167,7 +4720,7 @@ async def test_update_tensorboard_experiment_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5207,7 +4760,7 @@ async def test_update_tensorboard_experiment_async(
     request_type=tensorboard_service.UpdateTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5285,7 +4838,7 @@ def test_update_tensorboard_experiment_field_headers():
 @pytest.mark.asyncio
 async def test_update_tensorboard_experiment_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5368,7 +4921,7 @@ def test_update_tensorboard_experiment_flattened_error():
 @pytest.mark.asyncio
 async def test_update_tensorboard_experiment_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5405,7 +4958,7 @@ async def test_update_tensorboard_experiment_flattened_async():
 @pytest.mark.asyncio
 async def test_update_tensorboard_experiment_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5456,27 +5009,6 @@ def test_list_tensorboard_experiments(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardExperimentsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_tensorboard_experiments_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_experiments), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_tensorboard_experiments()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
 
 
 def test_list_tensorboard_experiments_non_empty_request_with_auto_populated_field():
@@ -5556,31 +5088,6 @@ def test_list_tensorboard_experiments_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_tensorboard_experiments_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_experiments), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ListTensorboardExperimentsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_tensorboard_experiments()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_tensorboard_experiments_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5588,7 +5095,7 @@ async def test_list_tensorboard_experiments_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5628,7 +5135,7 @@ async def test_list_tensorboard_experiments_async(
     request_type=tensorboard_service.ListTensorboardExperimentsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5698,7 +5205,7 @@ def test_list_tensorboard_experiments_field_headers():
 @pytest.mark.asyncio
 async def test_list_tensorboard_experiments_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5772,7 +5279,7 @@ def test_list_tensorboard_experiments_flattened_error():
 @pytest.mark.asyncio
 async def test_list_tensorboard_experiments_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5803,7 +5310,7 @@ async def test_list_tensorboard_experiments_flattened_async():
 @pytest.mark.asyncio
 async def test_list_tensorboard_experiments_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5921,7 +5428,7 @@ def test_list_tensorboard_experiments_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_tensorboard_experiments_async_pager():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5976,7 +5483,7 @@ async def test_list_tensorboard_experiments_async_pager():
 @pytest.mark.asyncio
 async def test_list_tensorboard_experiments_async_pages():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6059,27 +5566,6 @@ def test_delete_tensorboard_experiment(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_tensorboard_experiment_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_experiment), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
-
-
 def test_delete_tensorboard_experiment_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -6156,29 +5642,6 @@ def test_delete_tensorboard_experiment_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_tensorboard_experiment_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_experiment), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_tensorboard_experiment()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_tensorboard_experiment_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6186,7 +5649,7 @@ async def test_delete_tensorboard_experiment_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6231,7 +5694,7 @@ async def test_delete_tensorboard_experiment_async(
     request_type=tensorboard_service.DeleteTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6298,7 +5761,7 @@ def test_delete_tensorboard_experiment_field_headers():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_experiment_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6372,7 +5835,7 @@ def test_delete_tensorboard_experiment_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_experiment_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6403,7 +5866,7 @@ async def test_delete_tensorboard_experiment_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_experiment_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6457,27 +5920,6 @@ def test_create_tensorboard_run(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
-
-
-def test_create_tensorboard_run_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_run), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
 
 
 def test_create_tensorboard_run_non_empty_request_with_auto_populated_field():
@@ -6553,34 +5995,6 @@ def test_create_tensorboard_run_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_tensorboard_run_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_run), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_run.TensorboardRun(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-            )
-        )
-        response = await client.create_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_tensorboard_run_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6588,7 +6002,7 @@ async def test_create_tensorboard_run_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6628,7 +6042,7 @@ async def test_create_tensorboard_run_async(
     request_type=tensorboard_service.CreateTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6704,7 +6118,7 @@ def test_create_tensorboard_run_field_headers():
 @pytest.mark.asyncio
 async def test_create_tensorboard_run_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6788,7 +6202,7 @@ def test_create_tensorboard_run_flattened_error():
 @pytest.mark.asyncio
 async def test_create_tensorboard_run_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6827,7 +6241,7 @@ async def test_create_tensorboard_run_flattened_async():
 @pytest.mark.asyncio
 async def test_create_tensorboard_run_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6874,27 +6288,6 @@ def test_batch_create_tensorboard_runs(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
-
-
-def test_batch_create_tensorboard_runs_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_create_tensorboard_runs), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.batch_create_tensorboard_runs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
 
 
 def test_batch_create_tensorboard_runs_non_empty_request_with_auto_populated_field():
@@ -6968,29 +6361,6 @@ def test_batch_create_tensorboard_runs_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_batch_create_tensorboard_runs_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_create_tensorboard_runs), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.BatchCreateTensorboardRunsResponse()
-        )
-        response = await client.batch_create_tensorboard_runs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
-
-
-@pytest.mark.asyncio
 async def test_batch_create_tensorboard_runs_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6998,7 +6368,7 @@ async def test_batch_create_tensorboard_runs_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7038,7 +6408,7 @@ async def test_batch_create_tensorboard_runs_async(
     request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7105,7 +6475,7 @@ def test_batch_create_tensorboard_runs_field_headers():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_runs_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7190,7 +6560,7 @@ def test_batch_create_tensorboard_runs_flattened_error():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_runs_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7229,7 +6599,7 @@ async def test_batch_create_tensorboard_runs_flattened_async():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_runs_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7286,27 +6656,6 @@ def test_get_tensorboard_run(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
-
-
-def test_get_tensorboard_run_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_run), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRunRequest()
 
 
 def test_get_tensorboard_run_non_empty_request_with_auto_populated_field():
@@ -7379,34 +6728,6 @@ def test_get_tensorboard_run_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_tensorboard_run_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_run), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_run.TensorboardRun(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-            )
-        )
-        response = await client.get_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRunRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_tensorboard_run_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7414,7 +6735,7 @@ async def test_get_tensorboard_run_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7454,7 +6775,7 @@ async def test_get_tensorboard_run_async(
     request_type=tensorboard_service.GetTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7530,7 +6851,7 @@ def test_get_tensorboard_run_field_headers():
 @pytest.mark.asyncio
 async def test_get_tensorboard_run_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7604,7 +6925,7 @@ def test_get_tensorboard_run_flattened_error():
 @pytest.mark.asyncio
 async def test_get_tensorboard_run_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7635,7 +6956,7 @@ async def test_get_tensorboard_run_flattened_async():
 @pytest.mark.asyncio
 async def test_get_tensorboard_run_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7689,27 +7010,6 @@ def test_update_tensorboard_run(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
-
-
-def test_update_tensorboard_run_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_run), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
 
 
 def test_update_tensorboard_run_non_empty_request_with_auto_populated_field():
@@ -7779,34 +7079,6 @@ def test_update_tensorboard_run_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_tensorboard_run_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_run), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_run.TensorboardRun(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-            )
-        )
-        response = await client.update_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_tensorboard_run_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7814,7 +7086,7 @@ async def test_update_tensorboard_run_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7854,7 +7126,7 @@ async def test_update_tensorboard_run_async(
     request_type=tensorboard_service.UpdateTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7930,7 +7202,7 @@ def test_update_tensorboard_run_field_headers():
 @pytest.mark.asyncio
 async def test_update_tensorboard_run_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -8009,7 +7281,7 @@ def test_update_tensorboard_run_flattened_error():
 @pytest.mark.asyncio
 async def test_update_tensorboard_run_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8044,7 +7316,7 @@ async def test_update_tensorboard_run_flattened_async():
 @pytest.mark.asyncio
 async def test_update_tensorboard_run_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -8093,27 +7365,6 @@ def test_list_tensorboard_runs(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardRunsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_tensorboard_runs_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_runs), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_tensorboard_runs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
 
 
 def test_list_tensorboard_runs_non_empty_request_with_auto_populated_field():
@@ -8193,31 +7444,6 @@ def test_list_tensorboard_runs_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_tensorboard_runs_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_runs), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ListTensorboardRunsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_tensorboard_runs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_tensorboard_runs_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -8225,7 +7451,7 @@ async def test_list_tensorboard_runs_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -8265,7 +7491,7 @@ async def test_list_tensorboard_runs_async(
     request_type=tensorboard_service.ListTensorboardRunsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -8335,7 +7561,7 @@ def test_list_tensorboard_runs_field_headers():
 @pytest.mark.asyncio
 async def test_list_tensorboard_runs_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -8409,7 +7635,7 @@ def test_list_tensorboard_runs_flattened_error():
 @pytest.mark.asyncio
 async def test_list_tensorboard_runs_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8440,7 +7666,7 @@ async def test_list_tensorboard_runs_flattened_async():
 @pytest.mark.asyncio
 async def test_list_tensorboard_runs_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -8554,7 +7780,7 @@ def test_list_tensorboard_runs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_tensorboard_runs_async_pager():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8606,7 +7832,7 @@ async def test_list_tensorboard_runs_async_pager():
 @pytest.mark.asyncio
 async def test_list_tensorboard_runs_async_pages():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8689,27 +7915,6 @@ def test_delete_tensorboard_run(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_tensorboard_run_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_run), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
-
-
 def test_delete_tensorboard_run_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -8786,29 +7991,6 @@ def test_delete_tensorboard_run_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_tensorboard_run_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_run), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_tensorboard_run()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_tensorboard_run_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -8816,7 +7998,7 @@ async def test_delete_tensorboard_run_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -8861,7 +8043,7 @@ async def test_delete_tensorboard_run_async(
     request_type=tensorboard_service.DeleteTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -8928,7 +8110,7 @@ def test_delete_tensorboard_run_field_headers():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_run_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9002,7 +8184,7 @@ def test_delete_tensorboard_run_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_run_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9033,7 +8215,7 @@ async def test_delete_tensorboard_run_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_run_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -9082,27 +8264,6 @@ def test_batch_create_tensorboard_time_series(request_type, transport: str = "gr
     assert isinstance(
         response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
     )
-
-
-def test_batch_create_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_create_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.batch_create_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
 
 
 def test_batch_create_tensorboard_time_series_non_empty_request_with_auto_populated_field():
@@ -9176,29 +8337,6 @@ def test_batch_create_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_batch_create_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_create_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
-        )
-        response = await client.batch_create_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_batch_create_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -9206,7 +8344,7 @@ async def test_batch_create_tensorboard_time_series_async_use_cached_wrapped_rpc
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -9246,7 +8384,7 @@ async def test_batch_create_tensorboard_time_series_async(
     request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -9317,7 +8455,7 @@ def test_batch_create_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9410,7 +8548,7 @@ def test_batch_create_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9455,7 +8593,7 @@ async def test_batch_create_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_batch_create_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -9523,27 +8661,6 @@ def test_create_tensorboard_time_series(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.plugin_name == "plugin_name_value"
     assert response.plugin_data == b"plugin_data_blob"
-
-
-def test_create_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
 
 
 def test_create_tensorboard_time_series_non_empty_request_with_auto_populated_field():
@@ -9619,37 +8736,6 @@ def test_create_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_time_series.TensorboardTimeSeries(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-                etag="etag_value",
-                plugin_name="plugin_name_value",
-                plugin_data=b"plugin_data_blob",
-            )
-        )
-        response = await client.create_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -9657,7 +8743,7 @@ async def test_create_tensorboard_time_series_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -9697,7 +8783,7 @@ async def test_create_tensorboard_time_series_async(
     request_type=tensorboard_service.CreateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -9782,7 +8868,7 @@ def test_create_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_create_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -9865,7 +8951,7 @@ def test_create_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_create_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -9902,7 +8988,7 @@ async def test_create_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_create_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -9968,27 +9054,6 @@ def test_get_tensorboard_time_series(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.plugin_name == "plugin_name_value"
     assert response.plugin_data == b"plugin_data_blob"
-
-
-def test_get_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
 
 
 def test_get_tensorboard_time_series_non_empty_request_with_auto_populated_field():
@@ -10062,37 +9127,6 @@ def test_get_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_time_series.TensorboardTimeSeries(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-                etag="etag_value",
-                plugin_name="plugin_name_value",
-                plugin_data=b"plugin_data_blob",
-            )
-        )
-        response = await client.get_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -10100,7 +9134,7 @@ async def test_get_tensorboard_time_series_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -10140,7 +9174,7 @@ async def test_get_tensorboard_time_series_async(
     request_type=tensorboard_service.GetTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -10225,7 +9259,7 @@ def test_get_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_get_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -10299,7 +9333,7 @@ def test_get_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_get_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10330,7 +9364,7 @@ async def test_get_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_get_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -10393,27 +9427,6 @@ def test_update_tensorboard_time_series(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.plugin_name == "plugin_name_value"
     assert response.plugin_data == b"plugin_data_blob"
-
-
-def test_update_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
 
 
 def test_update_tensorboard_time_series_non_empty_request_with_auto_populated_field():
@@ -10483,37 +9496,6 @@ def test_update_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_tensorboard_time_series.TensorboardTimeSeries(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-                etag="etag_value",
-                plugin_name="plugin_name_value",
-                plugin_data=b"plugin_data_blob",
-            )
-        )
-        response = await client.update_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -10521,7 +9503,7 @@ async def test_update_tensorboard_time_series_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -10561,7 +9543,7 @@ async def test_update_tensorboard_time_series_async(
     request_type=tensorboard_service.UpdateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -10646,7 +9628,7 @@ def test_update_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_update_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -10729,7 +9711,7 @@ def test_update_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_update_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -10766,7 +9748,7 @@ async def test_update_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_update_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -10817,27 +9799,6 @@ def test_list_tensorboard_time_series(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardTimeSeriesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
 
 
 def test_list_tensorboard_time_series_non_empty_request_with_auto_populated_field():
@@ -10917,31 +9878,6 @@ def test_list_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ListTensorboardTimeSeriesResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -10949,7 +9885,7 @@ async def test_list_tensorboard_time_series_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -10989,7 +9925,7 @@ async def test_list_tensorboard_time_series_async(
     request_type=tensorboard_service.ListTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -11059,7 +9995,7 @@ def test_list_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_list_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -11133,7 +10069,7 @@ def test_list_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_list_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11164,7 +10100,7 @@ async def test_list_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_list_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -11283,7 +10219,7 @@ def test_list_tensorboard_time_series_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_tensorboard_time_series_async_pager():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11338,7 +10274,7 @@ async def test_list_tensorboard_time_series_async_pager():
 @pytest.mark.asyncio
 async def test_list_tensorboard_time_series_async_pages():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11421,27 +10357,6 @@ def test_delete_tensorboard_time_series(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_tensorboard_time_series_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_time_series), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
-
-
 def test_delete_tensorboard_time_series_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -11518,29 +10433,6 @@ def test_delete_tensorboard_time_series_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_tensorboard_time_series_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_tensorboard_time_series), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_tensorboard_time_series()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_tensorboard_time_series_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -11548,7 +10440,7 @@ async def test_delete_tensorboard_time_series_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -11593,7 +10485,7 @@ async def test_delete_tensorboard_time_series_async(
     request_type=tensorboard_service.DeleteTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -11660,7 +10552,7 @@ def test_delete_tensorboard_time_series_field_headers():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_time_series_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -11734,7 +10626,7 @@ def test_delete_tensorboard_time_series_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_time_series_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -11765,7 +10657,7 @@ async def test_delete_tensorboard_time_series_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_tensorboard_time_series_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -11814,29 +10706,6 @@ def test_batch_read_tensorboard_time_series_data(request_type, transport: str = 
     assert isinstance(
         response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
     )
-
-
-def test_batch_read_tensorboard_time_series_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.batch_read_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        )
 
 
 def test_batch_read_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
@@ -11910,31 +10779,6 @@ def test_batch_read_tensorboard_time_series_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_batch_read_tensorboard_time_series_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
-        )
-        response = await client.batch_read_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        )
-
-
-@pytest.mark.asyncio
 async def test_batch_read_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -11942,7 +10786,7 @@ async def test_batch_read_tensorboard_time_series_data_async_use_cached_wrapped_
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -11982,7 +10826,7 @@ async def test_batch_read_tensorboard_time_series_data_async(
     request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12053,7 +10897,7 @@ def test_batch_read_tensorboard_time_series_data_field_headers():
 @pytest.mark.asyncio
 async def test_batch_read_tensorboard_time_series_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12129,7 +10973,7 @@ def test_batch_read_tensorboard_time_series_data_flattened_error():
 @pytest.mark.asyncio
 async def test_batch_read_tensorboard_time_series_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12162,7 +11006,7 @@ async def test_batch_read_tensorboard_time_series_data_flattened_async():
 @pytest.mark.asyncio
 async def test_batch_read_tensorboard_time_series_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12209,27 +11053,6 @@ def test_read_tensorboard_time_series_data(request_type, transport: str = "grpc"
     assert isinstance(
         response, tensorboard_service.ReadTensorboardTimeSeriesDataResponse
     )
-
-
-def test_read_tensorboard_time_series_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_time_series_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.read_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
 
 
 def test_read_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
@@ -12305,29 +11128,6 @@ def test_read_tensorboard_time_series_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_read_tensorboard_time_series_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_time_series_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
-        )
-        response = await client.read_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
-
-
-@pytest.mark.asyncio
 async def test_read_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -12335,7 +11135,7 @@ async def test_read_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -12375,7 +11175,7 @@ async def test_read_tensorboard_time_series_data_async(
     request_type=tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12444,7 +11244,7 @@ def test_read_tensorboard_time_series_data_field_headers():
 @pytest.mark.asyncio
 async def test_read_tensorboard_time_series_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12518,7 +11318,7 @@ def test_read_tensorboard_time_series_data_flattened_error():
 @pytest.mark.asyncio
 async def test_read_tensorboard_time_series_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12549,7 +11349,7 @@ async def test_read_tensorboard_time_series_data_flattened_async():
 @pytest.mark.asyncio
 async def test_read_tensorboard_time_series_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12597,27 +11397,6 @@ def test_read_tensorboard_blob_data(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     for message in response:
         assert isinstance(message, tensorboard_service.ReadTensorboardBlobDataResponse)
-
-
-def test_read_tensorboard_blob_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_blob_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.read_tensorboard_blob_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
 
 
 def test_read_tensorboard_blob_data_non_empty_request_with_auto_populated_field():
@@ -12691,30 +11470,6 @@ def test_read_tensorboard_blob_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_read_tensorboard_blob_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_tensorboard_blob_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(
-            side_effect=[tensorboard_service.ReadTensorboardBlobDataResponse()]
-        )
-        response = await client.read_tensorboard_blob_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
-
-
-@pytest.mark.asyncio
 async def test_read_tensorboard_blob_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -12722,7 +11477,7 @@ async def test_read_tensorboard_blob_data_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -12762,7 +11517,7 @@ async def test_read_tensorboard_blob_data_async(
     request_type=tensorboard_service.ReadTensorboardBlobDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12833,7 +11588,7 @@ def test_read_tensorboard_blob_data_field_headers():
 @pytest.mark.asyncio
 async def test_read_tensorboard_blob_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12910,7 +11665,7 @@ def test_read_tensorboard_blob_data_flattened_error():
 @pytest.mark.asyncio
 async def test_read_tensorboard_blob_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -12941,7 +11696,7 @@ async def test_read_tensorboard_blob_data_flattened_async():
 @pytest.mark.asyncio
 async def test_read_tensorboard_blob_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -12988,27 +11743,6 @@ def test_write_tensorboard_experiment_data(request_type, transport: str = "grpc"
     assert isinstance(
         response, tensorboard_service.WriteTensorboardExperimentDataResponse
     )
-
-
-def test_write_tensorboard_experiment_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.write_tensorboard_experiment_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.write_tensorboard_experiment_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
 
 
 def test_write_tensorboard_experiment_data_non_empty_request_with_auto_populated_field():
@@ -13082,29 +11816,6 @@ def test_write_tensorboard_experiment_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_write_tensorboard_experiment_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.write_tensorboard_experiment_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.WriteTensorboardExperimentDataResponse()
-        )
-        response = await client.write_tensorboard_experiment_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
-
-
-@pytest.mark.asyncio
 async def test_write_tensorboard_experiment_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13112,7 +11823,7 @@ async def test_write_tensorboard_experiment_data_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13152,7 +11863,7 @@ async def test_write_tensorboard_experiment_data_async(
     request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13221,7 +11932,7 @@ def test_write_tensorboard_experiment_data_field_headers():
 @pytest.mark.asyncio
 async def test_write_tensorboard_experiment_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13312,7 +12023,7 @@ def test_write_tensorboard_experiment_data_flattened_error():
 @pytest.mark.asyncio
 async def test_write_tensorboard_experiment_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -13355,7 +12066,7 @@ async def test_write_tensorboard_experiment_data_flattened_async():
 @pytest.mark.asyncio
 async def test_write_tensorboard_experiment_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -13405,27 +12116,6 @@ def test_write_tensorboard_run_data(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
-
-
-def test_write_tensorboard_run_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.write_tensorboard_run_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.write_tensorboard_run_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
 
 
 def test_write_tensorboard_run_data_non_empty_request_with_auto_populated_field():
@@ -13499,29 +12189,6 @@ def test_write_tensorboard_run_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_write_tensorboard_run_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.write_tensorboard_run_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.WriteTensorboardRunDataResponse()
-        )
-        response = await client.write_tensorboard_run_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
-
-
-@pytest.mark.asyncio
 async def test_write_tensorboard_run_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13529,7 +12196,7 @@ async def test_write_tensorboard_run_data_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13569,7 +12236,7 @@ async def test_write_tensorboard_run_data_async(
     request_type=tensorboard_service.WriteTensorboardRunDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13636,7 +12303,7 @@ def test_write_tensorboard_run_data_field_headers():
 @pytest.mark.asyncio
 async def test_write_tensorboard_run_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13727,7 +12394,7 @@ def test_write_tensorboard_run_data_flattened_error():
 @pytest.mark.asyncio
 async def test_write_tensorboard_run_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -13770,7 +12437,7 @@ async def test_write_tensorboard_run_data_flattened_async():
 @pytest.mark.asyncio
 async def test_write_tensorboard_run_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -13823,27 +12490,6 @@ def test_export_tensorboard_time_series_data(request_type, transport: str = "grp
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_export_tensorboard_time_series_data_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.export_tensorboard_time_series_data), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.export_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
 
 
 def test_export_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
@@ -13923,31 +12569,6 @@ def test_export_tensorboard_time_series_data_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_export_tensorboard_time_series_data_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.export_tensorboard_time_series_data), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.export_tensorboard_time_series_data()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
-
-
-@pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -13955,7 +12576,7 @@ async def test_export_tensorboard_time_series_data_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = TensorboardServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -13995,7 +12616,7 @@ async def test_export_tensorboard_time_series_data_async(
     request_type=tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14067,7 +12688,7 @@ def test_export_tensorboard_time_series_data_field_headers():
 @pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14143,7 +12764,7 @@ def test_export_tensorboard_time_series_data_flattened_error():
 @pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_flattened_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14176,7 +12797,7 @@ async def test_export_tensorboard_time_series_data_flattened_async():
 @pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_flattened_error_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -14294,7 +12915,7 @@ def test_export_tensorboard_time_series_data_pages(transport_name: str = "grpc")
 @pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_async_pager():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14348,7 +12969,7 @@ async def test_export_tensorboard_time_series_data_async_pager():
 @pytest.mark.asyncio
 async def test_export_tensorboard_time_series_data_async_pages():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -14394,123 +13015,6 @@ async def test_export_tensorboard_time_series_data_async_pages():
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.CreateTensorboardRequest,
-        dict,
-    ],
-)
-def test_create_tensorboard_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["tensorboard"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "blob_storage_path_prefix": "blob_storage_path_prefix_value",
-        "run_count": 989,
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-        "is_default": True,
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.CreateTensorboardRequest.meta.fields["tensorboard"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["tensorboard"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard"][field])):
-                    del request_init["tensorboard"][field][i][subfield]
-            else:
-                del request_init["tensorboard"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_tensorboard(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_create_tensorboard_rest_use_cached_wrapped_rpc():
@@ -14646,89 +13150,6 @@ def test_create_tensorboard_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_tensorboard_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_create_tensorboard"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.CreateTensorboardRequest.pb(
-            tensorboard_service.CreateTensorboardRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.CreateTensorboardRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.create_tensorboard(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_tensorboard_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.CreateTensorboardRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_tensorboard(request)
-
-
 def test_create_tensorboard_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -14784,68 +13205,6 @@ def test_create_tensorboard_rest_flattened_error(transport: str = "rest"):
             parent="parent_value",
             tensorboard=gca_tensorboard.Tensorboard(name="name_value"),
         )
-
-
-def test_create_tensorboard_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.GetTensorboardRequest,
-        dict,
-    ],
-)
-def test_get_tensorboard_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard.Tensorboard(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            blob_storage_path_prefix="blob_storage_path_prefix_value",
-            run_count=989,
-            etag="etag_value",
-            is_default=True,
-            satisfies_pzs=True,
-            satisfies_pzi=True,
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard.Tensorboard.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_tensorboard(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard.Tensorboard)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.blob_storage_path_prefix == "blob_storage_path_prefix_value"
-    assert response.run_count == 989
-    assert response.etag == "etag_value"
-    assert response.is_default is True
-    assert response.satisfies_pzs is True
-    assert response.satisfies_pzi is True
 
 
 def test_get_tensorboard_rest_use_cached_wrapped_rpc():
@@ -14967,87 +13326,6 @@ def test_get_tensorboard_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_tensorboard_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.GetTensorboardRequest.pb(
-            tensorboard_service.GetTensorboardRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = tensorboard.Tensorboard.to_json(
-            tensorboard.Tensorboard()
-        )
-
-        request = tensorboard_service.GetTensorboardRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard.Tensorboard()
-
-        client.get_tensorboard(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_tensorboard_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.GetTensorboardRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_tensorboard(request)
-
-
 def test_get_tensorboard_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15105,133 +13383,6 @@ def test_get_tensorboard_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.GetTensorboardRequest(),
             name="name_value",
         )
-
-
-def test_get_tensorboard_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.UpdateTensorboardRequest,
-        dict,
-    ],
-)
-def test_update_tensorboard_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3"
-        }
-    }
-    request_init["tensorboard"] = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "blob_storage_path_prefix": "blob_storage_path_prefix_value",
-        "run_count": 989,
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-        "is_default": True,
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.UpdateTensorboardRequest.meta.fields["tensorboard"]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["tensorboard"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard"][field])):
-                    del request_init["tensorboard"][field][i][subfield]
-            else:
-                del request_init["tensorboard"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_tensorboard(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_update_tensorboard_rest_use_cached_wrapped_rpc():
@@ -15364,93 +13515,6 @@ def test_update_tensorboard_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_tensorboard_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_update_tensorboard"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.UpdateTensorboardRequest.pb(
-            tensorboard_service.UpdateTensorboardRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.UpdateTensorboardRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.update_tensorboard(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_tensorboard_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.UpdateTensorboardRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_tensorboard(request)
-
-
 def test_update_tensorboard_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15510,52 +13574,6 @@ def test_update_tensorboard_rest_flattened_error(transport: str = "rest"):
             tensorboard=gca_tensorboard.Tensorboard(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_tensorboard_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ListTensorboardsRequest,
-        dict,
-    ],
-)
-def test_list_tensorboards_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ListTensorboardsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ListTensorboardsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_tensorboards(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListTensorboardsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_tensorboards_rest_use_cached_wrapped_rpc():
@@ -15700,89 +13718,6 @@ def test_list_tensorboards_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_tensorboards_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_list_tensorboards"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboards"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ListTensorboardsRequest.pb(
-            tensorboard_service.ListTensorboardsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ListTensorboardsResponse.to_json(
-                tensorboard_service.ListTensorboardsResponse()
-            )
-        )
-
-        request = tensorboard_service.ListTensorboardsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ListTensorboardsResponse()
-
-        client.list_tensorboards(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_tensorboards_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.ListTensorboardsRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_tensorboards(request)
-
-
 def test_list_tensorboards_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -15901,41 +13836,6 @@ def test_list_tensorboards_rest_pager(transport: str = "rest"):
         pages = list(client.list_tensorboards(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.DeleteTensorboardRequest,
-        dict,
-    ],
-)
-def test_delete_tensorboard_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_tensorboard(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_tensorboard_rest_use_cached_wrapped_rpc():
@@ -16062,89 +13962,6 @@ def test_delete_tensorboard_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_tensorboard_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.DeleteTensorboardRequest.pb(
-            tensorboard_service.DeleteTensorboardRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.DeleteTensorboardRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_tensorboard(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_tensorboard_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.DeleteTensorboardRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_tensorboard(request)
-
-
 def test_delete_tensorboard_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16200,51 +14017,6 @@ def test_delete_tensorboard_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.DeleteTensorboardRequest(),
             name="name_value",
         )
-
-
-def test_delete_tensorboard_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ReadTensorboardUsageRequest,
-        dict,
-    ],
-)
-def test_read_tensorboard_usage_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ReadTensorboardUsageResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ReadTensorboardUsageResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.read_tensorboard_usage(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
 
 
 def test_read_tensorboard_usage_rest_use_cached_wrapped_rpc():
@@ -16373,92 +14145,6 @@ def test_read_tensorboard_usage_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("tensorboard",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_usage"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_usage"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ReadTensorboardUsageRequest.pb(
-            tensorboard_service.ReadTensorboardUsageRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ReadTensorboardUsageResponse.to_json(
-                tensorboard_service.ReadTensorboardUsageResponse()
-            )
-        )
-
-        request = tensorboard_service.ReadTensorboardUsageRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ReadTensorboardUsageResponse()
-
-        client.read_tensorboard_usage(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_read_tensorboard_usage_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ReadTensorboardUsageRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.read_tensorboard_usage(request)
-
-
 def test_read_tensorboard_usage_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16516,54 +14202,6 @@ def test_read_tensorboard_usage_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.ReadTensorboardUsageRequest(),
             tensorboard="tensorboard_value",
         )
-
-
-def test_read_tensorboard_usage_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ReadTensorboardSizeRequest,
-        dict,
-    ],
-)
-def test_read_tensorboard_size_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ReadTensorboardSizeResponse(
-            storage_size_byte=1826,
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ReadTensorboardSizeResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.read_tensorboard_size(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
-    assert response.storage_size_byte == 1826
 
 
 def test_read_tensorboard_size_rest_use_cached_wrapped_rpc():
@@ -16692,91 +14330,6 @@ def test_read_tensorboard_size_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("tensorboard",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_read_tensorboard_size_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_size"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_size"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ReadTensorboardSizeRequest.pb(
-            tensorboard_service.ReadTensorboardSizeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ReadTensorboardSizeResponse.to_json(
-                tensorboard_service.ReadTensorboardSizeResponse()
-            )
-        )
-
-        request = tensorboard_service.ReadTensorboardSizeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ReadTensorboardSizeResponse()
-
-        client.read_tensorboard_size(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_read_tensorboard_size_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.ReadTensorboardSizeRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.read_tensorboard_size(request)
-
-
 def test_read_tensorboard_size_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -16834,141 +14387,6 @@ def test_read_tensorboard_size_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.ReadTensorboardSizeRequest(),
             tensorboard="tensorboard_value",
         )
-
-
-def test_read_tensorboard_size_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.CreateTensorboardExperimentRequest,
-        dict,
-    ],
-)
-def test_create_tensorboard_experiment_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request_init["tensorboard_experiment"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-        "source": "source_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.CreateTensorboardExperimentRequest.meta.fields[
-        "tensorboard_experiment"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "tensorboard_experiment"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_experiment"][field])):
-                    del request_init["tensorboard_experiment"][field][i][subfield]
-            else:
-                del request_init["tensorboard_experiment"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            source="source_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_experiment.TensorboardExperiment.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_tensorboard_experiment(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.source == "source_value"
 
 
 def test_create_tensorboard_experiment_rest_use_cached_wrapped_rpc():
@@ -17129,92 +14547,6 @@ def test_create_tensorboard_experiment_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_create_tensorboard_experiment",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_create_tensorboard_experiment",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.CreateTensorboardExperimentRequest.pb(
-            tensorboard_service.CreateTensorboardExperimentRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            gca_tensorboard_experiment.TensorboardExperiment.to_json(
-                gca_tensorboard_experiment.TensorboardExperiment()
-            )
-        )
-
-        request = tensorboard_service.CreateTensorboardExperimentRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
-
-        client.create_tensorboard_experiment(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_tensorboard_experiment_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.CreateTensorboardExperimentRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_tensorboard_experiment(request)
-
-
 def test_create_tensorboard_experiment_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17280,62 +14612,6 @@ def test_create_tensorboard_experiment_rest_flattened_error(transport: str = "re
             ),
             tensorboard_experiment_id="tensorboard_experiment_id_value",
         )
-
-
-def test_create_tensorboard_experiment_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.GetTensorboardExperimentRequest,
-        dict,
-    ],
-)
-def test_get_tensorboard_experiment_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_experiment.TensorboardExperiment(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            source="source_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_experiment.TensorboardExperiment.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_tensorboard_experiment(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_experiment.TensorboardExperiment)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.source == "source_value"
 
 
 def test_get_tensorboard_experiment_rest_use_cached_wrapped_rpc():
@@ -17462,92 +14738,6 @@ def test_get_tensorboard_experiment_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_experiment"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_experiment"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.GetTensorboardExperimentRequest.pb(
-            tensorboard_service.GetTensorboardExperimentRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_experiment.TensorboardExperiment.to_json(
-                tensorboard_experiment.TensorboardExperiment()
-            )
-        )
-
-        request = tensorboard_service.GetTensorboardExperimentRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_experiment.TensorboardExperiment()
-
-        client.get_tensorboard_experiment(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_tensorboard_experiment_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.GetTensorboardExperimentRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_tensorboard_experiment(request)
-
-
 def test_get_tensorboard_experiment_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17605,145 +14795,6 @@ def test_get_tensorboard_experiment_rest_flattened_error(transport: str = "rest"
             tensorboard_service.GetTensorboardExperimentRequest(),
             name="name_value",
         )
-
-
-def test_get_tensorboard_experiment_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.UpdateTensorboardExperimentRequest,
-        dict,
-    ],
-)
-def test_update_tensorboard_experiment_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_experiment": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-        }
-    }
-    request_init["tensorboard_experiment"] = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-        "source": "source_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.UpdateTensorboardExperimentRequest.meta.fields[
-        "tensorboard_experiment"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "tensorboard_experiment"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_experiment"][field])):
-                    del request_init["tensorboard_experiment"][field][i][subfield]
-            else:
-                del request_init["tensorboard_experiment"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            source="source_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_experiment.TensorboardExperiment.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_tensorboard_experiment(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.source == "source_value"
 
 
 def test_update_tensorboard_experiment_rest_use_cached_wrapped_rpc():
@@ -17880,96 +14931,6 @@ def test_update_tensorboard_experiment_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_update_tensorboard_experiment",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_update_tensorboard_experiment",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
-            tensorboard_service.UpdateTensorboardExperimentRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            gca_tensorboard_experiment.TensorboardExperiment.to_json(
-                gca_tensorboard_experiment.TensorboardExperiment()
-            )
-        )
-
-        request = tensorboard_service.UpdateTensorboardExperimentRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
-
-        client.update_tensorboard_experiment(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_tensorboard_experiment_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.UpdateTensorboardExperimentRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_experiment": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_tensorboard_experiment(request)
-
-
 def test_update_tensorboard_experiment_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18035,54 +14996,6 @@ def test_update_tensorboard_experiment_rest_flattened_error(transport: str = "re
             ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_tensorboard_experiment_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ListTensorboardExperimentsRequest,
-        dict,
-    ],
-)
-def test_list_tensorboard_experiments_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ListTensorboardExperimentsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ListTensorboardExperimentsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_tensorboard_experiments(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListTensorboardExperimentsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_tensorboard_experiments_rest_use_cached_wrapped_rpc():
@@ -18232,91 +15145,6 @@ def test_list_tensorboard_experiments_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_list_tensorboard_experiments",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_experiments"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ListTensorboardExperimentsRequest.pb(
-            tensorboard_service.ListTensorboardExperimentsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ListTensorboardExperimentsResponse.to_json(
-                tensorboard_service.ListTensorboardExperimentsResponse()
-            )
-        )
-
-        request = tensorboard_service.ListTensorboardExperimentsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
-
-        client.list_tensorboard_experiments(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_tensorboard_experiments_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ListTensorboardExperimentsRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_tensorboard_experiments(request)
-
-
 def test_list_tensorboard_experiments_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18446,43 +15274,6 @@ def test_list_tensorboard_experiments_rest_pager(transport: str = "rest"):
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.DeleteTensorboardExperimentRequest,
-        dict,
-    ],
-)
-def test_delete_tensorboard_experiment_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_tensorboard_experiment(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
 def test_delete_tensorboard_experiment_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -18610,94 +15401,6 @@ def test_delete_tensorboard_experiment_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_delete_tensorboard_experiment",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_delete_tensorboard_experiment",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
-            tensorboard_service.DeleteTensorboardExperimentRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.DeleteTensorboardExperimentRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_tensorboard_experiment(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_tensorboard_experiment_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.DeleteTensorboardExperimentRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_tensorboard_experiment(request)
-
-
 def test_delete_tensorboard_experiment_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18753,138 +15456,6 @@ def test_delete_tensorboard_experiment_rest_flattened_error(transport: str = "re
             tensorboard_service.DeleteTensorboardExperimentRequest(),
             name="name_value",
         )
-
-
-def test_delete_tensorboard_experiment_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.CreateTensorboardRunRequest,
-        dict,
-    ],
-)
-def test_create_tensorboard_run_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request_init["tensorboard_run"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.CreateTensorboardRunRequest.meta.fields[
-        "tensorboard_run"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["tensorboard_run"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_run"][field])):
-                    del request_init["tensorboard_run"][field][i][subfield]
-            else:
-                del request_init["tensorboard_run"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_run.TensorboardRun(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_run.TensorboardRun.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_tensorboard_run(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_run.TensorboardRun)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
 
 
 def test_create_tensorboard_run_rest_use_cached_wrapped_rpc():
@@ -19036,90 +15607,6 @@ def test_create_tensorboard_run_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_tensorboard_run_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_create_tensorboard_run"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard_run"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.CreateTensorboardRunRequest.pb(
-            tensorboard_service.CreateTensorboardRunRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_tensorboard_run.TensorboardRun.to_json(
-            gca_tensorboard_run.TensorboardRun()
-        )
-
-        request = tensorboard_service.CreateTensorboardRunRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_run.TensorboardRun()
-
-        client.create_tensorboard_run(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_tensorboard_run_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.CreateTensorboardRunRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_tensorboard_run(request)
-
-
 def test_create_tensorboard_run_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -19181,53 +15668,6 @@ def test_create_tensorboard_run_rest_flattened_error(transport: str = "rest"):
             tensorboard_run=gca_tensorboard_run.TensorboardRun(name="name_value"),
             tensorboard_run_id="tensorboard_run_id_value",
         )
-
-
-def test_create_tensorboard_run_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.BatchCreateTensorboardRunsRequest,
-        dict,
-    ],
-)
-def test_batch_create_tensorboard_runs_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.batch_create_tensorboard_runs(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
 
 
 def test_batch_create_tensorboard_runs_rest_use_cached_wrapped_rpc():
@@ -19367,94 +15807,6 @@ def test_batch_create_tensorboard_runs_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_batch_create_tensorboard_runs",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_batch_create_tensorboard_runs",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
-            tensorboard_service.BatchCreateTensorboardRunsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
-                tensorboard_service.BatchCreateTensorboardRunsResponse()
-            )
-        )
-
-        request = tensorboard_service.BatchCreateTensorboardRunsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
-
-        client.batch_create_tensorboard_runs(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_batch_create_tensorboard_runs_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.batch_create_tensorboard_runs(request)
-
-
 def test_batch_create_tensorboard_runs_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -19520,60 +15872,6 @@ def test_batch_create_tensorboard_runs_rest_flattened_error(transport: str = "re
                 tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
             ],
         )
-
-
-def test_batch_create_tensorboard_runs_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.GetTensorboardRunRequest,
-        dict,
-    ],
-)
-def test_get_tensorboard_run_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_run.TensorboardRun(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_run.TensorboardRun.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_tensorboard_run(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_run.TensorboardRun)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
 
 
 def test_get_tensorboard_run_rest_use_cached_wrapped_rpc():
@@ -19699,89 +15997,6 @@ def test_get_tensorboard_run_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_tensorboard_run_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_run"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_run"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.GetTensorboardRunRequest.pb(
-            tensorboard_service.GetTensorboardRunRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = tensorboard_run.TensorboardRun.to_json(
-            tensorboard_run.TensorboardRun()
-        )
-
-        request = tensorboard_service.GetTensorboardRunRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_run.TensorboardRun()
-
-        client.get_tensorboard_run(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_tensorboard_run_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.GetTensorboardRunRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_tensorboard_run(request)
-
-
 def test_get_tensorboard_run_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -19839,140 +16054,6 @@ def test_get_tensorboard_run_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.GetTensorboardRunRequest(),
             name="name_value",
         )
-
-
-def test_get_tensorboard_run_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.UpdateTensorboardRunRequest,
-        dict,
-    ],
-)
-def test_update_tensorboard_run_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_run": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-        }
-    }
-    request_init["tensorboard_run"] = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "etag": "etag_value",
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.UpdateTensorboardRunRequest.meta.fields[
-        "tensorboard_run"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["tensorboard_run"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_run"][field])):
-                    del request_init["tensorboard_run"][field][i][subfield]
-            else:
-                del request_init["tensorboard_run"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_run.TensorboardRun(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_run.TensorboardRun.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_tensorboard_run(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_run.TensorboardRun)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
 
 
 def test_update_tensorboard_run_rest_use_cached_wrapped_rpc():
@@ -20105,92 +16186,6 @@ def test_update_tensorboard_run_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_tensorboard_run_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_update_tensorboard_run"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard_run"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.UpdateTensorboardRunRequest.pb(
-            tensorboard_service.UpdateTensorboardRunRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_tensorboard_run.TensorboardRun.to_json(
-            gca_tensorboard_run.TensorboardRun()
-        )
-
-        request = tensorboard_service.UpdateTensorboardRunRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_run.TensorboardRun()
-
-        client.update_tensorboard_run(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_tensorboard_run_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.UpdateTensorboardRunRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_run": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_tensorboard_run(request)
-
-
 def test_update_tensorboard_run_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20252,54 +16247,6 @@ def test_update_tensorboard_run_rest_flattened_error(transport: str = "rest"):
             tensorboard_run=gca_tensorboard_run.TensorboardRun(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_tensorboard_run_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ListTensorboardRunsRequest,
-        dict,
-    ],
-)
-def test_list_tensorboard_runs_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ListTensorboardRunsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ListTensorboardRunsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_tensorboard_runs(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListTensorboardRunsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_tensorboard_runs_rest_use_cached_wrapped_rpc():
@@ -20449,91 +16396,6 @@ def test_list_tensorboard_runs_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_list_tensorboard_runs"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_runs"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ListTensorboardRunsRequest.pb(
-            tensorboard_service.ListTensorboardRunsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ListTensorboardRunsResponse.to_json(
-                tensorboard_service.ListTensorboardRunsResponse()
-            )
-        )
-
-        request = tensorboard_service.ListTensorboardRunsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ListTensorboardRunsResponse()
-
-        client.list_tensorboard_runs(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_tensorboard_runs_rest_bad_request(
-    transport: str = "rest", request_type=tensorboard_service.ListTensorboardRunsRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_tensorboard_runs(request)
-
-
 def test_list_tensorboard_runs_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20656,43 +16518,6 @@ def test_list_tensorboard_runs_rest_pager(transport: str = "rest"):
         pages = list(client.list_tensorboard_runs(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.DeleteTensorboardRunRequest,
-        dict,
-    ],
-)
-def test_delete_tensorboard_run_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_tensorboard_run(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_tensorboard_run_rest_use_cached_wrapped_rpc():
@@ -20820,92 +16645,6 @@ def test_delete_tensorboard_run_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard_run"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard_run"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.DeleteTensorboardRunRequest.pb(
-            tensorboard_service.DeleteTensorboardRunRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.DeleteTensorboardRunRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_tensorboard_run(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_tensorboard_run_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.DeleteTensorboardRunRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_tensorboard_run(request)
-
-
 def test_delete_tensorboard_run_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -20961,55 +16700,6 @@ def test_delete_tensorboard_run_rest_flattened_error(transport: str = "rest"):
             tensorboard_service.DeleteTensorboardRunRequest(),
             name="name_value",
         )
-
-
-def test_delete_tensorboard_run_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_batch_create_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.batch_create_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(
-        response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
-    )
 
 
 def test_batch_create_tensorboard_time_series_rest_use_cached_wrapped_rpc():
@@ -21151,96 +16841,6 @@ def test_batch_create_tensorboard_time_series_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_batch_create_tensorboard_time_series",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_batch_create_tensorboard_time_series",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
-                tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
-            )
-        )
-
-        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = (
-            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
-        )
-
-        client.batch_create_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_batch_create_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.batch_create_tensorboard_time_series(request)
-
-
 def test_batch_create_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -21312,158 +16912,6 @@ def test_batch_create_tensorboard_time_series_rest_flattened_error(
                 )
             ],
         )
-
-
-def test_batch_create_tensorboard_time_series_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.CreateTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_create_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request_init["tensorboard_time_series"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "value_type": 1,
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "etag": "etag_value",
-        "plugin_name": "plugin_name_value",
-        "plugin_data": b"plugin_data_blob",
-        "metadata": {
-            "max_step": 865,
-            "max_wall_time": {},
-            "max_blob_sequence_length": 2525,
-        },
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.CreateTensorboardTimeSeriesRequest.meta.fields[
-        "tensorboard_time_series"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "tensorboard_time_series"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_time_series"][field])):
-                    del request_init["tensorboard_time_series"][field][i][subfield]
-            else:
-                del request_init["tensorboard_time_series"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-            etag="etag_value",
-            plugin_name="plugin_name_value",
-            plugin_data=b"plugin_data_blob",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert (
-        response.value_type
-        == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
-    )
-    assert response.etag == "etag_value"
-    assert response.plugin_name == "plugin_name_value"
-    assert response.plugin_data == b"plugin_data_blob"
 
 
 def test_create_tensorboard_time_series_rest_use_cached_wrapped_rpc():
@@ -21605,94 +17053,6 @@ def test_create_tensorboard_time_series_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_create_tensorboard_time_series",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_create_tensorboard_time_series",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.CreateTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
-                gca_tensorboard_time_series.TensorboardTimeSeries()
-            )
-        )
-
-        request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
-
-        client.create_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.CreateTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_tensorboard_time_series(request)
-
-
 def test_create_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -21758,69 +17118,6 @@ def test_create_tensorboard_time_series_rest_flattened_error(transport: str = "r
                 name="name_value"
             ),
         )
-
-
-def test_create_tensorboard_time_series_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.GetTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_get_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-            etag="etag_value",
-            plugin_name="plugin_name_value",
-            plugin_data=b"plugin_data_blob",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_time_series.TensorboardTimeSeries.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_time_series.TensorboardTimeSeries)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert (
-        response.value_type
-        == tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
-    )
-    assert response.etag == "etag_value"
-    assert response.plugin_name == "plugin_name_value"
-    assert response.plugin_data == b"plugin_data_blob"
 
 
 def test_get_tensorboard_time_series_rest_use_cached_wrapped_rpc():
@@ -21949,92 +17246,6 @@ def test_get_tensorboard_time_series_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_time_series"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_time_series"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.GetTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_time_series.TensorboardTimeSeries.to_json(
-                tensorboard_time_series.TensorboardTimeSeries()
-            )
-        )
-
-        request = tensorboard_service.GetTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_time_series.TensorboardTimeSeries()
-
-        client.get_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.GetTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_tensorboard_time_series(request)
-
-
 def test_get_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22092,160 +17303,6 @@ def test_get_tensorboard_time_series_rest_flattened_error(transport: str = "rest
             tensorboard_service.GetTensorboardTimeSeriesRequest(),
             name="name_value",
         )
-
-
-def test_get_tensorboard_time_series_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.UpdateTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_update_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-        }
-    }
-    request_init["tensorboard_time_series"] = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "value_type": 1,
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "etag": "etag_value",
-        "plugin_name": "plugin_name_value",
-        "plugin_data": b"plugin_data_blob",
-        "metadata": {
-            "max_step": 865,
-            "max_wall_time": {},
-            "max_blob_sequence_length": 2525,
-        },
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = tensorboard_service.UpdateTensorboardTimeSeriesRequest.meta.fields[
-        "tensorboard_time_series"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "tensorboard_time_series"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["tensorboard_time_series"][field])):
-                    del request_init["tensorboard_time_series"][field][i][subfield]
-            else:
-                del request_init["tensorboard_time_series"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
-            etag="etag_value",
-            plugin_name="plugin_name_value",
-            plugin_data=b"plugin_data_blob",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert (
-        response.value_type
-        == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
-    )
-    assert response.etag == "etag_value"
-    assert response.plugin_name == "plugin_name_value"
-    assert response.plugin_data == b"plugin_data_blob"
 
 
 def test_update_tensorboard_time_series_rest_use_cached_wrapped_rpc():
@@ -22382,96 +17439,6 @@ def test_update_tensorboard_time_series_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_update_tensorboard_time_series",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_update_tensorboard_time_series",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.UpdateTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
-                gca_tensorboard_time_series.TensorboardTimeSeries()
-            )
-        )
-
-        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
-
-        client.update_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.UpdateTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": {
-            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_tensorboard_time_series(request)
-
-
 def test_update_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22539,56 +17506,6 @@ def test_update_tensorboard_time_series_rest_flattened_error(transport: str = "r
             ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_tensorboard_time_series_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ListTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_list_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ListTensorboardTimeSeriesResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListTensorboardTimeSeriesPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_tensorboard_time_series_rest_use_cached_wrapped_rpc():
@@ -22738,93 +17655,6 @@ def test_list_tensorboard_time_series_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_list_tensorboard_time_series",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_time_series"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.ListTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
-                tensorboard_service.ListTensorboardTimeSeriesResponse()
-            )
-        )
-
-        request = tensorboard_service.ListTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
-
-        client.list_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ListTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_tensorboard_time_series(request)
-
-
 def test_list_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -22955,43 +17785,6 @@ def test_list_tensorboard_time_series_rest_pager(transport: str = "rest"):
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.DeleteTensorboardTimeSeriesRequest,
-        dict,
-    ],
-)
-def test_delete_tensorboard_time_series_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_tensorboard_time_series(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
 def test_delete_tensorboard_time_series_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -23119,94 +17912,6 @@ def test_delete_tensorboard_time_series_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_delete_tensorboard_time_series",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_delete_tensorboard_time_series",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
-            tensorboard_service.DeleteTensorboardTimeSeriesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_tensorboard_time_series(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_tensorboard_time_series_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.DeleteTensorboardTimeSeriesRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_tensorboard_time_series(request)
-
-
 def test_delete_tensorboard_time_series_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23262,57 +17967,6 @@ def test_delete_tensorboard_time_series_rest_flattened_error(transport: str = "r
             tensorboard_service.DeleteTensorboardTimeSeriesRequest(),
             name="name_value",
         )
-
-
-def test_delete_tensorboard_time_series_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
-        dict,
-    ],
-)
-def test_batch_read_tensorboard_time_series_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = (
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.pb(
-                return_value
-            )
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.batch_read_tensorboard_time_series_data(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(
-        response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
-    )
 
 
 def test_batch_read_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
@@ -23472,96 +18126,6 @@ def test_batch_read_tensorboard_time_series_data_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_batch_read_tensorboard_time_series_data",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_batch_read_tensorboard_time_series_data",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
-                tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
-            )
-        )
-
-        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = (
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
-        )
-
-        client.batch_read_tensorboard_time_series_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_batch_read_tensorboard_time_series_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.batch_read_tensorboard_time_series_data(request)
-
-
 def test_batch_read_tensorboard_time_series_data_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23625,55 +18189,6 @@ def test_batch_read_tensorboard_time_series_data_rest_flattened_error(
             tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(),
             tensorboard="tensorboard_value",
         )
-
-
-def test_batch_read_tensorboard_time_series_data_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
-        dict,
-    ],
-)
-def test_read_tensorboard_time_series_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.read_tensorboard_time_series_data(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(
-        response, tensorboard_service.ReadTensorboardTimeSeriesDataResponse
-    )
 
 
 def test_read_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
@@ -23819,94 +18334,6 @@ def test_read_tensorboard_time_series_data_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_read_tensorboard_time_series_data",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_read_tensorboard_time_series_data",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
-            tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
-                tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
-            )
-        )
-
-        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
-
-        client.read_tensorboard_time_series_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_read_tensorboard_time_series_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.read_tensorboard_time_series_data(request)
-
-
 def test_read_tensorboard_time_series_data_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -23968,60 +18395,6 @@ def test_read_tensorboard_time_series_data_rest_flattened_error(
             tensorboard_service.ReadTensorboardTimeSeriesDataRequest(),
             tensorboard_time_series="tensorboard_time_series_value",
         )
-
-
-def test_read_tensorboard_time_series_data_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ReadTensorboardBlobDataRequest,
-        dict,
-    ],
-)
-def test_read_tensorboard_blob_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ReadTensorboardBlobDataResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        json_return_value = "[{}]".format(json_return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        with mock.patch.object(response_value, "iter_content") as iter_content:
-            iter_content.return_value = iter(json_return_value)
-            response = client.read_tensorboard_blob_data(request)
-
-    assert isinstance(response, Iterable)
-    response = next(response)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_service.ReadTensorboardBlobDataResponse)
 
 
 def test_read_tensorboard_blob_data_rest_use_cached_wrapped_rpc():
@@ -24155,93 +18528,6 @@ def test_read_tensorboard_blob_data_rest_unset_required_fields():
     assert set(unset_fields) == (set(("blobIds",)) & set(("timeSeries",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_blob_data"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_blob_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ReadTensorboardBlobDataRequest.pb(
-            tensorboard_service.ReadTensorboardBlobDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
-                tensorboard_service.ReadTensorboardBlobDataResponse()
-            )
-        )
-        req.return_value._content = "[{}]".format(req.return_value._content)
-
-        request = tensorboard_service.ReadTensorboardBlobDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
-
-        client.read_tensorboard_blob_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_read_tensorboard_blob_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ReadTensorboardBlobDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.read_tensorboard_blob_data(request)
-
-
 def test_read_tensorboard_blob_data_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24304,55 +18590,6 @@ def test_read_tensorboard_blob_data_rest_flattened_error(transport: str = "rest"
             tensorboard_service.ReadTensorboardBlobDataRequest(),
             time_series="time_series_value",
         )
-
-
-def test_read_tensorboard_blob_data_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.WriteTensorboardExperimentDataRequest,
-        dict,
-    ],
-)
-def test_write_tensorboard_experiment_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_experiment": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.WriteTensorboardExperimentDataResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.write_tensorboard_experiment_data(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(
-        response, tensorboard_service.WriteTensorboardExperimentDataResponse
-    )
 
 
 def test_write_tensorboard_experiment_data_rest_use_cached_wrapped_rpc():
@@ -24494,94 +18731,6 @@ def test_write_tensorboard_experiment_data_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_write_tensorboard_experiment_data",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_write_tensorboard_experiment_data",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
-            tensorboard_service.WriteTensorboardExperimentDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
-                tensorboard_service.WriteTensorboardExperimentDataResponse()
-            )
-        )
-
-        request = tensorboard_service.WriteTensorboardExperimentDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
-
-        client.write_tensorboard_experiment_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_write_tensorboard_experiment_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_experiment": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.write_tensorboard_experiment_data(request)
-
-
 def test_write_tensorboard_experiment_data_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24653,53 +18802,6 @@ def test_write_tensorboard_experiment_data_rest_flattened_error(
                 )
             ],
         )
-
-
-def test_write_tensorboard_experiment_data_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.WriteTensorboardRunDataRequest,
-        dict,
-    ],
-)
-def test_write_tensorboard_run_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_run": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.WriteTensorboardRunDataResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.WriteTensorboardRunDataResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.write_tensorboard_run_data(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
 
 
 def test_write_tensorboard_run_data_rest_use_cached_wrapped_rpc():
@@ -24837,92 +18939,6 @@ def test_write_tensorboard_run_data_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "post_write_tensorboard_run_data"
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor, "pre_write_tensorboard_run_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.WriteTensorboardRunDataRequest.pb(
-            tensorboard_service.WriteTensorboardRunDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.WriteTensorboardRunDataResponse.to_json(
-                tensorboard_service.WriteTensorboardRunDataResponse()
-            )
-        )
-
-        request = tensorboard_service.WriteTensorboardRunDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = tensorboard_service.WriteTensorboardRunDataResponse()
-
-        client.write_tensorboard_run_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_write_tensorboard_run_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.WriteTensorboardRunDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_run": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.write_tensorboard_run_data(request)
-
-
 def test_write_tensorboard_run_data_rest_flattened():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -24992,56 +19008,6 @@ def test_write_tensorboard_run_data_rest_flattened_error(transport: str = "rest"
                 )
             ],
         )
-
-
-def test_write_tensorboard_run_data_rest_error():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-        dict,
-    ],
-)
-def test_export_tensorboard_time_series_data_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = tensorboard_service.ExportTensorboardTimeSeriesDataResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.export_tensorboard_time_series_data(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_export_tensorboard_time_series_data_rest_use_cached_wrapped_rpc():
@@ -25173,96 +19139,6 @@ def test_export_tensorboard_time_series_data_rest_unset_required_fields():
         transport.export_tensorboard_time_series_data._get_unset_required_fields({})
     )
     assert set(unset_fields) == (set(()) & set(("tensorboardTimeSeries",)))
-
-
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor):
-    transport = transports.TensorboardServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
-    )
-    client = TensorboardServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "post_export_tensorboard_time_series_data",
-    ) as post, mock.patch.object(
-        transports.TensorboardServiceRestInterceptor,
-        "pre_export_tensorboard_time_series_data",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
-            tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
-                tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
-            )
-        )
-
-        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = (
-            tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
-        )
-
-        client.export_tensorboard_time_series_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_export_tensorboard_time_series_data_rest_bad_request(
-    transport: str = "rest",
-    request_type=tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.export_tensorboard_time_series_data(request)
 
 
 def test_export_tensorboard_time_series_data_rest_flattened():
@@ -25488,18 +19364,7429 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+def test_transport_kind_grpc():
+    transport = TensorboardServiceClient.get_transport_class("grpc")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "grpc"
+
+
+def test_initialize_client_w_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        call.return_value = tensorboard.Tensorboard()
+        client.get_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.update_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboards_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboards), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ListTensorboardsResponse()
+        client.list_tensorboards(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_usage_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_usage), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ReadTensorboardUsageResponse()
+        client.read_tensorboard_usage(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardUsageRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_size_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_size), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ReadTensorboardSizeResponse()
+        client.read_tensorboard_size(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardSizeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_experiment_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_experiment), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        client.create_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_experiment_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_experiment), "__call__"
+    ) as call:
+        call.return_value = tensorboard_experiment.TensorboardExperiment()
+        client.get_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_experiment_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_experiment), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        client.update_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_experiments_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_experiments), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
+        client.list_tensorboard_experiments(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardExperimentsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_experiment_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_experiment), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_run_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_run), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_run.TensorboardRun()
+        client.create_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_create_tensorboard_runs_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        client.batch_create_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_run_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_run), "__call__"
+    ) as call:
+        call.return_value = tensorboard_run.TensorboardRun()
+        client.get_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_run_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_run), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_run.TensorboardRun()
+        client.update_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_runs_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_runs), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ListTensorboardRunsResponse()
+        client.list_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_run_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_run), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_create_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        client.batch_create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        client.create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = tensorboard_time_series.TensorboardTimeSeries()
+        client.get_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        client.update_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
+        client.list_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_time_series_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_read_tensorboard_time_series_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        call.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        client.batch_read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_time_series_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+        client.read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_blob_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_blob_data), "__call__"
+    ) as call:
+        call.return_value = iter(
+            [tensorboard_service.ReadTensorboardBlobDataResponse()]
+        )
+        client.read_tensorboard_blob_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardBlobDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_write_tensorboard_experiment_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        client.write_tensorboard_experiment_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_write_tensorboard_run_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_run_data), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.WriteTensorboardRunDataResponse()
+        client.write_tensorboard_run_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardRunDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_export_tensorboard_time_series_data_empty_call_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.export_tensorboard_time_series_data), "__call__"
+    ) as call:
+        call.return_value = (
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
+        )
+        client.export_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_grpc_asyncio():
+    transport = TensorboardServiceAsyncClient.get_transport_class("grpc_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "grpc_asyncio"
+
+
+def test_initialize_client_w_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_tensorboard_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_tensorboard_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard.Tensorboard(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                blob_storage_path_prefix="blob_storage_path_prefix_value",
+                run_count=989,
+                etag="etag_value",
+                is_default=True,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
+            )
+        )
+        await client.get_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_tensorboard_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.update_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_tensorboards_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboards), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_tensorboards(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_tensorboard_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_read_tensorboard_usage_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_usage), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardUsageResponse()
+        )
+        await client.read_tensorboard_usage(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardUsageRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_read_tensorboard_size_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_size), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardSizeResponse(
+                storage_size_byte=1826,
+            )
+        )
+        await client.read_tensorboard_size(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardSizeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_tensorboard_experiment_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        await client.create_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_tensorboard_experiment_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        await client.get_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_tensorboard_experiment_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        await client.update_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_tensorboard_experiments_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_experiments), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardExperimentsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_tensorboard_experiments(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardExperimentsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_tensorboard_experiment_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_tensorboard_run_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        await client.create_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        await client.batch_create_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_tensorboard_run_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        await client.get_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_tensorboard_run_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        await client.update_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_tensorboard_runs_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardRunsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_tensorboard_run_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        await client.batch_create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        await client.create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        await client.get_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        await client.update_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardTimeSeriesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_tensorboard_time_series_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        await client.batch_read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_read_tensorboard_time_series_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+        )
+        await client.read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_read_tensorboard_blob_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_blob_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[tensorboard_service.ReadTensorboardBlobDataResponse()]
+        )
+        await client.read_tensorboard_blob_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardBlobDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardExperimentDataResponse()
+        )
+        await client.write_tensorboard_experiment_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_write_tensorboard_run_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_run_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardRunDataResponse()
+        )
+        await client.write_tensorboard_run_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardRunDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_export_tensorboard_time_series_data_empty_call_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.export_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.export_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_rest():
+    transport = TensorboardServiceClient.get_transport_class("rest")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "rest"
+
+
+def test_create_tensorboard_rest_bad_request(
+    request_type=tensorboard_service.CreateTensorboardRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_tensorboard(request)
+
+
 @pytest.mark.parametrize(
-    "transport_name",
+    "request_type",
     [
-        "grpc",
-        "rest",
+        tensorboard_service.CreateTensorboardRequest,
+        dict,
     ],
 )
-def test_transport_kind(transport_name):
-    transport = TensorboardServiceClient.get_transport_class(transport_name)(
-        credentials=ga_credentials.AnonymousCredentials(),
+def test_create_tensorboard_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-    assert transport.kind == transport_name
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["tensorboard"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "blob_storage_path_prefix": "blob_storage_path_prefix_value",
+        "run_count": 989,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+        "is_default": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.CreateTensorboardRequest.meta.fields["tensorboard"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["tensorboard"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard"][field])):
+                    del request_init["tensorboard"][field][i][subfield]
+            else:
+                del request_init["tensorboard"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_tensorboard(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_tensorboard_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_create_tensorboard"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.CreateTensorboardRequest.pb(
+            tensorboard_service.CreateTensorboardRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.CreateTensorboardRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_tensorboard(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_tensorboard_rest_bad_request(
+    request_type=tensorboard_service.GetTensorboardRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_tensorboard(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardRequest,
+        dict,
+    ],
+)
+def test_get_tensorboard_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard.Tensorboard(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            blob_storage_path_prefix="blob_storage_path_prefix_value",
+            run_count=989,
+            etag="etag_value",
+            is_default=True,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard.Tensorboard.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_tensorboard(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard.Tensorboard)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.blob_storage_path_prefix == "blob_storage_path_prefix_value"
+    assert response.run_count == 989
+    assert response.etag == "etag_value"
+    assert response.is_default is True
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_tensorboard_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.GetTensorboardRequest.pb(
+            tensorboard_service.GetTensorboardRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard.Tensorboard.to_json(tensorboard.Tensorboard())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.GetTensorboardRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard.Tensorboard()
+
+        client.get_tensorboard(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_tensorboard_rest_bad_request(
+    request_type=tensorboard_service.UpdateTensorboardRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_tensorboard(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardRequest,
+        dict,
+    ],
+)
+def test_update_tensorboard_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3"
+        }
+    }
+    request_init["tensorboard"] = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "blob_storage_path_prefix": "blob_storage_path_prefix_value",
+        "run_count": 989,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+        "is_default": True,
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.UpdateTensorboardRequest.meta.fields["tensorboard"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["tensorboard"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard"][field])):
+                    del request_init["tensorboard"][field][i][subfield]
+            else:
+                del request_init["tensorboard"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_tensorboard(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_tensorboard_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_update_tensorboard"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.UpdateTensorboardRequest.pb(
+            tensorboard_service.UpdateTensorboardRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.UpdateTensorboardRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.update_tensorboard(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_tensorboards_rest_bad_request(
+    request_type=tensorboard_service.ListTensorboardsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_tensorboards(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardsRequest,
+        dict,
+    ],
+)
+def test_list_tensorboards_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ListTensorboardsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ListTensorboardsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_tensorboards(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListTensorboardsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_tensorboards_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_list_tensorboards"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboards"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ListTensorboardsRequest.pb(
+            tensorboard_service.ListTensorboardsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ListTensorboardsResponse.to_json(
+            tensorboard_service.ListTensorboardsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ListTensorboardsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ListTensorboardsResponse()
+
+        client.list_tensorboards(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_tensorboard_rest_bad_request(
+    request_type=tensorboard_service.DeleteTensorboardRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_tensorboard(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardRequest,
+        dict,
+    ],
+)
+def test_delete_tensorboard_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_tensorboard(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_tensorboard_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.DeleteTensorboardRequest.pb(
+            tensorboard_service.DeleteTensorboardRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.DeleteTensorboardRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_tensorboard(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_read_tensorboard_usage_rest_bad_request(
+    request_type=tensorboard_service.ReadTensorboardUsageRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.read_tensorboard_usage(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardUsageRequest,
+        dict,
+    ],
+)
+def test_read_tensorboard_usage_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ReadTensorboardUsageResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ReadTensorboardUsageResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.read_tensorboard_usage(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_usage"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_usage"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ReadTensorboardUsageRequest.pb(
+            tensorboard_service.ReadTensorboardUsageRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ReadTensorboardUsageResponse.to_json(
+            tensorboard_service.ReadTensorboardUsageResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ReadTensorboardUsageRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ReadTensorboardUsageResponse()
+
+        client.read_tensorboard_usage(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_read_tensorboard_size_rest_bad_request(
+    request_type=tensorboard_service.ReadTensorboardSizeRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.read_tensorboard_size(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardSizeRequest,
+        dict,
+    ],
+)
+def test_read_tensorboard_size_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ReadTensorboardSizeResponse(
+            storage_size_byte=1826,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ReadTensorboardSizeResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.read_tensorboard_size(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
+    assert response.storage_size_byte == 1826
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_read_tensorboard_size_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_size"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_size"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ReadTensorboardSizeRequest.pb(
+            tensorboard_service.ReadTensorboardSizeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ReadTensorboardSizeResponse.to_json(
+            tensorboard_service.ReadTensorboardSizeResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ReadTensorboardSizeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ReadTensorboardSizeResponse()
+
+        client.read_tensorboard_size(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_tensorboard_experiment_rest_bad_request(
+    request_type=tensorboard_service.CreateTensorboardExperimentRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_tensorboard_experiment(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardExperimentRequest,
+        dict,
+    ],
+)
+def test_create_tensorboard_experiment_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request_init["tensorboard_experiment"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+        "source": "source_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.CreateTensorboardExperimentRequest.meta.fields[
+        "tensorboard_experiment"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "tensorboard_experiment"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_experiment"][field])):
+                    del request_init["tensorboard_experiment"][field][i][subfield]
+            else:
+                del request_init["tensorboard_experiment"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_experiment.TensorboardExperiment(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            source="source_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_experiment.TensorboardExperiment.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_tensorboard_experiment(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.source == "source_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_experiment",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_create_tensorboard_experiment",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.CreateTensorboardExperimentRequest.pb(
+            tensorboard_service.CreateTensorboardExperimentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
+            gca_tensorboard_experiment.TensorboardExperiment()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.CreateTensorboardExperimentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+
+        client.create_tensorboard_experiment(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_tensorboard_experiment_rest_bad_request(
+    request_type=tensorboard_service.GetTensorboardExperimentRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_tensorboard_experiment(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardExperimentRequest,
+        dict,
+    ],
+)
+def test_get_tensorboard_experiment_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_experiment.TensorboardExperiment(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            source="source_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_experiment.TensorboardExperiment.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_tensorboard_experiment(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_experiment.TensorboardExperiment)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.source == "source_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_experiment"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_experiment"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.GetTensorboardExperimentRequest.pb(
+            tensorboard_service.GetTensorboardExperimentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_experiment.TensorboardExperiment.to_json(
+            tensorboard_experiment.TensorboardExperiment()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.GetTensorboardExperimentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_experiment.TensorboardExperiment()
+
+        client.get_tensorboard_experiment(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_tensorboard_experiment_rest_bad_request(
+    request_type=tensorboard_service.UpdateTensorboardExperimentRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_experiment": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_tensorboard_experiment(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardExperimentRequest,
+        dict,
+    ],
+)
+def test_update_tensorboard_experiment_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_experiment": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+        }
+    }
+    request_init["tensorboard_experiment"] = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+        "source": "source_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.UpdateTensorboardExperimentRequest.meta.fields[
+        "tensorboard_experiment"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "tensorboard_experiment"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_experiment"][field])):
+                    del request_init["tensorboard_experiment"][field][i][subfield]
+            else:
+                del request_init["tensorboard_experiment"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_experiment.TensorboardExperiment(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            source="source_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_experiment.TensorboardExperiment.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_tensorboard_experiment(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.source == "source_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_experiment",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_update_tensorboard_experiment",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
+            tensorboard_service.UpdateTensorboardExperimentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
+            gca_tensorboard_experiment.TensorboardExperiment()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.UpdateTensorboardExperimentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+
+        client.update_tensorboard_experiment(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_tensorboard_experiments_rest_bad_request(
+    request_type=tensorboard_service.ListTensorboardExperimentsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_tensorboard_experiments(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardExperimentsRequest,
+        dict,
+    ],
+)
+def test_list_tensorboard_experiments_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2/tensorboards/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ListTensorboardExperimentsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ListTensorboardExperimentsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_tensorboard_experiments(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListTensorboardExperimentsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboard_experiments",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_experiments"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ListTensorboardExperimentsRequest.pb(
+            tensorboard_service.ListTensorboardExperimentsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ListTensorboardExperimentsResponse.to_json(
+            tensorboard_service.ListTensorboardExperimentsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ListTensorboardExperimentsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
+
+        client.list_tensorboard_experiments(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_tensorboard_experiment_rest_bad_request(
+    request_type=tensorboard_service.DeleteTensorboardExperimentRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_tensorboard_experiment(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardExperimentRequest,
+        dict,
+    ],
+)
+def test_delete_tensorboard_experiment_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_tensorboard_experiment(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_experiment",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_delete_tensorboard_experiment",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
+            tensorboard_service.DeleteTensorboardExperimentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.DeleteTensorboardExperimentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_tensorboard_experiment(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_tensorboard_run_rest_bad_request(
+    request_type=tensorboard_service.CreateTensorboardRunRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_tensorboard_run(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardRunRequest,
+        dict,
+    ],
+)
+def test_create_tensorboard_run_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request_init["tensorboard_run"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.CreateTensorboardRunRequest.meta.fields[
+        "tensorboard_run"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["tensorboard_run"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_run"][field])):
+                    del request_init["tensorboard_run"][field][i][subfield]
+            else:
+                del request_init["tensorboard_run"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_run.TensorboardRun(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_run.TensorboardRun.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_tensorboard_run(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_run.TensorboardRun)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_tensorboard_run_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_create_tensorboard_run"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard_run"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.CreateTensorboardRunRequest.pb(
+            tensorboard_service.CreateTensorboardRunRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_run.TensorboardRun.to_json(
+            gca_tensorboard_run.TensorboardRun()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.CreateTensorboardRunRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_run.TensorboardRun()
+
+        client.create_tensorboard_run(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_batch_create_tensorboard_runs_rest_bad_request(
+    request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.batch_create_tensorboard_runs(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.BatchCreateTensorboardRunsRequest,
+        dict,
+    ],
+)
+def test_batch_create_tensorboard_runs_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.batch_create_tensorboard_runs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_runs",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_batch_create_tensorboard_runs",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
+            tensorboard_service.BatchCreateTensorboardRunsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.BatchCreateTensorboardRunsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+
+        client.batch_create_tensorboard_runs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_tensorboard_run_rest_bad_request(
+    request_type=tensorboard_service.GetTensorboardRunRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_tensorboard_run(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardRunRequest,
+        dict,
+    ],
+)
+def test_get_tensorboard_run_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_run.TensorboardRun(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_run.TensorboardRun.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_tensorboard_run(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_run.TensorboardRun)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_tensorboard_run_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_run"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_run"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.GetTensorboardRunRequest.pb(
+            tensorboard_service.GetTensorboardRunRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_run.TensorboardRun.to_json(
+            tensorboard_run.TensorboardRun()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.GetTensorboardRunRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_run.TensorboardRun()
+
+        client.get_tensorboard_run(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_tensorboard_run_rest_bad_request(
+    request_type=tensorboard_service.UpdateTensorboardRunRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_run": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_tensorboard_run(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardRunRequest,
+        dict,
+    ],
+)
+def test_update_tensorboard_run_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_run": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+        }
+    }
+    request_init["tensorboard_run"] = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "etag": "etag_value",
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.UpdateTensorboardRunRequest.meta.fields[
+        "tensorboard_run"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["tensorboard_run"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_run"][field])):
+                    del request_init["tensorboard_run"][field][i][subfield]
+            else:
+                del request_init["tensorboard_run"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_run.TensorboardRun(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_run.TensorboardRun.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_tensorboard_run(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_run.TensorboardRun)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_tensorboard_run_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_update_tensorboard_run"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard_run"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.UpdateTensorboardRunRequest.pb(
+            tensorboard_service.UpdateTensorboardRunRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_run.TensorboardRun.to_json(
+            gca_tensorboard_run.TensorboardRun()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.UpdateTensorboardRunRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_run.TensorboardRun()
+
+        client.update_tensorboard_run(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_tensorboard_runs_rest_bad_request(
+    request_type=tensorboard_service.ListTensorboardRunsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_tensorboard_runs(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardRunsRequest,
+        dict,
+    ],
+)
+def test_list_tensorboard_runs_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ListTensorboardRunsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ListTensorboardRunsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_tensorboard_runs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListTensorboardRunsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_list_tensorboard_runs"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_runs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ListTensorboardRunsRequest.pb(
+            tensorboard_service.ListTensorboardRunsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ListTensorboardRunsResponse.to_json(
+            tensorboard_service.ListTensorboardRunsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ListTensorboardRunsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ListTensorboardRunsResponse()
+
+        client.list_tensorboard_runs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_tensorboard_run_rest_bad_request(
+    request_type=tensorboard_service.DeleteTensorboardRunRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_tensorboard_run(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardRunRequest,
+        dict,
+    ],
+)
+def test_delete_tensorboard_run_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_tensorboard_run(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard_run"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard_run"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.DeleteTensorboardRunRequest.pb(
+            tensorboard_service.DeleteTensorboardRunRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.DeleteTensorboardRunRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_tensorboard_run(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_batch_create_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.batch_create_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_batch_create_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.batch_create_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_time_series",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_batch_create_tensorboard_time_series",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
+                tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+
+        client.batch_create_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.CreateTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_create_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request_init["tensorboard_time_series"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "value_type": 1,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "etag": "etag_value",
+        "plugin_name": "plugin_name_value",
+        "plugin_data": b"plugin_data_blob",
+        "metadata": {
+            "max_step": 865,
+            "max_wall_time": {},
+            "max_blob_sequence_length": 2525,
+        },
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.CreateTensorboardTimeSeriesRequest.meta.fields[
+        "tensorboard_time_series"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "tensorboard_time_series"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_time_series"][field])):
+                    del request_init["tensorboard_time_series"][field][i][subfield]
+            else:
+                del request_init["tensorboard_time_series"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+            etag="etag_value",
+            plugin_name="plugin_name_value",
+            plugin_data=b"plugin_data_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert (
+        response.value_type
+        == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+    )
+    assert response.etag == "etag_value"
+    assert response.plugin_name == "plugin_name_value"
+    assert response.plugin_data == b"plugin_data_blob"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_time_series",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_create_tensorboard_time_series",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
+            gca_tensorboard_time_series.TensorboardTimeSeries()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+
+        client.create_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.GetTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_get_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_time_series.TensorboardTimeSeries(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+            etag="etag_value",
+            plugin_name="plugin_name_value",
+            plugin_data=b"plugin_data_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_time_series.TensorboardTimeSeries.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_time_series.TensorboardTimeSeries)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert (
+        response.value_type
+        == tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+    )
+    assert response.etag == "etag_value"
+    assert response.plugin_name == "plugin_name_value"
+    assert response.plugin_data == b"plugin_data_blob"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_time_series"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_time_series"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.GetTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_time_series.TensorboardTimeSeries.to_json(
+            tensorboard_time_series.TensorboardTimeSeries()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.GetTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_time_series.TensorboardTimeSeries()
+
+        client.get_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.UpdateTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_update_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": {
+            "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+        }
+    }
+    request_init["tensorboard_time_series"] = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "value_type": 1,
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "etag": "etag_value",
+        "plugin_name": "plugin_name_value",
+        "plugin_data": b"plugin_data_blob",
+        "metadata": {
+            "max_step": 865,
+            "max_wall_time": {},
+            "max_blob_sequence_length": 2525,
+        },
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = tensorboard_service.UpdateTensorboardTimeSeriesRequest.meta.fields[
+        "tensorboard_time_series"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "tensorboard_time_series"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["tensorboard_time_series"][field])):
+                    del request_init["tensorboard_time_series"][field][i][subfield]
+            else:
+                del request_init["tensorboard_time_series"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+            etag="etag_value",
+            plugin_name="plugin_name_value",
+            plugin_data=b"plugin_data_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert (
+        response.value_type
+        == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+    )
+    assert response.etag == "etag_value"
+    assert response.plugin_name == "plugin_name_value"
+    assert response.plugin_data == b"plugin_data_blob"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_time_series",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_update_tensorboard_time_series",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
+            gca_tensorboard_time_series.TensorboardTimeSeries()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+
+        client.update_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.ListTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_list_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ListTensorboardTimeSeriesResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListTensorboardTimeSeriesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboard_time_series",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_time_series"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.ListTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
+            tensorboard_service.ListTensorboardTimeSeriesResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ListTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
+
+        client.list_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_tensorboard_time_series_rest_bad_request(
+    request_type=tensorboard_service.DeleteTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_tensorboard_time_series(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardTimeSeriesRequest,
+        dict,
+    ],
+)
+def test_delete_tensorboard_time_series_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_tensorboard_time_series(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_time_series",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_delete_tensorboard_time_series",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
+            tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_tensorboard_time_series(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_batch_read_tensorboard_time_series_data_rest_bad_request(
+    request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.batch_read_tensorboard_time_series_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
+)
+def test_batch_read_tensorboard_time_series_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard": "projects/sample1/locations/sample2/tensorboards/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.pb(
+                return_value
+            )
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.batch_read_tensorboard_time_series_data(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_batch_read_tensorboard_time_series_data",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_batch_read_tensorboard_time_series_data",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
+                tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+
+        client.batch_read_tensorboard_time_series_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_read_tensorboard_time_series_data_rest_bad_request(
+    request_type=tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.read_tensorboard_time_series_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
+)
+def test_read_tensorboard_time_series_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.read_tensorboard_time_series_data(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.ReadTensorboardTimeSeriesDataResponse
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_read_tensorboard_time_series_data",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_read_tensorboard_time_series_data",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
+            tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
+                tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+
+        client.read_tensorboard_time_series_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_read_tensorboard_blob_data_rest_bad_request(
+    request_type=tensorboard_service.ReadTensorboardBlobDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.read_tensorboard_blob_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardBlobDataRequest,
+        dict,
+    ],
+)
+def test_read_tensorboard_blob_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ReadTensorboardBlobDataResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        json_return_value = "[{}]".format(json_return_value)
+        response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
+        req.return_value = response_value
+        response = client.read_tensorboard_blob_data(request)
+
+    assert isinstance(response, Iterable)
+    response = next(response)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.ReadTensorboardBlobDataResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_blob_data"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_blob_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ReadTensorboardBlobDataRequest.pb(
+            tensorboard_service.ReadTensorboardBlobDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
+            tensorboard_service.ReadTensorboardBlobDataResponse()
+        )
+        req.return_value.iter_content = mock.Mock(return_value=iter(return_value))
+
+        request = tensorboard_service.ReadTensorboardBlobDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
+
+        client.read_tensorboard_blob_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_write_tensorboard_experiment_data_rest_bad_request(
+    request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_experiment": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.write_tensorboard_experiment_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.WriteTensorboardExperimentDataRequest,
+        dict,
+    ],
+)
+def test_write_tensorboard_experiment_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_experiment": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.WriteTensorboardExperimentDataResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.write_tensorboard_experiment_data(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.WriteTensorboardExperimentDataResponse
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_write_tensorboard_experiment_data",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_write_tensorboard_experiment_data",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
+            tensorboard_service.WriteTensorboardExperimentDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
+                tensorboard_service.WriteTensorboardExperimentDataResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.WriteTensorboardExperimentDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+
+        client.write_tensorboard_experiment_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_write_tensorboard_run_data_rest_bad_request(
+    request_type=tensorboard_service.WriteTensorboardRunDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_run": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.write_tensorboard_run_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.WriteTensorboardRunDataRequest,
+        dict,
+    ],
+)
+def test_write_tensorboard_run_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_run": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.WriteTensorboardRunDataResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.WriteTensorboardRunDataResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.write_tensorboard_run_data(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "post_write_tensorboard_run_data"
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor, "pre_write_tensorboard_run_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.WriteTensorboardRunDataRequest.pb(
+            tensorboard_service.WriteTensorboardRunDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = tensorboard_service.WriteTensorboardRunDataResponse.to_json(
+            tensorboard_service.WriteTensorboardRunDataResponse()
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.WriteTensorboardRunDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = tensorboard_service.WriteTensorboardRunDataResponse()
+
+        client.write_tensorboard_run_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_export_tensorboard_time_series_data_rest_bad_request(
+    request_type=tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.export_tensorboard_time_series_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
+)
+def test_export_tensorboard_time_series_data_rest_call_success(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "tensorboard_time_series": "projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = tensorboard_service.ExportTensorboardTimeSeriesDataResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.export_tensorboard_time_series_data(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor):
+    transport = transports.TensorboardServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.TensorboardServiceRestInterceptor(),
+    )
+    client = TensorboardServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_export_tensorboard_time_series_data",
+    ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "pre_export_tensorboard_time_series_data",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
+            tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = (
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
+                tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
+            )
+        )
+        req.return_value.content = return_value
+
+        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = (
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
+        )
+
+        client.export_tensorboard_time_series_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard), "__call__"
+    ) as call:
+        client.create_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        client.get_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard), "__call__"
+    ) as call:
+        client.update_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboards_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboards), "__call__"
+    ) as call:
+        client.list_tensorboards(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard), "__call__"
+    ) as call:
+        client.delete_tensorboard(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_usage_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_usage), "__call__"
+    ) as call:
+        client.read_tensorboard_usage(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardUsageRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_size_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_size), "__call__"
+    ) as call:
+        client.read_tensorboard_size(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardSizeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_experiment_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_experiment), "__call__"
+    ) as call:
+        client.create_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_experiment_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_experiment), "__call__"
+    ) as call:
+        client.get_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_experiment_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_experiment), "__call__"
+    ) as call:
+        client.update_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_experiments_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_experiments), "__call__"
+    ) as call:
+        client.list_tensorboard_experiments(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardExperimentsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_experiment_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_experiment), "__call__"
+    ) as call:
+        client.delete_tensorboard_experiment(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardExperimentRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_run_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_run), "__call__"
+    ) as call:
+        client.create_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_create_tensorboard_runs_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_run_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_run), "__call__"
+    ) as call:
+        client.get_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_run_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_run), "__call__"
+    ) as call:
+        client.update_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_runs_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_runs), "__call__"
+    ) as call:
+        client.list_tensorboard_runs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardRunsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_run_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_run), "__call__"
+    ) as call:
+        client.delete_tensorboard_run(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardRunRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_create_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_time_series), "__call__"
+    ) as call:
+        client.create_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_time_series), "__call__"
+    ) as call:
+        client.get_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.GetTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_time_series), "__call__"
+    ) as call:
+        client.update_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_time_series), "__call__"
+    ) as call:
+        client.list_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ListTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_tensorboard_time_series_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_time_series), "__call__"
+    ) as call:
+        client.delete_tensorboard_time_series(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_batch_read_tensorboard_time_series_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.batch_read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_time_series_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.read_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_read_tensorboard_blob_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_blob_data), "__call__"
+    ) as call:
+        client.read_tensorboard_blob_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ReadTensorboardBlobDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_write_tensorboard_experiment_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        client.write_tensorboard_experiment_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_write_tensorboard_run_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_run_data), "__call__"
+    ) as call:
+        client.write_tensorboard_run_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.WriteTensorboardRunDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_export_tensorboard_time_series_data_empty_call_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.export_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.export_tensorboard_time_series_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+
+        assert args[0] == request_msg
+
+
+def test_tensorboard_service_rest_lro_client():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
 
 
 def test_transport_grpc_default():
@@ -25775,23 +27062,6 @@ def test_tensorboard_service_http_transport_client_cert_source_for_mtls():
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
-
-
-def test_tensorboard_service_rest_lro_client():
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.AbstractOperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
 
 
 @pytest.mark.parametrize(
@@ -26365,607 +27635,6 @@ def test_client_with_default_client_info():
         prep.assert_called_once_with(client_info)
 
 
-@pytest.mark.asyncio
-async def test_transport_close_async():
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    with mock.patch.object(
-        type(getattr(client.transport, "grpc_channel")), "close"
-    ) as close:
-        async with client:
-            close.assert_not_called()
-        close.assert_called_once()
-
-
-def test_get_location_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_location(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
-def test_get_location_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.Location()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_location(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.Location)
-
-
-def test_list_locations_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_locations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
-def test_list_locations_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.ListLocationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_locations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.ListLocationsResponse)
-
-
-def test_get_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_get_iam_policy_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_set_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.set_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_set_iam_policy_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.set_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_test_iam_permissions_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.test_iam_permissions(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
-def test_test_iam_permissions_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = iam_policy_pb2.TestIamPermissionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.test_iam_permissions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
-
-
-def test_cancel_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.cancel_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
-def test_cancel_operation_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.cancel_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_delete_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
-def test_delete_operation_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.delete_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_get_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
-def test_get_operation_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
-def test_list_operations_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_operations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
-def test_list_operations_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.ListOperationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_operations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.ListOperationsResponse)
-
-
-def test_wait_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
-):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.wait_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
-def test_wait_operation_rest(request_type):
-    client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.wait_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
 def test_delete_operation(transport: str = "grpc"):
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -26993,7 +27662,7 @@ def test_delete_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27046,7 +27715,7 @@ def test_delete_operation_field_headers():
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27091,7 +27760,7 @@ def test_delete_operation_from_dict():
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
@@ -27132,7 +27801,7 @@ def test_cancel_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27185,7 +27854,7 @@ def test_cancel_operation_field_headers():
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27230,7 +27899,7 @@ def test_cancel_operation_from_dict():
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
@@ -27271,7 +27940,7 @@ def test_wait_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27326,7 +27995,7 @@ def test_wait_operation_field_headers():
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27373,7 +28042,7 @@ def test_wait_operation_from_dict():
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
@@ -27416,7 +28085,7 @@ def test_get_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27471,7 +28140,7 @@ def test_get_operation_field_headers():
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27518,7 +28187,7 @@ def test_get_operation_from_dict():
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
@@ -27561,7 +28230,7 @@ def test_list_operations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27616,7 +28285,7 @@ def test_list_operations_field_headers():
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27663,7 +28332,7 @@ def test_list_operations_from_dict():
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
@@ -27706,7 +28375,7 @@ def test_list_locations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27761,7 +28430,7 @@ def test_list_locations_field_headers():
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -27808,7 +28477,7 @@ def test_list_locations_from_dict():
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -27851,7 +28520,7 @@ def test_get_location(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -27903,9 +28572,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+    client = TensorboardServiceAsyncClient(credentials=async_anonymous_credentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -27951,7 +28618,7 @@ def test_get_location_from_dict():
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -28002,7 +28669,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28067,7 +28734,7 @@ def test_set_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28115,7 +28782,7 @@ def test_set_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
@@ -28168,7 +28835,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28234,7 +28901,7 @@ def test_get_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28282,7 +28949,7 @@ def test_get_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
@@ -28334,7 +29001,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -28401,7 +29068,7 @@ def test_test_iam_permissions_field_headers():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -28455,7 +29122,7 @@ def test_test_iam_permissions_from_dict():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -28475,22 +29142,41 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
-def test_transport_close():
-    transports = {
-        "rest": "_session",
-        "grpc": "_grpc_channel",
-    }
+def test_transport_close_grpc():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
-    for transport, close_name in transports.items():
-        client = TensorboardServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
-        )
-        with mock.patch.object(
-            type(getattr(client.transport, close_name)), "close"
-        ) as close:
-            with client:
-                close.assert_not_called()
-            close.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_transport_close_grpc_asyncio():
+    client = TensorboardServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close_rest():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
 
 def test_client_ctx():
