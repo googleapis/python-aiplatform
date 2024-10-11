@@ -74,7 +74,7 @@ class TuningJob(proto.Message):
             This field is a member of `oneof`_ ``tuning_spec``.
         partner_model_tuning_spec (google.cloud.aiplatform_v1beta1.types.PartnerModelTuningSpec):
             Tuning Spec for open sourced and third party
-            Partner models.
+            partner models.
 
             This field is a member of `oneof`_ ``tuning_spec``.
         name (str):
